@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "useDefineForClassFields": true,
+    "downlevelIteration": true,
+    "target": "es5",
+    "lib": ["ESNext"]
+  },
+  "include": ["*.ts", "src"]
+}

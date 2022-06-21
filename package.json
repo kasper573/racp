@@ -1,0 +1,31 @@
+{
+  "name": "deckforge",
+  "version": "0.0.1",
+  "description": "Deck builder",
+  "main": "index.js",
+  "license": "UNLICENSED",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint . & prettier . --check",
+    "lint:fix": "eslint . --fix & prettier . --write",
+    "start": "ts-node src/store.ts"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.5.1",
+    "@types/pluralize": "^0.0.29",
+    "@types/uuid": "^8.3.4",
+    "@typescript-eslint/eslint-plugin": "^5.26.0",
+    "@typescript-eslint/parser": "^5.26.0",
+    "eslint": "^8.16.0",
+    "eslint-plugin-import": "^2.26.0",
+    "jest": "^28.1.0",
+    "prettier": "^2.6.2",
+    "ts-jest": "^28.0.3",
+    "ts-node": "^10.8.0",
+    "typescript": "^4.7.2"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^1.8.2",
+    "uuid": "^8.3.2"
+  }
+}

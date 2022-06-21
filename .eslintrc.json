@@ -1,0 +1,7 @@
+{
+  "root": true,
+  "plugins": ["@typescript-eslint", "import"],
+  "rules": { "import/order": ["error"] },
+  "parser": "@typescript-eslint/parser",
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"]
+}
