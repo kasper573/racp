@@ -1,12 +1,15 @@
 import * as path from "path";
 import * as webpack from "webpack";
 import ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
+import ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 import HtmlWebpackPlugin = require("html-webpack-plugin");
 import "webpack-dev-server";
 import { defined } from "./src/utils/defined";
 
 const NODE_ENV = process.env.NODE_ENV ?? "development";
 const isRefreshEnabled = Boolean(process.env.REACT_REFRESH ?? "false");
+const isDevBuild = NODE_ENV === "development";
+const webpackMode = NODE_ENV === "production" ? "production" : "development";
 
 const config: webpack.Configuration = {
   entry: path.resolve(__dirname, "src", "index.tsx"),
@@ -14,11 +17,12 @@ const config: webpack.Configuration = {
     path: path.resolve(__dirname, "./dist"),
     filename: "bundle.js",
   },
-  mode: NODE_ENV === "production" ? "production" : "development",
+  mode: webpackMode,
   plugins: defined([
     new webpack.EnvironmentPlugin({ NODE_ENV }),
     new HtmlWebpackPlugin(),
-    Boolean(isRefreshEnabled) && new ReactRefreshWebpackPlugin(),
+    isDevBuild && new ForkTsCheckerWebpackPlugin(),
+    isRefreshEnabled && new ReactRefreshWebpackPlugin(),
   ]),
   module: {
     rules: [
