@@ -12,7 +12,7 @@ const isDevBuild = NODE_ENV === "development";
 const webpackMode = NODE_ENV === "production" ? "production" : "development";
 
 const config: webpack.Configuration = {
-  entry: path.resolve(__dirname, "src", "index.tsx"),
+  entry: path.resolve(__dirname, "src", "app", "index.tsx"),
   output: {
     path: path.resolve(__dirname, "./dist"),
     filename: "bundle.js",
