@@ -1,7 +1,6 @@
 import * as http from "http";
 import * as path from "path";
 import * as express from "express";
-import * as morgan from "morgan";
 import cors = require("cors");
 import expressBasicAuth = require("express-basic-auth");
 import { createRpcMiddleware } from "../utils/rpc/createRpcMiddleware";
@@ -22,7 +21,6 @@ const database: string[] = [];
 const app = express();
 const authHandler = users ? expressBasicAuth({ users }) : undefined;
 
-app.use(morgan("combined"));
 app.use(cors());
 app.use(
   createRpcMiddleware(
