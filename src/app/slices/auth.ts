@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { AppState } from "../store";
 import { client } from "../client";
-import { PublicUser } from "../../api/service.definition";
+import { PublicUser } from "../../api/services/auth.definition";
 
 const initialState = {} as AuthState;
 
