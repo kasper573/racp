@@ -1,13 +1,5 @@
 import * as zod from "zod";
 import { createRpcDefinitions } from "../utils/rpc/createRpcDefinitions";
-import { createResultType } from "../utils/createResultType";
-
-const credentials = zod.object({
-  username: zod.string(),
-  password: zod.string(),
-});
-
-const authResult = createResultType(zod.object({ token: zod.string() }));
 
 export const serviceDefinition = createRpcDefinitions({
   list: {
@@ -27,8 +19,11 @@ export const serviceDefinition = createRpcDefinitions({
     intent: "mutation",
   },
   login: {
-    argument: credentials,
-    result: authResult,
+    argument: zod.object({
+      username: zod.string(),
+      password: zod.string(),
+    }),
+    result: zod.object({ token: zod.string() }),
     intent: "mutation",
   },
 });
