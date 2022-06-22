@@ -1,8 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { AppState } from "../store";
 import { client } from "../client";
+import { PublicUser } from "../../api/service.definition";
 
-const initialState: AuthState = {};
+const initialState = {} as AuthState;
 
 export const auth = createSlice({
   name: "auth",
@@ -10,6 +11,7 @@ export const auth = createSlice({
   reducers: {
     logout(state) {
       delete state.token;
+      delete state.user;
     },
   },
   extraReducers: (builder) =>
@@ -18,6 +20,7 @@ export const auth = createSlice({
       (state, { payload }) => {
         if ("token" in payload) {
           state.token = payload.token;
+          state.user = payload.user;
         }
       }
     ),
@@ -28,4 +31,5 @@ export const selectIsAuthenticated = (state: AppState) =>
 
 interface AuthState {
   token?: string;
+  user?: PublicUser;
 }

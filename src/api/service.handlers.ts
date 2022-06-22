@@ -1,6 +1,6 @@
 import { createRpcHandlers } from "../utils/rpc/createRpcHandlers";
 import { RpcException } from "../utils/rpc/RpcException";
-import { serviceDefinition } from "./service.definition";
+import { serviceDefinition, User } from "./service.definition";
 import { Authenticator } from "./authenticator";
 
 export function createServiceHandlers(
@@ -36,13 +36,7 @@ export function createServiceHandlers(
       if (!user) {
         throw new RpcException("Invalid credentials");
       }
-      return { token: auth.sign(user.id) };
+      return { token: auth.sign(user.id), user };
     },
   });
-}
-
-export interface User {
-  id: string;
-  username: string;
-  passwordHash: string;
 }

@@ -6,8 +6,8 @@ import {
   useLoginMutation,
   useRemoveMutation,
 } from "./client";
-import { useAppSelector } from "./store";
-import { selectIsAuthenticated } from "./slices/auth";
+import { useAppDispatch, useAppSelector } from "./store";
+import { auth, selectIsAuthenticated } from "./slices/auth";
 
 export function App() {
   const [search, setSearch] = useState("");
@@ -50,8 +50,19 @@ export function App() {
         />
         <button type="submit">Add</button>
       </form>
-      {!isAuthenticated && <LoginForm />}
+      {isAuthenticated ? <UserInfo /> : <LoginForm />}
     </div>
+  );
+}
+
+function UserInfo() {
+  const username = useAppSelector((state) => state.auth.user?.username);
+  const dispatch = useAppDispatch();
+  return (
+    <>
+      <p>Signed in as {username}</p>
+      <button onClick={() => dispatch(auth.actions.logout())}>Sign out</button>
+    </>
   );
 }
 
