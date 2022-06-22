@@ -1,5 +1,5 @@
 import * as zod from "zod";
-import { createRpcDefinitions } from "../../utils/rpc/createRpcDefinitions";
+import { createRpcDefinition } from "../../utils/rpc/createRpcDefinition";
 
 export type User = zod.infer<typeof user>;
 
@@ -13,7 +13,7 @@ export type PublicUser = zod.infer<typeof publicUser>;
 
 const publicUser = user.omit({ passwordHash: true });
 
-export const authDefinition = createRpcDefinitions((builder) =>
+export const authDefinition = createRpcDefinition((builder) =>
   builder.mutation(
     "login",
     zod.object({

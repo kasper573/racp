@@ -26,8 +26,8 @@ const items: string[] = ["Initial"];
 
 app.use(auth.middleware);
 app.use(cors());
-app.use(rpc(todoDefinition, createTodoHandlers(items)));
-app.use(rpc(authDefinition, createAuthHandlers(users, auth)));
+app.use(rpc(todoDefinition.entries, createTodoHandlers(items)));
+app.use(rpc(authDefinition.entries, createAuthHandlers(users, auth)));
 
 http.createServer(app).listen(port, () => {
   console.log(`API is running on port ${port}`);

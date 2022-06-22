@@ -2,7 +2,7 @@ import { createRpcHandlers } from "../../utils/rpc/createRpcHandlers";
 import { todoDefinition } from "./todo.definition";
 
 export function createTodoHandlers(items: string[]) {
-  return createRpcHandlers(todoDefinition, {
+  return createRpcHandlers(todoDefinition.entries, {
     list(query) {
       return query?.trim() === ""
         ? items

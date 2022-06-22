@@ -1,7 +1,7 @@
 import * as zod from "zod";
-import { createRpcDefinitions } from "../../utils/rpc/createRpcDefinitions";
+import { createRpcDefinition } from "../../utils/rpc/createRpcDefinition";
 
-export const todoDefinition = createRpcDefinitions((builder) =>
+export const todoDefinition = createRpcDefinition((builder) =>
   builder
     .query("list", zod.string().optional(), zod.array(zod.string()))
     .mutation("add", zod.string(), zod.void(), { auth: true })

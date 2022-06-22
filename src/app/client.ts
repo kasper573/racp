@@ -16,8 +16,8 @@ export const client = createApi({
     },
   }),
   endpoints: (builder) => ({
-    ...createRpcEndpoints(builder, todoDefinition),
-    ...createRpcEndpoints(builder, authDefinition),
+    ...createRpcEndpoints(builder, todoDefinition.entries),
+    ...createRpcEndpoints(builder, authDefinition.entries),
   }),
 });
 

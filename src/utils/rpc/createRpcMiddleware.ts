@@ -1,7 +1,10 @@
 import { Router, Request, RequestHandler } from "express";
 import * as bodyParser from "body-parser";
 import { typedKeys } from "../typedKeys";
-import { RpcDefinition, RpcDefinitions } from "./createRpcDefinitions";
+import {
+  RpcDefinitionEntry,
+  RpcDefinitionEntries,
+} from "./createRpcDefinition";
 import { RpcHandler, RpcHandlers } from "./createRpcHandlers";
 import { createEndpointUrl } from "./createRpcEndpoints";
 import { RpcException } from "./RpcException";
@@ -10,22 +13,22 @@ export function createRpcMiddlewareFactory(
   isAuthenticated: (req: Request) => boolean
 ) {
   function factory<
-    Definitions extends RpcDefinitions,
-    Handlers extends RpcHandlers<Definitions>
-  >(definitions: Definitions, handlers: Handlers): RequestHandler {
+    Entries extends RpcDefinitionEntries,
+    Handlers extends RpcHandlers<Entries>
+  >(entries: Entries, handlers: Handlers): RequestHandler {
     const router = Router();
     router.use(bodyParser.text({ type: "*/*" }));
-    for (const endpointName of typedKeys(definitions)) {
-      const definition = definitions[endpointName];
-      const handler = handlers[endpointName] as RpcHandler<typeof definition>;
-      registerRoute(String(endpointName), definition, handler);
+    for (const endpointName of typedKeys(entries)) {
+      const entry = entries[endpointName];
+      const handler = handlers[endpointName] as RpcHandler<typeof entry>;
+      registerRoute(String(endpointName), entry, handler);
     }
     return router;
 
-    function registerRoute<Definition extends RpcDefinition>(
+    function registerRoute<Entry extends RpcDefinitionEntry>(
       endpointName: string,
-      definition: Definition,
-      handler: RpcHandler<Definition>
+      entry: Entry,
+      handler: RpcHandler<Entry>
     ) {
       function log(...args: unknown[]) {
         console.log(`[RPC] [${String(endpointName)}] `, ...args);
@@ -35,7 +38,7 @@ export function createRpcMiddlewareFactory(
         `/${createEndpointUrl(endpointName)}`,
         // Authentication funnel
         (req, res, next) => {
-          if (definition.auth && !isAuthenticated(req)) {
+          if (entry.auth && !isAuthenticated(req)) {
             log("Permission denied");
             return res.sendStatus(401);
           }
@@ -51,7 +54,7 @@ export function createRpcMiddlewareFactory(
             return response.sendStatus(httpStatus.badRequest);
           }
 
-          const argument = definition.argument.safeParse(parsedBody);
+          const argument = entry.argument.safeParse(parsedBody);
           if (!argument.success) {
             log(`Invalid argument type, ${argument.error.message}`);
             return response.sendStatus(httpStatus.badRequest);
@@ -71,11 +74,11 @@ export function createRpcMiddlewareFactory(
             return response.sendStatus(httpStatus.internalServerError);
           }
 
-          const result = definition.result.safeParse(handlerResult);
+          const result = entry.result.safeParse(handlerResult);
           if (!result.success) {
             log("Return value had wrong data type", {
               result,
-              expected: definition.result,
+              expected: entry.result,
             });
             return response.sendStatus(httpStatus.internalServerError);
           }

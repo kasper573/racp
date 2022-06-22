@@ -1,16 +1,19 @@
-import { RpcDefinition, RpcDefinitions } from "./createRpcDefinitions";
+import {
+  RpcDefinitionEntry,
+  RpcDefinitionEntries,
+} from "./createRpcDefinition";
 
-export function createRpcHandlers<Definitions extends RpcDefinitions>(
-  definitions: Definitions,
-  handlers: RpcHandlers<Definitions>
+export function createRpcHandlers<Entries extends RpcDefinitionEntries>(
+  entries: Entries,
+  handlers: RpcHandlers<Entries>
 ) {
   return handlers;
 }
 
-export type RpcHandlers<Definitions extends RpcDefinitions> = {
-  [K in keyof Definitions]: RpcHandler<Definitions[K]>;
+export type RpcHandlers<Entries extends RpcDefinitionEntries> = {
+  [K in keyof Entries]: RpcHandler<Entries[K]>;
 };
 
-export type RpcHandler<Definition extends RpcDefinition> = (
-  argument: Definition["argument"]["_type"]
-) => Definition["result"]["_type"];
+export type RpcHandler<Entry extends RpcDefinitionEntry> = (
+  argument: Entry["argument"]["_type"]
+) => Entry["result"]["_type"];

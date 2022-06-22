@@ -4,7 +4,7 @@ import { Authenticator } from "../authenticator";
 import { authDefinition, User } from "./auth.definition";
 
 export function createAuthHandlers(users: User[], auth: Authenticator) {
-  return createRpcHandlers(authDefinition, {
+  return createRpcHandlers(authDefinition.entries, {
     login({ username, password }) {
       const user = users.find(
         (candidate) =>

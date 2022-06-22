@@ -6,18 +6,21 @@ import {
 } from "@reduxjs/toolkit/dist/query/endpointDefinitions";
 import { ResponseHandler } from "@reduxjs/toolkit/dist/query/fetchBaseQuery";
 import { typedKeys } from "../typedKeys";
-import { RpcDefinition, RpcDefinitions } from "./createRpcDefinitions";
+import {
+  RpcDefinitionEntry,
+  RpcDefinitionEntries,
+} from "./createRpcDefinition";
 
 export function createRpcEndpoints<
   BaseQuery extends BaseQueryFn<FetchArgs>,
   TagTypes extends string,
   ReducerPath extends string,
-  Definitions extends RpcDefinitions
+  Entries extends RpcDefinitionEntries
 >(
   builder: EndpointBuilder<BaseQuery, TagTypes, ReducerPath>,
-  definitions: Definitions
+  entries: Entries
 ) {
-  type RPCEndpoint<T extends RpcDefinition> = {
+  type RPCEndpoint<T extends RpcDefinitionEntry> = {
     query: QueryDefinition<
       T["argument"]["_type"],
       BaseQuery,
@@ -35,10 +38,10 @@ export function createRpcEndpoints<
   }[T["intent"]];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const endpoints = {} as Record<keyof Definitions, RPCEndpoint<any>>;
+  const endpoints = {} as Record<keyof Entries, RPCEndpoint<any>>;
 
-  for (const endpointName of typedKeys(definitions)) {
-    const { intent } = definitions[endpointName];
+  for (const endpointName of typedKeys(entries)) {
+    const { intent } = entries[endpointName];
 
     endpoints[endpointName] = builder[intent](
       {
@@ -57,7 +60,7 @@ export function createRpcEndpoints<
   }
 
   return endpoints as {
-    [K in keyof Definitions]: RPCEndpoint<Definitions[K]>;
+    [K in keyof Entries]: RPCEndpoint<Entries[K]>;
   };
 }
 
