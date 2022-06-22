@@ -11,10 +11,8 @@ export type RpcIntent = "mutation" | "query";
 export type RpcDefinitions = Record<string, RpcDefinition>;
 
 export interface RpcDefinition<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Argument extends ZodType = any,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Result extends ZodType = any,
+  Argument extends ZodType = ZodType,
+  Result extends ZodType = ZodType,
   Intent extends RpcIntent = RpcIntent
 > {
   argument: Argument;

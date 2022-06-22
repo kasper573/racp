@@ -1,5 +1,6 @@
 import * as jwt from "jsonwebtoken";
 import { createRpcHandlers } from "../utils/rpc/createRpcHandlers";
+import { RpcException } from "../utils/rpc/RpcException";
 import { serviceDefinition } from "./service.definition";
 
 export function createServiceHandlers(db: string[], jwtSecret: string) {
@@ -27,7 +28,7 @@ export function createServiceHandlers(db: string[], jwtSecret: string) {
         const token = jwt.sign(creds, jwtSecret, { expiresIn: 129600 });
         return { token };
       }
-      throw new Error("Invalid credentials");
+      throw new RpcException("Invalid credentials");
     },
   });
 }

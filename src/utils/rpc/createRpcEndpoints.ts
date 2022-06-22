@@ -64,4 +64,6 @@ export function createRpcEndpoints<
 export const createEndpointUrl = String;
 
 const responseHandler: ResponseHandler = async (res) =>
-  res.status === 200 ? res.json() : { error: res.statusText };
+  res.status === 200
+    ? res.json()
+    : { error: (await res.text()) || res.statusText };

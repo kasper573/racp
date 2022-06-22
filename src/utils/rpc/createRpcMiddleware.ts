@@ -1,9 +1,15 @@
 import { Router, Request, RequestHandler } from "express";
 import * as bodyParser from "body-parser";
+import { ZodType } from "zod";
 import { typedKeys } from "../typedKeys";
-import { RpcDefinitions } from "./createRpcDefinitions";
-import { RpcHandlers } from "./createRpcHandlers";
+import {
+  RpcDefinition,
+  RpcDefinitions,
+  RpcIntent,
+} from "./createRpcDefinitions";
+import { RpcHandler, RpcHandlers } from "./createRpcHandlers";
 import { createEndpointUrl } from "./createRpcEndpoints";
+import { RpcException } from "./RpcException";
 
 export function createRpcMiddleware<
   Definitions extends RpcDefinitions,
@@ -15,10 +21,23 @@ export function createRpcMiddleware<
 ): RequestHandler {
   const router = Router();
   router.use(bodyParser.text({ type: "*/*" }));
-  typedKeys(definitions).forEach((endpointName) => {
+  for (const endpointName of typedKeys(definitions)) {
     const definition = definitions[endpointName];
-    const handler = handlers[endpointName];
+    const handler = handlers[endpointName] as RpcHandler<typeof definition>;
+    registerRoute(String(endpointName), definition, handler);
+  }
+  return router;
 
+  function registerRoute<
+    Definition extends RpcDefinition<Argument, Result, Intent>,
+    Argument extends ZodType,
+    Result extends ZodType,
+    Intent extends RpcIntent
+  >(
+    endpointName: string,
+    definition: Definition,
+    handler: RpcHandler<Definition>
+  ) {
     function log(...args: unknown[]) {
       console.log(`[RPC] [${String(endpointName)}] `, ...args);
     }
@@ -49,17 +68,23 @@ export function createRpcMiddleware<
           return response.sendStatus(httpStatus.badRequest);
         }
 
-        let handlerResult: unknown;
+        let handlerResult: ReturnType<typeof handler>;
         try {
           handlerResult = handler(argument.data);
         } catch (e) {
-          log(`Error executing handler`, e);
+          if (e instanceof RpcException) {
+            log(`Handler exited due to a known exception: ${e.message} `);
+            return response
+              .status(httpStatus.internalServerError)
+              .send(e.message);
+          }
+          log(`Unexpected error while expecting handler`, e);
           return response.sendStatus(httpStatus.internalServerError);
         }
 
         const result = definition.result.safeParse(handlerResult);
         if (!result.success) {
-          log("Return value has wrong data type", {
+          log("Return value had wrong data type", {
             result,
             expected: definition.result,
           });
@@ -68,8 +93,7 @@ export function createRpcMiddleware<
         response.json(result.data);
       }
     );
-  });
-  return router;
+  }
 }
 
 const httpStatus = {
