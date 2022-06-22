@@ -1,12 +1,7 @@
 import { Router, Request, RequestHandler } from "express";
 import * as bodyParser from "body-parser";
-import { ZodType } from "zod";
 import { typedKeys } from "../typedKeys";
-import {
-  RpcDefinition,
-  RpcDefinitions,
-  RpcIntent,
-} from "./createRpcDefinitions";
+import { RpcDefinition, RpcDefinitions } from "./createRpcDefinitions";
 import { RpcHandler, RpcHandlers } from "./createRpcHandlers";
 import { createEndpointUrl } from "./createRpcEndpoints";
 import { RpcException } from "./RpcException";
@@ -27,12 +22,7 @@ export function createRpcMiddlewareFactory(
     }
     return router;
 
-    function registerRoute<
-      Definition extends RpcDefinition<Argument, Result, Intent>,
-      Argument extends ZodType,
-      Result extends ZodType,
-      Intent extends RpcIntent
-    >(
+    function registerRoute<Definition extends RpcDefinition>(
       endpointName: string,
       definition: Definition,
       handler: RpcHandler<Definition>

@@ -1,21 +1,9 @@
 import * as zod from "zod";
 import { createRpcDefinitions } from "../../utils/rpc/createRpcDefinitions";
 
-export const todoDefinition = createRpcDefinitions({
-  list: {
-    argument: zod.string().optional(),
-    result: zod.array(zod.string()),
-    intent: "query",
-  },
-  add: {
-    argument: zod.string(),
-    result: zod.void(),
-    intent: "mutation",
-    auth: true,
-  },
-  remove: {
-    argument: zod.string(),
-    result: zod.boolean(),
-    intent: "mutation",
-  },
-});
+export const todoDefinition = createRpcDefinitions((builder) =>
+  builder
+    .query("list", zod.string().optional(), zod.array(zod.string()))
+    .mutation("add", zod.string(), zod.void(), { auth: true })
+    .mutation("remove", zod.string(), zod.boolean())
+);
