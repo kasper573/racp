@@ -7,12 +7,19 @@ export const client = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.app_apiBaseUrl,
     prepareHeaders: (headers, { getState }) => {
-      const { username, password } = (getState() as AppState).auth.credentials;
-      headers.set("Authorization", `Basic ${btoa(`${username}:${password}`)}`);
+      const { token } = (getState() as AppState).auth;
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
       return headers;
     },
   }),
   endpoints: (builder) => createRpcEndpoints(builder, serviceDefinition),
 });
 
-export const { useListQuery, useAddMutation, useRemoveMutation } = client;
+export const {
+  useListQuery,
+  useAddMutation,
+  useRemoveMutation,
+  useLoginMutation,
+} = client;

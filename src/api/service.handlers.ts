@@ -1,7 +1,8 @@
+import * as jwt from "jsonwebtoken";
 import { createRpcHandlers } from "../utils/rpc/createRpcHandlers";
 import { serviceDefinition } from "./service.definition";
 
-export function createServiceHandlers(db: string[]) {
+export function createServiceHandlers(db: string[], jwtSecret: string) {
   return createRpcHandlers(serviceDefinition, {
     list(query) {
       return query?.trim() === ""
@@ -20,6 +21,13 @@ export function createServiceHandlers(db: string[]) {
         return true;
       }
       return false;
+    },
+    login(creds) {
+      if (creds.username === "admin" && creds.password === "admin") {
+        const token = jwt.sign(creds, jwtSecret, { expiresIn: 129600 });
+        return { token };
+      }
+      throw new Error("Invalid credentials");
     },
   });
 }

@@ -1,14 +1,15 @@
-import { BaseQueryFn } from "@reduxjs/toolkit/query";
+import { BaseQueryFn, FetchArgs } from "@reduxjs/toolkit/query";
 import {
   EndpointBuilder,
   MutationDefinition,
   QueryDefinition,
 } from "@reduxjs/toolkit/dist/query/endpointDefinitions";
+import { ResponseHandler } from "@reduxjs/toolkit/dist/query/fetchBaseQuery";
 import { typedKeys } from "../typedKeys";
 import { RpcDefinition, RpcDefinitions } from "./createRpcDefinitions";
 
 export function createRpcEndpoints<
-  BaseQuery extends BaseQueryFn<RpcQueryArgs>,
+  BaseQuery extends BaseQueryFn<FetchArgs>,
   TagTypes extends string,
   ReducerPath extends string,
   Definitions extends RpcDefinitions
@@ -42,10 +43,11 @@ export function createRpcEndpoints<
     endpoints[endpointName] = builder[intent](
       {
         query: (arg: unknown) => {
-          const args: RpcQueryArgs = {
+          const args: FetchArgs = {
             url: createEndpointUrl(endpointName),
             method: "post",
             body: JSON.stringify(arg),
+            responseHandler,
           };
           return args;
         },
@@ -61,6 +63,5 @@ export function createRpcEndpoints<
 
 export const createEndpointUrl = String;
 
-export interface RpcQueryArgs extends RequestInit {
-  url: string;
-}
+const responseHandler: ResponseHandler = async (res) =>
+  res.status === 200 ? res.json() : { error: res.statusText };

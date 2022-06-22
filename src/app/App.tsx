@@ -1,18 +1,21 @@
 import { FormEvent, useState } from "react";
-import { useAddMutation, useListQuery, useRemoveMutation } from "./client";
-import { useAppDispatch, useAppSelector } from "./store";
-import { auth } from "./slices/auth";
+import { getErrorMessage } from "../utils/getErrorMessage";
+import {
+  useAddMutation,
+  useListQuery,
+  useLoginMutation,
+  useRemoveMutation,
+} from "./client";
+import { useAppSelector } from "./store";
+import { selectIsAuthenticated } from "./slices/auth";
 
 export function App() {
   const [search, setSearch] = useState("");
   const [input, setInput] = useState("");
-  const { username, password } = useAppSelector(
-    (state) => state.auth.credentials
-  );
-  const dispatch = useAppDispatch();
-  const { data } = useListQuery(search);
-  const [add] = useAddMutation();
-  const [remove] = useRemoveMutation();
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const { data, error } = useListQuery(search);
+  const [add, { error: addError }] = useAddMutation();
+  const [remove, { error: removeError }] = useRemoveMutation();
 
   function submit(e: FormEvent) {
     e.preventDefault();
@@ -27,6 +30,9 @@ export function App() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
+      {getErrorMessage(error)}
+      {getErrorMessage(addError)}
+      {getErrorMessage(removeError)}
       <ul>
         {data?.map((item, index) => (
           <li key={index} onClick={() => remove(item)}>
@@ -41,19 +47,35 @@ export function App() {
           onChange={(e) => setInput(e.target.value)}
         />
       </form>
+      {!isAuthenticated && <LoginForm />}
+    </div>
+  );
+}
+
+function LoginForm() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [login, { error }] = useLoginMutation();
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    login({ username, password });
+  }
+  return (
+    <form onSubmit={submit}>
       <h2>Auth</h2>
+      {getErrorMessage(error)}
       <input
         placeholder="Username"
         value={username}
-        onChange={(e) => dispatch(auth.actions.changeUsername(e.target.value))}
+        onChange={(e) => setUsername(e.target.value)}
       />
       <br />
       <input
         placeholder="Password"
         type="password"
         value={password}
-        onChange={(e) => dispatch(auth.actions.changePassword(e.target.value))}
+        onChange={(e) => setPassword(e.target.value)}
       />
-    </div>
+    </form>
   );
 }

@@ -1,21 +1,21 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { AppState } from "../store";
 
-const initialState = {
-  credentials: {
-    username: "",
-    password: "",
-  },
-};
+const initialState: AuthState = {};
 
 export const auth = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    changeUsername(state, { payload }: PayloadAction<string>) {
-      state.credentials.username = payload;
-    },
-    changePassword(state, { payload }: PayloadAction<string>) {
-      state.credentials.password = payload;
+    setToken(state, { payload }: PayloadAction<AuthState["token"]>) {
+      state.token = payload;
     },
   },
 });
+
+export const selectIsAuthenticated = (state: AppState) =>
+  state.auth.token !== undefined;
+
+interface AuthState {
+  token?: string;
+}
