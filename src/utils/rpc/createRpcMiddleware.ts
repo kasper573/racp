@@ -9,7 +9,11 @@ import { createEndpointUrl } from "./createRpcEndpoints";
 export function createRpcMiddleware<
   Definitions extends RpcDefinitions,
   Handlers extends RpcHandlers<Definitions>
->(definitions: Definitions, handlers: Handlers): RequestHandler {
+>(
+  definitions: Definitions,
+  handlers: Handlers,
+  authHandler?: RequestHandler
+): RequestHandler {
   const router = Router();
   router.use(bodyParser.text({ type: "*/*" }));
   typedKeys(definitions).forEach((endpointName) => {
@@ -22,7 +26,20 @@ export function createRpcMiddleware<
 
     router.post(
       `/${createEndpointUrl(endpointName)}`,
-      async (request, response) => {
+      authHandler && definition.auth ? authHandler : nextHandler,
+      async (request, response, next) => {
+        if (definition.auth) {
+          if (authHandler) {
+            authHandler(request, response, next);
+          } else {
+            log(
+              "Handler disabled. Requires auth but auth handler not initialized."
+            );
+            response.sendStatus(403);
+            return;
+          }
+        }
+
         let parsedBody: unknown;
         try {
           parsedBody = JSON.parse(request.body);
@@ -67,3 +84,5 @@ const httpStatus = {
   notAcceptable: 406,
   internalServerError: 500,
 };
+
+const nextHandler: RequestHandler = (req, res, next) => next();

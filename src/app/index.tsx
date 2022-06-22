@@ -11,6 +11,7 @@ if (!rootElement) {
 }
 
 const store = createStore();
+
 createRoot(rootElement).render(
   <StrictMode>
     <Provider store={store}>

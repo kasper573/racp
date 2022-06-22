@@ -20,4 +20,5 @@ export interface RpcDefinition<
   argument: Argument;
   result: Result;
   intent: Intent;
+  auth?: boolean;
 }

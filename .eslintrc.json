@@ -1,12 +1,5 @@
 {
   "root": true,
-  "settings": {
-    "import/resolver": {
-      "node": {
-        "extensions": [".ts", ".tsx"]
-      }
-    }
-  },
   "plugins": ["@typescript-eslint", "import", "unused-imports"],
   "parser": "@typescript-eslint/parser",
   "extends": [
@@ -17,23 +10,6 @@
   "rules": {
     "import/order": ["error"],
     "@typescript-eslint/no-unused-vars": "off",
-    "unused-imports/no-unused-imports": "error",
-    "import/no-restricted-paths": [
-      "error",
-      {
-        "zones": [
-          {
-            "target": "src/api/**",
-            "from": "src/app/**",
-            "message": "App code may not depend on API code"
-          },
-          {
-            "target": "src/app/**",
-            "from": "src/api/**",
-            "message": "API code may not depend on App code"
-          }
-        ]
-      }
-    ]
+    "unused-imports/no-unused-imports": "error"
   }
 }
