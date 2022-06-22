@@ -7,7 +7,11 @@ import {
   useRemoveMutation,
 } from "./client";
 import { useAppDispatch, useAppSelector } from "./store";
-import { auth, selectIsAuthenticated } from "./slices/auth";
+import {
+  auth,
+  selectAuthenticatedUser,
+  selectIsAuthenticated,
+} from "./slices/auth";
 
 export function App() {
   const [search, setSearch] = useState("");
@@ -56,11 +60,11 @@ export function App() {
 }
 
 function UserInfo() {
-  const username = useAppSelector((state) => state.auth.user?.username);
+  const user = useAppSelector(selectAuthenticatedUser);
   const dispatch = useAppDispatch();
   return (
     <>
-      <p>Signed in as {username}</p>
+      <p>Signed in as {user?.username}</p>
       <button onClick={() => dispatch(auth.actions.logout())}>Sign out</button>
     </>
   );

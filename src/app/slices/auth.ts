@@ -29,6 +29,8 @@ export const auth = createSlice({
 export const selectIsAuthenticated = (state: AppState) =>
   state.auth.token !== undefined;
 
+export const selectAuthenticatedUser = (state: AppState) => state.auth.user;
+
 interface AuthState {
   token?: string;
   user?: PublicUser;
