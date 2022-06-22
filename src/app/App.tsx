@@ -30,9 +30,11 @@ export function App() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-      {getErrorMessage(error)}
-      {getErrorMessage(addError)}
-      {getErrorMessage(removeError)}
+      <p>
+        {getErrorMessage(error)}
+        {getErrorMessage(addError)}
+        {getErrorMessage(removeError)}
+      </p>
       <ul>
         {data?.map((item, index) => (
           <li key={index} onClick={() => remove(item)}>
@@ -46,6 +48,7 @@ export function App() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
+        <button type="submit">Add</button>
       </form>
       {!isAuthenticated && <LoginForm />}
     </div>
@@ -63,7 +66,7 @@ function LoginForm() {
   return (
     <form onSubmit={submit}>
       <h2>Auth</h2>
-      {getErrorMessage(error)}
+      <p>{getErrorMessage(error)}</p>
       <input
         placeholder="Username"
         value={username}
@@ -76,6 +79,8 @@ function LoginForm() {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
+      <br />
+      <button type="submit">Sign in</button>
     </form>
   );
 }
