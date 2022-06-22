@@ -4,6 +4,7 @@ import ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin
 import ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 import HtmlWebpackPlugin = require("html-webpack-plugin");
 import "webpack-dev-server";
+import DotenvWebpackPlugin = require("dotenv-webpack");
 import { defined } from "./src/utils/defined";
 
 const NODE_ENV = process.env.NODE_ENV ?? "development";
@@ -17,8 +18,10 @@ const config: webpack.Configuration = {
     path: path.resolve(__dirname, "./dist"),
     filename: "bundle.js",
   },
+  devtool: isDevBuild ? "source-map" : undefined,
   mode: webpackMode,
   plugins: defined([
+    new DotenvWebpackPlugin(),
     new webpack.EnvironmentPlugin({ NODE_ENV }),
     new HtmlWebpackPlugin(),
     isDevBuild && new ForkTsCheckerWebpackPlugin(),

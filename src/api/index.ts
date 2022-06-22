@@ -1,13 +1,19 @@
-import express = require("express");
 import "dotenv/config";
+import * as http from "http";
+import * as express from "express";
+import cors = require("cors");
+import * as morgan from "morgan";
+import { apiPort } from "../shared/env";
+import { apiServiceDefinition } from "../shared/apiServiceDefinition";
+import { createRpcMiddleware } from "../utils/rpc/createRpcMiddleware";
+import { apiServiceHandler } from "./service";
 
 const app = express();
-const port = process.env.API_PORT;
 
-app.get("/", (req, res) => {
-  res.send("Express + TypeScript Server");
-});
+app.use(morgan("combined"));
+app.use(cors());
+app.use(createRpcMiddleware(apiServiceDefinition, apiServiceHandler));
 
-app.listen(port, () => {
-  console.log(`API is running on port ${port}`);
+http.createServer(app).listen(apiPort, () => {
+  console.log(`API is running on port ${apiPort}`);
 });

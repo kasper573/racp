@@ -1,5 +1,8 @@
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { Provider } from "react-redux";
 import { App } from "./App";
+import { createStore } from "./store";
 
 let rootElement = document.getElementById("root");
 if (!rootElement) {
@@ -7,4 +10,11 @@ if (!rootElement) {
   document.body.appendChild(rootElement);
 }
 
-createRoot(rootElement).render(<App />);
+const store = createStore();
+createRoot(rootElement).render(
+  <StrictMode>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </StrictMode>
+);
