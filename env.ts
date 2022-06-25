@@ -1,10 +1,10 @@
 import * as path from "path";
 import * as fs from "fs";
 import * as dotenv from "dotenv";
-import { typedKeys } from "./typedKeys";
+import { typedKeys } from "./src/utils/typedKeys";
 
-export function loadEnvVars(targetDirectory: string, filter: RegExp) {
-  const envFile = path.resolve(targetDirectory, ".env");
+export function loadEnvVars(filter: RegExp) {
+  const envFile = path.resolve(__dirname, ".env");
   const base = dotenv.parse(safeReadFile(envFile));
   const local = dotenv.parse(safeReadFile(envFile + ".local"));
   const merged = { ...base, ...local };

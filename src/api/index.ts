@@ -1,10 +1,9 @@
 import * as http from "http";
-import * as path from "path";
 import * as express from "express";
 import cors = require("cors");
 import { Request as JWTRequest } from "express-jwt";
 import { createRpcMiddlewareFactory } from "../utils/rpc/createRpcMiddleware";
-import { loadEnvVars } from "../utils/loadEnvVars";
+import { loadEnvVars } from "../../env";
 import { configDefinition } from "./services/config.definition";
 import { createConfigHandlers } from "./services/config.handlers";
 import { createAuthenticator } from "./authenticator";
@@ -12,8 +11,7 @@ import { usersFixture } from "./fixtures/users";
 import { authDefinition } from "./services/auth.definition";
 import { createAuthHandlers } from "./services/auth.handlers";
 
-const rootDir = path.resolve(__dirname, "..", "..");
-const env = loadEnvVars(rootDir, /^api_/);
+const env = loadEnvVars(/^api_/);
 
 const app = express();
 const auth = createAuthenticator({ secret: env.api_jwtSecret ?? "" });

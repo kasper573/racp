@@ -5,7 +5,7 @@ import ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 import HtmlWebpackPlugin = require("html-webpack-plugin");
 import "webpack-dev-server";
 import { defined } from "./src/utils/defined";
-import { loadEnvVars } from "./src/utils/loadEnvVars";
+import { loadEnvVars } from "./env";
 
 const NODE_ENV = process.env.NODE_ENV ?? "development";
 const isRefreshEnabled = Boolean(process.env.REACT_REFRESH ?? "false");
@@ -21,7 +21,7 @@ const config: webpack.Configuration = {
   devtool: isDevBuild ? "source-map" : undefined,
   mode: webpackMode,
   plugins: defined([
-    new webpack.EnvironmentPlugin(loadEnvVars(__dirname, /^app_/)),
+    new webpack.EnvironmentPlugin(loadEnvVars(/^app_/)),
     new HtmlWebpackPlugin(),
     isDevBuild && new ForkTsCheckerWebpackPlugin(),
     isRefreshEnabled && new ReactRefreshWebpackPlugin(),
