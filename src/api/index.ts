@@ -5,8 +5,8 @@ import cors = require("cors");
 import { Request as JWTRequest } from "express-jwt";
 import { createRpcMiddlewareFactory } from "../utils/rpc/createRpcMiddleware";
 import { loadEnvVars } from "../utils/loadEnvVars";
-import { todoDefinition } from "./services/todo.definition";
-import { createTodoHandlers } from "./services/todo.handlers";
+import { configDefinition } from "./services/config.definition";
+import { createConfigHandlers } from "./services/config.handlers";
 import { createAuthenticator } from "./authenticator";
 import { usersFixture } from "./fixtures/users";
 import { authDefinition } from "./services/auth.definition";
@@ -22,11 +22,12 @@ const rpc = createRpcMiddlewareFactory(isAuthenticated);
 
 const port = env.api_port;
 const users = usersFixture(auth, env.api_adminPassword);
-const items: string[] = ["Initial"];
 
 app.use(auth.middleware);
 app.use(cors());
-app.use(rpc(todoDefinition.entries, createTodoHandlers(items)));
+app.use(
+  rpc(configDefinition.entries, createConfigHandlers(env.api_rAthenaPath ?? ""))
+);
 app.use(rpc(authDefinition.entries, createAuthHandlers(users, auth)));
 
 http.createServer(app).listen(port, () => {

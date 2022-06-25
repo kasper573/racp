@@ -45,10 +45,11 @@ export function createRpcMiddlewareFactory(
           return next();
         },
         // RPC execution
-        (request, response) => {
+        async (request, response) => {
           let parsedBody: unknown;
           try {
-            parsedBody = JSON.parse(request.body);
+            parsedBody =
+              request.body.length > 0 ? JSON.parse(request.body) : undefined;
           } catch {
             log(`Could not parse request body as JSON`, { body: request.body });
             return response.sendStatus(httpStatus.badRequest);
@@ -60,9 +61,9 @@ export function createRpcMiddlewareFactory(
             return response.sendStatus(httpStatus.badRequest);
           }
 
-          let handlerResult: ReturnType<typeof handler>;
+          let handlerResult: PromiseResult<ReturnType<typeof handler>>;
           try {
-            handlerResult = handler(argument.data);
+            handlerResult = await handler(argument.data);
           } catch (e) {
             if (e instanceof RpcException) {
               log(`Handler exited due to a known exception: ${e.message} `);
@@ -89,6 +90,8 @@ export function createRpcMiddlewareFactory(
   }
   return factory;
 }
+
+type PromiseResult<T> = T extends PromiseLike<infer V> ? V : never;
 
 const httpStatus = {
   badRequest: 400,

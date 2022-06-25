@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/dist/query/react";
-import { todoDefinition } from "../api/services/todo.definition";
+import { configDefinition } from "../api/services/config.definition";
 import { createRpcEndpoints } from "../utils/rpc/createRpcEndpoints";
 import { authDefinition } from "../api/services/auth.definition";
 import { AppState } from "./store";
@@ -16,14 +16,14 @@ export const client = createApi({
     },
   }),
   endpoints: (builder) => ({
-    ...createRpcEndpoints(builder, todoDefinition.entries),
+    ...createRpcEndpoints(builder, configDefinition.entries),
     ...createRpcEndpoints(builder, authDefinition.entries),
   }),
 });
 
 export const {
-  useListQuery,
-  useAddMutation,
-  useRemoveMutation,
+  useListConfigsQuery,
+  useGetConfigQuery,
+  useUpdateConfigMutation,
   useLoginMutation,
 } = client;

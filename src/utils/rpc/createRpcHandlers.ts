@@ -16,4 +16,4 @@ export type RpcHandlers<Entries extends RpcDefinitionEntries> = {
 
 export type RpcHandler<Entry extends RpcDefinitionEntry> = (
   argument: Entry["argument"]["_type"]
-) => Entry["result"]["_type"];
+) => Promise<Entry["result"]["_type"]>;

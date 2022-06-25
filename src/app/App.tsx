@@ -1,11 +1,6 @@
 import { FormEvent, useState } from "react";
 import { getErrorMessage } from "../utils/getErrorMessage";
-import {
-  useAddMutation,
-  useListQuery,
-  useLoginMutation,
-  useRemoveMutation,
-} from "./client";
+import { useListConfigsQuery, useLoginMutation } from "./client";
 import { useAppDispatch, useAppSelector } from "./store";
 import {
   auth,
@@ -17,13 +12,10 @@ export function App() {
   const [search, setSearch] = useState("");
   const [input, setInput] = useState("");
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
-  const { data, error } = useListQuery(search);
-  const [add, { error: addError }] = useAddMutation();
-  const [remove, { error: removeError }] = useRemoveMutation();
+  const { data, error } = useListConfigsQuery();
 
   function submit(e: FormEvent) {
     e.preventDefault();
-    add(input);
     setInput("");
   }
 
@@ -34,16 +26,10 @@ export function App() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-      <p>
-        {getErrorMessage(error)}
-        {getErrorMessage(addError)}
-        {getErrorMessage(removeError)}
-      </p>
+      <p>{getErrorMessage(error)}</p>
       <ul>
         {data?.map((item, index) => (
-          <li key={index} onClick={() => remove(item)}>
-            {item}
-          </li>
+          <li key={index}>{item}</li>
         ))}
       </ul>
       <form onSubmit={submit}>
