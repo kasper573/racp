@@ -6,10 +6,12 @@ import {
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { client } from "./client";
 import { auth } from "./slices/auth";
+import { theme } from "./slices/theme";
 
 const reducers = {
   [client.reducerPath]: client.reducer,
   [auth.name]: auth.reducer,
+  [theme.name]: theme.reducer,
 };
 
 export function createStore() {
