@@ -13,6 +13,6 @@ export const configUpdate = zod.object({
 export const configDefinition = createRpcDefinition((builder) =>
   builder
     .query("listConfigs", zod.void(), zod.array(zod.string()), { auth: false })
-    .query("getConfig", configName, config, { auth: true })
-    .mutation("updateConfig", configUpdate, zod.void(), { auth: true })
+    .query("getConfig", configName, config, { auth: false })
+    .mutation("updateConfig", configUpdate, zod.void(), { auth: false })
 );

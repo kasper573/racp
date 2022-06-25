@@ -1,6 +1,11 @@
 import { FormEvent, useState } from "react";
 import { getErrorMessage } from "../utils/getErrorMessage";
-import { useListConfigsQuery, useLoginMutation } from "./client";
+import {
+  useGetConfigQuery,
+  useListConfigsQuery,
+  useLoginMutation,
+  useUpdateConfigMutation,
+} from "./client";
 import { useAppDispatch, useAppSelector } from "./store";
 import {
   auth,
@@ -9,39 +14,51 @@ import {
 } from "./slices/auth";
 
 export function App() {
-  const [search, setSearch] = useState("");
-  const [input, setInput] = useState("");
-  const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const { data, error } = useListConfigsQuery();
-
-  function submit(e: FormEvent) {
-    e.preventDefault();
-    setInput("");
-  }
-
+  const [selectedConfig, setSelectedConfig] = useState<string>();
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const back = () => setSelectedConfig(undefined);
   return (
     <div>
-      <input
-        placeholder="Search"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <p>{getErrorMessage(error)}</p>
-      <ul>
-        {data?.map((item, index) => (
-          <li key={index}>{item}</li>
-        ))}
-      </ul>
-      <form onSubmit={submit}>
-        <input
-          placeholder="New item"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-        />
-        <button type="submit">Add</button>
-      </form>
+      {getErrorMessage(error)}
+      {selectedConfig ? (
+        <>
+          <button onClick={back}>Back</button>
+          <br />
+          <ConfigEditor configName={selectedConfig} />
+        </>
+      ) : (
+        data && <ConfigList configs={data} onSelect={setSelectedConfig} />
+      )}
       {isAuthenticated ? <UserInfo /> : <LoginForm />}
     </div>
+  );
+}
+
+function ConfigEditor({ configName }: { configName: string }) {
+  const { data: value } = useGetConfigQuery(configName);
+  const [update] = useUpdateConfigMutation();
+  const setValue = (content: string) => update({ name: configName, content });
+  return (
+    <textarea value={value} onChange={(e) => setValue(e.currentTarget.value)} />
+  );
+}
+
+function ConfigList({
+  configs,
+  onSelect,
+}: {
+  configs: string[];
+  onSelect: (config: string) => void;
+}) {
+  return (
+    <ul>
+      {configs.map((item, index) => (
+        <li key={index} onClick={() => onSelect(item)}>
+          {item}
+        </li>
+      ))}
+    </ul>
   );
 }
 
