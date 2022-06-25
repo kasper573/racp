@@ -12,6 +12,7 @@ import {
   selectAuthenticatedUser,
   selectIsAuthenticated,
 } from "./slices/auth";
+import { TextEditor } from "./TextEditor";
 
 export function App() {
   const { data, error } = useListConfigsQuery();
@@ -23,7 +24,7 @@ export function App() {
       {getErrorMessage(error)}
       {selectedConfig ? (
         <>
-          <button onClick={back}>Back</button>
+          <button onClick={back}>Back</button> <span>{selectedConfig}</span>
           <br />
           <ConfigEditor configName={selectedConfig} />
         </>
@@ -39,9 +40,7 @@ function ConfigEditor({ configName }: { configName: string }) {
   const { data: value } = useGetConfigQuery(configName);
   const [update] = useUpdateConfigMutation();
   const setValue = (content: string) => update({ name: configName, content });
-  return (
-    <textarea value={value} onChange={(e) => setValue(e.currentTarget.value)} />
-  );
+  return <TextEditor value={value} onChange={setValue} />;
 }
 
 function ConfigList({
