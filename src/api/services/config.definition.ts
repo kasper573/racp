@@ -1,6 +1,6 @@
 import * as zod from "zod";
-import { createRpcDefinition } from "../../utils/rpc/createRpcDefinition";
-import { createTagFactory } from "../../utils/createTagFactory";
+import { createRpcDefinition } from "../../lib/rpc/createRpcDefinition";
+import { createTagFactory } from "../../lib/createTagFactory";
 
 export const configName = zod.string();
 export const configContent = zod.string();

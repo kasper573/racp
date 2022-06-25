@@ -1,5 +1,5 @@
 import * as zod from "zod";
-import { createRpcDefinition } from "../../utils/rpc/createRpcDefinition";
+import { createRpcDefinition } from "../../lib/rpc/createRpcDefinition";
 
 export type User = zod.infer<typeof user>;
 

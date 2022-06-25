@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { getErrorMessage } from "../utils/getErrorMessage";
+import { getErrorMessage } from "./getErrorMessage";
 import {
   useGetConfigQuery,
   useListConfigsQuery,

@@ -4,7 +4,7 @@ import ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin
 import ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 import HtmlWebpackPlugin = require("html-webpack-plugin");
 import "webpack-dev-server";
-import { defined } from "./src/utils/defined";
+import { defined } from "./src/lib/defined";
 import { loadEnvVars } from "./env";
 
 const NODE_ENV = process.env.NODE_ENV ?? "development";

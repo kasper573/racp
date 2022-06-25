@@ -2,7 +2,7 @@ import * as http from "http";
 import * as express from "express";
 import cors = require("cors");
 import { Request as JWTRequest } from "express-jwt";
-import { createRpcMiddlewareFactory } from "../utils/rpc/createRpcMiddleware";
+import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
 import { loadEnvVars } from "../../env";
 import { configDefinition } from "./services/config.definition";
 import { createConfigHandlers } from "./services/config.handlers";

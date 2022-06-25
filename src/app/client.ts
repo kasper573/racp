@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/dist/query/react";
 import { configDefinition } from "../api/services/config.definition";
-import { createRpcEndpoints } from "../utils/rpc/createRpcEndpoints";
+import { createRpcEndpoints } from "../lib/rpc/createRpcEndpoints";
 import { authDefinition } from "../api/services/auth.definition";
 import { AppState } from "./store";
 

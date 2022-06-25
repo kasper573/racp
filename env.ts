@@ -1,7 +1,7 @@
 import * as path from "path";
 import * as fs from "fs";
 import * as dotenv from "dotenv";
-import { typedKeys } from "./src/utils/typedKeys";
+import { typedKeys } from "./src/lib/typedKeys";
 
 export function loadEnvVars(filter: RegExp) {
   const envFile = path.resolve(__dirname, ".env");
