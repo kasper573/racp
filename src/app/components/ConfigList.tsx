@@ -1,3 +1,5 @@
+import { List, ListItemButton } from "@mui/material";
+
 export function ConfigList({
   configs,
   onSelect,
@@ -6,12 +8,12 @@ export function ConfigList({
   onSelect: (config: string) => void;
 }) {
   return (
-    <ul>
+    <List>
       {configs.map((item, index) => (
-        <li key={index} onClick={() => onSelect(item)}>
+        <ListItemButton key={index} onClick={() => onSelect(item)}>
           {item}
-        </li>
+        </ListItemButton>
       ))}
-    </ul>
+    </List>
   );
 }

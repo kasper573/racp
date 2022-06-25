@@ -1,4 +1,4 @@
-import { useElevatedState } from "./hooks/useElevatedState";
+import { useElevatedState } from "../hooks/useElevatedState";
 
 export function TextEditor({
   value: inputValue = "",

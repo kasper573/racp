@@ -1,5 +1,5 @@
 import { useGetConfigQuery, useUpdateConfigMutation } from "../client";
-import { TextEditor } from "../TextEditor";
+import { TextEditor } from "./TextEditor";
 
 export function ConfigEditor({ configName }: { configName: string }) {
   const { data: value } = useGetConfigQuery(configName);

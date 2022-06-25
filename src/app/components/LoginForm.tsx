@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { TextField } from "@mui/material";
 import { useLoginMutation } from "../client";
 import { ErrorMessage } from "./ErrorMessage";
 
@@ -16,13 +17,13 @@ export function LoginForm() {
     <form onSubmit={submit}>
       <h2>Auth</h2>
       <ErrorMessage error={error} />
-      <input
+      <TextField
         placeholder="Username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
       <br />
-      <input
+      <TextField
         placeholder="Password"
         type="password"
         value={password}

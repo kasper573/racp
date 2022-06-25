@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { createTheme, ThemeProvider } from "@mui/material";
+import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ErrorMessage } from "./components/ErrorMessage";
 import { useListConfigsQuery } from "./client";
 import { useAppSelector } from "./store";
@@ -9,6 +9,7 @@ import { UserInfo } from "./components/UserInfo";
 import { ConfigList } from "./components/ConfigList";
 import { ConfigEditor } from "./components/ConfigEditor";
 import { Layout } from "./components/Layout";
+import { createTheme } from "./fixtures/theme";
 
 export function App() {
   const { data, error } = useListConfigsQuery();
@@ -16,9 +17,10 @@ export function App() {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const mode = useAppSelector(({ theme }) => theme.mode);
   const back = () => setSelectedConfig(undefined);
-  const theme = useMemo(() => createTheme({ palette: { mode } }), [mode]);
+  const theme = useMemo(() => createTheme(mode), [mode]);
   return (
     <ThemeProvider theme={theme}>
+      <CssBaseline />
       <Layout>
         <ErrorMessage error={error} />
         {selectedConfig ? (
