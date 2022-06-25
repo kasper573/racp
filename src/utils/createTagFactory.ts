@@ -1,5 +1,7 @@
-import { TagDescription } from "@reduxjs/toolkit/dist/query/endpointDefinitions";
-import { FullTagDescription } from "@reduxjs/toolkit/src/query/endpointDefinitions";
+import {
+  TagDescription,
+  FullTagDescription,
+} from "@reduxjs/toolkit/dist/query/endpointDefinitions";
 
 export function createTagFactory<TagType>(type: TagType) {
   function many(ids: TagId[] = []): TagDescription<TagType>[] {
