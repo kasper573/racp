@@ -15,6 +15,7 @@ export const client = createApi({
       return headers;
     },
   }),
+  tagTypes: [...configDefinition.tagTypes, ...authDefinition.tagTypes],
   endpoints: (builder) => ({
     ...createRpcEndpoints(builder, configDefinition.entries),
     ...createRpcEndpoints(builder, authDefinition.entries),

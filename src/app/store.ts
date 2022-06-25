@@ -15,6 +15,7 @@ const reducers = {
 export function createStore() {
   return configureStore({
     reducer: combineReducers(reducers),
+    middleware: (defaults) => defaults().concat(client.middleware),
   });
 }
 

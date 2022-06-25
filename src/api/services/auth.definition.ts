@@ -13,13 +13,14 @@ export type PublicUser = zod.infer<typeof publicUser>;
 
 const publicUser = user.omit({ passwordHash: true });
 
-export const authDefinition = createRpcDefinition((builder) =>
-  builder.mutation(
-    "login",
-    zod.object({
-      username: zod.string(),
-      password: zod.string(),
-    }),
-    zod.object({ token: zod.string(), user: publicUser })
-  )
-);
+export const authDefinition = createRpcDefinition({
+  entries: (builder) =>
+    builder.mutation(
+      "login",
+      zod.object({
+        username: zod.string(),
+        password: zod.string(),
+      }),
+      zod.object({ token: zod.string(), user: publicUser })
+    ),
+});

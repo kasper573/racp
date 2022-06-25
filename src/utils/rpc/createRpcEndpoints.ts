@@ -1,4 +1,8 @@
-import { BaseQueryFn, FetchArgs } from "@reduxjs/toolkit/query";
+import {
+  BaseQueryFn,
+  EndpointDefinition,
+  FetchArgs,
+} from "@reduxjs/toolkit/query";
 import {
   EndpointBuilder,
   MutationDefinition,
@@ -41,21 +45,30 @@ export function createRpcEndpoints<
   const endpoints = {} as Record<keyof Entries, RPCEndpoint<any>>;
 
   for (const endpointName of typedKeys(entries)) {
-    const { intent } = entries[endpointName];
+    const { intent, tags } = entries[endpointName];
+
+    const options: EndpointDefinitionBase = {
+      query: (arg) => {
+        const args: FetchArgs = {
+          url: createEndpointUrl(endpointName),
+          method: "post",
+          body: JSON.stringify(arg),
+          responseHandler,
+        };
+        return args;
+      },
+    };
+
+    if (intent === "query") {
+      options.providesTags = tags;
+    } else {
+      options.invalidatesTags = tags;
+    }
 
     endpoints[endpointName] = builder[intent](
-      {
-        query: (arg: unknown) => {
-          const args: FetchArgs = {
-            url: createEndpointUrl(endpointName),
-            method: "post",
-            body: JSON.stringify(arg),
-            responseHandler,
-          };
-          return args;
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any // Sad assert since I can't make EndpointBuilder accept this
+      // Sad assert since I can't make EndpointBuilder accept this
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      options as any
     );
   }
 
@@ -73,3 +86,9 @@ const responseHandler: ResponseHandler = async (res) => {
   }
   return text.length > 0 ? JSON.parse(text) : undefined;
 };
+
+type EndpointDefinitionBase = Omit<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  EndpointDefinition<any, any, any, any>,
+  "queryFn" | "type"
+>;

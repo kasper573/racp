@@ -10,9 +10,20 @@ export const configUpdate = zod.object({
   content: configContent,
 });
 
-export const configDefinition = createRpcDefinition((builder) =>
-  builder
-    .query("listConfigs", zod.void(), zod.array(zod.string()), { auth: false })
-    .query("getConfig", configName, config, { auth: false })
-    .mutation("updateConfig", configUpdate, zod.void(), { auth: false })
-);
+export const configDefinition = createRpcDefinition({
+  tagTypes: ["Config"],
+  entries: (builder) =>
+    builder
+      .query("listConfigs", zod.void(), zod.array(zod.string()), {
+        auth: false,
+        tags: ["Config"],
+      })
+      .query("getConfig", configName, config, {
+        auth: false,
+        tags: (r, e, configName) => [{ type: "Config", id: configName }],
+      })
+      .mutation("updateConfig", configUpdate, zod.void(), {
+        auth: false,
+        tags: (r, e, { name }) => [{ type: "Config", id: name }],
+      }),
+});
