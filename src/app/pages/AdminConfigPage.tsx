@@ -4,7 +4,7 @@ import { ErrorMessage } from "../components/ErrorMessage";
 import { router } from "../router";
 import { LinkListItem } from "../components/Link";
 
-export function AdminConfigPage() {
+export default function AdminConfigPage() {
   const { data: configs, error } = useListConfigsQuery();
   return (
     <>

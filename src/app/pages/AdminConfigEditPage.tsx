@@ -6,7 +6,7 @@ import { TextEditor } from "../components/TextEditor";
 import { router } from "../router";
 import { LinkButton } from "../components/Link";
 
-export function AdminConfigEditPage() {
+export default function AdminConfigEditPage() {
   const { configName } = useRouteParams(router.admin().config().edit);
   const { data: value, error: queryError } = useGetConfigQuery(configName);
   const [update, { error: updateError }] = useUpdateConfigMutation();

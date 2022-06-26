@@ -4,11 +4,7 @@ import {
   Redirect,
   stringParser,
 } from "react-typesafe-routes";
-import { HomePage } from "./pages/HomePage";
-import { LoginPage } from "./pages/LoginPage";
-import { AdminPage } from "./pages/AdminPage";
-import { AdminConfigPage } from "./pages/AdminConfigPage";
-import { AdminConfigEditPage } from "./pages/AdminConfigEditPage";
+import { lazy } from "react";
 import { useAppSelector } from "./store";
 import { selectIsAuthenticated } from "./slices/auth";
 
@@ -18,18 +14,30 @@ const AuthMiddleware: RouteMiddleware = (next) => {
 };
 
 export const router = OptionsRouter({}, (route) => ({
-  home: route("", { component: HomePage, exact: true }),
-  login: route("login", { component: LoginPage }),
+  home: route("", {
+    component: lazy(() => import("./pages/HomePage")),
+    exact: true,
+  }),
+  login: route("login", {
+    component: lazy(() => import("./pages/LoginPage")),
+  }),
   admin: route(
     "admin",
-    { component: AdminPage, middleware: AuthMiddleware },
+    {
+      component: lazy(() => import("./pages/AdminPage")),
+      middleware: AuthMiddleware,
+    },
     (route) => ({
-      config: route("config", { component: AdminConfigPage }, (route) => ({
-        edit: route("edit/&:configName", {
-          component: AdminConfigEditPage,
-          params: { configName: stringParser },
-        }),
-      })),
+      config: route(
+        "config",
+        { component: lazy(() => import("./pages/AdminConfigPage")) },
+        (route) => ({
+          edit: route("edit/&:configName", {
+            component: lazy(() => import("./pages/AdminConfigEditPage")),
+            params: { configName: stringParser },
+          }),
+        })
+      ),
     })
   ),
 }));

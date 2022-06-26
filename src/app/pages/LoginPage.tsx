@@ -5,7 +5,7 @@ import { useLoginMutation } from "../client";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { router } from "../router";
 
-export function LoginPage() {
+export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [login, { error }] = useLoginMutation();

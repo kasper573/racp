@@ -1,5 +1,5 @@
 import { Typography } from "@mui/material";
 
-export function AdminPage() {
+export default function AdminPage() {
   return <Typography>Admin</Typography>;
 }

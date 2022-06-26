@@ -1,5 +1,5 @@
 import { Typography } from "@mui/material";
 
-export function HomePage() {
+export default function HomePage() {
   return <Typography>Home</Typography>;
 }
