@@ -58,6 +58,9 @@ const config: webpack.Configuration = {
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".jsx"],
   },
+  devServer: {
+    historyApiFallback: true,
+  },
 };
 
 export default config;

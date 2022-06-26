@@ -5,7 +5,7 @@ import * as React from "react";
 export function Title() {
   return (
     <>
-      <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+      <AdbIcon sx={{ display: "flex", mr: 1 }} />
       <Typography
         variant="h6"
         noWrap

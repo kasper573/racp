@@ -1,20 +1,17 @@
 import Menu from "@mui/material/Menu";
-import MenuItem, { MenuItemProps } from "@mui/material/MenuItem";
-import Typography from "@mui/material/Typography";
 import * as React from "react";
 import { ComponentProps, ReactNode } from "react";
 import { concatFunctions } from "../../lib/concatFunctions";
 
 export interface MenuOnProps<T extends Element>
-  extends Omit<ComponentProps<typeof Menu>, "children" | "open"> {
+  extends Omit<ComponentProps<typeof Menu>, "open"> {
   tooltip: string;
-  items: MenuItemProps[];
-  children: (openMenu: (e: React.MouseEvent<T>) => void) => ReactNode;
+  trigger: (openMenu: (e: React.MouseEvent<T>) => void) => ReactNode;
 }
 
 export function MenuOn<T extends Element>({
   tooltip,
-  items,
+  trigger,
   children,
   ...menuProps
 }: MenuOnProps<T>) {
@@ -23,7 +20,7 @@ export function MenuOn<T extends Element>({
   const close = () => setAnchor(null);
   return (
     <>
-      {children(open)}
+      {trigger(open)}
       <Menu
         {...menuProps}
         anchorEl={anchor}
@@ -33,15 +30,14 @@ export function MenuOn<T extends Element>({
         open={Boolean(anchor)}
         onClose={concatFunctions(menuProps.onClose, close)}
       >
-        {items.map(({ children, onClick, ...props }, index) => (
-          <MenuItem
-            key={index}
-            onClick={concatFunctions(onClick, close)}
-            {...props}
-          >
-            <Typography textAlign="center">{children}</Typography>
-          </MenuItem>
-        ))}
+        {React.Children.map(
+          children,
+          (element) =>
+            React.isValidElement(element) &&
+            React.cloneElement(element, {
+              onClick: concatFunctions(element.props.onClick, close),
+            })
+        )}
       </Menu>
     </>
   );

@@ -24,6 +24,7 @@
     "@types/node": "^18.0.0",
     "@types/react": "^18.0.14",
     "@types/react-dom": "^18.0.5",
+    "@types/react-router-dom": "^5.3.3",
     "@types/recursive-readdir": "^2.2.1",
     "@types/webpack": "^5.28.0",
     "@typescript-eslint/eslint-plugin": "^5.26.0",
@@ -67,6 +68,9 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.2",
+    "react-router": "^5.3.3",
+    "react-router-dom": "^5.3.3",
+    "react-typesafe-routes": "^0.0.8",
     "redux": "^4.2.0",
     "use-debounce": "^8.0.1",
     "zod": "^3.17.3"

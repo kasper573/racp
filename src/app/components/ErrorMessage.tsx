@@ -1,11 +1,21 @@
 import { Typography } from "@mui/material";
+import { ComponentProps } from "react";
 
-export function ErrorMessage({ error }: { error?: ErrorLike }) {
+export interface ErrorMessageProps
+  extends Omit<ComponentProps<typeof Typography>, "children"> {
+  error?: ErrorLike;
+}
+
+export function ErrorMessage({ error, ...props }: ErrorMessageProps) {
   const message = getErrorMessage(error);
   if (message === undefined) {
     return null;
   }
-  return <Typography color="error">{message}</Typography>;
+  return (
+    <Typography color="error" {...props}>
+      {message}
+    </Typography>
+  );
 }
 
 export function getErrorMessage<T extends ErrorLike>(
