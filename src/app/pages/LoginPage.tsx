@@ -4,11 +4,12 @@ import { useHistory } from "react-router";
 import { useLoginMutation } from "../client";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { router } from "../router";
+import { LoadingPage } from "../components/LoadingPage";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [login, { error }] = useLoginMutation();
+  const [login, { error, isLoading }] = useLoginMutation();
   const history = useHistory();
 
   async function submit(e: FormEvent) {
@@ -17,6 +18,10 @@ export default function LoginPage() {
     if ("data" in result) {
       history.push(router.admin().$);
     }
+  }
+
+  if (isLoading) {
+    return <LoadingPage />;
   }
 
   return (

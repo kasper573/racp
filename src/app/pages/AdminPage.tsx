@@ -1,5 +1,6 @@
-import { Typography } from "@mui/material";
+import { Redirect } from "react-typesafe-routes";
+import { router } from "../router";
 
 export default function AdminPage() {
-  return <Typography>Admin</Typography>;
+  return <Redirect to={router.admin().config()} />;
 }

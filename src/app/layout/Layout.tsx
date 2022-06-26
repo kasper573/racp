@@ -7,11 +7,13 @@ import { globalStyles } from "./globalStyles";
 
 export function Layout({ children }: { children?: ReactNode }) {
   return (
-    <Suspense fallback={<LoadingPage />}>
+    <>
       <AppBar />
       {globalStyles}
-      <FullscreenContainer maxWidth="xl">{children}</FullscreenContainer>
-    </Suspense>
+      <FullscreenContainer maxWidth="xl">
+        <Suspense fallback={<LoadingPage />}>{children}</Suspense>
+      </FullscreenContainer>
+    </>
   );
 }
 
