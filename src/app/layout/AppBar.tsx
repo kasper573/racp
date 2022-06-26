@@ -13,7 +13,7 @@ import { router } from "../router";
 import { MenuOn } from "../components/MenuOn";
 import { LinkButton, LinkMenuItem } from "../components/Link";
 import { Auth } from "../components/Auth";
-import { Title } from "./Title";
+import { Logo } from "./Logo";
 
 export function AppBar() {
   const dispatch = useAppDispatch();
@@ -21,22 +21,29 @@ export function AppBar() {
     <MuiAppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Title />
-          <Box sx={{ display: "flex", flexGrow: 1, color: "white" }}>
-            <LinkButton to={router.home()}>Home</LinkButton>
+          <Logo to={router.home()}>{process.env.app_title}</Logo>
+
+          <Box sx={{ display: "flex", flexGrow: 1 }}>
+            <LinkButton to={router.admin().config()}>Foo</LinkButton>
           </Box>
+
+          <Box sx={{ display: "flex" }}>
+            <Auth type="protected">
+              <LinkButton to={router.admin().config()}>Config</LinkButton>
+            </Auth>
+          </Box>
+
           <MenuOn
             tooltip="Admin"
             trigger={(open) => (
               <Tooltip title="Admin">
-                <IconButton onClick={open}>
+                <IconButton onClick={open} sx={{ ml: 2 }}>
                   <AdminPanelSettings />
                 </IconButton>
               </Tooltip>
             )}
           >
             <Auth type="protected">
-              <LinkMenuItem to={router.admin().config()}>Config</LinkMenuItem>
               <MenuItem onClick={() => dispatch(auth.actions.logout())}>
                 Sign out
               </MenuItem>
