@@ -30,14 +30,7 @@ export function MenuOn<T extends Element>({
         open={Boolean(anchor)}
         onClose={concatFunctions(menuProps.onClose, close)}
       >
-        {React.Children.map(
-          children,
-          (element) =>
-            React.isValidElement(element) &&
-            React.cloneElement(element, {
-              onClick: concatFunctions(element.props.onClick, close),
-            })
-        )}
+        <div onClick={close}>{children}</div>
       </Menu>
     </>
   );
