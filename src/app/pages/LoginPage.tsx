@@ -1,16 +1,22 @@
 import { FormEvent, useState } from "react";
 import { Button, Stack, styled, TextField } from "@mui/material";
+import { useHistory } from "react-router";
 import { useLoginMutation } from "../client";
 import { ErrorMessage } from "../components/ErrorMessage";
+import { router } from "../router";
 
 export function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [login, { error }] = useLoginMutation();
+  const history = useHistory();
 
-  function submit(e: FormEvent) {
+  async function submit(e: FormEvent) {
     e.preventDefault();
-    login({ username, password });
+    const result = await login({ username, password });
+    if ("data" in result) {
+      history.push(router.admin().$);
+    }
   }
 
   return (
