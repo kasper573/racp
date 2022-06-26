@@ -9,7 +9,7 @@ export function LoadingPage() {
 }
 
 const Center = styled(Box)`
-  position: relative;
+  position: absolute;
   display: inline-block;
   top: 50%;
   left: 50%;

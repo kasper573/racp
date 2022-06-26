@@ -1,11 +1,10 @@
-import { Suspense, useMemo } from "react";
+import { useMemo } from "react";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { RouterSwitch } from "react-typesafe-routes";
 import { useAppSelector } from "./store";
 import { Layout } from "./layout/Layout";
 import { createTheme } from "./fixtures/theme";
 import { router } from "./router";
-import { LoadingPage } from "./components/LoadingPage";
 
 export function App() {
   const mode = useAppSelector(({ theme }) => theme.mode);
@@ -14,9 +13,7 @@ export function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Layout>
-        <Suspense fallback={<LoadingPage />}>
-          <RouterSwitch router={router} />
-        </Suspense>
+        <RouterSwitch router={router} />
       </Layout>
     </ThemeProvider>
   );
