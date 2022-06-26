@@ -1,5 +1,5 @@
-import { Typography } from "@mui/material";
+import { Header } from "../layout/Header";
 
 export default function HomePage() {
-  return <Typography>Home</Typography>;
+  return <Header>Home</Header>;
 }

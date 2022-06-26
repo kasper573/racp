@@ -1,5 +1,5 @@
-import { Typography } from "@mui/material";
+import { Header } from "../layout/Header";
 
 export default function ItemSearchPage() {
-  return <Typography>Item Search</Typography>;
+  return <Header>Item Search</Header>;
 }

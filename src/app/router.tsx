@@ -72,7 +72,7 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
 }));
 
 export type RouterOptions = typeof defaultOptions;
-export interface AnyRouteNode {
-  (): { $: string };
+export interface AnyRouteNode<Arg = void> {
+  (arg: Arg): { $: string };
   options: RouterOptions;
 }

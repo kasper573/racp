@@ -1,5 +1,5 @@
-import { Typography } from "@mui/material";
+import { Header } from "../layout/Header";
 
 export default function MonsterSearchPage() {
-  return <Typography>Monster Search</Typography>;
+  return <Header>Monster Search</Header>;
 }

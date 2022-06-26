@@ -1,9 +1,10 @@
-import { List, TextField, Typography } from "@mui/material";
+import { List, TextField } from "@mui/material";
 import { useState } from "react";
 import { useListConfigsQuery } from "../client";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { router } from "../router";
 import { LinkListItem } from "../components/Link";
+import { Header } from "../layout/Header";
 
 export default function AdminConfigPage() {
   const [filter, setFilter] = useState("");
@@ -13,7 +14,7 @@ export default function AdminConfigPage() {
   );
   return (
     <>
-      <Typography paragraph>Select a configuration file to edit</Typography>
+      <Header>Select a configuration file to edit</Header>
       <TextField
         placeholder="Search"
         value={filter}
