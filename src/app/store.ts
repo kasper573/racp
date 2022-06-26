@@ -5,8 +5,8 @@ import {
 } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { client } from "./client";
-import { auth } from "./slices/auth";
-import { theme } from "./slices/theme";
+import { auth } from "./state/auth";
+import { theme } from "./state/theme";
 
 const reducers = {
   [client.reducerPath]: client.reducer,

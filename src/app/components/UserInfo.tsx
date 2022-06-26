@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from "../store";
-import { auth, selectAuthenticatedUser } from "../slices/auth";
+import { auth, selectAuthenticatedUser } from "../state/auth";
 
 export function UserInfo() {
   const user = useAppSelector(selectAuthenticatedUser);

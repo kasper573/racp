@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import { ReactNode } from "react";
-import { selectIsAuthenticated } from "../slices/auth";
+import { selectIsAuthenticated } from "../state/auth";
 
 export interface AuthProps {
   children: ReactNode;

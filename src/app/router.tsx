@@ -6,7 +6,7 @@ import {
 } from "react-typesafe-routes";
 import { lazy } from "react";
 import { useAppSelector } from "./store";
-import { selectIsAuthenticated } from "./slices/auth";
+import { selectIsAuthenticated } from "./state/auth";
 
 const AuthMiddleware: RouteMiddleware = (next) => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);

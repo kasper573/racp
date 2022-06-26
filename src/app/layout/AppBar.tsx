@@ -8,7 +8,7 @@ import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import { MenuItem } from "@mui/material";
 import { useAppDispatch } from "../store";
-import { auth } from "../slices/auth";
+import { auth } from "../state/auth";
 import { router } from "../router";
 import { MenuOn } from "../components/MenuOn";
 import { LinkButton, LinkMenuItem } from "../components/Link";
