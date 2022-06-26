@@ -1,3 +1,4 @@
+import { styled } from "@mui/material";
 import { useElevatedState } from "../hooks/useElevatedState";
 
 export function TextEditor({
@@ -9,11 +10,12 @@ export function TextEditor({
 }) {
   const [value, setValue] = useElevatedState(inputValue, onChange);
 
-  return (
-    <textarea
-      style={{ height: "50vh", width: "100%" }}
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-    />
-  );
+  return <Text value={value} onChange={(e) => setValue(e.target.value)} />;
 }
+
+const Text = styled("textarea")`
+  display: flex;
+  flex: 1;
+  background-color: ${({ theme }) => theme.palette.background.paper};
+  color: ${({ theme }) => theme.palette.text.primary};
+`;
