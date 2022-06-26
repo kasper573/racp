@@ -15,37 +15,35 @@ export function Toolbar() {
   const inverseMode = mode === "dark" ? "light" : "dark";
   const modeSwitch = modeSwitches[inverseMode];
   return (
-    <>
-      <Box sx={{ ml: "auto", display: "flex" }}>
-        <Tooltip title={modeSwitch.title}>
-          <IconButton
-            onClick={() => dispatch(theme.actions.setMode(inverseMode))}
-            sx={{ mr: 1 }}
-          >
-            {modeSwitch.icon}
-          </IconButton>
-        </Tooltip>
-        <MenuOn
-          tooltip="Admin"
-          trigger={(open) => (
-            <Tooltip title="Admin">
-              <IconButton onClick={open}>
-                <AdminPanelSettings />
-              </IconButton>
-            </Tooltip>
-          )}
+    <Box sx={{ ml: "auto", display: "flex" }}>
+      <Tooltip title={modeSwitch.title}>
+        <IconButton
+          onClick={() => dispatch(theme.actions.setMode(inverseMode))}
+          sx={{ mr: 1 }}
         >
-          <Auth type="protected">
-            <MenuItem onClick={() => dispatch(auth.actions.logout())}>
-              Sign out
-            </MenuItem>
-          </Auth>
-          <Auth type="anonymous">
-            <LinkMenuItem to={router.login()}>Sign in</LinkMenuItem>
-          </Auth>
-        </MenuOn>
-      </Box>
-    </>
+          {modeSwitch.icon}
+        </IconButton>
+      </Tooltip>
+      <MenuOn
+        tooltip="Admin"
+        trigger={(open) => (
+          <Tooltip title="Admin">
+            <IconButton onClick={open}>
+              <AdminPanelSettings />
+            </IconButton>
+          </Tooltip>
+        )}
+      >
+        <Auth type="protected">
+          <MenuItem onClick={() => dispatch(auth.actions.logout())}>
+            Sign out
+          </MenuItem>
+        </Auth>
+        <Auth type="anonymous">
+          <LinkMenuItem to={router.login()}>Sign in</LinkMenuItem>
+        </Auth>
+      </MenuOn>
+    </Box>
   );
 }
 
