@@ -17,7 +17,7 @@ export function AdminConfigEditPage() {
       <ErrorMessage error={updateError} />
       <LinkButton to={router.admin().config()}>Back</LinkButton>
       <Typography>{configName}</Typography>
-      <TextEditor value={value} onChange={setValue} />;
+      <TextEditor value={value} onChange={setValue} />
     </>
   );
 }
