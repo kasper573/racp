@@ -8,12 +8,12 @@ export function enhanceApiWithSuspense(api: AnyApi) {
     const endpoint = api.endpoints[endpointName];
     const { useQuery, useMutation } = endpoint;
     const useResourceQuery = (queryArg: unknown, ...rest: unknown[]) => {
-      const res = useQuery.apply(endpoint, queryArg, ...rest);
+      const res = useQuery.apply(endpoint, [queryArg, ...rest]);
       signalResource(api, endpointName, queryArg);
       return res;
     };
     const useResourceMutation = (...args: unknown[]) => {
-      const res = useMutation.apply(endpoint, ...args);
+      const res = useMutation.apply(endpoint, args);
       signalResource(api, endpointName, res[1].requestId);
       return res;
     };
