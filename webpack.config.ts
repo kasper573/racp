@@ -16,6 +16,7 @@ const config: webpack.Configuration = {
   entry: path.resolve(__dirname, "src", "app", "index.tsx"),
   output: {
     path: path.resolve(__dirname, "./dist"),
+    publicPath: "/",
     filename: "bundle.js",
   },
   devtool: isDevBuild ? "source-map" : undefined,

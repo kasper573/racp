@@ -1,8 +1,8 @@
-import { List, ListItemButton } from "@mui/material";
-import { Link } from "react-typesafe-routes";
+import { List } from "@mui/material";
 import { useListConfigsQuery } from "../client";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { router } from "../router";
+import { LinkListItem } from "../components/Link";
 
 export function AdminConfigPage() {
   const { data: configs, error } = useListConfigsQuery();
@@ -11,13 +11,12 @@ export function AdminConfigPage() {
       <ErrorMessage error={error} />
       <List>
         {configs?.map((configName, index) => (
-          <ListItemButton
+          <LinkListItem
             key={index}
-            component={Link}
             to={router.admin().config().edit({ configName })}
           >
             {configName}
-          </ListItemButton>
+          </LinkListItem>
         ))}
       </List>
     </>

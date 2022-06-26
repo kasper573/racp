@@ -25,7 +25,7 @@ export const router = OptionsRouter({}, (route) => ({
     { component: AdminPage, middleware: AuthMiddleware },
     (route) => ({
       config: route("config", { component: AdminConfigPage }, (route) => ({
-        edit: route("edit/:configName", {
+        edit: route("edit/&:configName", {
           component: AdminConfigEditPage,
           params: { configName: stringParser },
         }),

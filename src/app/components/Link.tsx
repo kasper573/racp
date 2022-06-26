@@ -1,4 +1,9 @@
-import { Button, Link as MuiLink, MenuItem } from "@mui/material";
+import {
+  Button,
+  Link as MuiLink,
+  ListItemButton,
+  MenuItem,
+} from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { Link as RTRLink } from "react-typesafe-routes";
 import { ComponentProps, forwardRef } from "react";
@@ -24,6 +29,19 @@ export function LinkButton(
   return (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     <Button component={LinkBehavior} {...(props as any)} role={undefined} />
+  );
+}
+
+export function LinkListItem(
+  props: ComponentProps<typeof ListItemButton> & AdditionalLinkProps
+) {
+  return (
+    <ListItemButton
+      component={LinkBehavior}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      {...(props as any)}
+      role={undefined}
+    />
   );
 }
 
