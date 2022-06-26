@@ -5,21 +5,12 @@ import { useGetConfigQuery, useUpdateConfigMutation } from "../client";
 import { TextEditor } from "../components/TextEditor";
 import { router } from "../router";
 import { LinkButton } from "../components/Link";
-import { LoadingPage } from "../components/LoadingPage";
 
 export default function AdminConfigEditPage() {
   const { configName } = useRouteParams(router.admin().config().edit);
-  const {
-    data: value,
-    error: queryError,
-    isLoading,
-  } = useGetConfigQuery(configName);
+  const { data: value, error: queryError } = useGetConfigQuery(configName);
   const [update, { error: updateError }] = useUpdateConfigMutation();
   const setValue = (content: string) => update({ name: configName, content });
-
-  if (isLoading) {
-    return <LoadingPage />;
-  }
 
   return (
     <>
