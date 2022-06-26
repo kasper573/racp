@@ -1,19 +1,22 @@
+import "webpack-dev-server";
 import * as path from "path";
 import * as webpack from "webpack";
 import ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 import ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 import HtmlWebpackPlugin = require("html-webpack-plugin");
-import "webpack-dev-server";
 import { defined } from "./src/lib/defined";
 import { loadEnvVars } from "./env";
+import { rootId } from "./src/app/layout/globalStyles";
 
+const env = loadEnvVars(/^app_/);
+const appDirectory = path.resolve(__dirname, "src", "app");
 const NODE_ENV = process.env.NODE_ENV ?? "development";
 const isRefreshEnabled = Boolean(process.env.REACT_REFRESH ?? "false");
 const isDevBuild = NODE_ENV === "development";
 const webpackMode = NODE_ENV === "production" ? "production" : "development";
 
 const config: webpack.Configuration = {
-  entry: path.resolve(__dirname, "src", "app", "index.tsx"),
+  entry: path.resolve(appDirectory, "index.tsx"),
   output: {
     path: path.resolve(__dirname, "./dist"),
     publicPath: "/",
@@ -22,8 +25,14 @@ const config: webpack.Configuration = {
   devtool: isDevBuild ? "source-map" : undefined,
   mode: webpackMode,
   plugins: defined([
-    new webpack.EnvironmentPlugin(loadEnvVars(/^app_/)),
-    new HtmlWebpackPlugin(),
+    new webpack.EnvironmentPlugin(env),
+    new HtmlWebpackPlugin({
+      template: path.resolve(appDirectory, "index.html"),
+      templateParameters: {
+        title: env.app_title,
+        rootId,
+      },
+    }),
     isDevBuild && new ForkTsCheckerWebpackPlugin(),
     isRefreshEnabled && new ReactRefreshWebpackPlugin(),
   ]),

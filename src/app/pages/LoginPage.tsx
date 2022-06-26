@@ -42,8 +42,8 @@ export default function LoginPage() {
 
 const Form = styled("form")`
   display: block;
-  margin: auto;
-  max-width: 375px;
+  margin: 0 auto;
+  width: 375px;
   position: relative;
   ${({ theme }) => theme.breakpoints.up("sm")} {
     top: 20%;
