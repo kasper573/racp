@@ -1,18 +1,63 @@
 import { ReactNode, Suspense } from "react";
-import Container from "@mui/material/Container";
-import { styled } from "@mui/material";
+import {
+  AppBar,
+  Box,
+  Drawer as MuiDrawer,
+  Toolbar as MuiToolbar,
+  Container,
+  Divider,
+  styled,
+  CssBaseline,
+} from "@mui/material";
 import { LoadingPage } from "../components/LoadingPage";
-import { AppBar } from "./AppBar";
 import { globalStyles } from "./globalStyles";
+import { Logo } from "./Logo";
+import { Toolbar } from "./Toolbar";
+import { Menu } from "./Menu";
 
 export function Layout({ children }: { children?: ReactNode }) {
+  const width = 240;
+  const maxWidth = "xl" as const;
+  const contentBounds = {
+    width: `calc(100% - ${width}px)`,
+    ml: `${width}px`,
+    display: "flex",
+    flexDirection: "column",
+    flex: 1,
+  };
   return (
     <>
-      <AppBar />
+      <CssBaseline />
       {globalStyles}
-      <FullscreenContainer maxWidth="xl">
-        <Suspense fallback={<LoadingPage />}>{children}</Suspense>
-      </FullscreenContainer>
+      <AppBar position="fixed" sx={contentBounds}>
+        <MuiToolbar disableGutters>
+          <Container maxWidth={maxWidth} sx={{ display: "flex" }}>
+            <Toolbar />
+          </Container>
+        </MuiToolbar>
+      </AppBar>
+      <MuiDrawer
+        variant="permanent"
+        sx={{
+          "& .MuiDrawer-paper": {
+            boxSizing: "border-box",
+            width,
+          },
+        }}
+        open
+      >
+        <MuiToolbar>
+          <Logo />
+        </MuiToolbar>
+        <Divider />
+        <Menu />
+      </MuiDrawer>
+      <Box component="main" sx={contentBounds}>
+        <MuiToolbar />
+        <FullscreenContainer maxWidth={maxWidth}>
+          <Suspense fallback={<LoadingPage />}>{children}</Suspense>
+        </FullscreenContainer>
+      </Box>
     </>
   );
 }

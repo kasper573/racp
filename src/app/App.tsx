@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { CssBaseline, ThemeProvider } from "@mui/material";
+import { ThemeProvider } from "@mui/material";
 import { RouterSwitch } from "react-typesafe-routes";
 import { useAppSelector } from "./store";
 import { Layout } from "./layout/Layout";
@@ -11,7 +11,6 @@ export function App() {
   const theme = useMemo(() => createTheme(mode), [mode]);
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
       <Layout>
         <RouterSwitch router={router} />
       </Layout>
