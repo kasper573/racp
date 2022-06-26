@@ -4,7 +4,7 @@ import {
   ListItemButton,
   MenuItem,
 } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useLocation } from "react-router-dom";
 import { Link as RTRLink } from "react-typesafe-routes";
 import { ComponentProps, forwardRef } from "react";
 
@@ -38,6 +38,7 @@ export function LinkListItem(
   return (
     <ListItemButton
       component={LinkBehavior}
+      selected={useIsActive(props.to)}
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       {...(props as any)}
       role={undefined}
@@ -48,6 +49,16 @@ export function LinkListItem(
 export function LinkMenuItem(
   props: ComponentProps<typeof MenuItem> & AdditionalLinkProps
 ) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return <MenuItem component={LinkBehavior} {...(props as any)} />;
+  return (
+    <MenuItem
+      component={LinkBehavior}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      {...(props as any)}
+    />
+  );
+}
+
+function useIsActive(to: { $: string }) {
+  const location = useLocation();
+  return location.pathname.startsWith(to.$);
 }
