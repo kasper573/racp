@@ -39,11 +39,11 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
   }),
   item: route("item", {
     component: lazy(() => import("./pages/ItemSearchPage")),
-    options: { title: "Item Search", icon: <Redeem /> },
+    options: { title: "Items", icon: <Redeem /> },
   }),
   monster: route("monster", {
     component: lazy(() => import("./pages/MonsterSearchPage")),
-    options: { title: "Monster Search", icon: <PestControlRodent /> },
+    options: { title: "Monsters", icon: <PestControlRodent /> },
   }),
   admin: route(
     "admin",
