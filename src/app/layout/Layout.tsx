@@ -67,5 +67,5 @@ const FullscreenContainer = styled(Container)`
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: ${({ theme }) => theme.spacing(2)};
+  padding: ${({ theme }) => theme.spacing(3)};
 `;
