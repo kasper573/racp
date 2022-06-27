@@ -5,12 +5,10 @@ import { concatFunctions } from "../../lib/concatFunctions";
 
 export interface MenuOnProps<T extends Element>
   extends Omit<ComponentProps<typeof Menu>, "open"> {
-  tooltip: string;
   trigger: (openMenu: (e: React.MouseEvent<T>) => void) => ReactNode;
 }
 
 export function MenuOn<T extends Element>({
-  tooltip,
   trigger,
   children,
   ...menuProps
