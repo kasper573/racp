@@ -16,14 +16,15 @@ const reducers = {
   [theme.name]: theme.reducer,
 };
 
+const parsers = {
+  [auth.name]: authState,
+  [theme.name]: themeState,
+};
+
 export function createStore() {
   const { preloadedState, storageMiddleware } = rtkStorage({
-    parsers: {
-      [auth.name]: authState,
-      [theme.name]: themeState,
-    },
-    read: (key) => JSON.parse(localStorage.getItem(key) ?? "null"),
-    write: (key, value) => localStorage.setItem(key, JSON.stringify(value)),
+    ...localStorageProtocol,
+    parsers,
     isEqual,
   });
 
@@ -40,3 +41,9 @@ export type AppDispatch = ReturnType<typeof createStore>["dispatch"];
 
 export const useAppDispatch: () => AppDispatch = useDispatch;
 export const useAppSelector: TypedUseSelectorHook<AppState> = useSelector;
+
+const localStorageProtocol = {
+  read: (key: string) => JSON.parse(localStorage.getItem(key) ?? "null"),
+  write: (key: string, value: unknown) =>
+    localStorage.setItem(key, JSON.stringify(value)),
+};
