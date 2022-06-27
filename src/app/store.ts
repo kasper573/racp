@@ -22,7 +22,7 @@ const parsers = {
 };
 
 export function createStore() {
-  const { preloadedState, storageMiddleware } = rtkStorage({
+  const { preloadedState, storageMiddleware } = rtkStorage<AppState>()({
     ...localStorageProtocol,
     parsers,
     isEqual,
