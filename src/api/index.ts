@@ -10,23 +10,29 @@ import { createAuthenticator } from "./authenticator";
 import { usersFixture } from "./fixtures/users";
 import { authDefinition } from "./services/auth.definition";
 import { createAuthHandlers } from "./services/auth.handlers";
+import { itemDefinition } from "./services/item.definition";
+import { createItemHandlers } from "./services/item.handlers";
+import { createRAES } from "./raes";
 
+// Vars
 const env = loadEnvVars(/^api_/);
-
-const app = express();
-const auth = createAuthenticator({ secret: env.api_jwtSecret ?? "" });
-const isAuthenticated = (req: JWTRequest) => !!req.auth;
-const rpc = createRpcMiddlewareFactory(isAuthenticated);
-
 const port = env.api_port;
+const secret = env.api_jwtSecret ?? "";
+const rAthenaPath = env.api_rAthenaPath ?? "";
+const rAthenaMode = env.api_rAthenaMode ?? "";
+
+// Mechanics
+const app = express();
+const auth = createAuthenticator({ secret });
+const raes = createRAES({ rAthenaPath, mode: rAthenaMode });
+const rpc = createRpcMiddlewareFactory((req: JWTRequest) => !!req.auth);
 const users = usersFixture(auth, env.api_adminPassword);
 
 app.use(auth.middleware);
 app.use(cors());
-app.use(
-  rpc(configDefinition.entries, createConfigHandlers(env.api_rAthenaPath ?? ""))
-);
+app.use(rpc(configDefinition.entries, createConfigHandlers(rAthenaPath)));
 app.use(rpc(authDefinition.entries, createAuthHandlers(users, auth)));
+app.use(rpc(itemDefinition.entries, createItemHandlers(raes)));
 
 http.createServer(app).listen(port, () => {
   console.log(`API is running on port ${port}`);
