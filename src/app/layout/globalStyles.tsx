@@ -1,5 +1,4 @@
 import { GlobalStyles } from "@mui/material";
-import * as React from "react";
 
 export const rootId = "root";
 

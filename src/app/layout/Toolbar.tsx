@@ -1,4 +1,3 @@
-import * as React from "react";
 import { AdminPanelSettings, DarkMode, LightMode } from "@mui/icons-material";
 import { Tooltip, IconButton, Box, MenuItem } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../store";

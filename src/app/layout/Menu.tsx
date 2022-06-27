@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Divider, Typography } from "@mui/material";
 import { router } from "../router";
 import { Auth } from "../components/Auth";
