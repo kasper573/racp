@@ -1,9 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit";
+import * as zod from "zod";
 import { AppState } from "../store";
 import { client } from "../client";
-import { PublicUser } from "../../api/services/auth.definition";
+import { publicUser } from "../../api/services/auth.definition";
 
-const initialState = {} as AuthState;
+export const authState = zod.object({
+  token: zod.string().optional(),
+  user: publicUser.optional(),
+});
+
+export type AuthState = zod.infer<typeof authState>;
+
+const initialState: AuthState = {};
 
 export const auth = createSlice({
   name: "auth",
@@ -30,8 +38,3 @@ export const selectIsAuthenticated = (state: AppState) =>
   state.auth.token !== undefined;
 
 export const selectAuthenticatedUser = (state: AppState) => state.auth.user;
-
-interface AuthState {
-  token?: string;
-  user?: PublicUser;
-}

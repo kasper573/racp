@@ -9,9 +9,7 @@ const user = zod.object({
   passwordHash: zod.string(),
 });
 
-export type PublicUser = zod.infer<typeof publicUser>;
-
-const publicUser = user.omit({ passwordHash: true });
+export const publicUser = user.omit({ passwordHash: true });
 
 export const authDefinition = createRpcDefinition({
   entries: (builder) =>
