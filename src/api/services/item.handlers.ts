@@ -27,10 +27,26 @@ export function createItemHandlers(raes: RAES) {
 }
 
 function collectItemMeta(items: Item[]) {
-  return collectUnique(items, {
-    genders: (item) => (item.Gender ? [item.Gender] : []),
-    classes: (item) => Object.keys(item.Classes ?? {}),
-    jobs: (item) => Object.keys(item.Jobs ?? {}),
-    locations: (item) => Object.keys(item.Locations ?? {}),
-  });
+  return {
+    types: collectItemTypes(items),
+    ...collectUnique(items, {
+      genders: (item) => (item.Gender ? [item.Gender] : []),
+      classes: (item) => Object.keys(item.Classes ?? {}),
+      jobs: (item) => Object.keys(item.Jobs ?? {}),
+      locations: (item) => Object.keys(item.Locations ?? {}),
+    }),
+  };
+}
+
+function collectItemTypes(items: Item[]) {
+  const types: Record<string, string[]> = {};
+  for (const item of items) {
+    if (item.Type) {
+      const subTypes: string[] = types[item.Type] || (types[item.Type] = []);
+      if (item.SubType && !subTypes.includes(item.SubType)) {
+        subTypes.push(item.SubType);
+      }
+    }
+  }
+  return types;
 }

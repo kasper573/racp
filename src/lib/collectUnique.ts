@@ -8,15 +8,13 @@ export function collectUnique<S, C extends Collectors<S>>(
   const sum = {} as Collection<S, C>;
   for (const key of keys) {
     const collect = collectors[key];
-    const unique = [] as ReturnType<C[typeof key]>;
+    const unique = new Map<unknown, unknown>();
     for (const value of values) {
       for (const item of collect(value)) {
-        if (!unique.includes(item)) {
-          unique.push(item);
-        }
+        unique.set(item, true);
       }
     }
-    sum[key] = unique;
+    sum[key] = Array.from(unique.keys()) as ReturnType<C[typeof key]>;
   }
   return sum;
 }

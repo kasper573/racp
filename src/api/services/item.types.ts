@@ -2,7 +2,7 @@ import * as zod from "zod";
 
 export type Item = zod.infer<typeof itemType>;
 
-export const itemId = zod.number();
+export const itemIdType = zod.number();
 
 export const itemType = zod.object({
   Id: zod.number(),
@@ -88,9 +88,10 @@ export const itemType = zod.object({
 
 export const itemSearchType = itemType.partial();
 
-export const itemMeta = zod.object({
+export const itemMetaType = zod.object({
   genders: zod.array(zod.string()),
   classes: zod.array(zod.string()),
   jobs: zod.array(zod.string()),
   locations: zod.array(zod.string()),
+  types: zod.record(zod.string(), zod.array(zod.string())),
 });
