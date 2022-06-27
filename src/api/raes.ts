@@ -3,6 +3,8 @@ import * as path from "path";
 import * as zod from "zod";
 import * as yaml from "yaml";
 import { ZodType } from "zod";
+import { isPlainObject } from "@reduxjs/toolkit";
+import { typedKeys } from "../lib/typedKeys";
 
 /**
  * rAthena Entity System
@@ -10,27 +12,27 @@ import { ZodType } from "zod";
 export function createRAES(options: { rAthenaPath: string; mode: string }) {
   const { rAthenaPath, mode } = options;
 
-  async function loadNode(file: string) {
-    return dbNode.parse(
-      yaml.parse(
-        await fs.promises.readFile(path.resolve(rAthenaPath, file), "utf-8")
-      )
+  function loadNode(file: string) {
+    const unknownObject = yaml.parse(
+      fs.readFileSync(path.resolve(rAthenaPath, file), "utf-8")
     );
+    filterNulls(unknownObject);
+    return dbNode.parse(unknownObject);
   }
 
-  async function resolve<Entity, Key>(
+  function resolve<Entity, Key>(
     file: string,
     entityType: ZodType<Entity>,
-    getKey: (entity: Entity) => Key,
-    entities = new Map<Key, Entity>()
-  ): Promise<Map<Key, Entity>> {
+    getKey: (entity: Entity) => Key
+  ): Map<Key, Entity> {
     const imports: ImportNode[] = [{ Path: file, Mode: mode }];
+    const entities = new Map<Key, Entity>();
 
     while (imports.length) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const imp = imports.shift()!;
       if (!imp.Mode || imp.Mode === mode) {
-        const { Body, Footer } = await loadNode(imp.Path);
+        const { Body, Footer } = loadNode(imp.Path);
         for (const raw of Body ?? []) {
           const entity = entityType.parse(raw);
           entities.set(getKey(entity), entity);
@@ -43,15 +45,6 @@ export function createRAES(options: { rAthenaPath: string; mode: string }) {
   }
   return {
     resolve,
-    alloc<Entity, Key>(
-      file: string,
-      entityType: ZodType<Entity>,
-      getKey: (entity: Entity) => Key
-    ) {
-      const entities = new Map<Key, Entity>();
-      resolve(file, entityType, getKey, entities);
-      return entities;
-    },
   };
 }
 
@@ -79,3 +72,19 @@ const dbNode = zod.object({
   Body: bodyNode.optional(),
   Footer: footerNode.optional(),
 });
+
+function filterNulls(value: unknown) {
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      filterNulls(item);
+    }
+  } else if (isPlainObject(value)) {
+    for (const key of typedKeys(value)) {
+      if (value[key] === null) {
+        delete value[key];
+      } else {
+        filterNulls(value[key]);
+      }
+    }
+  }
+}

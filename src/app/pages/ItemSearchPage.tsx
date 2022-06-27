@@ -1,5 +1,12 @@
 import { Header } from "../layout/Header";
+import { useGetItemMetaQuery } from "../client";
 
 export default function ItemSearchPage() {
-  return <Header>Item Search</Header>;
+  const { data } = useGetItemMetaQuery();
+  return (
+    <>
+      <Header>Item Search</Header>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
+    </>
+  );
 }
