@@ -6,10 +6,12 @@ import { BrowserRouter } from "react-router-dom";
 import { App } from "./App";
 import { createStore } from "./store";
 import { rootId } from "./layout/globalStyles";
+import { setupAuthBehavior } from "./state/auth";
 
 const root = document.getElementById(rootId);
 if (root) {
   const store = createStore();
+  setupAuthBehavior(store, ({ auth }) => auth);
   createRoot(root).render(
     <StrictMode>
       <Provider store={store}>

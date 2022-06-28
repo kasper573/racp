@@ -1,6 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, Store } from "@reduxjs/toolkit";
 import * as zod from "zod";
-import { AppState } from "../store";
 import { client } from "../client";
 import { publicUser } from "../../api/services/auth.definition";
 
@@ -34,7 +33,21 @@ export const auth = createSlice({
     ),
 });
 
-export const selectIsAuthenticated = (state: AppState) =>
-  state.auth.token !== undefined;
+function isTokenExpired(token: string) {
+  const expiry = JSON.parse(atob(token.split(".")[1])).exp;
+  return Math.floor(new Date().getTime() / 1000) >= expiry;
+}
 
-export const selectAuthenticatedUser = (state: AppState) => state.auth.user;
+export function setupAuthBehavior<S extends Store>(
+  { getState, dispatch }: S,
+  selectState: (state: ReturnType<Store["getState"]>) => AuthState,
+  interval = 1000
+) {
+  const intervalId = setInterval(() => {
+    const { token } = selectState(getState());
+    if (token && isTokenExpired(token)) {
+      dispatch(auth.actions.logout());
+    }
+  }, interval);
+  return () => clearInterval(intervalId);
+}

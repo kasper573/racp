@@ -15,10 +15,9 @@ import {
   Redeem,
 } from "@mui/icons-material";
 import { useAppSelector } from "./store";
-import { selectIsAuthenticated } from "./state/auth";
 
 const AuthMiddleware: RouteMiddleware = (next) => {
-  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const isAuthenticated = useAppSelector(({ auth }) => !!auth.token);
   return isAuthenticated ? next : () => <Redirect to={router.login()} />;
 };
 

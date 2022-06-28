@@ -1,6 +1,5 @@
-import { useSelector } from "react-redux";
 import { ReactNode } from "react";
-import { selectIsAuthenticated } from "../state/auth";
+import { useAppSelector } from "../store";
 
 export interface AuthProps {
   children: ReactNode;
@@ -8,7 +7,7 @@ export interface AuthProps {
 }
 
 export function Auth({ children, type }: AuthProps) {
-  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const isAuthenticated = useAppSelector(({ auth }) => !!auth.token);
   if (isAuthenticated && type === "protected") {
     return <>{children}</>;
   }
