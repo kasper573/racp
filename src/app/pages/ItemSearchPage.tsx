@@ -14,7 +14,7 @@ export default function ItemSearchPage() {
   const [pageNumber, setPageNumber] = useState(0);
   const [pageSize, setPageSize] = useState(20);
   const [sort, setSort] = useState<SearchSort<Item>>([]);
-  const { data: result, isFetching } = useSearchItemsQuery({
+  const { data: result } = useSearchItemsQuery({
     sort,
     offset: pageNumber * pageSize,
     limit: pageSize,
@@ -22,35 +22,33 @@ export default function ItemSearchPage() {
   return (
     <>
       <Header>Item Search</Header>
-      {result && (
-        <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-          <Box></Box>
-          <Box sx={{ flex: 1 }}>
-            <NoFocusGrid
-              columns={itemColumns}
-              rows={result.entities}
-              getRowId={(entity) => entity.Id}
-              filterMode="server"
-              sortingMode="server"
-              paginationMode="server"
-              page={pageNumber}
-              pageSize={pageSize}
-              onPageChange={setPageNumber}
-              onPageSizeChange={setPageSize}
-              onSortModelChange={
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                setSort as any
-              }
-              sortModel={sort}
-              rowsPerPageOptions={[20]}
-              pagination
-              disableSelectionOnClick
-              rowCount={result.total}
-              loading={isFetching}
-            />
-          </Box>
+      <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+        <Box></Box>
+        <Box sx={{ flex: 1 }}>
+          <NoFocusGrid
+            disableColumnFilter
+            columns={itemColumns}
+            rows={result?.entities ?? []}
+            getRowId={(entity) => entity.Id}
+            filterMode="server"
+            sortingMode="server"
+            paginationMode="server"
+            page={pageNumber}
+            pageSize={pageSize}
+            onPageChange={setPageNumber}
+            onPageSizeChange={setPageSize}
+            onSortModelChange={
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              setSort as any
+            }
+            sortModel={sort}
+            rowsPerPageOptions={[20]}
+            pagination
+            disableSelectionOnClick
+            rowCount={result?.total ?? 0}
+          />
         </Box>
-      )}
+      </Box>
     </>
   );
 }
