@@ -7,6 +7,8 @@ export const sortDirectionType = zod.union([
   zod.literal("desc"),
 ]);
 
+export type SearchQueryEntity<T> = T extends SearchQuery<infer E> ? E : never;
+
 export interface SearchQuery<T> {
   filter?: SearchFilter<T>;
   sort?: SearchSort<T>;
