@@ -46,6 +46,7 @@ export function DataGrid<Entity, Id extends GridRowId>({
           filterMode="server"
           sortingMode="server"
           paginationMode="server"
+          autoPageSize={true}
           page={pageIndex}
           pageSize={pageSize}
           onPageChange={setPageIndex}
@@ -59,7 +60,6 @@ export function DataGrid<Entity, Id extends GridRowId>({
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             sort as any
           }
-          rowsPerPageOptions={[20]}
           pagination
           disableSelectionOnClick
           rowCount={result?.total ?? 0}
