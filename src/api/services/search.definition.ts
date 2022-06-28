@@ -13,10 +13,12 @@ export function createSearchTypes<T extends AnyZodObject>(entityType: T) {
   type Entity = zod.infer<T>;
   const filterType: ZodType<SearchFilter<Entity>> = zod.array(zod.unknown());
 
-  const sortType: ZodType<SearchSort<Entity>> = zod.object({
-    path: zodPath(entityType),
-    direction: sortDirectionType,
-  });
+  const sortType: ZodType<SearchSort<Entity>> = zod.array(
+    zod.object({
+      field: zodPath(entityType),
+      sort: sortDirectionType,
+    })
+  );
 
   const queryType: ZodType<SearchQuery<Entity>> = zod.object({
     filter: filterType.optional(),
@@ -28,7 +30,6 @@ export function createSearchTypes<T extends AnyZodObject>(entityType: T) {
   const resultType: ZodType<SearchResult<Entity>> = zod.object({
     total: zod.number(),
     entities: zod.array(entityType),
-    hasMore: zod.boolean(),
   });
 
   return [queryType, resultType] as const;
