@@ -3,6 +3,7 @@ import {
   RouteMiddleware,
   Redirect,
   stringParser,
+  intParser,
 } from "react-typesafe-routes";
 import { lazy } from "react";
 import {
@@ -36,10 +37,20 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
     component: lazy(() => import("./pages/LoginPage")),
     options: { title: "Sign in", icon: <Login /> },
   }),
-  item: route("item", {
-    component: lazy(() => import("./pages/ItemSearchPage")),
-    options: { title: "Items", icon: <Redeem /> },
-  }),
+  item: route(
+    "item",
+    {
+      component: lazy(() => import("./pages/ItemSearchPage")),
+      options: { title: "Items", icon: <Redeem /> },
+    },
+    (route) => ({
+      view: route("view/:id", {
+        component: lazy(() => import("./pages/ItemViewPage")),
+        options: { title: "Item", icon: <Redeem /> },
+        params: { id: intParser },
+      }),
+    })
+  ),
   monster: route("monster", {
     component: lazy(() => import("./pages/MonsterSearchPage")),
     options: { title: "Monsters", icon: <PestControlRodent /> },
@@ -61,8 +72,8 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
         (route) => ({
           edit: route("edit/&:configName", {
             component: lazy(() => import("./pages/AdminConfigEditPage")),
-            options: { title: "Edit" },
-            params: { configName: stringParser, icon: <ModeEdit /> },
+            options: { title: "Edit", icon: <ModeEdit /> },
+            params: { configName: stringParser },
           }),
         })
       ),
