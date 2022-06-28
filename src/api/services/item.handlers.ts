@@ -4,6 +4,7 @@ import { RpcException } from "../../lib/rpc/RpcException";
 import { collectUnique } from "../../lib/collectUnique";
 import { itemDefinition } from "./item.definition";
 import { Item, itemType } from "./item.types";
+import { createSearchHandler } from "./search.handlers";
 
 export function createItemHandlers(raes: RAES) {
   const items = raes.resolve("db/item_db.yml", itemType, (entity) => entity.Id);
@@ -13,9 +14,7 @@ export function createItemHandlers(raes: RAES) {
     async getItemMeta() {
       return meta;
     },
-    async searchItems() {
-      return Array.from(items.values()).slice(0, 100);
-    },
+    searchItems: createSearchHandler(Array.from(items.values())),
     async getItem(itemId) {
       const item = items.get(itemId);
       if (!item) {

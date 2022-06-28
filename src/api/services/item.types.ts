@@ -86,8 +86,6 @@ export const itemType = zod.object({
   UnEquipScript: zod.string().optional(),
 });
 
-export const itemSearchType = itemType.partial();
-
 export const itemMetaType = zod.object({
   genders: zod.array(zod.string()),
   classes: zod.array(zod.string()),

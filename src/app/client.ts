@@ -33,6 +33,7 @@ enhanceApiWithSuspense(client);
 
 export const {
   useGetItemMetaQuery,
+  useSearchItemsQuery,
   useListConfigsQuery,
   useGetConfigQuery,
   useUpdateConfigMutation,
