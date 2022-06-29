@@ -20,6 +20,7 @@ const port = env.api_port;
 const secret = env.api_jwtSecret ?? "";
 const rAthenaPath = env.api_rAthenaPath ?? "";
 const rAthenaMode = env.api_rAthenaMode ?? "";
+const tradeScale = parseFloat(env.api_tradeScale ?? "");
 
 // Mechanics
 const app = express();
@@ -32,7 +33,7 @@ app.use(auth.middleware);
 app.use(cors());
 app.use(rpc(configDefinition.entries, createConfigHandlers(rAthenaPath)));
 app.use(rpc(authDefinition.entries, createAuthHandlers(users, auth)));
-app.use(rpc(itemDefinition.entries, createItemHandlers(raes)));
+app.use(rpc(itemDefinition.entries, createItemHandlers({ raes, tradeScale })));
 
 http.createServer(app).listen(port, () => {
   console.log(`API is running on port ${port}`);

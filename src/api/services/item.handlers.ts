@@ -6,9 +6,20 @@ import { itemDefinition } from "./item.definition";
 import { Item, itemType } from "./item.types";
 import { createSearchHandler } from "./search.handlers";
 
-export function createItemHandlers(raes: RAES) {
-  const items = raes.resolve("db/item_db.yml", itemType, (entity) => entity.Id);
+export function createItemHandlers({
+  raes: { resolve },
+  tradeScale,
+}: {
+  raes: RAES;
+  tradeScale: number;
+}) {
+  const items = resolve("db/item_db.yml", itemType, (o) => o.Id, setDefaults);
   const meta = collectItemMeta(Array.from(items.values()));
+
+  function setDefaults(item: Item) {
+    item.Buy = item.Buy ?? (item.Sell ?? 0) * tradeScale;
+    item.Sell = item.Sell ?? (item.Buy ?? 0) / tradeScale;
+  }
 
   return createRpcHandlers(itemDefinition.entries, {
     async getItemMeta() {

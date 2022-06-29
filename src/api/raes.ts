@@ -9,6 +9,8 @@ import { typedKeys } from "../lib/typedKeys";
 /**
  * rAthena Entity System
  */
+export type RAES = ReturnType<typeof createRAES>;
+
 export function createRAES(options: { rAthenaPath: string; mode: string }) {
   const { rAthenaPath, mode } = options;
 
@@ -23,7 +25,8 @@ export function createRAES(options: { rAthenaPath: string; mode: string }) {
   function resolve<Entity, Key>(
     file: string,
     entityType: ZodType<Entity>,
-    getKey: (entity: Entity) => Key
+    getKey: (entity: Entity) => Key,
+    process: (entity: Entity) => void = noop
   ): Map<Key, Entity> {
     const imports: ImportNode[] = [{ Path: file, Mode: mode }];
     const entities = new Map<Key, Entity>();
@@ -35,6 +38,7 @@ export function createRAES(options: { rAthenaPath: string; mode: string }) {
         const { Body, Footer } = loadNode(imp.Path);
         for (const raw of Body ?? []) {
           const entity = entityType.parse(raw);
+          process(entity);
           entities.set(getKey(entity), entity);
         }
         imports.push(...(Footer?.Imports ?? []));
@@ -47,8 +51,6 @@ export function createRAES(options: { rAthenaPath: string; mode: string }) {
     resolve,
   };
 }
-
-export type RAES = ReturnType<typeof createRAES>;
 
 const headerNode = zod.object({
   Type: zod.string(),
@@ -88,3 +90,5 @@ function filterNulls(value: unknown) {
     }
   }
 }
+
+const noop = () => undefined;
