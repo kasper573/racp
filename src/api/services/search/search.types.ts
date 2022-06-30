@@ -1,6 +1,7 @@
 import * as zod from "zod";
 import { AnyZodObject, ZodType } from "zod";
 import { Path, zodPath } from "../../../lib/zodPath";
+import { zodRegexString } from "../../../lib/zodRegexString";
 
 export const sortDirectionType = zod.union([
   zod.literal("asc"),
@@ -12,7 +13,7 @@ export function createSearchTypes<T extends AnyZodObject>(entityType: T) {
 
   const pathType = zodPath(entityType);
 
-  const filterType = createSearchFilterType(entityType) as unknown as ZodType<
+  const filterType = createSearchFilterType(entityType) as ZodType<
     SearchFilter<Entity>
   >;
 
@@ -62,7 +63,7 @@ export function createSearchFilterType<T extends AnyZodObject>(entityType: T) {
     option("lte", primitive),
     option("between", zod.tuple([primitive, primitive])),
     option("oneOf", zod.array(primitive)),
-    option("regexp", zod.string()),
+    option("regexp", zodRegexString()),
   ]);
 }
 

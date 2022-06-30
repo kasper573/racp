@@ -1,4 +1,5 @@
 import { get } from "lodash";
+import { parseRegexString } from "../../../lib/zodRegexString";
 import {
   SearchFilter,
   SearchFilterOperator,
@@ -83,5 +84,6 @@ const searchFilterOperators = {
   lte: <T>(a: T, b: T) => a <= b,
   between: <T>(a: T, [x, y]: [T, T]) => a >= x && a <= y,
   oneOf: <T>(a: T, list: T[]) => list.includes(a),
-  regexp: <T>(a: T, exp: string) => new RegExp(exp).test(`${a}`),
+  regexp: <T>(a: T, exp: string) =>
+    parseRegexString(exp)?.test(`${a}`) ?? false,
 };
