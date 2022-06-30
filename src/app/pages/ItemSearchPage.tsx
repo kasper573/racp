@@ -1,7 +1,7 @@
 import { Header } from "../layout/Header";
 import { useSearchItemsQuery } from "../client";
 import { router } from "../router";
-import { Item } from "../../api/services/item.types";
+import { Item } from "../../api/services/item/item.types";
 import { DataGrid } from "../components/DataGrid";
 
 export default function ItemSearchPage() {

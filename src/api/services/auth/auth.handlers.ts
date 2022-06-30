@@ -1,9 +1,10 @@
-import { createRpcHandlers } from "../../lib/rpc/createRpcHandlers";
-import { RpcException } from "../../lib/rpc/RpcException";
-import { Authenticator } from "../authenticator";
-import { authDefinition, User } from "./auth.definition";
+import { createRpcHandlers } from "../../../lib/rpc/createRpcHandlers";
+import { RpcException } from "../../../lib/rpc/RpcException";
+import { Authenticator } from "../../authenticator";
+import { authDefinition } from "./auth.definition";
+import { InternalUser } from "./auth.types";
 
-export function createAuthHandlers(users: User[], auth: Authenticator) {
+export function createAuthHandlers(users: InternalUser[], auth: Authenticator) {
   return createRpcHandlers(authDefinition.entries, {
     async login({ username, password }) {
       const user = users.find(

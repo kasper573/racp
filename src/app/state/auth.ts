@@ -1,11 +1,11 @@
 import { createSlice, Store } from "@reduxjs/toolkit";
 import * as zod from "zod";
 import { client } from "../client";
-import { publicUser } from "../../api/services/auth.definition";
+import { publicUserType } from "../../api/services/auth/auth.types";
 
 export const authState = zod.object({
   token: zod.string().optional(),
-  user: publicUser.optional(),
+  user: publicUserType.optional(),
 });
 
 export type AuthState = zod.infer<typeof authState>;

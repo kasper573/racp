@@ -4,14 +4,14 @@ import cors = require("cors");
 import { Request as JWTRequest } from "express-jwt";
 import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
 import { loadEnvVars } from "../../env";
-import { configDefinition } from "./services/config.definition";
-import { createConfigHandlers } from "./services/config.handlers";
+import { configDefinition } from "./services/config/config.definition";
+import { createConfigHandlers } from "./services/config/config.handlers";
 import { createAuthenticator } from "./authenticator";
 import { usersFixture } from "./fixtures/users";
-import { authDefinition } from "./services/auth.definition";
-import { createAuthHandlers } from "./services/auth.handlers";
-import { itemDefinition } from "./services/item.definition";
-import { createItemHandlers } from "./services/item.handlers";
+import { authDefinition } from "./services/auth/auth.definition";
+import { createAuthHandlers } from "./services/auth/auth.handlers";
+import { itemDefinition } from "./services/item/item.definition";
+import { createItemHandlers } from "./services/item/item.handlers";
 import { createRAES } from "./raes";
 
 // Vars

@@ -1,12 +1,6 @@
 import * as zod from "zod";
 import { AnyZodObject, ZodType } from "zod";
-import { zodPath } from "../../lib/zodPath";
-import {
-  SearchFilter,
-  SearchQuery,
-  SearchResult,
-  SearchSort,
-} from "./search.types";
+import { Path, zodPath } from "../../../lib/zodPath";
 
 export const sortDirectionType = zod.union([
   zod.literal("asc"),
@@ -70,4 +64,38 @@ export function createSearchFilterType<T extends AnyZodObject>(entityType: T) {
     option("oneOf", zod.array(primitive)),
     option("regexp", zod.string()),
   ]);
+}
+
+export type SortDirection = zod.infer<typeof sortDirectionType>;
+
+export interface SearchQuery<T> {
+  filter?: SearchFilters<T>;
+  sort?: SearchSort<T>;
+  offset?: number;
+  limit?: number;
+}
+
+export type SearchFilters<T> = Array<SearchFilter<T>>;
+
+export type AnySearchFilter = zod.infer<
+  ReturnType<typeof createSearchFilterType>
+>;
+
+export type SearchFilterOperator = AnySearchFilter["operator"];
+
+export type SearchFilter<
+  T,
+  K extends SearchFilterOperator = SearchFilterOperator
+> = Omit<Extract<AnySearchFilter, { operator: K }>, "field"> & {
+  field: Path<T>;
+};
+
+export type SearchSort<T> = Array<{
+  field: Path<T>;
+  sort: SortDirection;
+}>;
+
+export interface SearchResult<T> {
+  total: number;
+  entities: T[];
 }

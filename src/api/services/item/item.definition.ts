@@ -1,7 +1,7 @@
 import * as zod from "zod";
-import { createRpcDefinition } from "../../lib/rpc/createRpcDefinition";
-import { createTagFactory } from "../../lib/createTagFactory";
-import { createSearchTypes } from "./search.definition";
+import { createRpcDefinition } from "../../../lib/rpc/createRpcDefinition";
+import { createTagFactory } from "../../../lib/createTagFactory";
+import { createSearchTypes } from "../search/search.types";
 import { itemIdType, itemMetaType, itemType } from "./item.types";
 
 const tag = createTagFactory("Item");

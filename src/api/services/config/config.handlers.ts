@@ -1,8 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
 import recursiveReadDir = require("recursive-readdir");
-import { createRpcHandlers } from "../../lib/rpc/createRpcHandlers";
-import { RpcException } from "../../lib/rpc/RpcException";
+import { createRpcHandlers } from "../../../lib/rpc/createRpcHandlers";
+import { RpcException } from "../../../lib/rpc/RpcException";
 import { configDefinition } from "./config.definition";
 
 export function createConfigHandlers(rAthenaPath: string) {
