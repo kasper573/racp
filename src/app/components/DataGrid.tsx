@@ -5,6 +5,7 @@ import { GridRowId } from "@mui/x-data-grid/models/gridRows";
 import { GridRenderCellParams } from "@mui/x-data-grid/models/params/gridCellParams";
 import { GridEnrichedColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
 import {
+  SearchFilters,
   SearchQuery,
   SearchResult,
   SearchSort,
@@ -13,11 +14,13 @@ import { typedKeys } from "../../lib/typedKeys";
 import { Link } from "./Link";
 
 export function DataGrid<Entity, Id extends GridRowId>({
+  filter,
   query: useQuery,
   columns,
   id,
   link,
 }: ColumnConventionProps<Entity, Id> & {
+  filter?: SearchFilters<Entity>;
   query: (query: SearchQuery<Entity>) => {
     data?: SearchResult<Entity>;
     isFetching: boolean;
@@ -27,6 +30,7 @@ export function DataGrid<Entity, Id extends GridRowId>({
   const [pageSize, setPageSize] = useState(20);
   const [sort, setSort] = useState<SearchSort<Entity>>([]);
   const { data: result, isFetching } = useQuery({
+    filter,
     sort,
     offset: pageIndex * pageSize,
     limit: pageSize,
