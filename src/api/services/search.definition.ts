@@ -6,22 +6,31 @@ import {
   SearchQuery,
   SearchResult,
   SearchSort,
-  sortDirectionType,
 } from "./search.types";
+
+export const sortDirectionType = zod.union([
+  zod.literal("asc"),
+  zod.literal("desc"),
+]);
 
 export function createSearchTypes<T extends AnyZodObject>(entityType: T) {
   type Entity = zod.infer<T>;
-  const filterType: ZodType<SearchFilter<Entity>> = zod.array(zod.unknown());
+
+  const pathType = zodPath(entityType);
+
+  const filterType = createSearchFilterType(entityType) as unknown as ZodType<
+    SearchFilter<Entity>
+  >;
 
   const sortType: ZodType<SearchSort<Entity>> = zod.array(
     zod.object({
-      field: zodPath(entityType),
+      field: pathType,
       sort: sortDirectionType,
     })
   );
 
   const queryType: ZodType<SearchQuery<Entity>> = zod.object({
-    filter: filterType.optional(),
+    filter: zod.array(filterType).optional(),
     sort: sortType.optional(),
     offset: zod.number().optional(),
     limit: zod.number().optional(),
@@ -33,4 +42,32 @@ export function createSearchTypes<T extends AnyZodObject>(entityType: T) {
   });
 
   return [queryType, resultType] as const;
+}
+
+export function createSearchFilterType<T extends AnyZodObject>(entityType: T) {
+  const primitive = zod.union([zod.string(), zod.number()]);
+  const field = zodPath(entityType);
+
+  function option<OperatorName extends string, Argument extends ZodType>(
+    operatorName: OperatorName,
+    argument: Argument
+  ) {
+    return zod.object({
+      field,
+      operator: zod.literal(operatorName),
+      argument,
+    });
+  }
+
+  return zod.union([
+    option("eq", primitive),
+    option("ne", primitive),
+    option("gt", primitive),
+    option("lt", primitive),
+    option("gte", primitive),
+    option("lte", primitive),
+    option("between", zod.tuple([primitive, primitive])),
+    option("oneOf", zod.array(primitive)),
+    option("regexp", zod.string()),
+  ]);
 }
