@@ -1,7 +1,7 @@
 import * as zod from "zod";
 import { AnyZodObject, ZodType } from "zod";
-import { Path, zodPath } from "../../../lib/zodPath";
-import { zodRegexString } from "../../../lib/zodRegexString";
+import { Path, zodPath } from "../../../lib/zod/zodPath";
+import { zodRegexString } from "../../../lib/zod/zodRegexString";
 
 export const sortDirectionType = zod.union([
   zod.literal("asc"),

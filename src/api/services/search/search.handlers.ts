@@ -1,5 +1,5 @@
 import { get } from "lodash";
-import { parseRegexString } from "../../../lib/zodRegexString";
+import { parseRegexString } from "../../../lib/zod/zodRegexString";
 import {
   SearchFilterItem,
   SearchFilterOperator,
