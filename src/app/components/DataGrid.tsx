@@ -5,7 +5,7 @@ import { GridRowId } from "@mui/x-data-grid/models/gridRows";
 import { GridRenderCellParams } from "@mui/x-data-grid/models/params/gridCellParams";
 import { GridEnrichedColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
 import {
-  SearchFilters,
+  SearchFilter,
   SearchQuery,
   SearchResult,
   SearchSort,
@@ -20,7 +20,7 @@ export function DataGrid<Entity, Id extends GridRowId>({
   id,
   link,
 }: ColumnConventionProps<Entity, Id> & {
-  filter?: SearchFilters<Entity>;
+  filter?: SearchFilter<Entity>;
   query: (query: SearchQuery<Entity>) => {
     data?: SearchResult<Entity>;
     isFetching: boolean;

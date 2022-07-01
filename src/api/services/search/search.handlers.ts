@@ -1,9 +1,9 @@
 import { get } from "lodash";
 import { parseRegexString } from "../../../lib/zodRegexString";
 import {
-  SearchFilter,
+  SearchFilterItem,
   SearchFilterOperator,
-  SearchFilters,
+  SearchFilter,
   SearchQuery,
   SearchResult,
   SearchSort,
@@ -33,11 +33,11 @@ export function createSearchHandler<T>(entities: T[]) {
   };
 }
 
-export function isMatch<T>(entity: T, filters: SearchFilters<T>): boolean {
+export function isMatch<T>(entity: T, filters: SearchFilter<T>): boolean {
   for (const filter of filters) {
     let match = false;
     (<K extends SearchFilterOperator>() => {
-      const { field, operator, argument } = filter as SearchFilter<T, K>;
+      const { field, operator, argument } = filter as SearchFilterItem<T, K>;
       const value = get(entity, field);
       const fn = searchFilterOperators[operator];
       match = fn(value, argument);

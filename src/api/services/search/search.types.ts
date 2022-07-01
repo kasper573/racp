@@ -14,7 +14,7 @@ export function createSearchTypes<T extends AnyZodObject>(entityType: T) {
   const pathType = zodPath(entityType);
 
   const filterType = createSearchFilterType(entityType) as ZodType<
-    SearchFilter<Entity>
+    SearchFilterItem<Entity>
   >;
 
   const sortType: ZodType<SearchSort<Entity>> = zod.array(
@@ -70,24 +70,24 @@ export function createSearchFilterType<T extends AnyZodObject>(entityType: T) {
 export type SortDirection = zod.infer<typeof sortDirectionType>;
 
 export interface SearchQuery<T> {
-  filter?: SearchFilters<T>;
+  filter?: SearchFilter<T>;
   sort?: SearchSort<T>;
   offset?: number;
   limit?: number;
 }
 
-export type SearchFilters<T> = Array<SearchFilter<T>>;
+export type SearchFilter<T> = Array<SearchFilterItem<T>>;
 
-export type AnySearchFilter = zod.infer<
+export type AnySearchFilterItem = zod.infer<
   ReturnType<typeof createSearchFilterType>
 >;
 
-export type SearchFilterOperator = AnySearchFilter["operator"];
+export type SearchFilterOperator = AnySearchFilterItem["operator"];
 
-export type SearchFilter<
+export type SearchFilterItem<
   T,
   K extends SearchFilterOperator = SearchFilterOperator
-> = Omit<Extract<AnySearchFilter, { operator: K }>, "field"> & {
+> = Omit<Extract<AnySearchFilterItem, { operator: K }>, "field"> & {
   field: Path<T>;
 };
 
