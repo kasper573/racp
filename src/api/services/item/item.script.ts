@@ -1,18 +1,30 @@
 import { ParseInput, ParseReturnType, ZodType } from "zod";
+import { dedupe } from "../../dedupe";
 
 export class ItemScriptType extends ZodType<ItemScript> {
-  _parse(raw: ParseInput): ParseReturnType<ItemScript> {
-    const elements: string[] = ["foo"];
-    const statuses: string[] = ["bar"];
-    const races: string[] = ["baz"];
+  _parse(input: ParseInput): ParseReturnType<ItemScript> {
     return {
       status: "valid",
       value: {
-        raw: String(raw),
-        meta: { elements, statuses, races },
+        raw: String(input.data),
+        meta: {
+          elements: dedupe(extract(input.data, "Ele_(\\w+)")),
+          statuses: dedupe(extract(input.data, "Eff_(\\w+)")),
+          races: dedupe(extract(input.data, "RC_(\\w+)")),
+        },
       },
     };
   }
+}
+
+function extract(str: string, expStr: string) {
+  const values: string[] = [];
+  let match: RegExpMatchArray | null;
+  const exp = new RegExp(expStr, "gm");
+  while ((match = exp.exec(str))) {
+    values.push(match[1]);
+  }
+  return values;
 }
 
 export interface ItemScript {

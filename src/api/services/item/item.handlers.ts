@@ -1,9 +1,9 @@
-import { without } from "lodash";
 import { RAES } from "../../raes";
 import { createRpcHandlers } from "../../../lib/rpc/createRpcHandlers";
 import { RpcException } from "../../../lib/rpc/RpcException";
-import { collectUnique } from "../../../lib/collectUnique";
+import { collect } from "../../../lib/collect";
 import { createSearchHandler } from "../search/search.handlers";
+import { dedupe } from "../../dedupe";
 import { itemDefinition } from "./item.definition";
 import { Item, ItemFilter, itemType } from "./item.types";
 
@@ -51,15 +51,19 @@ function collectItemMeta(items: Item[]) {
   return {
     types: collectItemTypes(items),
     maxSlots: items.reduce(largestSlot, 0),
-    ...collectUnique(items, {
-      genders: (item) => without(item.Gender ? [item.Gender] : [], allValue),
-      classes: (item) => without(Object.keys(item.Classes ?? {}), allValue),
-      jobs: (item) => without(Object.keys(item.Jobs ?? {}), allValue),
-      locations: (item) => without(Object.keys(item.Locations ?? {}), allValue),
-      elements: ({ Script }) => without(Script?.meta.elements, allValue),
-      statuses: ({ Script }) => without(Script?.meta.statuses, allValue),
-      races: ({ Script }) => without(Script?.meta.races, allValue),
-    }),
+    ...collect(
+      items,
+      {
+        genders: (i) => (i.Gender ? [i.Gender] : []),
+        classes: (i) => Object.keys(i.Classes ?? {}),
+        jobs: (item) => Object.keys(item.Jobs ?? {}),
+        locations: (i) => Object.keys(i.Locations ?? {}),
+        elements: ({ Script }) => Script?.meta.elements ?? [],
+        statuses: ({ Script }) => Script?.meta.statuses ?? [],
+        races: ({ Script }) => Script?.meta.races ?? [],
+      },
+      (items) => noAll(dedupe(items))
+    ),
   };
 }
 
@@ -76,7 +80,7 @@ function collectItemTypes(items: Item[]) {
   return types;
 }
 
-const allValue = "All";
+const noAll = <T>(values: T[]) => values.filter((i) => String(i) !== "All");
 
 const largestSlot = (largest: number, item: Item) =>
   item.Slots !== undefined && item.Slots > largest ? item.Slots : largest;
