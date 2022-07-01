@@ -63,6 +63,7 @@ function ItemSearchFilterForm({
       <SliderMenu
         width={150}
         label="Slots"
+        size="small"
         marks
         defaultValue={[2, 3]}
         step={1}

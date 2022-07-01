@@ -1,16 +1,18 @@
-import { Slider, TextField } from "@mui/material";
+import { Slider, TextField, TextFieldProps } from "@mui/material";
 import { ComponentProps, CSSProperties, ReactNode } from "react";
 import { MenuOn } from "./MenuOn";
 
 export interface SliderMenuProps extends ComponentProps<typeof Slider> {
   label?: ReactNode;
   width?: CSSProperties["width"];
+  size?: TextFieldProps["size"];
 }
 
 export function SliderMenu({
   sx,
   style,
   className,
+  size,
   value,
   label,
   width,
@@ -21,7 +23,7 @@ export function SliderMenu({
       closeOnMenuClicked={false}
       trigger={(open) => (
         <TextField
-          size="small"
+          size={size}
           onClick={open}
           value={value !== undefined ? String(value) : ""}
           label={label}
