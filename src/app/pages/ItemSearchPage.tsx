@@ -12,6 +12,7 @@ import { DataGrid } from "../components/DataGrid";
 import { useZodForm } from "../../lib/zod/useZodForm";
 import { typedKeys } from "../../lib/typedKeys";
 import { Select } from "../components/Select";
+import { SliderMenu } from "../components/SliderMenu";
 
 export default function ItemSearchPage() {
   const [filter, setFilter] = useState<ItemFilter>({});
@@ -51,9 +52,7 @@ function ItemSearchFilterForm({
       <TextField size="small" label="ID" type="number" {...register("Id")} />
       <TextField size="small" label="Name" />
       <Select label="Type" multiple options={itemTypes} />
-      {itemSubTypes.length > 0 && (
-        <Select label="SubType" multiple options={itemSubTypes} />
-      )}
+      <Select label="SubType" multiple options={itemSubTypes} />
       <Select label="Class" multiple options={itemClasses} />
       <Select label="Job" multiple options={itemJobs} />
       <Select label="Element" multiple options={[]} />
@@ -61,6 +60,16 @@ function ItemSearchFilterForm({
       <Select label="Race" multiple options={[]} />
       <TextField size="small" label="Description contains" />
       <TextField size="small" label="Script contains" />
+      <SliderMenu
+        width={150}
+        label="Slots"
+        marks
+        defaultValue={[2, 3]}
+        step={1}
+        min={0}
+        max={4}
+        valueLabelDisplay="auto"
+      />
     </FormControls>
   );
 }
@@ -69,11 +78,11 @@ const FormControls = styled(Box)`
   display: grid;
   grid-gap: 8px;
   ${({ theme }) => theme.breakpoints.down("md")} {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     grid-auto-rows: auto;
   }
   ${({ theme }) => theme.breakpoints.up("md")} {
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
     grid-auto-rows: auto;
   }
 `;

@@ -5,11 +5,13 @@ import { concatFunctions } from "../../lib/concatFunctions";
 export interface MenuOnProps<T extends Element>
   extends Omit<ComponentProps<typeof Menu>, "open"> {
   trigger: (openMenu: (e: MouseEvent<T>) => void) => ReactNode;
+  closeOnMenuClicked?: boolean;
 }
 
 export function MenuOn<T extends Element>({
   trigger,
   children,
+  closeOnMenuClicked = true,
   ...menuProps
 }: MenuOnProps<T>) {
   const [anchor, setAnchor] = useState<null | T>(null);
@@ -25,9 +27,14 @@ export function MenuOn<T extends Element>({
         transformOrigin={{ vertical: "top", horizontal: "right" }}
         keepMounted
         open={Boolean(anchor)}
+        PaperProps={{
+          sx: {
+            overflow: "visible",
+          },
+        }}
         onClose={concatFunctions(menuProps.onClose, close)}
       >
-        <div onClick={close}>{children}</div>
+        <div onClick={closeOnMenuClicked ? close : undefined}>{children}</div>
       </Menu>
     </>
   );
