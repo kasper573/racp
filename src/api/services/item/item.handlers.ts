@@ -49,6 +49,7 @@ function isMatchingItem(item: Item, filter: ItemFilter): boolean {
 function collectItemMeta(items: Item[]) {
   return {
     types: collectItemTypes(items),
+    maxSlots: items.reduce(largestSlot, 0),
     ...collectUnique(items, {
       genders: (item) => (item.Gender ? [item.Gender] : []),
       classes: (item) => Object.keys(item.Classes ?? {}),
@@ -70,3 +71,6 @@ function collectItemTypes(items: Item[]) {
   }
   return types;
 }
+
+const largestSlot = (largest: number, item: Item) =>
+  item.Slots !== undefined && item.Slots > largest ? item.Slots : largest;

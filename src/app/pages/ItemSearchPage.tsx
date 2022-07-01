@@ -52,7 +52,12 @@ function ItemSearchFilterForm({
       <TextField size="small" label="ID" type="number" {...register("Id")} />
       <TextField size="small" label="Name" />
       <Select label="Type" multiple options={itemTypes} />
-      <Select label="SubType" multiple options={itemSubTypes} />
+      <Select
+        label="SubType"
+        multiple
+        options={itemSubTypes}
+        empty="Selected type has no sub types"
+      />
       <Select label="Class" multiple options={itemClasses} />
       <Select label="Job" multiple options={itemJobs} />
       <Select label="Element" multiple options={[]} />
@@ -67,7 +72,7 @@ function ItemSearchFilterForm({
         value={[2, 3]}
         step={1}
         min={0}
-        max={4}
+        max={meta?.maxSlots ?? 0}
         valueLabelDisplay="auto"
       />
     </FormControls>

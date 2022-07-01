@@ -87,6 +87,7 @@ export const itemType = zod.object({
 });
 
 export const itemMetaType = zod.object({
+  maxSlots: zod.number(),
   genders: zod.array(zod.string()),
   classes: zod.array(zod.string()),
   jobs: zod.array(zod.string()),

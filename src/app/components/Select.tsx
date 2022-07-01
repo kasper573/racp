@@ -9,6 +9,7 @@ import { ComponentProps, ReactNode } from "react";
 export interface SelectPropsBase<T> extends ComponentProps<typeof FormControl> {
   options: string[];
   label?: ReactNode;
+  empty?: ReactNode;
 }
 
 export type SelectProps<T> =
@@ -21,6 +22,7 @@ export function Select<T>({
   label,
   value,
   sx,
+  empty,
   ...props
 }: SelectProps<T>) {
   return (
@@ -32,6 +34,9 @@ export function Select<T>({
         value={multiple ? value ?? [] : value}
         label={label}
       >
+        {options.length === 0 ? (
+          <MenuItem disabled>{empty}</MenuItem>
+        ) : undefined}
         {options.map((option, index) => {
           return (
             <MenuItem key={index} value={option}>
