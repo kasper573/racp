@@ -1,6 +1,6 @@
 import { Slider, TextField, TextFieldProps } from "@mui/material";
 import { ComponentProps, CSSProperties, ReactNode } from "react";
-import { MenuOn } from "./MenuOn";
+import { MenuOn } from "../components/MenuOn";
 
 export interface SliderMenuProps
   extends Omit<ComponentProps<typeof Slider>, "defaultValue"> {

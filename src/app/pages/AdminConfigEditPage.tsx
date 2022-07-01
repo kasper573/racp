@@ -1,7 +1,7 @@
 import { useRouteParams } from "react-typesafe-routes";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { useGetConfigQuery, useUpdateConfigMutation } from "../client";
-import { TextEditor } from "../components/TextEditor";
+import { TextEditor } from "../controls/TextEditor";
 import { router } from "../router";
 import { Header } from "../layout/Header";
 import { LoadingPage } from "../components/LoadingPage";
