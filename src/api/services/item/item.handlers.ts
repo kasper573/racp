@@ -1,3 +1,4 @@
+import { without } from "lodash";
 import { RAES } from "../../raes";
 import { createRpcHandlers } from "../../../lib/rpc/createRpcHandlers";
 import { RpcException } from "../../../lib/rpc/RpcException";
@@ -51,10 +52,10 @@ function collectItemMeta(items: Item[]) {
     types: collectItemTypes(items),
     maxSlots: items.reduce(largestSlot, 0),
     ...collectUnique(items, {
-      genders: (item) => (item.Gender ? [item.Gender] : []),
-      classes: (item) => Object.keys(item.Classes ?? {}),
-      jobs: (item) => Object.keys(item.Jobs ?? {}),
-      locations: (item) => Object.keys(item.Locations ?? {}),
+      genders: (item) => without(item.Gender ? [item.Gender] : [], allValue),
+      classes: (item) => without(Object.keys(item.Classes ?? {}), allValue),
+      jobs: (item) => without(Object.keys(item.Jobs ?? {}), allValue),
+      locations: (item) => without(Object.keys(item.Locations ?? {}), allValue),
     }),
   };
 }
@@ -71,6 +72,8 @@ function collectItemTypes(items: Item[]) {
   }
   return types;
 }
+
+const allValue = "All";
 
 const largestSlot = (largest: number, item: Item) =>
   item.Slots !== undefined && item.Slots > largest ? item.Slots : largest;

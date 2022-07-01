@@ -20,6 +20,7 @@ export function ItemSearchFilterForm({
   const itemSubTypes = meta?.types[itemTypes[0]] ?? [];
   const itemClasses = meta?.classes ?? [];
   const itemJobs = meta?.jobs ?? [];
+  const maxSlots = meta?.maxSlots ?? 0;
 
   return (
     <FormControls>
@@ -27,7 +28,7 @@ export function ItemSearchFilterForm({
       <TextField size="small" label="Name" />
       <Select label="Type" multiple options={itemTypes} />
       <Select
-        label="SubType"
+        label="Sub Type"
         multiple
         options={itemSubTypes}
         empty="Selected type has no sub types"
@@ -39,16 +40,7 @@ export function ItemSearchFilterForm({
       <Select label="Race" multiple options={[]} />
       <TextField size="small" label="Description contains" />
       <TextField size="small" label="Script contains" />
-      <SliderMenu
-        label="Slots"
-        size="small"
-        marks
-        value={[2, 3]}
-        step={1}
-        min={0}
-        max={meta?.maxSlots ?? 0}
-        valueLabelDisplay="auto"
-      />
+      <SliderMenu size="small" label="Slots" value={[2, 3]} max={maxSlots} />
     </FormControls>
   );
 }

@@ -22,7 +22,7 @@ export function Select<T>({
   label,
   value,
   sx,
-  empty,
+  empty = "No options",
   ...props
 }: SelectProps<T>) {
   return (
