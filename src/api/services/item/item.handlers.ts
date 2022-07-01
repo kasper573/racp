@@ -56,6 +56,9 @@ function collectItemMeta(items: Item[]) {
       classes: (item) => without(Object.keys(item.Classes ?? {}), allValue),
       jobs: (item) => without(Object.keys(item.Jobs ?? {}), allValue),
       locations: (item) => without(Object.keys(item.Locations ?? {}), allValue),
+      elements: ({ Script }) => without(Script?.meta.elements, allValue),
+      statuses: ({ Script }) => without(Script?.meta.statuses, allValue),
+      races: ({ Script }) => without(Script?.meta.races, allValue),
     }),
   };
 }

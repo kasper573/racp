@@ -7,7 +7,7 @@ import {
 import { ComponentProps, ReactNode } from "react";
 
 export interface SelectPropsBase<T> extends ComponentProps<typeof FormControl> {
-  options: string[];
+  options?: string[];
   label?: ReactNode;
   empty?: ReactNode;
 }
@@ -17,7 +17,7 @@ export type SelectProps<T> =
   | (SelectPropsBase<T> & { value?: T[]; multiple: true });
 
 export function Select<T>({
-  options,
+  options = [],
   multiple,
   label,
   value,

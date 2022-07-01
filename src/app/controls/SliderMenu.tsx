@@ -17,6 +17,9 @@ export function SliderMenu({
   value,
   label,
   width = 150,
+  step = 1,
+  min = 0,
+  max = min + 1,
   ...props
 }: SliderMenuProps) {
   return (
@@ -36,9 +39,9 @@ export function SliderMenu({
       <Slider
         value={value}
         marks
-        step={1}
-        min={0}
-        max={1}
+        step={step}
+        min={min}
+        max={max}
         valueLabelDisplay="auto"
         sx={{ ml: 3, mr: 3, display: "flex", width }}
         {...props}

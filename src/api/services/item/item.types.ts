@@ -1,4 +1,5 @@
 import * as zod from "zod";
+import { itemScriptType } from "./item.script";
 
 export type Item = zod.infer<typeof itemType>;
 
@@ -81,9 +82,9 @@ export const itemType = zod.object({
     })
     .partial()
     .optional(),
-  Script: zod.string().optional(),
-  EquipScript: zod.string().optional(),
-  UnEquipScript: zod.string().optional(),
+  Script: itemScriptType.optional(),
+  EquipScript: itemScriptType.optional(),
+  UnEquipScript: itemScriptType.optional(),
 });
 
 export const itemMetaType = zod.object({
@@ -93,6 +94,9 @@ export const itemMetaType = zod.object({
   jobs: zod.array(zod.string()),
   locations: zod.array(zod.string()),
   types: zod.record(zod.string(), zod.array(zod.string())),
+  elements: zod.array(zod.string()),
+  statuses: zod.array(zod.string()),
+  races: zod.array(zod.string()),
 });
 
 export type ItemFilter = zod.infer<typeof itemFilterType>;
