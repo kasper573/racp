@@ -64,7 +64,7 @@ function ItemSearchFilterForm({
         label="Slots"
         size="small"
         marks
-        defaultValue={[2, 3]}
+        value={[2, 3]}
         step={1}
         min={0}
         max={4}

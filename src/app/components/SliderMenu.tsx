@@ -2,7 +2,8 @@ import { Slider, TextField, TextFieldProps } from "@mui/material";
 import { ComponentProps, CSSProperties, ReactNode } from "react";
 import { MenuOn } from "./MenuOn";
 
-export interface SliderMenuProps extends ComponentProps<typeof Slider> {
+export interface SliderMenuProps
+  extends Omit<ComponentProps<typeof Slider>, "defaultValue"> {
   label?: ReactNode;
   width?: CSSProperties["width"];
   size?: TextFieldProps["size"];
@@ -25,7 +26,7 @@ export function SliderMenu({
         <TextField
           size={size}
           onClick={open}
-          value={value !== undefined ? String(value) : ""}
+          value={valueToString(value)}
           label={label}
           inputProps={{ readOnly: true }}
           {...{ sx, style, className }}
@@ -39,4 +40,14 @@ export function SliderMenu({
       />
     </MenuOn>
   );
+}
+
+function valueToString(value?: number | number[]): string {
+  if (value === undefined) {
+    return "";
+  }
+  if (Array.isArray(value)) {
+    return `${value[0]} to ${value[1]}`;
+  }
+  return String(value);
 }
