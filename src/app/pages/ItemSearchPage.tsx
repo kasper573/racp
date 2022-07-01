@@ -61,7 +61,6 @@ function ItemSearchFilterForm({
       <TextField size="small" label="Description contains" />
       <TextField size="small" label="Script contains" />
       <SliderMenu
-        width={150}
         label="Slots"
         size="small"
         marks

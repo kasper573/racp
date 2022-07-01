@@ -15,7 +15,7 @@ export function SliderMenu({
   size,
   value,
   label,
-  width,
+  width = 150,
   ...props
 }: SliderMenuProps) {
   return (
