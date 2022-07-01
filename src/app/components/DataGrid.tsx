@@ -5,7 +5,6 @@ import { GridRowId } from "@mui/x-data-grid/models/gridRows";
 import { GridRenderCellParams } from "@mui/x-data-grid/models/params/gridCellParams";
 import { GridEnrichedColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
 import {
-  SearchFilter,
   SearchQuery,
   SearchResult,
   SearchSort,
@@ -13,15 +12,15 @@ import {
 import { typedKeys } from "../../lib/typedKeys";
 import { Link } from "./Link";
 
-export function DataGrid<Entity, Id extends GridRowId>({
+export function DataGrid<Entity, Filter, Id extends GridRowId>({
   filter,
   query: useQuery,
   columns,
   id,
   link,
 }: ColumnConventionProps<Entity, Id> & {
-  filter?: SearchFilter<Entity>;
-  query: (query: SearchQuery<Entity>) => {
+  filter?: Filter;
+  query: (query: SearchQuery<Entity, Filter>) => {
     data?: SearchResult<Entity>;
     isFetching: boolean;
   };
@@ -41,7 +40,7 @@ export function DataGrid<Entity, Id extends GridRowId>({
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <Box></Box>
-      <Box sx={{ flex: 1 }}>
+      <Box sx={{ flex: 1, mt: 3 }}>
         <Grid
           disableColumnFilter
           columns={columnList}

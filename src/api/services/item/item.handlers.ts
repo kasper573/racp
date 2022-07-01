@@ -4,7 +4,7 @@ import { RpcException } from "../../../lib/rpc/RpcException";
 import { collectUnique } from "../../../lib/collectUnique";
 import { createSearchHandler } from "../search/search.handlers";
 import { itemDefinition } from "./item.definition";
-import { Item, itemType } from "./item.types";
+import { Item, ItemFilter, itemType } from "./item.types";
 
 export function createItemHandlers({
   raes: { resolve },
@@ -25,7 +25,10 @@ export function createItemHandlers({
     async getItemMeta() {
       return meta;
     },
-    searchItems: createSearchHandler(Array.from(items.values())),
+    searchItems: createSearchHandler(
+      Array.from(items.values()),
+      isMatchingItem
+    ),
     async getItem(itemId) {
       const item = items.get(itemId);
       if (!item) {
@@ -34,6 +37,13 @@ export function createItemHandlers({
       return item;
     },
   });
+}
+
+function isMatchingItem(item: Item, filter: ItemFilter): boolean {
+  if (filter.Id !== undefined && filter.Id !== item.Id) {
+    return false;
+  }
+  return true;
 }
 
 function collectItemMeta(items: Item[]) {

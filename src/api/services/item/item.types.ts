@@ -93,3 +93,6 @@ export const itemMetaType = zod.object({
   locations: zod.array(zod.string()),
   types: zod.record(zod.string(), zod.array(zod.string())),
 });
+
+export type ItemFilter = zod.infer<typeof itemFilterType>;
+export const itemFilterType = itemType.pick({ Id: true }).partial();

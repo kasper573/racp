@@ -1,21 +1,16 @@
 import { get } from "lodash";
-import { parseRegexString } from "../../../lib/zod/zodRegexString";
-import {
-  SearchFilterItem,
-  SearchFilterOperator,
-  SearchFilter,
-  SearchQuery,
-  SearchResult,
-  SearchSort,
-} from "./search.types";
+import { SearchQuery, SearchResult, SearchSort } from "./search.types";
 
-export function createSearchHandler<T>(entities: T[]) {
+export function createSearchHandler<Entity, Filter>(
+  entities: Entity[],
+  isMatch: (item: Entity, filter: Filter) => boolean
+) {
   return async ({
     filter,
     sort,
     offset = 0,
     limit = 100,
-  }: SearchQuery<T>): Promise<SearchResult<T>> => {
+  }: SearchQuery<Entity, Filter>): Promise<SearchResult<Entity>> => {
     const matches = filter
       ? entities.filter((entity) => isMatch(entity, filter))
       : entities.slice();
@@ -31,22 +26,6 @@ export function createSearchHandler<T>(entities: T[]) {
       total: matches.length,
     };
   };
-}
-
-export function isMatch<T>(entity: T, filters: SearchFilter<T>): boolean {
-  for (const filter of filters) {
-    let match = false;
-    (<K extends SearchFilterOperator>() => {
-      const { field, operator, argument } = filter as SearchFilterItem<T, K>;
-      const value = get(entity, field);
-      const fn = searchFilterOperators[operator];
-      match = fn(value, argument);
-    })();
-    if (!match) {
-      return false;
-    }
-  }
-  return true;
 }
 
 function createCompareFn<T>(list: SearchSort<T>) {
@@ -74,16 +53,3 @@ function compareTo<T>(a?: T, b?: T): number {
   if (a < b) return -1;
   return 0;
 }
-
-const searchFilterOperators = {
-  eq: <T>(a: T, b: T) => a === b,
-  ne: <T>(a: T, b: T) => a !== b,
-  gt: <T>(a: T, b: T) => a > b,
-  lt: <T>(a: T, b: T) => a < b,
-  gte: <T>(a: T, b: T) => a >= b,
-  lte: <T>(a: T, b: T) => a <= b,
-  between: <T>(a: T, [x, y]: [T, T]) => a >= x && a <= y,
-  oneOf: <T>(a: T, list: T[]) => list.includes(a),
-  regexp: <T>(a: T, exp: string) =>
-    parseRegexString(exp)?.test(`${a}`) ?? false,
-};
