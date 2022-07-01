@@ -1,5 +1,5 @@
-import { ReactNode, useState } from "react";
-import { Box, TextField, Typography } from "@mui/material";
+import { useState } from "react";
+import { Box, styled, TextField } from "@mui/material";
 import { Header } from "../layout/Header";
 import { useGetItemMetaQuery, useSearchItemsQuery } from "../client";
 import { router } from "../router";
@@ -25,6 +25,7 @@ export default function ItemSearchPage() {
         query={useSearchItemsQuery}
         id={(item) => item.Id}
         link={(id) => router.item().view({ id })}
+        sx={{ mt: 1 }}
       />
     </>
   );
@@ -46,53 +47,36 @@ function ItemSearchFilterForm({
   const itemJobs = meta?.jobs ?? [];
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <FormCategory title="Properties">
-        <TextField size="small" label="ID" type="number" {...register("Id")} />
-        <TextField size="small" label="Description contains" />
-        <TextField size="small" label="Script contains" />
-      </FormCategory>
-
-      <FormCategory title={<>&nbsp;</>}>
-        <Select label="Type" multiple options={itemTypes} />
-        {itemSubTypes.length > 0 && (
-          <Select label="SubType" multiple options={itemSubTypes} />
-        )}
-        <Select label="Class" multiple options={itemClasses} />
-        <Select label="Job" multiple options={itemJobs} />
-      </FormCategory>
-
-      <FormCategory title="Effects">
-        <Select label="Element" multiple options={[]} />
-        <Select label="Status" multiple options={[]} />
-        <Select label="Race" multiple options={[]} />
-      </FormCategory>
-    </Box>
+    <FormControls>
+      <TextField size="small" label="ID" type="number" {...register("Id")} />
+      <TextField size="small" label="Name" />
+      <Select label="Type" multiple options={itemTypes} />
+      {itemSubTypes.length > 0 && (
+        <Select label="SubType" multiple options={itemSubTypes} />
+      )}
+      <Select label="Class" multiple options={itemClasses} />
+      <Select label="Job" multiple options={itemJobs} />
+      <Select label="Element" multiple options={[]} />
+      <Select label="Status" multiple options={[]} />
+      <Select label="Race" multiple options={[]} />
+      <TextField size="small" label="Description contains" />
+      <TextField size="small" label="Script contains" />
+    </FormControls>
   );
 }
 
-function FormCategory({
-  title,
-  children,
-}: {
-  title: ReactNode;
-  children?: ReactNode;
-}) {
-  return (
-    <Box sx={{ "& + &": { ml: 2 } }}>
-      <Typography paragraph>{title}</Typography>
-      <Box
-        sx={{
-          display: "grid",
-          gridAutoRows: "auto",
-          gridRowGap: 8,
-        }}
-      >
-        {children}
-      </Box>
-    </Box>
-  );
-}
+const FormControls = styled(Box)`
+  display: grid;
+  grid-gap: 8px;
+  ${({ theme }) => theme.breakpoints.down("md")} {
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: auto;
+  }
+  ${({ theme }) => theme.breakpoints.up("md")} {
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-auto-rows: auto;
+  }
+`;
 
 const columns = {
   Name: "Name",

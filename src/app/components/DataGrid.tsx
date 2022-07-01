@@ -1,5 +1,5 @@
 import { Box, Pagination, styled } from "@mui/material";
-import { useState } from "react";
+import { ComponentProps, useState } from "react";
 import { DataGrid as MuiDataGrid, GridColumns } from "@mui/x-data-grid";
 import { GridRowId } from "@mui/x-data-grid/models/gridRows";
 import { GridRenderCellParams } from "@mui/x-data-grid/models/params/gridCellParams";
@@ -18,13 +18,16 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
   columns,
   id,
   link,
-}: ColumnConventionProps<Entity, Id> & {
-  filter?: Filter;
-  query: (query: SearchQuery<Entity, Filter>) => {
-    data?: SearchResult<Entity>;
-    isFetching: boolean;
-  };
-}) {
+  sx,
+  ...props
+}: ColumnConventionProps<Entity, Id> &
+  Omit<ComponentProps<typeof Box>, "id"> & {
+    filter?: Filter;
+    query: (query: SearchQuery<Entity, Filter>) => {
+      data?: SearchResult<Entity>;
+      isFetching: boolean;
+    };
+  }) {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(20);
   const [sort, setSort] = useState<SearchSort<Entity>>([]);
@@ -38,9 +41,11 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
   const columnList = processColumnConvention({ columns, id, link });
 
   return (
-    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <Box></Box>
-      <Box sx={{ flex: 1, mt: 3 }}>
+    <Box
+      sx={{ height: "100%", display: "flex", flexDirection: "column", ...sx }}
+      {...props}
+    >
+      <Box sx={{ flex: 1 }}>
         <Grid
           disableColumnFilter
           columns={columnList}
