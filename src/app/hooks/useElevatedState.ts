@@ -2,13 +2,19 @@ import { useCallback, useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { useLatest } from "./useLatest";
 
-export function useElevatedState<T>(
-  inputValue: T,
-  onChange: (updatedValue: T) => void,
-  debounce = 1000
-) {
+export interface UseElevatedStateProps<T> {
+  value: T;
+  onChange: (updatedValue: T) => void;
+  updateDelay?: number;
+}
+
+export function useElevatedState<T>({
+  value: inputValue,
+  onChange,
+  updateDelay = 250,
+}: UseElevatedStateProps<T>) {
   const [currentValue, setCurrentValue] = useState(inputValue);
-  const elevateChange = useDebouncedCallback(onChange, debounce);
+  const elevateChange = useDebouncedCallback(onChange, updateDelay);
 
   const latest = useLatest({ currentValue, inputValue, onChange });
 

@@ -3,31 +3,31 @@ import { AnyZodObject, ZodFirstPartyTypeKind } from "zod";
 import { ChangeEvent } from "react";
 import { get, set } from "lodash";
 import produce from "immer";
+import {
+  useElevatedState,
+  UseElevatedStateProps,
+} from "../../app/hooks/useElevatedState";
 import { Path, PathValue, pickZodType } from "./zodPath";
 import { isZodType } from "./isZodType";
 
 export function useZodForm<Schema extends AnyZodObject>({
   schema,
-  value,
-  onChange,
+  ...props
 }: ZodFormOptions<Schema>) {
-  type T = zod.infer<Schema>;
-  const controls: ZodFormControls<T> = {
-    register<P extends Path<T>, E extends Element>(
-      path: P,
-      getElementValue?: (element: E) => string | number | undefined
-    ) {
-      const fieldValue = get(value, path) as PathValue<T, P>;
+  const [value, setValue] = useElevatedState(props);
+
+  type Entity = zod.infer<Schema>;
+  const controls: ZodFormControls<Entity> = {
+    register<P extends Path<Entity>, E extends Element>(path: P) {
+      const fieldValue = get(value, path) as PathValue<Entity, P>;
       const fieldType = pickZodType(schema, path);
+      const isNumber = isZodType(fieldType, ZodFirstPartyTypeKind.ZodNumber);
+      const getElementValue = isNumber
+        ? (el: Element) => parseNumber(getStandardElementValue(el))
+        : (el: Element) => getStandardElementValue(el);
 
-      if (!getElementValue) {
-        getElementValue = isZodType(fieldType, ZodFirstPartyTypeKind.ZodNumber)
-          ? (el) => parseNumber(getStandardElementValue(el))
-          : (el) => getStandardElementValue(el);
-      }
-
-      function setValue(updatedFieldValue: PathValue<T, P>) {
-        onChange(
+      function setFieldValue(updatedFieldValue: PathValue<Entity, P>) {
+        setValue(
           produce(value, (draft) => {
             set(draft, path, updatedFieldValue);
           })
@@ -37,18 +37,19 @@ export function useZodForm<Schema extends AnyZodObject>({
       return {
         value: fieldValue,
         onChange: (e) => {
-          if (
+          const isDOMEvent =
             typeof e === "object" &&
             "target" in e &&
-            e.target instanceof Element
-          ) {
+            e.target instanceof Element;
+
+          if (isDOMEvent) {
             const raw = getElementValue?.(e.target as unknown as E);
             const result = fieldType?.safeParse(raw);
             if (result?.success) {
-              setValue(result.data);
+              setFieldValue(result.data);
             }
           } else {
-            setValue(e as PathValue<T, P>);
+            setFieldValue(e as PathValue<Entity, P>);
           }
         },
       };
@@ -72,20 +73,16 @@ function parseNumber(str: string) {
   return isNaN(n) ? undefined : n;
 }
 
-export interface ZodFormOptions<Schema extends AnyZodObject> {
+export interface ZodFormOptions<Schema extends AnyZodObject>
+  extends UseElevatedStateProps<zod.infer<Schema>> {
   schema: Schema;
-  value: zod.infer<Schema>;
-  onChange: (updated: zod.infer<Schema>) => void;
 }
 
-export interface ZodFormControls<T> {
-  register: <P extends Path<T>, E extends Element>(
-    path: P,
-    getRawValueFromElement?: (element: E) => string
-  ) => ZodFormControlProps<T, P, E>;
+export interface ZodFormControls<Entity> {
+  register: <P extends Path<Entity>>(path: P) => ZodFormControlProps<Entity, P>;
 }
 
-export interface ZodFormControlProps<T, P extends Path<T>, E> {
+export interface ZodFormControlProps<T, P extends Path<T>> {
   value: PathValue<T, P>;
-  onChange: (e: ChangeEvent<E> | PathValue<T, P>) => void;
+  onChange: (e: ChangeEvent | PathValue<T, P>) => void;
 }

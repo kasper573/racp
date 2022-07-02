@@ -1,14 +1,11 @@
 import { styled } from "@mui/material";
-import { useElevatedState } from "../hooks/useElevatedState";
+import {
+  useElevatedState,
+  UseElevatedStateProps,
+} from "../hooks/useElevatedState";
 
-export function TextEditor({
-  value: inputValue = "",
-  onChange,
-}: {
-  value?: string;
-  onChange: (update: string) => void;
-}) {
-  const [value, setValue] = useElevatedState(inputValue, onChange);
+export function TextEditor(props: UseElevatedStateProps<string>) {
+  const [value, setValue] = useElevatedState(props);
 
   return <Text value={value} onChange={(e) => setValue(e.target.value)} />;
 }

@@ -25,7 +25,7 @@ export default function AdminConfigEditPage() {
       <Header back={router.admin().config}>{configName}</Header>
       <ErrorMessage error={queryError} />
       <ErrorMessage error={updateError} />
-      <TextEditor value={value} onChange={setValue} />
+      <TextEditor value={value ?? ""} onChange={setValue} />
     </>
   );
 }
