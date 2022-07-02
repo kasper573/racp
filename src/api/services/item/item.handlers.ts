@@ -4,6 +4,13 @@ import { RpcException } from "../../../lib/rpc/RpcException";
 import { createSearchHandler } from "../search/search.handlers";
 import { dedupe, dedupeRecordInsert } from "../../util/dedupe";
 import { select, Selector } from "../../util/select";
+import {
+  isArrayMatch,
+  isRangeMatch,
+  isRefMatch,
+  isStringMatch,
+  isToggleMatch,
+} from "../search/search.matchers";
 import { itemDefinition } from "./item.definition";
 import { Item, ItemFilter, itemType } from "./item.types";
 
@@ -41,10 +48,21 @@ export function createItemHandlers({
 }
 
 function isMatchingItem(item: Item, filter: ItemFilter): boolean {
-  if (filter.id !== undefined && filter.id !== item.Id) {
-    return false;
-  }
-  return true;
+  return (
+    isRefMatch(filter.id, item.Id) &&
+    isStringMatch(filter.name, item.Name) &&
+    isArrayMatch(filter.types, item.Type) &&
+    isArrayMatch(filter.subTypes, item.SubType) &&
+    isToggleMatch(filter.classes, item.Classes) &&
+    isToggleMatch(filter.jobs, item.Jobs) &&
+    isArrayMatch(filter.elements, item.Script?.meta.elements) &&
+    isArrayMatch(filter.statuses, item.Script?.meta.statuses) &&
+    isArrayMatch(filter.races, item.Script?.meta.races) &&
+    isRangeMatch(filter.slots, item.Slots) &&
+    (isStringMatch(filter.script, item.Script?.raw) ||
+      isStringMatch(filter.script, item.EquipScript?.raw) ||
+      isStringMatch(filter.script, item.UnEquipScript?.raw))
+  );
 }
 
 function collectItemMeta(items: Item[]) {
