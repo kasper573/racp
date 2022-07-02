@@ -106,6 +106,16 @@ export type ItemFilter = zod.infer<typeof itemFilterType>;
 export const itemFilterType = zod
   .object({
     id: itemIdType,
+    name: zod.string(),
+    description: zod.string(),
+    script: zod.string(),
+    types: zod.array(flagType),
+    subTypes: zod.array(flagType),
     classes: zod.array(flagType),
+    jobs: zod.array(flagType),
+    elements: zod.array(flagType),
+    statuses: zod.array(flagType),
+    races: zod.array(flagType),
+    slots: zod.tuple([zod.number(), zod.number()]),
   })
   .partial();

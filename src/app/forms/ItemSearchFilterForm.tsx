@@ -1,10 +1,11 @@
-import { Box, styled, TextField } from "@mui/material";
+import { Box, styled } from "@mui/material";
 import { ItemFilter, itemFilterType } from "../../api/services/item/item.types";
 import { useZodForm } from "../../lib/zod/useZodForm";
 import { useGetItemMetaQuery } from "../client";
 import { typedKeys } from "../../lib/typedKeys";
 import { Select } from "../controls/Select";
 import { SliderMenu } from "../controls/SliderMenu";
+import { TextField } from "../controls/TextField";
 
 export function ItemSearchFilterForm({
   value,
@@ -26,26 +27,42 @@ export function ItemSearchFilterForm({
   return (
     <FormControls>
       <TextField size="small" label="ID" type="number" {...reg("id")} />
-      <TextField size="small" label="Name" />
-      <Select label="Type" multi options={itemTypes} />
+      <TextField size="small" label="Name" {...reg("name")} />
+      <Select label="Type" multi options={itemTypes} {...reg("types")} />
       <Select
         label="Sub Type"
         multi
         options={itemSubTypes}
         empty="Selected type has no sub types"
+        {...reg("subTypes")}
       />
       <Select label="Class" multi options={meta?.classes} {...reg("classes")} />
-      <Select label="Job" multi options={meta?.jobs} />
-      <Select label="Element" multi options={meta?.elements} />
-      <Select label="Status" multi options={meta?.statuses} />
-      <Select label="Race" multi options={meta?.races} />
-      <TextField size="small" label="Description contains" />
-      <TextField size="small" label="Script contains" />
+      <Select label="Job" multi options={meta?.jobs} {...reg("jobs")} />
+      <Select
+        label="Element"
+        multi
+        options={meta?.elements}
+        {...reg("elements")}
+      />
+      <Select
+        label="Status"
+        multi
+        options={meta?.statuses}
+        {...reg("statuses")}
+      />
+      <Select label="Race" multi options={meta?.races} {...reg("races")} />
+      <TextField
+        size="small"
+        label="Description contains"
+        {...reg("description")}
+      />
+      <TextField size="small" label="Script contains" {...reg("script")} />
       <SliderMenu
+        ranged
         size="small"
         label="Slots"
-        value={[2, 3]}
         max={meta?.maxSlots}
+        {...reg("slots")}
       />
     </FormControls>
   );
