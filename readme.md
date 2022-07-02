@@ -14,7 +14,7 @@ api_rAthenaPath=<path>
 
 ## Development
 
-- Make sure you have [yarn](https://yarnpkg.com/) installed on your system
+- Make sure you have [node](https://nodejs.org/) and [yarn](https://yarnpkg.com/) installed on your system
 - Open a terminal and navigate to the project root
 - Run `yarn dev:api` to start the api in dev mode
 - Run `yarn dev:app` to start the app in dev mode
