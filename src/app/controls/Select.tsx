@@ -45,7 +45,10 @@ export function Select({
         label={label}
         onChange={
           multi
-            ? (e) => onChange?.(e.target.value as string[])
+            ? (e) => {
+                const values = e.target.value as string[];
+                onChange?.(values.length ? values : undefined);
+              }
             : (e) => onChange?.(e.target.value as string)
         }
       >
