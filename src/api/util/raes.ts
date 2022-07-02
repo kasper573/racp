@@ -11,9 +11,13 @@ import { typedKeys } from "../../lib/typedKeys";
  */
 export type RAES = ReturnType<typeof createRAES>;
 
-export function createRAES(options: { rAthenaPath: string; mode: string }) {
-  const { rAthenaPath, mode } = options;
-
+export function createRAES({
+  rAthenaPath,
+  rAthenaMode,
+}: {
+  rAthenaPath: string;
+  rAthenaMode: string;
+}) {
   function loadNode(file: string) {
     const unknownObject = yaml.parse(
       fs.readFileSync(path.resolve(rAthenaPath, file), "utf-8")
@@ -28,13 +32,13 @@ export function createRAES(options: { rAthenaPath: string; mode: string }) {
     getKey: (entity: Entity) => Key,
     process: (entity: Entity) => void = noop
   ): Map<Key, Entity> {
-    const imports: ImportNode[] = [{ Path: file, Mode: mode }];
+    const imports: ImportNode[] = [{ Path: file, Mode: rAthenaMode }];
     const entities = new Map<Key, Entity>();
 
     while (imports.length) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const imp = imports.shift()!;
-      if (!imp.Mode || imp.Mode === mode) {
+      if (!imp.Mode || imp.Mode === rAthenaMode) {
         const { Body, Footer } = loadNode(imp.Path);
         for (const raw of Body ?? []) {
           const entity = entityType.parse(raw);

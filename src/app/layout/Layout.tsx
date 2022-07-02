@@ -9,11 +9,14 @@ import {
   styled,
   CssBaseline,
 } from "@mui/material";
+import { Helmet } from "react-helmet-async";
 import { LoadingPage } from "../components/LoadingPage";
 import { globalStyles } from "./globalStyles";
 import { Logo } from "./Logo";
 import { Toolbar } from "./Toolbar";
 import { Menu } from "./Menu";
+
+const title = process.env.appTitle;
 
 export function Layout({ children }: { children?: ReactNode }) {
   const width = 240;
@@ -27,6 +30,9 @@ export function Layout({ children }: { children?: ReactNode }) {
   };
   return (
     <>
+      <Helmet>
+        <title>{title}</title>
+      </Helmet>
       <CssBaseline />
       {globalStyles}
       <AppBar position="fixed" sx={contentBounds}>
@@ -47,7 +53,7 @@ export function Layout({ children }: { children?: ReactNode }) {
         open
       >
         <MuiToolbar>
-          <Logo />
+          <Logo>{title}</Logo>
         </MuiToolbar>
         <Divider />
         <Menu />

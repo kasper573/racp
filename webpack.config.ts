@@ -1,18 +1,22 @@
+import "dotenv-flow/config";
 import "webpack-dev-server";
 import * as path from "path";
 import * as webpack from "webpack";
 import ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 import ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 import HtmlWebpackPlugin = require("html-webpack-plugin");
-import { loadEnvVars } from "./env";
+import { load as loadEnv } from "ts-dotenv";
 import { rootId } from "./src/app/layout/globalStyles";
 
-const env = loadEnvVars(/^app_/);
+const env = loadEnv({
+  NODE_ENV: { type: String, default: "development" },
+  reactRefresh: { type: Boolean, optional: true },
+  apiBaseUrl: String,
+  appTitle: String,
+});
+
 const appDirectory = path.resolve(__dirname, "src", "app");
-const NODE_ENV = process.env.NODE_ENV ?? "development";
-const isRefreshEnabled = Boolean(process.env.REACT_REFRESH ?? "false");
-const isDevBuild = NODE_ENV === "development";
-const webpackMode = NODE_ENV === "production" ? "production" : "development";
+const isDevBuild = env.NODE_ENV === "development";
 
 const config: webpack.Configuration = {
   entry: path.resolve(appDirectory, "index.tsx"),
@@ -22,18 +26,16 @@ const config: webpack.Configuration = {
     filename: "bundle.js",
   },
   devtool: isDevBuild ? "source-map" : undefined,
-  mode: webpackMode,
+  mode: isDevBuild ? "development" : "production",
   plugins: defined([
     new webpack.EnvironmentPlugin(env),
     new HtmlWebpackPlugin({
+      favicon: path.resolve(appDirectory, "favicon.png"),
       template: path.resolve(appDirectory, "index.html"),
-      templateParameters: {
-        title: env.app_title,
-        rootId,
-      },
+      templateParameters: { rootId },
     }),
     isDevBuild && new ForkTsCheckerWebpackPlugin(),
-    isRefreshEnabled && new ReactRefreshWebpackPlugin(),
+    env.reactRefresh && new ReactRefreshWebpackPlugin(),
   ]),
   module: {
     rules: [
@@ -55,7 +57,7 @@ const config: webpack.Configuration = {
               transform: {
                 react: {
                   runtime: "automatic",
-                  refresh: isRefreshEnabled,
+                  refresh: env.reactRefresh,
                 },
               },
             },

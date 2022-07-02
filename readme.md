@@ -9,7 +9,7 @@ Not ready for public use. Use at your own risk.
 - Add the following to the file, but substitute `<path>` with the absolute path to your rAthena folder:
 
 ```
-api_rAthenaPath=<path>
+rAthenaPath=<path>
 ```
 
 ## Development
