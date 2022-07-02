@@ -4,12 +4,13 @@ import {
   InputLabel,
   MenuItem,
 } from "@mui/material";
-import { ComponentProps, ReactNode } from "react";
+import { ComponentProps, ReactNode, useMemo } from "react";
 
 export interface SelectPropsBase<T> extends ComponentProps<typeof FormControl> {
   options?: string[];
   label?: ReactNode;
   empty?: ReactNode;
+  autoSort?: boolean;
 }
 
 export type SelectProps<T> =
@@ -17,14 +18,19 @@ export type SelectProps<T> =
   | (SelectPropsBase<T> & { value?: T[]; multiple: true });
 
 export function Select<T>({
-  options = [],
+  options = noOptions,
   multiple,
   label,
   value,
   sx,
   empty = "No options",
+  autoSort = true,
   ...props
 }: SelectProps<T>) {
+  const sortedOptions = useMemo(
+    () => (autoSort ? options.slice().sort() : options),
+    [options, autoSort]
+  );
   return (
     <FormControl sx={{ minWidth: 120, ...sx }} {...props}>
       {label && <InputLabel size="small">{label}</InputLabel>}
@@ -34,10 +40,10 @@ export function Select<T>({
         value={multiple ? value ?? [] : value}
         label={label}
       >
-        {options.length === 0 ? (
+        {sortedOptions.length === 0 ? (
           <MenuItem disabled>{empty}</MenuItem>
         ) : undefined}
-        {options.map((option, index) => {
+        {sortedOptions.map((option, index) => {
           return (
             <MenuItem key={index} value={option}>
               {option}
@@ -48,3 +54,5 @@ export function Select<T>({
     </FormControl>
   );
 }
+
+const noOptions: string[] = [];
