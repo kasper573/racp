@@ -1,6 +1,6 @@
 # rAthena Control Panel
 
-Work in progress. Not ready for public use. Use at your own risk.
+Not ready for public use. Use at your own risk.
 
 ## Getting started
 
