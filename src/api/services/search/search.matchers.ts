@@ -23,7 +23,7 @@ export function isArrayMatch<T>(req?: T[], val?: T | T[]) {
     return req.length === 0;
   }
   if (Array.isArray(val)) {
-    return without(req, ...val).length === 0;
+    return without(req, ...val).length < req.length; // one of
   }
   return req.includes(val);
 }
