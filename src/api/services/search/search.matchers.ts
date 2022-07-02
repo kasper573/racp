@@ -28,12 +28,9 @@ export function isArrayMatch<T>(req?: T[], val?: T | T[]) {
   return req.includes(val);
 }
 
-export function isRangeMatch(req?: [number, number], val?: number) {
+export function isRangeMatch(req?: [number, number], val = 0) {
   if (req === undefined) {
     return true;
-  }
-  if (val === undefined) {
-    return false;
   }
   const [min, max] = req;
   return val >= min && val <= max;
