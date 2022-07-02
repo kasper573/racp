@@ -1,9 +1,9 @@
 import { RAES } from "../../raes";
 import { createRpcHandlers } from "../../../lib/rpc/createRpcHandlers";
 import { RpcException } from "../../../lib/rpc/RpcException";
-import { collect } from "../../../lib/collect";
 import { createSearchHandler } from "../search/search.handlers";
-import { dedupe } from "../../dedupe";
+import { dedupe, dedupeRecordInsert } from "../../dedupe";
+import { select, Selector } from "../../../lib/select";
 import { itemDefinition } from "./item.definition";
 import { Item, ItemFilter, itemType } from "./item.types";
 
@@ -51,36 +51,27 @@ function collectItemMeta(items: Item[]) {
   return {
     types: collectItemTypes(items),
     maxSlots: items.reduce(largestSlot, 0),
-    ...collect(
-      items,
-      {
-        genders: (i) => (i.Gender ? [i.Gender] : []),
-        classes: (i) => Object.keys(i.Classes ?? {}),
-        jobs: (item) => Object.keys(item.Jobs ?? {}),
-        locations: (i) => Object.keys(i.Locations ?? {}),
-        elements: ({ Script }) => Script?.meta.elements ?? [],
-        statuses: ({ Script }) => Script?.meta.statuses ?? [],
-        races: ({ Script }) => Script?.meta.races ?? [],
-      },
-      (items) => noAll(dedupe(items))
-    ),
+    genders: filter(items, (i) => i.Gender),
+    classes: filter(items, (i) => Object.keys(i.Classes ?? {})),
+    jobs: filter(items, (item) => Object.keys(item.Jobs ?? {})),
+    locations: filter(items, (i) => Object.keys(i.Locations ?? {})),
+    elements: filter(items, ({ Script }) => Script?.meta.elements),
+    statuses: filter(items, ({ Script }) => Script?.meta.statuses),
+    races: filter(items, ({ Script }) => Script?.meta.races),
   };
 }
 
 function collectItemTypes(items: Item[]) {
   const types: Record<string, string[]> = {};
   for (const item of items) {
-    if (item.Type) {
-      const subTypes: string[] = types[item.Type] || (types[item.Type] = []);
-      if (item.SubType && !subTypes.includes(item.SubType)) {
-        subTypes.push(item.SubType);
-      }
-    }
+    dedupeRecordInsert(types, item.Type, item.SubType);
   }
   return types;
 }
 
-const noAll = <T>(values: T[]) => values.filter((i) => String(i) !== "All");
+const noAll = (values: string[]) => values.filter((i) => i !== "All");
+const filter = (items: Item[], selector: Selector<Item, string>) =>
+  noAll(dedupe(select(items, selector)));
 
 const largestSlot = (largest: number, item: Item) =>
   item.Slots !== undefined && item.Slots > largest ? item.Slots : largest;
