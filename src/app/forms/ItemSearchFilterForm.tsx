@@ -1,4 +1,5 @@
 import { Box, styled } from "@mui/material";
+import { useEffect } from "react";
 import { ItemFilter, itemFilterType } from "../../api/services/item/item.types";
 import { useZodForm } from "../../lib/zod/useZodForm";
 import { useGetItemMetaQuery } from "../client";
@@ -6,34 +7,35 @@ import { typedKeys } from "../../lib/typedKeys";
 import { Select } from "../controls/Select";
 import { SliderMenu } from "../controls/SliderMenu";
 import { TextField } from "../controls/TextField";
+import { useLatest } from "../hooks/useLatest";
 
-export function ItemSearchFilterForm({
-  value,
-  onChange,
-}: {
-  value: ItemFilter;
-  onChange: (changed: ItemFilter) => void;
-}) {
+export function ItemSearchFilterForm({ value, onChange }: FormDataProps) {
   const { register: reg } = useZodForm({
     schema: itemFilterType,
     value,
     onChange,
   });
   const { data: meta } = useGetItemMetaQuery();
-
-  const itemTypes = typedKeys(meta?.types ?? []);
-  const itemSubTypes = meta?.types[itemTypes[0]] ?? [];
+  const [emptySubTypeExplanation, itemSubTypes] = useSubTypeBehavior({
+    value,
+    onChange,
+  });
 
   return (
-    <FormControls>
+    <ControlGrid>
       <TextField size="small" label="ID" type="number" {...reg("id")} />
       <TextField size="small" label="Name" {...reg("name")} />
-      <Select label="Type" multi options={itemTypes} {...reg("types")} />
       <Select
-        label="Sub Type"
+        label="Primary Type"
+        multi
+        options={typedKeys(meta?.types)}
+        {...reg("types")}
+      />
+      <Select
+        label="Subtype"
         multi
         options={itemSubTypes}
-        empty="Selected type has no sub types"
+        empty={emptySubTypeExplanation}
         {...reg("subTypes")}
       />
       <Select label="Class" multi options={meta?.classes} {...reg("classes")} />
@@ -64,11 +66,45 @@ export function ItemSearchFilterForm({
         max={meta?.maxSlots}
         {...reg("slots")}
       />
-    </FormControls>
+    </ControlGrid>
   );
 }
 
-const FormControls = styled(Box)`
+interface FormDataProps {
+  value: ItemFilter;
+  onChange: (changed: ItemFilter) => void;
+}
+
+function useSubTypeBehavior({ value, onChange }: FormDataProps) {
+  const { data: meta } = useGetItemMetaQuery();
+
+  // Empty subtype filter whenever it's
+  const latest = useLatest({ onChange, value });
+  useEffect(() => {
+    const { onChange, value } = latest.current;
+    if ((value.types?.length ?? 0) <= 1) {
+      onChange({ ...value, subTypes: undefined });
+    }
+  }, [value.types, latest]);
+
+  if (!meta) {
+    return ["Waiting for data"] as const;
+  } else if (!value.types?.length) {
+    return ["Select a primary type to enable subtypes"] as const;
+  } else if (value.types?.length > 1) {
+    return ["Please select only one primary type to enable subtypes"] as const;
+  }
+
+  const selectedType = value.types[0];
+  const itemSubTypes: string[] = meta?.types[selectedType];
+  if (!itemSubTypes?.length) {
+    return [`${selectedType} has no subtypes`] as const;
+  }
+
+  return [undefined, itemSubTypes] as const;
+}
+
+const ControlGrid = styled(Box)`
   display: grid;
   grid-gap: 8px;
   ${({ theme }) => theme.breakpoints.down("md")} {
