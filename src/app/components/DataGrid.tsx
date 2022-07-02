@@ -1,4 +1,4 @@
-import { Box, Pagination, styled } from "@mui/material";
+import { Box, Pagination, styled, Typography } from "@mui/material";
 import { ComponentProps, useState } from "react";
 import { DataGrid as MuiDataGrid, GridColumns } from "@mui/x-data-grid";
 import { GridRowId } from "@mui/x-data-grid/models/gridRows";
@@ -74,7 +74,17 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
           loading={isFetching}
         />
       </Box>
-      <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
+      <Box
+        sx={{
+          mt: 2,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Typography variant="caption">
+          {result && `${result.total} matches`}
+        </Typography>
         <Pagination
           page={pageIndex + 1}
           count={pageCount}
