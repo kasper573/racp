@@ -4,7 +4,7 @@ import { Link } from "../components/Link";
 import { router } from "../router";
 
 export function Logo({
-  children = process.env.app_title,
+  children,
   to = router.home(),
   ...props
 }: Partial<ComponentProps<typeof Link>>) {
