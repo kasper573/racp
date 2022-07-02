@@ -18,6 +18,7 @@ api_rAthenaPath=<path>
 - Open a terminal and navigate to the project root
 - Run `yarn dev:api` to start the api in dev mode
 - Run `yarn dev:app` to start the app in dev mode
+- Visit `http://localhost:8080/` in your browser
 
 ## Production
 
