@@ -34,4 +34,5 @@ const columns = {
   Defense: "Def",
   EquipLevelMin: "Min Level",
   EquipLevelMax: "Max Level",
+  Slots: "Slots",
 };
