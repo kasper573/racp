@@ -1,4 +1,4 @@
-import { Authenticator } from "../authenticator";
+import { Authenticator } from "../util/authenticator";
 
 export function usersFixture(auth: Authenticator, adminPassword?: string) {
   return adminPassword

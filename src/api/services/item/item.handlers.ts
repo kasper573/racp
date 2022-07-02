@@ -1,9 +1,9 @@
-import { RAES } from "../../raes";
+import { RAES } from "../../util/raes";
 import { createRpcHandlers } from "../../../lib/rpc/createRpcHandlers";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { createSearchHandler } from "../search/search.handlers";
-import { dedupe, dedupeRecordInsert } from "../../dedupe";
-import { select, Selector } from "../../../lib/select";
+import { dedupe, dedupeRecordInsert } from "../../util/dedupe";
+import { select, Selector } from "../../util/select";
 import { itemDefinition } from "./item.definition";
 import { Item, ItemFilter, itemType } from "./item.types";
 
@@ -51,13 +51,13 @@ function collectItemMeta(items: Item[]) {
   return {
     types: collectItemTypes(items),
     maxSlots: items.reduce(largestSlot, 0),
-    genders: filter(items, (i) => i.Gender),
-    classes: filter(items, (i) => Object.keys(i.Classes ?? {})),
-    jobs: filter(items, (item) => Object.keys(item.Jobs ?? {})),
-    locations: filter(items, (i) => Object.keys(i.Locations ?? {})),
-    elements: filter(items, ({ Script }) => Script?.meta.elements),
-    statuses: filter(items, ({ Script }) => Script?.meta.statuses),
-    races: filter(items, ({ Script }) => Script?.meta.races),
+    genders: options(items, (i) => i.Gender),
+    classes: options(items, (i) => Object.keys(i.Classes ?? {})),
+    jobs: options(items, (item) => Object.keys(item.Jobs ?? {})),
+    locations: options(items, (i) => Object.keys(i.Locations ?? {})),
+    elements: options(items, ({ Script }) => Script?.meta.elements),
+    statuses: options(items, ({ Script }) => Script?.meta.statuses),
+    races: options(items, ({ Script }) => Script?.meta.races),
   };
 }
 
@@ -70,7 +70,7 @@ function collectItemTypes(items: Item[]) {
 }
 
 const noAll = (values: string[]) => values.filter((i) => i !== "All");
-const filter = (items: Item[], selector: Selector<Item, string>) =>
+const options = (items: Item[], selector: Selector<Item, string>) =>
   noAll(dedupe(select(items, selector)));
 
 const largestSlot = (largest: number, item: Item) =>

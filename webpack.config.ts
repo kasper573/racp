@@ -4,7 +4,6 @@ import * as webpack from "webpack";
 import ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 import ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 import HtmlWebpackPlugin = require("html-webpack-plugin");
-import { defined } from "./src/lib/defined";
 import { loadEnvVars } from "./env";
 import { rootId } from "./src/app/layout/globalStyles";
 
@@ -74,3 +73,9 @@ const config: webpack.Configuration = {
 };
 
 export default config;
+
+function defined<T>(items: Array<T>) {
+  return items.filter(Boolean) as Array<Exclude<T, Falsy>>;
+}
+
+type Falsy = undefined | null | boolean;

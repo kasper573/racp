@@ -1,5 +1,5 @@
 import { ParseInput, ParseReturnType, ZodType } from "zod";
-import { dedupe } from "../../dedupe";
+import { dedupe } from "../../util/dedupe";
 
 export class ItemScriptType extends ZodType<ItemScript> {
   _parse(input: ParseInput): ParseReturnType<ItemScript> {

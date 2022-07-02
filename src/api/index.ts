@@ -6,13 +6,13 @@ import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
 import { loadEnvVars } from "../../env";
 import { configDefinition } from "./services/config/config.definition";
 import { createConfigHandlers } from "./services/config/config.handlers";
-import { createAuthenticator } from "./authenticator";
+import { createAuthenticator } from "./util/authenticator";
 import { usersFixture } from "./fixtures/users";
 import { authDefinition } from "./services/auth/auth.definition";
 import { createAuthHandlers } from "./services/auth/auth.handlers";
 import { itemDefinition } from "./services/item/item.definition";
 import { createItemHandlers } from "./services/item/item.handlers";
-import { createRAES } from "./raes";
+import { createRAES } from "./util/raes";
 
 // Vars
 const env = loadEnvVars(/^api_/);

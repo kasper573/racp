@@ -1,6 +1,6 @@
 import { createRpcHandlers } from "../../../lib/rpc/createRpcHandlers";
 import { RpcException } from "../../../lib/rpc/RpcException";
-import { Authenticator } from "../../authenticator";
+import { Authenticator } from "../../util/authenticator";
 import { authDefinition } from "./auth.definition";
 import { InternalUser } from "./auth.types";
 

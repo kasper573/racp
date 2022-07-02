@@ -4,7 +4,7 @@ import * as zod from "zod";
 import * as yaml from "yaml";
 import { ZodType } from "zod";
 import { isPlainObject } from "@reduxjs/toolkit";
-import { typedKeys } from "../lib/typedKeys";
+import { typedKeys } from "../../lib/typedKeys";
 
 /**
  * rAthena Entity System
