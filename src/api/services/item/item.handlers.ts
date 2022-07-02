@@ -41,7 +41,7 @@ export function createItemHandlers({
 }
 
 function isMatchingItem(item: Item, filter: ItemFilter): boolean {
-  if (filter.Id !== undefined && filter.Id !== item.Id) {
+  if (filter.id !== undefined && filter.id !== item.Id) {
     return false;
   }
   return true;

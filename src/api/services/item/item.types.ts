@@ -5,6 +5,9 @@ export type Item = zod.infer<typeof itemType>;
 
 export const itemIdType = zod.number();
 
+const flagType = zod.string();
+const flagTogglesType = zod.record(flagType, zod.boolean());
+
 export const itemType = zod.object({
   Id: zod.number(),
   AegisName: zod.string(),
@@ -19,10 +22,10 @@ export const itemType = zod.object({
   Defense: zod.number().optional(),
   Range: zod.number().optional(),
   Slots: zod.number().optional(),
-  Jobs: zod.record(zod.string(), zod.boolean()).optional(),
-  Classes: zod.record(zod.string(), zod.boolean()).optional(),
+  Jobs: flagTogglesType.optional(),
+  Classes: flagTogglesType.optional(),
   Gender: zod.string().optional(),
-  Locations: zod.record(zod.string(), zod.boolean()).optional(),
+  Locations: flagTogglesType.optional(),
   WeaponLevel: zod.number().optional(),
   ArmorLevel: zod.number().optional(),
   EquipLevelMin: zod.number().optional(),
@@ -100,4 +103,9 @@ export const itemMetaType = zod.object({
 });
 
 export type ItemFilter = zod.infer<typeof itemFilterType>;
-export const itemFilterType = itemType.pick({ Id: true }).partial();
+export const itemFilterType = zod
+  .object({
+    id: itemIdType,
+    classes: zod.array(flagType),
+  })
+  .partial();

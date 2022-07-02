@@ -37,7 +37,11 @@ export function useZodForm<Schema extends AnyZodObject>({
       return {
         value: fieldValue,
         onChange: (e) => {
-          if ("target" in e && e.target instanceof Element) {
+          if (
+            typeof e === "object" &&
+            "target" in e &&
+            e.target instanceof Element
+          ) {
             const raw = getElementValue?.(e.target as unknown as E);
             const result = fieldType?.safeParse(raw);
             if (result?.success) {

@@ -13,7 +13,11 @@ export function ItemSearchFilterForm({
   value: ItemFilter;
   onChange: (changed: ItemFilter) => void;
 }) {
-  const { register } = useZodForm({ schema: itemFilterType, value, onChange });
+  const { register: reg } = useZodForm({
+    schema: itemFilterType,
+    value,
+    onChange,
+  });
   const { data: meta } = useGetItemMetaQuery();
 
   const itemTypes = typedKeys(meta?.types ?? []);
@@ -21,20 +25,20 @@ export function ItemSearchFilterForm({
 
   return (
     <FormControls>
-      <TextField size="small" label="ID" type="number" {...register("Id")} />
+      <TextField size="small" label="ID" type="number" {...reg("id")} />
       <TextField size="small" label="Name" />
-      <Select label="Type" multiple options={itemTypes} />
+      <Select label="Type" multi options={itemTypes} />
       <Select
         label="Sub Type"
-        multiple
+        multi
         options={itemSubTypes}
         empty="Selected type has no sub types"
       />
-      <Select label="Class" multiple options={meta?.classes} />
-      <Select label="Job" multiple options={meta?.jobs} />
-      <Select label="Element" multiple options={meta?.elements} />
-      <Select label="Status" multiple options={meta?.statuses} />
-      <Select label="Race" multiple options={meta?.races} />
+      <Select label="Class" multi options={meta?.classes} {...reg("classes")} />
+      <Select label="Job" multi options={meta?.jobs} />
+      <Select label="Element" multi options={meta?.elements} />
+      <Select label="Status" multi options={meta?.statuses} />
+      <Select label="Race" multi options={meta?.races} />
       <TextField size="small" label="Description contains" />
       <TextField size="small" label="Script contains" />
       <SliderMenu

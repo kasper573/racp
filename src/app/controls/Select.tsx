@@ -6,27 +6,31 @@ import {
 } from "@mui/material";
 import { ComponentProps, ReactNode, useMemo } from "react";
 
-export interface SelectPropsBase<T> extends ComponentProps<typeof FormControl> {
+export interface SelectPropsBase<Value>
+  extends Omit<ComponentProps<typeof FormControl>, "onChange"> {
   options?: string[];
   label?: ReactNode;
   empty?: ReactNode;
   autoSort?: boolean;
+  value?: Value;
+  onChange?: (value?: Value) => void;
 }
 
-export type SelectProps<T> =
-  | (SelectPropsBase<T> & { value?: T; multiple?: false })
-  | (SelectPropsBase<T> & { value?: T[]; multiple: true });
+export type SelectProps =
+  | (SelectPropsBase<string> & { multi?: false })
+  | (SelectPropsBase<string[]> & { multi: true });
 
-export function Select<T>({
-  options = noOptions,
-  multiple,
+export function Select({
+  options = emptyStringList,
+  multi,
   label,
   value,
+  onChange,
   sx,
   empty = "No options",
   autoSort = true,
   ...props
-}: SelectProps<T>) {
+}: SelectProps) {
   const sortedOptions = useMemo(
     () => (autoSort ? options.slice().sort() : options),
     [options, autoSort]
@@ -36,9 +40,14 @@ export function Select<T>({
       {label && <InputLabel size="small">{label}</InputLabel>}
       <MuiSelect
         size="small"
-        multiple={multiple}
-        value={multiple ? value ?? [] : value}
+        multiple={multi}
+        value={multi ? value ?? emptyStringList : value ?? ""}
         label={label}
+        onChange={
+          multi
+            ? (e) => onChange?.(e.target.value as string[])
+            : (e) => onChange?.(e.target.value as string)
+        }
       >
         {sortedOptions.length === 0 ? (
           <MenuItem disabled>{empty}</MenuItem>
@@ -55,4 +64,4 @@ export function Select<T>({
   );
 }
 
-const noOptions: string[] = [];
+const emptyStringList: string[] = [];
