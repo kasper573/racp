@@ -4,83 +4,83 @@
  * Rerun yarn codegen to regenerate this file.
  */
 export interface Tables {
-  acc_reg_num: AccRegNum;
-  acc_reg_str: AccRegStr;
-  achievement: Achievement;
-  atcommandlog: Atcommandlog;
-  auction: Auction;
-  barter: Barter;
-  bonus_script: BonusScript;
-  branchlog: Branchlog;
-  buyingstore_items: BuyingstoreItems;
-  buyingstores: Buyingstores;
-  cart_inventory: CartInventory;
-  cashlog: Cashlog;
-  char: Char;
-  char_reg_num: CharRegNum;
-  char_reg_str: CharRegStr;
-  charlog: Charlog;
-  chatlog: Chatlog;
-  clan: Clan;
-  clan_alliance: ClanAlliance;
-  db_roulette: DbRoulette;
-  elemental: Elemental;
-  feedinglog: Feedinglog;
-  friends: Friends;
-  global_acc_reg_num: GlobalAccRegNum;
-  global_acc_reg_str: GlobalAccRegStr;
-  guild: Guild;
-  guild_alliance: GuildAlliance;
-  guild_castle: GuildCastle;
-  guild_expulsion: GuildExpulsion;
-  guild_member: GuildMember;
-  guild_position: GuildPosition;
-  guild_skill: GuildSkill;
-  guild_storage: GuildStorage;
-  guild_storage_log: GuildStorageLog;
-  homunculus: Homunculus;
-  hotkey: Hotkey;
-  interlog: Interlog;
-  inventory: Inventory;
-  ipbanlist: Ipbanlist;
-  login: Login;
-  loginlog: Loginlog;
-  mail: Mail;
-  mail_attachments: MailAttachments;
-  mapreg: Mapreg;
-  market: Market;
-  memo: Memo;
-  mercenary: Mercenary;
-  mercenary_owner: MercenaryOwner;
-  mvplog: Mvplog;
-  npclog: Npclog;
-  party: Party;
-  pet: Pet;
-  picklog: Picklog;
-  quest: Quest;
-  sales: Sales;
-  sc_data: ScData;
-  skill: Skill;
-  skill_homunculus: SkillHomunculus;
-  skillcooldown: Skillcooldown;
-  storage: Storage;
-  vending_items: VendingItems;
-  vendings: Vendings;
-  zenylog: Zenylog;
+  acc_reg_num: AccRegNumEntity;
+  acc_reg_str: AccRegStrEntity;
+  achievement: AchievementEntity;
+  atcommandlog: AtcommandlogEntity;
+  auction: AuctionEntity;
+  barter: BarterEntity;
+  bonus_script: BonusScriptEntity;
+  branchlog: BranchlogEntity;
+  buyingstore_items: BuyingstoreItemsEntity;
+  buyingstores: BuyingstoresEntity;
+  cart_inventory: CartInventoryEntity;
+  cashlog: CashlogEntity;
+  char: CharEntity;
+  char_reg_num: CharRegNumEntity;
+  char_reg_str: CharRegStrEntity;
+  charlog: CharlogEntity;
+  chatlog: ChatlogEntity;
+  clan: ClanEntity;
+  clan_alliance: ClanAllianceEntity;
+  db_roulette: DbRouletteEntity;
+  elemental: ElementalEntity;
+  feedinglog: FeedinglogEntity;
+  friends: FriendsEntity;
+  global_acc_reg_num: GlobalAccRegNumEntity;
+  global_acc_reg_str: GlobalAccRegStrEntity;
+  guild: GuildEntity;
+  guild_alliance: GuildAllianceEntity;
+  guild_castle: GuildCastleEntity;
+  guild_expulsion: GuildExpulsionEntity;
+  guild_member: GuildMemberEntity;
+  guild_position: GuildPositionEntity;
+  guild_skill: GuildSkillEntity;
+  guild_storage: GuildStorageEntity;
+  guild_storage_log: GuildStorageLogEntity;
+  homunculus: HomunculusEntity;
+  hotkey: HotkeyEntity;
+  interlog: InterlogEntity;
+  inventory: InventoryEntity;
+  ipbanlist: IpbanlistEntity;
+  login: LoginEntity;
+  loginlog: LoginlogEntity;
+  mail: MailEntity;
+  mail_attachments: MailAttachmentsEntity;
+  mapreg: MapregEntity;
+  market: MarketEntity;
+  memo: MemoEntity;
+  mercenary: MercenaryEntity;
+  mercenary_owner: MercenaryOwnerEntity;
+  mvplog: MvplogEntity;
+  npclog: NpclogEntity;
+  party: PartyEntity;
+  pet: PetEntity;
+  picklog: PicklogEntity;
+  quest: QuestEntity;
+  sales: SalesEntity;
+  sc_data: ScDataEntity;
+  skill: SkillEntity;
+  skill_homunculus: SkillHomunculusEntity;
+  skillcooldown: SkillcooldownEntity;
+  storage: StorageEntity;
+  vending_items: VendingItemsEntity;
+  vendings: VendingsEntity;
+  zenylog: ZenylogEntity;
 }
-export interface AccRegNum {
+export interface AccRegNumEntity {
   account_id?: number;
   index?: number;
   key?: string;
   value?: string;
 }
-export interface AccRegStr {
+export interface AccRegStrEntity {
   account_id?: number;
   index?: number;
   key?: string;
   value?: string;
 }
-export interface Achievement {
+export interface AchievementEntity {
   char_id?: number;
   completed: Date | null;
   count1?: number;
@@ -96,7 +96,7 @@ export interface Achievement {
   id: string;
   rewarded: Date | null;
 }
-export interface Atcommandlog {
+export interface AtcommandlogEntity {
   account_id?: number;
   atcommand_date: Date;
   atcommand_id?: number;
@@ -105,7 +105,7 @@ export interface Atcommandlog {
   command?: string;
   map?: string;
 }
-export interface Auction {
+export interface AuctionEntity {
   attribute?: number;
   auction_id?: string;
   buyer_id?: number;
@@ -142,12 +142,12 @@ export interface Auction {
   type?: number;
   unique_id?: string;
 }
-export interface Barter {
+export interface BarterEntity {
   amount: number;
   index: number;
   name?: string;
 }
-export interface BonusScript {
+export interface BonusScriptEntity {
   char_id: number;
   flag?: number;
   icon?: number;
@@ -155,7 +155,7 @@ export interface BonusScript {
   tick?: string;
   type?: number;
 }
-export interface Branchlog {
+export interface BranchlogEntity {
   account_id?: number;
   branch_date: Date;
   branch_id?: number;
@@ -163,14 +163,14 @@ export interface Branchlog {
   char_name?: string;
   map?: string;
 }
-export interface BuyingstoreItems {
+export interface BuyingstoreItemsEntity {
   amount: number;
   buyingstore_id: number;
   index: number;
   item_id: number;
   price: number;
 }
-export interface Buyingstores {
+export interface BuyingstoresEntity {
   account_id: number;
   autotrade: number;
   body_direction?: string;
@@ -185,7 +185,7 @@ export interface Buyingstores {
   x: number;
   y: number;
 }
-export interface CartInventory {
+export interface CartInventoryEntity {
   amount?: number;
   attribute?: number;
   bound?: number;
@@ -218,7 +218,7 @@ export interface CartInventory {
   refine?: number;
   unique_id?: string;
 }
-export interface Cashlog {
+export interface CashlogEntity {
   amount?: number;
   cash_type?: number;
   char_id?: number;
@@ -227,7 +227,7 @@ export interface Cashlog {
   time: Date;
   type?: number;
 }
-export interface Char {
+export interface CharEntity {
   account_id?: number;
   agi?: number;
   ap?: number;
@@ -304,19 +304,19 @@ export interface Char {
   wis?: number;
   zeny?: number;
 }
-export interface CharRegNum {
+export interface CharRegNumEntity {
   char_id?: number;
   index?: number;
   key?: string;
   value?: string;
 }
-export interface CharRegStr {
+export interface CharRegStrEntity {
   char_id?: number;
   index?: number;
   key?: string;
   value?: string;
 }
-export interface Charlog {
+export interface CharlogEntity {
   account_id?: number;
   agi?: number;
   char_msg?: string;
@@ -332,7 +332,7 @@ export interface Charlog {
   time: Date;
   vit?: number;
 }
-export interface Chatlog {
+export interface ChatlogEntity {
   dst_charname?: string;
   id?: string;
   message?: string;
@@ -345,27 +345,27 @@ export interface Chatlog {
   type?: number;
   type_id?: number;
 }
-export interface Clan {
+export interface ClanEntity {
   clan_id?: number;
   mapname?: string;
   master?: string;
   max_member?: number;
   name?: string;
 }
-export interface ClanAlliance {
+export interface ClanAllianceEntity {
   alliance_id?: number;
   clan_id?: number;
   name?: string;
   opposition?: number;
 }
-export interface DbRoulette {
+export interface DbRouletteEntity {
   amount?: number;
   flag?: number;
   index?: number;
   item_id: number;
   level: number;
 }
-export interface Elemental {
+export interface ElementalEntity {
   aspd?: number;
   atk1?: number;
   atk2?: number;
@@ -384,7 +384,7 @@ export interface Elemental {
   mode?: number;
   sp?: number;
 }
-export interface Feedinglog {
+export interface FeedinglogEntity {
   char_id: number;
   id?: number;
   intimacy: number;
@@ -397,23 +397,23 @@ export interface Feedinglog {
   x: number;
   y: number;
 }
-export interface Friends {
+export interface FriendsEntity {
   char_id?: number;
   friend_id?: number;
 }
-export interface GlobalAccRegNum {
+export interface GlobalAccRegNumEntity {
   account_id?: number;
   index?: number;
   key?: string;
   value?: string;
 }
-export interface GlobalAccRegStr {
+export interface GlobalAccRegStrEntity {
   account_id?: number;
   index?: number;
   key?: string;
   value?: string;
 }
-export interface Guild {
+export interface GuildEntity {
   average_lv?: number;
   char_id?: number;
   connect_member?: number;
@@ -432,13 +432,13 @@ export interface Guild {
   next_exp?: string;
   skill_point?: number;
 }
-export interface GuildAlliance {
+export interface GuildAllianceEntity {
   alliance_id?: number;
   guild_id?: number;
   name?: string;
   opposition?: number;
 }
-export interface GuildCastle {
+export interface GuildCastleEntity {
   castle_id?: number;
   createTime?: number;
   defense?: number;
@@ -458,31 +458,31 @@ export interface GuildCastle {
   visibleG6?: number;
   visibleG7?: number;
 }
-export interface GuildExpulsion {
+export interface GuildExpulsionEntity {
   account_id?: number;
   guild_id?: number;
   mes?: string;
   name?: string;
 }
-export interface GuildMember {
+export interface GuildMemberEntity {
   char_id?: number;
   exp?: string;
   guild_id?: number;
   position?: number;
 }
-export interface GuildPosition {
+export interface GuildPositionEntity {
   exp_mode?: number;
   guild_id?: number;
   mode?: number;
   name?: string;
   position?: number;
 }
-export interface GuildSkill {
+export interface GuildSkillEntity {
   guild_id?: number;
   id?: number;
   lv?: number;
 }
-export interface GuildStorage {
+export interface GuildStorageEntity {
   amount?: number;
   attribute?: number;
   bound?: number;
@@ -515,7 +515,7 @@ export interface GuildStorage {
   refine?: number;
   unique_id?: string;
 }
-export interface GuildStorageLog {
+export interface GuildStorageLogEntity {
   amount?: number;
   attribute?: number;
   bound?: number;
@@ -550,7 +550,7 @@ export interface GuildStorageLog {
   time: Date;
   unique_id?: string;
 }
-export interface Homunculus {
+export interface HomunculusEntity {
   agi?: number;
   alive?: number;
   autofeed?: number;
@@ -576,19 +576,19 @@ export interface Homunculus {
   vaporize?: number;
   vit?: number;
 }
-export interface Hotkey {
+export interface HotkeyEntity {
   char_id: number;
   hotkey: number;
   itemskill_id?: number;
   skill_lvl?: number;
   type?: number;
 }
-export interface Interlog {
+export interface InterlogEntity {
   id?: number;
   log?: string;
   time: Date;
 }
-export interface Inventory {
+export interface InventoryEntity {
   amount?: number;
   attribute?: number;
   bound?: number;
@@ -623,13 +623,13 @@ export interface Inventory {
   refine?: number;
   unique_id?: string;
 }
-export interface Ipbanlist {
+export interface IpbanlistEntity {
   btime: Date;
   list?: string;
   reason?: string;
   rtime: Date;
 }
-export interface Login {
+export interface LoginEntity {
   account_id?: number;
   birthdate: Date | null;
   character_slots?: number;
@@ -651,14 +651,14 @@ export interface Login {
   web_auth_token: string | null;
   web_auth_token_enabled?: number;
 }
-export interface Loginlog {
+export interface LoginlogEntity {
   ip?: string;
   log?: string;
   rcode?: number;
   time: Date;
   user?: string;
 }
-export interface Mail {
+export interface MailEntity {
   dest_id?: number;
   dest_name?: string;
   id?: string;
@@ -671,7 +671,7 @@ export interface Mail {
   type?: number;
   zeny?: number;
 }
-export interface MailAttachments {
+export interface MailAttachmentsEntity {
   amount?: number;
   attribute?: number;
   bound?: number;
@@ -702,26 +702,26 @@ export interface MailAttachments {
   refine?: number;
   unique_id?: string;
 }
-export interface Mapreg {
+export interface MapregEntity {
   index?: number;
   value: string;
   varname: string;
 }
-export interface Market {
+export interface MarketEntity {
   amount: number;
   flag?: number;
   name?: string;
   nameid: number;
   price: number;
 }
-export interface Memo {
+export interface MemoEntity {
   char_id?: number;
   map?: string;
   memo_id?: number;
   x?: number;
   y?: number;
 }
-export interface Mercenary {
+export interface MercenaryEntity {
   char_id: number;
   class?: number;
   hp?: number;
@@ -730,7 +730,7 @@ export interface Mercenary {
   mer_id?: number;
   sp?: number;
 }
-export interface MercenaryOwner {
+export interface MercenaryOwnerEntity {
   arch_calls?: number;
   arch_faith?: number;
   char_id: number;
@@ -740,7 +740,7 @@ export interface MercenaryOwner {
   sword_calls?: number;
   sword_faith?: number;
 }
-export interface Mvplog {
+export interface MvplogEntity {
   kill_char_id?: number;
   map?: string;
   monster_id?: number;
@@ -749,7 +749,7 @@ export interface Mvplog {
   mvpexp?: string;
   prize?: number;
 }
-export interface Npclog {
+export interface NpclogEntity {
   account_id?: number;
   char_id?: number;
   char_name?: string;
@@ -758,7 +758,7 @@ export interface Npclog {
   npc_date: Date;
   npc_id?: number;
 }
-export interface Party {
+export interface PartyEntity {
   exp?: number;
   item?: number;
   leader_char?: number;
@@ -766,7 +766,7 @@ export interface Party {
   name?: string;
   party_id?: number;
 }
-export interface Pet {
+export interface PetEntity {
   account_id?: number;
   autofeed?: number;
   char_id?: number;
@@ -781,7 +781,7 @@ export interface Pet {
   pet_id?: number;
   rename_flag?: number;
 }
-export interface Picklog {
+export interface PicklogEntity {
   amount?: number;
   bound?: number;
   card0?: number;
@@ -813,7 +813,7 @@ export interface Picklog {
   type?: number;
   unique_id?: string;
 }
-export interface Quest {
+export interface QuestEntity {
   char_id?: number;
   count1?: number;
   count2?: number;
@@ -822,13 +822,13 @@ export interface Quest {
   state?: number;
   time?: number;
 }
-export interface Sales {
+export interface SalesEntity {
   amount: number;
   end: Date;
   nameid: number;
   start: Date;
 }
-export interface ScData {
+export interface ScDataEntity {
   account_id: number;
   char_id: number;
   tick: string;
@@ -838,24 +838,24 @@ export interface ScData {
   val3?: number;
   val4?: number;
 }
-export interface Skill {
+export interface SkillEntity {
   char_id?: number;
   flag?: number;
   id?: number;
   lv?: number;
 }
-export interface SkillHomunculus {
+export interface SkillHomunculusEntity {
   homun_id: number;
   id: number;
   lv: number;
 }
-export interface Skillcooldown {
+export interface SkillcooldownEntity {
   account_id: number;
   char_id: number;
   skill?: number;
   tick: string;
 }
-export interface Storage {
+export interface StorageEntity {
   account_id?: number;
   amount?: number;
   attribute?: number;
@@ -888,14 +888,14 @@ export interface Storage {
   refine?: number;
   unique_id?: string;
 }
-export interface VendingItems {
+export interface VendingItemsEntity {
   amount: number;
   cartinventory_id: number;
   index: number;
   price: number;
   vending_id: number;
 }
-export interface Vendings {
+export interface VendingsEntity {
   account_id: number;
   autotrade: number;
   body_direction?: string;
@@ -909,7 +909,7 @@ export interface Vendings {
   x: number;
   y: number;
 }
-export interface Zenylog {
+export interface ZenylogEntity {
   amount?: number;
   char_id?: number;
   id?: number;
