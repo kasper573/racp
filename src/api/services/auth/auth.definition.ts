@@ -6,10 +6,7 @@ export const authDefinition = createRpcDefinition({
   entries: (builder) =>
     builder.mutation(
       "login",
-      zod.object({
-        username: zod.string(),
-        password: zod.string(),
-      }),
+      zod.object({ username: zod.string(), password: zod.string() }),
       zod.object({ token: zod.string(), user: publicUserType })
     ),
 });
