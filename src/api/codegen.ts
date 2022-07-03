@@ -3,12 +3,13 @@ import * as path from "path";
 import { execSync } from "child_process";
 import sqlts from "@rmp135/sql-ts";
 import { pick } from "lodash";
+import * as zod from "zod";
 import { readCliArgs } from "./util/cli";
 import { options } from "./options";
 import { createRACFG, dbInfoConfigName } from "./services/racfg";
 
 /**
- * Generates typescript definitions of the rAthena mysql database
+ * Generates zod type & typescript definitions of the rAthena mysql database
  */
 async function generate() {
   const { rAthenaPath, template } = readCliArgs({
@@ -36,10 +37,12 @@ async function generate() {
   execSync(`prettier --write ${filename}`);
 }
 
-// These were missing in the default typeMap
-const typeMap = {
+type MysqlTypes = string[];
+const typeMap: Partial<Record<keyof typeof zod, MysqlTypes>> = {
+  // These were missing in the default typeMap
   unknown: ["blob"],
   number: ["mediumint", "decimal", "float", "int", "enum"],
+  date: ["datetime", "date"], // Redefining because zod date is lowercase, but default is capitalized
 };
 
 generate();

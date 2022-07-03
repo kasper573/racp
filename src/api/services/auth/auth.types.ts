@@ -1,6 +1,6 @@
-import * as zod from "zod";
+import { LoginEntityType } from "../radb.types";
 
-export const publicUserType = zod.object({
-  account_id: zod.number().optional(),
-  userid: zod.string().optional(),
+export const publicUserType = LoginEntityType.pick({
+  account_id: true,
+  userid: true,
 });
