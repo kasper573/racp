@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import { execSync } from "child_process";
 import sqlts from "@rmp135/sql-ts";
 import { pick } from "lodash";
 import { readCliArgs } from "./util/cli";
@@ -24,14 +25,13 @@ async function generate() {
   const tsString = await sqlts.toTypeScript({
     client: "mysql",
     connection: await cfg.presets.dbInfo(template),
+    typeMap,
     ...codegenStylePreferences,
   });
 
-  fs.writeFileSync(
-    path.resolve(__dirname, "services", "radb", "radb.types.ts"),
-    tsString,
-    "utf-8"
-  );
+  const filename = path.resolve(__dirname, "services", "radb", "radb.types.ts");
+  fs.writeFileSync(filename, tsString, "utf-8");
+  execSync(`prettier --write ${filename}`);
 }
 
 const codegenStylePreferences = {
@@ -40,5 +40,11 @@ const codegenStylePreferences = {
   enumNameCasing: "pascal",
   enumKeyCasing: "pascal",
 } as const;
+
+// These were missing in the default typeMap
+const typeMap = {
+  unknown: ["blob"],
+  number: ["mediumint", "decimal", "float", "int", "enum"],
+};
 
 generate();
