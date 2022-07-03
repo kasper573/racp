@@ -15,6 +15,7 @@ import {
   PestControlRodent,
   Redeem,
 } from "@mui/icons-material";
+import { useLocation } from "react-router-dom";
 import { UserAccessLevel } from "../api/services/auth/auth.types";
 import { useAppSelector } from "./store";
 import { RestrictedPage } from "./pages/RestrictedPage";
@@ -30,9 +31,10 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
     options: { title: "Home", icon: <Home /> },
     exact: true,
   }),
-  login: route("login", {
+  login: route("login/&:destination?", {
     component: lazy(() => import("./pages/LoginPage")),
     options: { title: "Sign in", icon: <Login /> },
+    params: { destination: stringParser },
   }),
   item: route(
     "item",
@@ -80,9 +82,16 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
 
 function requireAuth(requiredAccess = UserAccessLevel.User): RouteMiddleware {
   return (next) => {
+    const location = useLocation();
     const access = useAppSelector(({ auth }) => auth.user?.access);
     if (access === undefined) {
-      return () => <Redirect to={router.login()} />;
+      return () => (
+        <Redirect
+          to={router.login({
+            destination: `${location.pathname}${location.search}`,
+          })}
+        />
+      );
     }
     if (access < requiredAccess) {
       return () => <RestrictedPage />;

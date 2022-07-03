@@ -14,28 +14,36 @@ function buildRpcDefinition<
     entries,
     tagTypes,
     query(name, argument, result, options) {
-      return buildRpcDefinition(tagTypes, {
-        ...entries,
-        [name]: {
-          argument,
-          result,
-          intent: "query",
-          ...options,
-          auth: options?.auth ?? inheritedAuth,
+      return buildRpcDefinition(
+        tagTypes,
+        {
+          ...entries,
+          [name]: {
+            argument,
+            result,
+            intent: "query",
+            ...options,
+            auth: options?.auth ?? inheritedAuth,
+          },
         },
-      });
+        inheritedAuth
+      );
     },
     mutation(name, argument, result, options) {
-      return buildRpcDefinition(tagTypes, {
-        ...entries,
-        [name]: {
-          argument,
-          result,
-          intent: "mutation",
-          ...options,
-          auth: options?.auth ?? inheritedAuth,
+      return buildRpcDefinition(
+        tagTypes,
+        {
+          ...entries,
+          [name]: {
+            argument,
+            result,
+            intent: "mutation",
+            ...options,
+            auth: options?.auth ?? inheritedAuth,
+          },
         },
-      });
+        inheritedAuth
+      );
     },
   };
 }

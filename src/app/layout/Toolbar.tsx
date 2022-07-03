@@ -59,7 +59,7 @@ export function Toolbar() {
           )}
         </Auth>
         <Auth exact={UserAccessLevel.Guest}>
-          <LinkMenuItem to={router.login()}>Sign in</LinkMenuItem>
+          <LinkMenuItem to={router.login({})}>Sign in</LinkMenuItem>
         </Auth>
       </MenuOn>
     </Box>

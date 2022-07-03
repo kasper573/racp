@@ -1,11 +1,14 @@
 import { FormEvent, useState } from "react";
 import { Button, Stack, styled, TextField } from "@mui/material";
 import { useHistory } from "react-router";
+import { useRouteParams } from "react-typesafe-routes";
 import { useLoginMutation } from "../client";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { router } from "../router";
+import { UserAccessLevel } from "../../api/services/auth/auth.types";
 
 export default function LoginPage() {
+  const { destination } = useRouteParams(router.login);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [login, { error }] = useLoginMutation();
@@ -15,7 +18,7 @@ export default function LoginPage() {
     e.preventDefault();
     const result = await login({ username, password });
     if ("data" in result) {
-      history.push(router.home().$);
+      history.push(destination ?? defaultDestinations[result.data.user.access]);
     }
   }
 
@@ -39,6 +42,12 @@ export default function LoginPage() {
     </Form>
   );
 }
+
+const defaultDestinations = {
+  [UserAccessLevel.Admin]: router.admin().$,
+  [UserAccessLevel.User]: router.home().$,
+  [UserAccessLevel.Guest]: router.home().$,
+};
 
 const Form = styled("form")`
   display: block;
