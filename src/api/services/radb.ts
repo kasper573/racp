@@ -3,7 +3,7 @@ import { Tables } from "./radb.types";
 import { RACFG } from "./racfg";
 
 /**
- * rAthena mysql database driver
+ * rAthena database driver
  */
 export type RADB = ReturnType<typeof createRADB>;
 
