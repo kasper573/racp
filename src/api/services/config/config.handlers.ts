@@ -8,7 +8,7 @@ export function createConfigHandlers(cfg: RACFG) {
     listConfigs: cfg.list,
     async getConfig(configName) {
       try {
-        return await cfg.load(configName);
+        return await cfg.read(configName);
       } catch {
         throw new RpcException("Unknown config");
       }
