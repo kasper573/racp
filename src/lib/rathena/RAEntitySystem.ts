@@ -4,23 +4,11 @@ import * as zod from "zod";
 import * as yaml from "yaml";
 import { ZodType } from "zod";
 import { isPlainObject } from "@reduxjs/toolkit";
-import { typedKeys } from "../../lib/typedKeys";
+import { typedKeys } from "../typedKeys";
 
-/**
- * rAthena Entity System
- */
-export type RAES = ReturnType<typeof createRAES>;
+export type RAEntitySystem = ReturnType<typeof createRAEntitySystem>;
 
-export interface RAESResolver<ET extends ZodType, Key> {
-  entityType: ET;
-  getKey: (entity: zod.infer<ET>) => Key;
-  postProcess?: (
-    entity: zod.infer<ET>,
-    registry: Map<Key, zod.infer<ET>>
-  ) => void;
-}
-
-export function createRAES({
+export function createRAEntitySystem({
   rAthenaPath,
   rAthenaMode,
 }: {
@@ -37,7 +25,7 @@ export function createRAES({
 
   function resolve<ET extends ZodType, Key>(
     file: string,
-    { entityType, getKey, postProcess = noop }: RAESResolver<ET, Key>
+    { entityType, getKey, postProcess = noop }: RAEntityResolver<ET, Key>
   ): Map<Key, zod.infer<ET>> {
     const imports: ImportNode[] = [{ Path: file, Mode: rAthenaMode }];
     const entities = new Map<Key, zod.infer<ET>>();
@@ -66,10 +54,19 @@ export function createRAES({
   };
 }
 
-export function createRAESResolver<ET extends ZodType, Key>(
+export interface RAEntityResolver<ET extends ZodType, Key> {
+  entityType: ET;
+  getKey: (entity: zod.infer<ET>) => Key;
+  postProcess?: (
+    entity: zod.infer<ET>,
+    registry: Map<Key, zod.infer<ET>>
+  ) => void;
+}
+
+export function createRAEntityResolver<ET extends ZodType, Key>(
   entityType: ET,
-  rest: Omit<RAESResolver<ET, Key>, "entityType">
-): RAESResolver<ET, Key> {
+  rest: Omit<RAEntityResolver<ET, Key>, "entityType">
+): RAEntityResolver<ET, Key> {
   return {
     entityType,
     ...rest,

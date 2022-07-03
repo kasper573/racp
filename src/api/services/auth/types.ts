@@ -1,7 +1,7 @@
 import * as zod from "zod";
 import { toggleRecordType } from "../../util/matchers";
 import { getZodType } from "../../../lib/zod/zodPath";
-import { LoginEntityType } from "../radb.types";
+import { LoginEntityType } from "../../radb.types";
 
 export enum UserAccessLevel {
   Guest,

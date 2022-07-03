@@ -1,8 +1,11 @@
 import { groupBy } from "lodash";
 import { createRpcController } from "../../../lib/rpc/createRpcController";
 import { RpcException } from "../../../lib/rpc/RpcException";
-import { RADB } from "../radb";
-import { createRAESResolver, RAES } from "../raes";
+import { RADatabaseDriver } from "../../radb";
+import {
+  createRAEntityResolver,
+  RAEntitySystem,
+} from "../../../lib/rathena/RAEntitySystem";
 import { Authenticator } from "./Authenticator";
 import { authDefinition } from "./definition";
 import { UserAccessLevel, userGroupType } from "./types";
@@ -13,8 +16,8 @@ export function authController({
   auth,
   adminPermissionName = "",
 }: {
-  radb: RADB;
-  raes: RAES;
+  radb: RADatabaseDriver;
+  raes: RAEntitySystem;
   auth: Authenticator;
   adminPermissionName?: string;
 }) {
@@ -48,7 +51,7 @@ export function authController({
   });
 }
 
-const userGroupResolver = createRAESResolver(userGroupType, {
+const userGroupResolver = createRAEntityResolver(userGroupType, {
   getKey: (group) => group.Id,
   postProcess(group, registry) {
     const nameLookup = groupBy(Array.from(registry.values()), "Name");

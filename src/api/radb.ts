@@ -1,13 +1,13 @@
 import knex from "knex";
+import { RAConfigSystem } from "../lib/rathena/RAConfigSystem";
 import { Tables } from "./radb.types";
-import { RACFG } from "./racfg";
+
+export type RADatabaseDriver = ReturnType<typeof createRADatabaseDriver>;
 
 /**
- * rAthena database driver
+ * Typesafe knex interface with rAthena mysql database
  */
-export type RADB = ReturnType<typeof createRADB>;
-
-export function createRADB(cfg: RACFG) {
+export function createRADatabaseDriver(cfg: RAConfigSystem) {
   const db = knex({
     client: "mysql",
     connection: () => cfg.presets.dbInfo("login_server"),

@@ -1,4 +1,7 @@
-import { createRAESResolver, RAES } from "../raes";
+import {
+  createRAEntityResolver,
+  RAEntitySystem,
+} from "../../../lib/rathena/RAEntitySystem";
 import { createRpcController } from "../../../lib/rpc/createRpcController";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { createSearchController } from "../search/controller";
@@ -18,7 +21,7 @@ export function itemController({
   raes: { resolve },
   tradeScale,
 }: {
-  raes: RAES;
+  raes: RAEntitySystem;
   tradeScale: number;
 }) {
   const items = resolve("db/item_db.yml", createItemResolver(tradeScale));
@@ -43,7 +46,7 @@ export function itemController({
 }
 
 function createItemResolver(tradeScale: number) {
-  return createRAESResolver(itemType, {
+  return createRAEntityResolver(itemType, {
     getKey: (o) => o.Id,
     postProcess(item) {
       item.Buy = item.Buy ?? (item.Sell ?? 0) * tradeScale;

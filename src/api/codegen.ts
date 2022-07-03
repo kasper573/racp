@@ -4,9 +4,12 @@ import { execSync } from "child_process";
 import sqlts from "@rmp135/sql-ts";
 import { pick } from "lodash";
 import * as zod from "zod";
+import {
+  createRAConfigSystem,
+  dbInfoConfigName,
+} from "../lib/rathena/RAConfigSystem";
 import { readCliArgs } from "./util/cli";
 import { options } from "./options";
-import { createRACFG, dbInfoConfigName } from "./services/racfg";
 
 /**
  * Generates zod type & typescript definitions of the rAthena mysql database
@@ -22,7 +25,7 @@ async function generate() {
     },
   });
 
-  const cfg = createRACFG(rAthenaPath);
+  const cfg = createRAConfigSystem(rAthenaPath);
   const tsString = await sqlts.toTypeScript({
     client: "mysql",
     template: path.resolve(__dirname, "codegen.hbs"),
@@ -33,7 +36,7 @@ async function generate() {
     typeMap,
   });
 
-  const filename = path.resolve(__dirname, "services", "radb.types.ts");
+  const filename = path.resolve(__dirname, "radb.types.ts");
   fs.writeFileSync(filename, tsString, "utf-8");
   execSync(`prettier --write ${filename}`);
 }
