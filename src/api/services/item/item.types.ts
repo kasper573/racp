@@ -1,6 +1,5 @@
 import * as zod from "zod";
 import { toggleNameType, toggleRecordType } from "../../util/matchers";
-import { createRAESResolver } from "../raes";
 import { itemScriptType } from "./item.script";
 
 export type Item = zod.infer<typeof itemType>;
@@ -118,13 +117,3 @@ export const itemFilterType = zod
     slots: zod.tuple([zod.number(), zod.number()]),
   })
   .partial();
-
-export function createItemResolver(tradeScale: number) {
-  return createRAESResolver(itemType, {
-    getKey: (o) => o.Id,
-    postProcess(item) {
-      item.Buy = item.Buy ?? (item.Sell ?? 0) * tradeScale;
-      item.Sell = item.Sell ?? (item.Buy ?? 0) / tradeScale;
-    },
-  });
-}
