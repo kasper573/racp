@@ -38,16 +38,33 @@ function isTokenExpired(token: string) {
   return Math.floor(new Date().getTime() / 1000) >= expiry;
 }
 
-export function setupAuthBehavior<S extends Store>(
-  { getState, dispatch }: S,
-  selectState: (state: ReturnType<Store["getState"]>) => AuthState,
+export function setupAuthBehavior<State>(
+  store: Store<State>,
+  selectState: (state: State) => AuthState,
   interval = 1000
 ) {
+  const getToken = () => selectState(store.getState()).token;
+
+  // Logout when token expires
   const intervalId = setInterval(() => {
-    const { token } = selectState(getState());
+    const token = getToken();
     if (token && isTokenExpired(token)) {
-      dispatch(auth.actions.logout());
+      store.dispatch(auth.actions.logout());
     }
   }, interval);
-  return () => clearInterval(intervalId);
+
+  // Reset API cache when token changes
+  let prevToken = getToken();
+  const unsubscribe = store.subscribe(() => {
+    const newToken = getToken();
+    if (newToken !== prevToken) {
+      prevToken = newToken;
+      store.dispatch(client.internalActions.resetApiState());
+    }
+  });
+
+  return () => {
+    clearInterval(intervalId);
+    unsubscribe();
+  };
 }

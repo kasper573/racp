@@ -5,8 +5,7 @@ import { RADB } from "../radb";
 import { createRAESResolver, RAES } from "../raes";
 import { Authenticator } from "./Authenticator";
 import { authDefinition } from "./auth.definition";
-import { userGroupType } from "./auth.types";
-import { UserAccessLevel } from "./UserAccessLevel";
+import { UserAccessLevel, userGroupType } from "./auth.types";
 
 export function createAuthHandlers({
   radb,
