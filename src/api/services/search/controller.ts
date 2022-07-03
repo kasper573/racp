@@ -1,5 +1,5 @@
 import { get } from "lodash";
-import { SearchQuery, SearchResult, SearchSort } from "./search.types";
+import { SearchQuery, SearchResult, SearchSort } from "./types";
 
 export function createSearchHandler<Entity, Filter>(
   entities: Entity[],

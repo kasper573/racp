@@ -1,7 +1,7 @@
 import { createRpcHandlers } from "../../../lib/rpc/createRpcHandlers";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { RACFG } from "../racfg";
-import { configDefinition } from "./config.definition";
+import { configDefinition } from "./definition";
 
 export function createConfigHandlers(cfg: RACFG) {
   return createRpcHandlers(configDefinition.entries, {

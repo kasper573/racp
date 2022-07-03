@@ -1,7 +1,7 @@
 import { createRAESResolver, RAES } from "../raes";
 import { createRpcHandlers } from "../../../lib/rpc/createRpcHandlers";
 import { RpcException } from "../../../lib/rpc/RpcException";
-import { createSearchHandler } from "../search/search.handlers";
+import { createSearchHandler } from "../search/controller";
 import { dedupe, dedupeRecordInsert } from "../../util/dedupe";
 import { select, Selector } from "../../util/select";
 import {
@@ -11,8 +11,8 @@ import {
   isStringMatch,
   isToggleMatch,
 } from "../../util/matchers";
-import { itemDefinition } from "./item.definition";
-import { Item, ItemFilter, itemType } from "./item.types";
+import { itemDefinition } from "./definition";
+import { Item, ItemFilter, itemType } from "./types";
 
 export function createItemHandlers({
   raes: { resolve },

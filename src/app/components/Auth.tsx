@@ -1,9 +1,6 @@
 import { ReactNode } from "react";
 import { useAppSelector } from "../state/store";
-import {
-  PublicUser,
-  UserAccessLevel,
-} from "../../api/services/auth/auth.types";
+import { PublicUser, UserAccessLevel } from "../../api/services/auth/types";
 
 type AuthPropsBase = {
   children: ReactNode | ((user?: PublicUser) => ReactNode);

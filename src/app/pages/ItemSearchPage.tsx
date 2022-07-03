@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Header } from "../layout/Header";
 import { useSearchItemsQuery } from "../state/client";
 import { router } from "../router";
-import { Item, ItemFilter } from "../../api/services/item/item.types";
+import { Item, ItemFilter } from "../../api/services/item/types";
 import { DataGrid } from "../components/DataGrid";
 import { ItemSearchFilterForm } from "../forms/ItemSearchFilterForm";
 

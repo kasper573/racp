@@ -5,7 +5,7 @@ import { useRouteParams } from "react-typesafe-routes";
 import { useLoginMutation } from "../state/client";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { router } from "../router";
-import { UserAccessLevel } from "../../api/services/auth/auth.types";
+import { UserAccessLevel } from "../../api/services/auth/types";
 
 export default function LoginPage() {
   const { destination } = useRouteParams(router.login);

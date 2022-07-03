@@ -1,8 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/dist/query/react";
-import { configDefinition } from "../../api/services/config/config.definition";
+import { configDefinition } from "../../api/services/config/definition";
 import { createRpcEndpoints } from "../../lib/rpc/createRpcEndpoints";
-import { authDefinition } from "../../api/services/auth/auth.definition";
-import { itemDefinition } from "../../api/services/item/item.definition";
+import { authDefinition } from "../../api/services/auth/definition";
+import { itemDefinition } from "../../api/services/item/definition";
 import { AppState } from "./store";
 
 export const client = createApi({

@@ -1,6 +1,6 @@
 import * as zod from "zod";
 import { toggleNameType, toggleRecordType } from "../../util/matchers";
-import { itemScriptType } from "./item.script";
+import { itemScriptType } from "./ItemScript";
 
 export type Item = zod.infer<typeof itemType>;
 

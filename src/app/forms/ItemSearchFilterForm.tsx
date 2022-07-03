@@ -1,6 +1,6 @@
 import { Box, styled } from "@mui/material";
 import { useEffect } from "react";
-import { ItemFilter, itemFilterType } from "../../api/services/item/item.types";
+import { ItemFilter, itemFilterType } from "../../api/services/item/types";
 import { useZodForm } from "../../lib/zod/useZodForm";
 import { useGetItemMetaQuery } from "../state/client";
 import { typedKeys } from "../../lib/typedKeys";

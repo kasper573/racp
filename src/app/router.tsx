@@ -16,7 +16,7 @@ import {
   Redeem,
 } from "@mui/icons-material";
 import { useLocation } from "react-router-dom";
-import { UserAccessLevel } from "../api/services/auth/auth.types";
+import { UserAccessLevel } from "../api/services/auth/types";
 import { useAppSelector } from "./state/store";
 import { RestrictedPage } from "./pages/RestrictedPage";
 

@@ -1,7 +1,7 @@
 import { ParseInput, ParseReturnType, ZodType } from "zod";
 import { dedupe } from "../../util/dedupe";
 
-export class ItemScriptType extends ZodType<ItemScript> {
+export class ZodItemScript extends ZodType<ItemScript> {
   _parse(input: ParseInput): ParseReturnType<ItemScript> {
     return {
       status: "valid",
@@ -36,4 +36,4 @@ export interface ItemScript {
   };
 }
 
-export const itemScriptType = new ItemScriptType({});
+export const itemScriptType = new ZodItemScript({});

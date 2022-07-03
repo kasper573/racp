@@ -1,7 +1,7 @@
 import * as zod from "zod";
 import { createTagFactory } from "../../../lib/createTagFactory";
 import { createRpcDefinition } from "../../util/rpc";
-import { UserAccessLevel } from "../auth/auth.types";
+import { UserAccessLevel } from "../auth/types";
 
 const tag = createTagFactory("Config");
 

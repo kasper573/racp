@@ -13,7 +13,7 @@ import { logout } from "../slices/auth";
 import { MenuOn } from "../components/MenuOn";
 import { theme } from "../slices/theme";
 import { Auth } from "../components/Auth";
-import { UserAccessLevel } from "../../api/services/auth/auth.types";
+import { UserAccessLevel } from "../../api/services/auth/types";
 import { LinkMenuItem } from "../components/Link";
 import { router } from "../router";
 

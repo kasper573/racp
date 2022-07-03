@@ -1,6 +1,6 @@
 import { AnyAction, createSlice, Store } from "@reduxjs/toolkit";
 import * as zod from "zod";
-import { publicUserType } from "../../api/services/auth/auth.types";
+import { publicUserType } from "../../api/services/auth/types";
 import { client } from "../state/client";
 import { createAppAsyncThunk } from "../state/utils";
 

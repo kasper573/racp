@@ -8,7 +8,7 @@ import {
   SearchQuery,
   SearchResult,
   SearchSort,
-} from "../../api/services/search/search.types";
+} from "../../api/services/search/types";
 import { typedKeys } from "../../lib/typedKeys";
 import { Link } from "./Link";
 
