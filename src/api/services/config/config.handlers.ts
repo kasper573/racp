@@ -1,6 +1,6 @@
 import { createRpcHandlers } from "../../../lib/rpc/createRpcHandlers";
 import { RpcException } from "../../../lib/rpc/RpcException";
-import { RACFG } from "../../util/racfg";
+import { RACFG } from "../racfg";
 import { configDefinition } from "./config.definition";
 
 export function createConfigHandlers(cfg: RACFG) {

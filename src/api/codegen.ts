@@ -4,7 +4,7 @@ import sqlts from "@rmp135/sql-ts";
 import { pick } from "lodash";
 import { readCliArgs } from "./util/cli";
 import { options } from "./options";
-import { createRACFG, dbInfoConfigName } from "./util/racfg";
+import { createRACFG, dbInfoConfigName } from "./services/racfg";
 
 /**
  * Generates typescript definitions of the rAthena mysql database
@@ -28,7 +28,7 @@ async function generate() {
   });
 
   fs.writeFileSync(
-    path.resolve(__dirname, "util", "radb", "radb.types.ts"),
+    path.resolve(__dirname, "services", "radb", "radb.types.ts"),
     tsString,
     "utf-8"
   );

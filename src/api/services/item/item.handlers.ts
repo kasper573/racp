@@ -1,4 +1,4 @@
-import { RAES } from "../../util/raes";
+import { RAES } from "../raes";
 import { createRpcHandlers } from "../../../lib/rpc/createRpcHandlers";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { createSearchHandler } from "../search/search.handlers";

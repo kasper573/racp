@@ -10,7 +10,7 @@
     "lint:fix": "eslint . --fix & prettier . --write",
     "build:app": "webpack build",
     "dev:app": "cross-env reactRefresh=true apiBaseUrl=http://localhost:8081 webpack serve",
-    "dev:api": "ts-node-dev src/api --jwtSecret dev --port 8081",
+    "dev:api": "ts-node-dev src/api/server --jwtSecret dev --port 8081",
     "codegen": "ts-node src/api/codegen"
   },
   "devDependencies": {

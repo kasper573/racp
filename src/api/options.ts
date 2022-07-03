@@ -1,3 +1,5 @@
+// Common CLI argument options used in all scripts
+
 export const options = {
   port: {
     type: "number",

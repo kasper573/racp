@@ -11,10 +11,10 @@ import { authDefinition } from "./services/auth/auth.definition";
 import { createAuthHandlers } from "./services/auth/auth.handlers";
 import { itemDefinition } from "./services/item/item.definition";
 import { createItemHandlers } from "./services/item/item.handlers";
-import { createRAES } from "./util/raes";
+import { createRAES } from "./services/raes";
 import { readCliArgs } from "./util/cli";
 import { options } from "./options";
-import { createRACFG } from "./util/racfg";
+import { createRACFG } from "./services/racfg";
 
 const args = readCliArgs(options);
 const app = express();
