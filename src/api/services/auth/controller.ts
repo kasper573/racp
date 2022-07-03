@@ -1,5 +1,5 @@
 import { groupBy } from "lodash";
-import { createRpcHandlers } from "../../../lib/rpc/createRpcHandlers";
+import { createRpcController } from "../../../lib/rpc/createRpcController";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { RADB } from "../radb";
 import { createRAESResolver, RAES } from "../raes";
@@ -7,7 +7,7 @@ import { Authenticator } from "./Authenticator";
 import { authDefinition } from "./definition";
 import { UserAccessLevel, userGroupType } from "./types";
 
-export function createAuthHandlers({
+export function authController({
   radb,
   raes,
   auth,
@@ -23,7 +23,7 @@ export function createAuthHandlers({
     .filter((group) => group.Permissions[adminPermissionName])
     .map((group) => group.Id);
 
-  return createRpcHandlers(authDefinition.entries, {
+  return createRpcController(authDefinition.entries, {
     async login({ username, password }) {
       const user = await radb("login")
         .select("account_id", "userid", "group_id")

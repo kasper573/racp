@@ -3,14 +3,14 @@ import {
   RpcDefinitionEntries,
 } from "./createRpcDefinition";
 
-export function createRpcHandlers<Entries extends RpcDefinitionEntries>(
+export function createRpcController<Entries extends RpcDefinitionEntries>(
   entries: Entries,
-  handlers: RpcHandlers<Entries>
+  controller: RpcController<Entries>
 ) {
-  return handlers;
+  return controller;
 }
 
-export type RpcHandlers<Entries extends RpcDefinitionEntries> = {
+export type RpcController<Entries extends RpcDefinitionEntries> = {
   [K in keyof Entries]: RpcHandler<Entries[K]>;
 };
 

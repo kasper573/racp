@@ -5,7 +5,7 @@ import {
   RpcDefinitionEntry,
   RpcDefinitionEntries,
 } from "./createRpcDefinition";
-import { RpcHandler, RpcHandlers } from "./createRpcHandlers";
+import { RpcHandler, RpcController } from "./createRpcController";
 import { createEndpointUrl } from "./createRpcEndpoints";
 import { RpcException } from "./RpcException";
 
@@ -14,7 +14,7 @@ export function createRpcMiddlewareFactory<Auth>(
 ) {
   function factory<
     Entries extends RpcDefinitionEntries,
-    Handlers extends RpcHandlers<Entries>
+    Handlers extends RpcController<Entries>
   >(entries: Entries, handlers: Handlers): RequestHandler {
     const router = Router();
     router.use(bodyParser.text({ type: "*/*" }));

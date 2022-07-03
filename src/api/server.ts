@@ -3,12 +3,12 @@ import * as express from "express";
 import cors = require("cors");
 import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
 import { configDefinition } from "./services/config/definition";
-import { createConfigHandlers } from "./services/config/controller";
+import { configController } from "./services/config/controller";
 import { createAuthenticator } from "./services/auth/Authenticator";
 import { authDefinition } from "./services/auth/definition";
-import { createAuthHandlers } from "./services/auth/controller";
+import { authController } from "./services/auth/controller";
 import { itemDefinition } from "./services/item/definition";
-import { createItemHandlers } from "./services/item/controller";
+import { itemController } from "./services/item/controller";
 import { createRAES } from "./services/raes";
 import { readCliArgs } from "./util/cli";
 import { options } from "./options";
@@ -25,10 +25,10 @@ const rpc = createRpcMiddlewareFactory(auth.validatorFor);
 
 app.use(auth.middleware);
 app.use(cors());
-app.use(rpc(configDefinition.entries, createConfigHandlers(racfg)));
-app.use(rpc(itemDefinition.entries, createItemHandlers({ raes, ...args })));
+app.use(rpc(configDefinition.entries, configController(racfg)));
+app.use(rpc(itemDefinition.entries, itemController({ raes, ...args })));
 app.use(
-  rpc(authDefinition.entries, createAuthHandlers({ radb, raes, auth, ...args }))
+  rpc(authDefinition.entries, authController({ radb, raes, auth, ...args }))
 );
 
 http.createServer(app).listen(args.port, () => {

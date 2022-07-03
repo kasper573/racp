@@ -1,10 +1,10 @@
-import { createRpcHandlers } from "../../../lib/rpc/createRpcHandlers";
+import { createRpcController } from "../../../lib/rpc/createRpcController";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { RACFG } from "../racfg";
 import { configDefinition } from "./definition";
 
-export function createConfigHandlers(cfg: RACFG) {
-  return createRpcHandlers(configDefinition.entries, {
+export function configController(cfg: RACFG) {
+  return createRpcController(configDefinition.entries, {
     listConfigs: cfg.list,
     async getConfig(configName) {
       try {

@@ -1,7 +1,7 @@
 import { get } from "lodash";
 import { SearchQuery, SearchResult, SearchSort } from "./types";
 
-export function createSearchHandler<Entity, Filter>(
+export function createSearchController<Entity, Filter>(
   entities: Entity[],
   isMatch: (item: Entity, filter: Filter) => boolean
 ) {
