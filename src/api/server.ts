@@ -5,7 +5,10 @@ import { Request as JWTRequest } from "express-jwt";
 import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
 import { configDefinition } from "./services/config/config.definition";
 import { createConfigHandlers } from "./services/config/config.handlers";
-import { createAuthenticator } from "./services/auth/authenticator";
+import {
+  AuthenticatorTokenPayload,
+  createAuthenticator,
+} from "./services/auth/Authenticator";
 import { authDefinition } from "./services/auth/auth.definition";
 import { createAuthHandlers } from "./services/auth/auth.handlers";
 import { itemDefinition } from "./services/item/item.definition";
@@ -15,7 +18,7 @@ import { readCliArgs } from "./util/cli";
 import { options } from "./options";
 import { createRACFG } from "./services/racfg";
 import { createRADB } from "./services/radb";
-import { UserRole } from "./services/rpc";
+import { UserAccessLevel } from "./services/auth/UserAccessLevel";
 
 const args = readCliArgs(options);
 const app = express();
@@ -23,8 +26,9 @@ const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
 const raes = createRAES(args);
 const racfg = createRACFG(args.rAthenaPath);
 const radb = createRADB(racfg);
-const rpc = createRpcMiddlewareFactory<UserRole>(
-  (req: JWTRequest, role) => role === "guest" || !!req.auth
+const rpc = createRpcMiddlewareFactory<UserAccessLevel>(
+  (req: JWTRequest<AuthenticatorTokenPayload>, requiredAccess) =>
+    (req.auth?.access ?? 0) >= requiredAccess
 );
 
 app.use(auth.middleware);

@@ -3,9 +3,10 @@ import { createRpcHandlers } from "../../../lib/rpc/createRpcHandlers";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { RADB } from "../radb";
 import { createRAESResolver, RAES } from "../raes";
-import { Authenticator } from "./authenticator";
+import { Authenticator } from "./Authenticator";
 import { authDefinition } from "./auth.definition";
 import { userGroupType } from "./auth.types";
+import { UserAccessLevel } from "./UserAccessLevel";
 
 export function createAuthHandlers({
   radb,
@@ -35,22 +36,15 @@ export function createAuthHandlers({
         throw new RpcException("Invalid credentials");
       }
 
-      const res = {
-        token: auth.sign(user.account_id),
-        user: {
-          id: user.account_id,
-          username: user.userid,
-          isAdmin:
-            user.group_id !== undefined &&
-            adminGroupIds.includes(user.group_id),
-        },
+      const id = user.account_id;
+      const access = adminGroupIds.includes(user.group_id)
+        ? UserAccessLevel.Admin
+        : UserAccessLevel.User;
+
+      return {
+        token: auth.sign({ id, access }),
+        user: { id, username: user.userid, access },
       };
-
-      if (!res.user.isAdmin) {
-        throw new RpcException("You are not admin");
-      }
-
-      return res;
     },
   });
 }

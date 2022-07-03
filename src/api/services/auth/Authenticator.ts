@@ -1,24 +1,16 @@
-import { compareSync, genSaltSync, hashSync } from "bcrypt";
 import * as jwt from "jsonwebtoken";
 import { expressjwt } from "express-jwt";
 import { Algorithm } from "jsonwebtoken";
+import { UserAccessLevel } from "./UserAccessLevel";
 
 export function createAuthenticator({
   secret,
-  saltRounds = 8,
   tokenLifetime = 24 * 60 * 60,
   algorithms = ["HS256"],
 }: AuthenticatorOptions) {
-  const salt = genSaltSync(saltRounds);
   return {
-    sign(id: unknown) {
-      return jwt.sign({ id }, secret, { expiresIn: tokenLifetime });
-    },
-    compare(plain: string | Buffer, encrypted: string) {
-      return compareSync(plain, encrypted);
-    },
-    encrypt(plain: string | Buffer) {
-      return hashSync(plain, salt);
+    sign(payload: AuthenticatorTokenPayload) {
+      return jwt.sign(payload, secret, { expiresIn: tokenLifetime });
     },
     middleware: expressjwt({
       secret,
@@ -29,9 +21,14 @@ export function createAuthenticator({
 }
 
 export type Authenticator = ReturnType<typeof createAuthenticator>;
+
+export interface AuthenticatorTokenPayload {
+  id: number;
+  access: UserAccessLevel;
+}
+
 export interface AuthenticatorOptions {
   readonly secret: string;
-  readonly saltRounds?: number;
   readonly tokenLifetime?: number;
   readonly algorithms?: Algorithm[];
 }

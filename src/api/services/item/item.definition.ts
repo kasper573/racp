@@ -1,7 +1,7 @@
 import * as zod from "zod";
 import { createTagFactory } from "../../../lib/createTagFactory";
 import { createSearchTypes } from "../search/search.types";
-import { createRpcDefinition } from "../rpc";
+import { createRpcDefinition } from "../../util/rpc";
 import {
   itemFilterType,
   itemIdType,
