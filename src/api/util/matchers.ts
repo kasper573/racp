@@ -1,9 +1,15 @@
 import { without } from "lodash";
 import * as zod from "zod";
 
+export type ToggleName = zod.infer<typeof toggleNameType>;
 export const toggleNameType = zod.string();
-export const toggleRecordType = zod.record(toggleNameType, zod.boolean());
-export function isToggleMatch(req?: string[], val?: Record<string, boolean>) {
+
+export type ToggleRecord = zod.infer<typeof toggleRecordType>;
+export const toggleRecordType = zod
+  .record(toggleNameType, zod.boolean())
+  .default({});
+
+export function isToggleMatch(req?: ToggleName[], val?: ToggleRecord) {
   if (req === undefined) {
     return true;
   }

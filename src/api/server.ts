@@ -27,7 +27,9 @@ const rpc = createRpcMiddlewareFactory((req: JWTRequest) => !!req.auth);
 app.use(auth.middleware);
 app.use(cors());
 app.use(rpc(configDefinition.entries, createConfigHandlers(racfg)));
-app.use(rpc(authDefinition.entries, createAuthHandlers(radb, auth)));
+app.use(
+  rpc(authDefinition.entries, createAuthHandlers({ radb, raes, auth, ...args }))
+);
 app.use(rpc(itemDefinition.entries, createItemHandlers({ raes, ...args })));
 
 http.createServer(app).listen(args.port, () => {

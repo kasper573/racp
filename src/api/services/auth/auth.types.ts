@@ -1,5 +1,6 @@
 import * as zod from "zod";
 import { LoginEntityType } from "../radb.types";
+import { toggleRecordType } from "../../util/matchers";
 
 export const publicUserType = LoginEntityType.pick({
   account_id: true,
@@ -7,5 +8,12 @@ export const publicUserType = LoginEntityType.pick({
   group_id: true,
 });
 
-export type UserGroupId = Exclude<PublicUser["group_id"], undefined>;
-export type PublicUser = zod.infer<typeof publicUserType>;
+export const userGroupType = zod.object({
+  Id: zod.number(),
+  Level: zod.number(),
+  LogCommands: zod.boolean().default(false),
+  Commands: toggleRecordType,
+  CharCommands: toggleRecordType,
+  Permissions: toggleRecordType,
+  Inherit: toggleRecordType,
+});

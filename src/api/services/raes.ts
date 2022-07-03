@@ -26,14 +26,14 @@ export function createRAES({
     return dbNode.parse(unknownObject);
   }
 
-  function resolve<Entity, Key>(
+  function resolve<ET extends ZodType, Key>(
     file: string,
-    entityType: ZodType<Entity>,
-    getKey: (entity: Entity) => Key,
-    process: (entity: Entity) => void = noop
-  ): Map<Key, Entity> {
+    entityType: ET,
+    getKey: (entity: zod.infer<ET>) => Key,
+    process: (entity: zod.infer<ET>) => void = noop
+  ): Map<Key, zod.infer<ET>> {
     const imports: ImportNode[] = [{ Path: file, Mode: rAthenaMode }];
-    const entities = new Map<Key, Entity>();
+    const entities = new Map<Key, zod.infer<ET>>();
 
     while (imports.length) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

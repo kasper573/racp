@@ -2,18 +2,15 @@ import { compareSync, genSaltSync, hashSync } from "bcrypt";
 import * as jwt from "jsonwebtoken";
 import { expressjwt } from "express-jwt";
 import { Algorithm } from "jsonwebtoken";
-import { UserGroupId } from "./auth.types";
 
 export function createAuthenticator({
   secret,
   saltRounds = 8,
   tokenLifetime = 24 * 60 * 60,
   algorithms = ["HS256"],
-  adminGroupIds = [],
 }: AuthenticatorOptions) {
   const salt = genSaltSync(saltRounds);
   return {
-    adminGroupIds,
     sign(id: unknown) {
       return jwt.sign({ id }, secret, { expiresIn: tokenLifetime });
     },
@@ -37,5 +34,4 @@ export interface AuthenticatorOptions {
   readonly saltRounds?: number;
   readonly tokenLifetime?: number;
   readonly algorithms?: Algorithm[];
-  readonly adminGroupIds?: ReadonlyArray<UserGroupId>;
 }
