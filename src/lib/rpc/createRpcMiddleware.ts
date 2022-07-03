@@ -10,7 +10,7 @@ import { createEndpointUrl } from "./createRpcEndpoints";
 import { RpcException } from "./RpcException";
 
 export function createRpcMiddlewareFactory<Auth>(
-  isAuthorized: (req: Request, auth: Auth) => boolean
+  createAuthValidator: (requiredAuth: Auth) => (req: Request) => boolean
 ) {
   function factory<
     Entries extends RpcDefinitionEntries,
@@ -34,11 +34,13 @@ export function createRpcMiddlewareFactory<Auth>(
         console.log(`[RPC] [${String(endpointName)}] `, ...args);
       }
 
+      const isAuthorized = createAuthValidator(entry.auth);
+
       router.post(
         `/${createEndpointUrl(endpointName)}`,
         // Authentication funnel
         (req, res, next) => {
-          if (!isAuthorized(req, entry.auth)) {
+          if (!isAuthorized(req)) {
             log("Permission denied");
             return res.sendStatus(401);
           }
