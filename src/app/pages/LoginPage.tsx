@@ -1,17 +1,18 @@
 import { FormEvent, useState } from "react";
-import { Button, Stack, styled, TextField } from "@mui/material";
+import { Stack, styled, TextField } from "@mui/material";
 import { useHistory } from "react-router";
 import { useRouteParams } from "react-typesafe-routes";
 import { useLoginMutation } from "../state/client";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { router } from "../router";
 import { UserAccessLevel } from "../../api/services/auth/types";
+import { ProgressButton } from "../components/ProgressButton";
 
 export default function LoginPage() {
   const { destination } = useRouteParams(router.login);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [login, { error }] = useLoginMutation();
+  const [login, { error, isLoading }] = useLoginMutation();
   const history = useHistory();
 
   async function submit(e: FormEvent) {
@@ -36,7 +37,11 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <Button type="submit">Sign in</Button>
+        <div>
+          <ProgressButton isLoading={isLoading} type="submit">
+            Sign in
+          </ProgressButton>
+        </div>
         <ErrorMessage error={error} sx={{ textAlign: "center" }} />
       </Stack>
     </Form>
@@ -54,6 +59,7 @@ const Form = styled("form")`
   margin: 0 auto;
   width: 375px;
   position: relative;
+  text-align: center;
   ${({ theme }) => theme.breakpoints.up("sm")} {
     top: 20%;
   }

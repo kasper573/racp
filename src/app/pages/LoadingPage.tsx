@@ -1,10 +1,10 @@
-import { CircularProgress } from "@mui/material";
 import { Center } from "../components/Center";
+import { LoadingSpinner } from "../components/LoadingSpinner";
 
 export function LoadingPage() {
   return (
     <Center>
-      <CircularProgress size={80} />
+      <LoadingSpinner size={80} />
     </Center>
   );
 }
