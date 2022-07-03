@@ -29,13 +29,28 @@ export function createAuthHandlers({
         .select("account_id", "userid", "group_id")
         .where("userid", "=", username)
         .where("user_pass", "=", password)
-        .whereIn("group_id", adminGroupIds.map(String))
         .first();
 
       if (!user) {
         throw new RpcException("Invalid credentials");
       }
-      return { token: auth.sign(user.account_id), user };
+
+      const res = {
+        token: auth.sign(user.account_id),
+        user: {
+          id: user.account_id,
+          username: user.userid,
+          isAdmin:
+            user.group_id !== undefined &&
+            adminGroupIds.includes(user.group_id),
+        },
+      };
+
+      if (!res.user.isAdmin) {
+        throw new RpcException("You are not admin");
+      }
+
+      return res;
     },
   });
 }

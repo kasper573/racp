@@ -1,11 +1,12 @@
 import * as zod from "zod";
-import { LoginEntityType } from "../radb.types";
 import { toggleRecordType } from "../../util/matchers";
+import { getZodType } from "../../../lib/zod/zodPath";
+import { LoginEntityType } from "../radb.types";
 
-export const publicUserType = LoginEntityType.pick({
-  account_id: true,
-  userid: true,
-  group_id: true,
+export const publicUserType = zod.object({
+  id: getZodType(LoginEntityType, "account_id"),
+  username: getZodType(LoginEntityType, "userid"),
+  isAdmin: zod.boolean(),
 });
 
 export const userGroupType = zod.object({
