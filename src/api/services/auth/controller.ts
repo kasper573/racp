@@ -28,7 +28,8 @@ export function authController({
 
   return createRpcController(authDefinition.entries, {
     async login({ username, password }) {
-      const user = await radb("login")
+      const user = await radb.login
+        .table("login")
         .select("account_id", "userid", "group_id")
         .where("userid", "=", username)
         .where("user_pass", "=", password)

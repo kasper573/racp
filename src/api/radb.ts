@@ -1,19 +1,33 @@
 import knex from "knex";
 import { RAConfigSystem } from "../lib/rathena/RAConfigSystem";
+import { singletons } from "../lib/singletons";
 import { Tables } from "./radb.types";
 
 export type RADatabaseDriver = ReturnType<typeof createRADatabaseDriver>;
 
 /**
- * Typesafe knex interface with rAthena mysql database
+ * Typesafe knex interface with rAthena mysql database.
+ * Each property is a driver for the database of the same name.
+ * The drivers are initialized lazily on first use.
  */
 export function createRADatabaseDriver(cfg: RAConfigSystem) {
+  return singletons({
+    login: () => driverForDB(cfg, "login_server"),
+    ipban: () => driverForDB(cfg, "ipban_server"),
+    map: () => driverForDB(cfg, "map_server"),
+    char: () => driverForDB(cfg, "char_server"),
+  });
+}
+
+function driverForDB(cfg: RAConfigSystem, dbPrefix: string) {
   const db = knex({
     client: "mysql",
-    connection: () => cfg.presets.dbInfo("login_server"),
+    connection: () => cfg.presets.dbInfo(dbPrefix),
   });
-  return <TableName extends keyof Tables>(tableName: TableName) => {
-    type Entity = Tables[TableName];
-    return db<Entity, Entity[]>(tableName);
+  return {
+    table: <TableName extends keyof Tables>(tableName: TableName) => {
+      type Entity = Tables[TableName];
+      return db<Entity, Entity[]>(tableName);
+    },
   };
 }
