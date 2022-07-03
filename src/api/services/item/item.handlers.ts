@@ -12,7 +12,7 @@ import {
   isToggleMatch,
 } from "../../util/matchers";
 import { itemDefinition } from "./item.definition";
-import { Item, ItemFilter, itemType } from "./item.types";
+import { createItemResolver, Item, ItemFilter } from "./item.types";
 
 export function createItemHandlers({
   raes: { resolve },
@@ -21,13 +21,8 @@ export function createItemHandlers({
   raes: RAES;
   tradeScale: number;
 }) {
-  const items = resolve("db/item_db.yml", itemType, (o) => o.Id, setDefaults);
+  const items = resolve("db/item_db.yml", createItemResolver(tradeScale));
   const meta = collectItemMeta(Array.from(items.values()));
-
-  function setDefaults(item: Item) {
-    item.Buy = item.Buy ?? (item.Sell ?? 0) * tradeScale;
-    item.Sell = item.Sell ?? (item.Buy ?? 0) / tradeScale;
-  }
 
   return createRpcHandlers(itemDefinition.entries, {
     async getItemMeta() {

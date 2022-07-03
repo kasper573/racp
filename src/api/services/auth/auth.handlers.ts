@@ -1,7 +1,7 @@
 import { createRpcHandlers } from "../../../lib/rpc/createRpcHandlers";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { RADB } from "../radb";
-import { RAES } from "../raes";
+import { createRAESResolver, RAES } from "../raes";
 import { Authenticator } from "./authenticator";
 import { authDefinition } from "./auth.definition";
 import { userGroupType } from "./auth.types";
@@ -17,7 +17,7 @@ export function createAuthHandlers({
   auth: Authenticator;
   adminPermissionName?: string;
 }) {
-  const groups = raes.resolve("conf/groups.yml", userGroupType, (o) => o.Id);
+  const groups = raes.resolve("conf/groups.yml", userGroupResolver);
   const adminGroupIds = Array.from(groups.values())
     .filter((group) => group.Permissions[adminPermissionName])
     .map((group) => group.Id);
@@ -38,3 +38,7 @@ export function createAuthHandlers({
     },
   });
 }
+
+const userGroupResolver = createRAESResolver(userGroupType, {
+  getKey: (group) => group.Id,
+});

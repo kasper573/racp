@@ -11,6 +11,12 @@ import { typedKeys } from "../../lib/typedKeys";
  */
 export type RAES = ReturnType<typeof createRAES>;
 
+export interface RAESResolver<ET extends ZodType, Key> {
+  entityType: ET;
+  getKey: (entity: zod.infer<ET>) => Key;
+  process?: (entity: zod.infer<ET>) => void;
+}
+
 export function createRAES({
   rAthenaPath,
   rAthenaMode,
@@ -28,9 +34,7 @@ export function createRAES({
 
   function resolve<ET extends ZodType, Key>(
     file: string,
-    entityType: ET,
-    getKey: (entity: zod.infer<ET>) => Key,
-    process: (entity: zod.infer<ET>) => void = noop
+    { entityType, getKey, process = noop }: RAESResolver<ET, Key>
   ): Map<Key, zod.infer<ET>> {
     const imports: ImportNode[] = [{ Path: file, Mode: rAthenaMode }];
     const entities = new Map<Key, zod.infer<ET>>();
@@ -53,6 +57,16 @@ export function createRAES({
   }
   return {
     resolve,
+  };
+}
+
+export function createRAESResolver<ET extends ZodType, Key>(
+  entityType: ET,
+  rest: Omit<RAESResolver<ET, Key>, "entityType">
+): RAESResolver<ET, Key> {
+  return {
+    entityType,
+    ...rest,
   };
 }
 
