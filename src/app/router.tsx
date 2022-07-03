@@ -1,9 +1,9 @@
 import {
-  OptionsRouter,
-  RouteMiddleware,
-  Redirect,
-  stringParser,
   intParser,
+  OptionsRouter,
+  Redirect,
+  RouteMiddleware,
+  stringParser,
 } from "react-typesafe-routes";
 import { lazy } from "react";
 import {
@@ -15,12 +15,10 @@ import {
   PestControlRodent,
   Redeem,
 } from "@mui/icons-material";
-import { useAppSelector } from "./store";
-
-const AuthMiddleware: RouteMiddleware = (next) => {
-  const isAuthenticated = useAppSelector(({ auth }) => !!auth.token);
-  return isAuthenticated ? next : () => <Redirect to={router.login()} />;
-};
+import { useLocation } from "react-router-dom";
+import { UserAccessLevel } from "../api/services/auth/auth.types";
+import { useAppSelector } from "./state/store";
+import { RestrictedPage } from "./pages/RestrictedPage";
 
 const defaultOptions = {
   title: "",
@@ -33,9 +31,10 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
     options: { title: "Home", icon: <Home /> },
     exact: true,
   }),
-  login: route("login", {
+  login: route("login/&:destination?", {
     component: lazy(() => import("./pages/LoginPage")),
     options: { title: "Sign in", icon: <Login /> },
+    params: { destination: stringParser },
   }),
   item: route(
     "item",
@@ -60,7 +59,7 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
     {
       component: lazy(() => import("./pages/AdminPage")),
       options: { title: "Admin", icon: <AdminPanelSettings /> },
-      middleware: AuthMiddleware,
+      middleware: requireAuth(UserAccessLevel.Admin),
     },
     (route) => ({
       config: route(
@@ -81,7 +80,30 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
   ),
 }));
 
+export const logoutRedirect = router.home().$;
+
+function requireAuth(requiredAccess = UserAccessLevel.User): RouteMiddleware {
+  return (next) => {
+    const location = useLocation();
+    const access = useAppSelector(({ auth }) => auth.user?.access);
+    if (access === undefined) {
+      return () => (
+        <Redirect
+          to={router.login({
+            destination: `${location.pathname}${location.search}`,
+          })}
+        />
+      );
+    }
+    if (access < requiredAccess) {
+      return () => <RestrictedPage />;
+    }
+    return next;
+  };
+}
+
 export type RouterOptions = typeof defaultOptions;
+
 export interface AnyRouteNode<Arg = void> {
   (arg: Arg): { $: string };
   options: RouterOptions;

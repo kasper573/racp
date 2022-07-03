@@ -7,7 +7,7 @@ import {
   useElevatedState,
   UseElevatedStateProps,
 } from "../../app/hooks/useElevatedState";
-import { Path, PathValue, pickZodType } from "./zodPath";
+import { Path, PathValue, getZodType } from "./zodPath";
 import { isZodType } from "./isZodType";
 
 export function useZodForm<Schema extends AnyZodObject>({
@@ -20,7 +20,7 @@ export function useZodForm<Schema extends AnyZodObject>({
   const controls: ZodFormControls<Entity> = {
     register<P extends Path<Entity>, E extends Element>(path: P) {
       const fieldValue = get(value, path) as PathValue<Entity, P>;
-      const fieldType = pickZodType(schema, path);
+      const fieldType = getZodType(schema, path);
       const isNumber = isZodType(fieldType, ZodFirstPartyTypeKind.ZodNumber);
       const getElementValue = isNumber
         ? (el: Element) => parseNumber(getStandardElementValue(el))

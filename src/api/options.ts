@@ -14,13 +14,11 @@ export const options = {
     choices: ["Renewal", "Prerenewal"],
     default: "Renewal",
   },
-  adminGroupIds: {
-    type: "number",
-    array: true,
-    default: [],
+  adminPermissionName: {
+    type: "string",
     description:
-      "The user group ids that make a user an admin. " +
-      "If left empty no one will have admin access.",
+      "The name of the user group permission (rAthena see conf/groups.yml) " +
+      "which will determine if a user should be granted admin access to the control panel",
   },
   tradeScale: {
     type: "number",

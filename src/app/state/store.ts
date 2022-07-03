@@ -5,10 +5,12 @@ import {
 } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { isEqual } from "lodash";
-import { rtkStorage } from "../lib/rtkStorage";
+import { History } from "history";
+import { rtkStorage } from "../../lib/rtkStorage";
+import { auth, authState } from "../slices/auth";
+import { theme, themeState } from "../slices/theme";
 import { client } from "./client";
-import { auth, authState } from "./state/auth";
-import { theme, themeState } from "./state/theme";
+import { localStorageProtocol } from "./utils";
 
 const reducers = {
   [client.reducerPath]: client.reducer,
@@ -21,7 +23,7 @@ const parsers = {
   [theme.name]: themeState,
 };
 
-export function createStore() {
+export function createStore(extraArgument: AppThunkExtra) {
   const { preloadedState, storageMiddleware } = rtkStorage<AppState>()({
     ...localStorageProtocol,
     parsers,
@@ -32,18 +34,15 @@ export function createStore() {
     preloadedState,
     reducer: combineReducers(reducers),
     middleware: (defaults) =>
-      defaults().concat(client.middleware).concat(storageMiddleware),
+      defaults({ thunk: { extraArgument } })
+        .concat(client.middleware)
+        .concat(storageMiddleware),
   });
 }
 
 export type AppState = StateFromReducersMapObject<typeof reducers>;
 export type AppDispatch = ReturnType<typeof createStore>["dispatch"];
+export type AppThunkExtra = { history: History; logoutRedirect?: string };
 
 export const useAppDispatch: () => AppDispatch = useDispatch;
 export const useAppSelector: TypedUseSelectorHook<AppState> = useSelector;
-
-const localStorageProtocol = {
-  read: (key: string) => JSON.parse(localStorage.getItem(key) ?? "null"),
-  write: (key: string, value: unknown) =>
-    localStorage.setItem(key, JSON.stringify(value)),
-};

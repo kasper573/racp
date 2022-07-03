@@ -1,5 +1,5 @@
 import * as zod from "zod";
-import { createRpcDefinition } from "../../../lib/rpc/createRpcDefinition";
+import { createRpcDefinition } from "../../util/rpc";
 import { publicUserType } from "./auth.types";
 
 export const authDefinition = createRpcDefinition({

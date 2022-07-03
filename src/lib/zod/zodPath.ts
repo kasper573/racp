@@ -2,25 +2,35 @@ import * as zod from "zod";
 import { AnyZodObject, ZodObject, ZodType } from "zod";
 
 export function zodPath<Schema extends AnyZodObject>(obj: Schema) {
-  return zod.string().refine((path) => pickZodType(obj, path) !== undefined, {
-    message: "String must be a possible path",
-  });
+  return zod.string().refine(
+    (path) => {
+      try {
+        getZodType(obj, path);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    {
+      message: "String must be a possible path",
+    }
+  );
 }
 
-export function pickZodType<Schema extends AnyZodObject>(
-  root: Schema,
-  path: Path<zod.infer<Schema>>
-): ZodType | undefined {
+export function getZodType<
+  Schema extends AnyZodObject,
+  P extends Path<zod.infer<Schema>>
+>(root: Schema, path: P) {
   const steps = String(path).split(".");
   let node: ZodType = root;
   for (const step of steps) {
     if (node instanceof ZodObject) {
       node = node.shape[step];
     } else {
-      return;
+      throw new Error(`Schema does not contain path "${String(path)}"`);
     }
   }
-  return node;
+  return node as ZodType<PathValue<zod.infer<Schema>, P>>;
 }
 
 type PathImpl<T, Key extends keyof T> = Key extends string

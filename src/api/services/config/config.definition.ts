@@ -1,19 +1,19 @@
 import * as zod from "zod";
-import { createRpcDefinition } from "../../../lib/rpc/createRpcDefinition";
 import { createTagFactory } from "../../../lib/createTagFactory";
+import { createRpcDefinition } from "../../util/rpc";
+import { UserAccessLevel } from "../auth/auth.types";
 
 const tag = createTagFactory("Config");
 
 export const configDefinition = createRpcDefinition({
+  auth: UserAccessLevel.Admin,
   tagTypes: [tag.type],
   entries: (builder) =>
     builder
       .query("listConfigs", zod.void(), zod.array(zod.string()), {
-        auth: false,
         tags: [tag.list],
       })
       .query("getConfig", zod.string(), zod.string(), {
-        auth: false,
         tags: (r, e, configName) => [tag.one(configName)],
       })
       .mutation(
@@ -23,9 +23,6 @@ export const configDefinition = createRpcDefinition({
           content: zod.string(),
         }),
         zod.void(),
-        {
-          auth: false,
-          tags: (r, e, { name }) => [tag.one(name)],
-        }
+        { tags: (r, e, { name }) => [tag.one(name)] }
       ),
 });

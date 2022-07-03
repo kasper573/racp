@@ -1,11 +1,10 @@
 import * as http from "http";
 import * as express from "express";
 import cors = require("cors");
-import { Request as JWTRequest } from "express-jwt";
 import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
 import { configDefinition } from "./services/config/config.definition";
 import { createConfigHandlers } from "./services/config/config.handlers";
-import { createAuthenticator } from "./services/auth/authenticator";
+import { createAuthenticator } from "./services/auth/Authenticator";
 import { authDefinition } from "./services/auth/auth.definition";
 import { createAuthHandlers } from "./services/auth/auth.handlers";
 import { itemDefinition } from "./services/item/item.definition";
@@ -22,13 +21,15 @@ const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
 const raes = createRAES(args);
 const racfg = createRACFG(args.rAthenaPath);
 const radb = createRADB(racfg);
-const rpc = createRpcMiddlewareFactory((req: JWTRequest) => !!req.auth);
+const rpc = createRpcMiddlewareFactory(auth.validatorFor);
 
 app.use(auth.middleware);
 app.use(cors());
 app.use(rpc(configDefinition.entries, createConfigHandlers(racfg)));
-app.use(rpc(authDefinition.entries, createAuthHandlers(radb, auth)));
 app.use(rpc(itemDefinition.entries, createItemHandlers({ raes, ...args })));
+app.use(
+  rpc(authDefinition.entries, createAuthHandlers({ radb, raes, auth, ...args }))
+);
 
 http.createServer(app).listen(args.port, () => {
   console.log(`API is running on port ${args.port}`);

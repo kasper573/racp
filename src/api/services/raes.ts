@@ -11,6 +11,15 @@ import { typedKeys } from "../../lib/typedKeys";
  */
 export type RAES = ReturnType<typeof createRAES>;
 
+export interface RAESResolver<ET extends ZodType, Key> {
+  entityType: ET;
+  getKey: (entity: zod.infer<ET>) => Key;
+  postProcess?: (
+    entity: zod.infer<ET>,
+    registry: Map<Key, zod.infer<ET>>
+  ) => void;
+}
+
 export function createRAES({
   rAthenaPath,
   rAthenaMode,
@@ -26,14 +35,12 @@ export function createRAES({
     return dbNode.parse(unknownObject);
   }
 
-  function resolve<Entity, Key>(
+  function resolve<ET extends ZodType, Key>(
     file: string,
-    entityType: ZodType<Entity>,
-    getKey: (entity: Entity) => Key,
-    process: (entity: Entity) => void = noop
-  ): Map<Key, Entity> {
+    { entityType, getKey, postProcess = noop }: RAESResolver<ET, Key>
+  ): Map<Key, zod.infer<ET>> {
     const imports: ImportNode[] = [{ Path: file, Mode: rAthenaMode }];
-    const entities = new Map<Key, Entity>();
+    const entities = new Map<Key, zod.infer<ET>>();
 
     while (imports.length) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -42,17 +49,30 @@ export function createRAES({
         const { Body, Footer } = loadNode(imp.Path);
         for (const raw of Body ?? []) {
           const entity = entityType.parse(raw);
-          process(entity);
           entities.set(getKey(entity), entity);
         }
         imports.push(...(Footer?.Imports ?? []));
       }
     }
 
+    for (const entity of Array.from(entities.values())) {
+      postProcess(entity, entities);
+    }
+
     return entities;
   }
   return {
     resolve,
+  };
+}
+
+export function createRAESResolver<ET extends ZodType, Key>(
+  entityType: ET,
+  rest: Omit<RAESResolver<ET, Key>, "entityType">
+): RAESResolver<ET, Key> {
+  return {
+    entityType,
+    ...rest,
   };
 }
 

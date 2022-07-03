@@ -9,8 +9,8 @@ import { RpcHandler, RpcHandlers } from "./createRpcHandlers";
 import { createEndpointUrl } from "./createRpcEndpoints";
 import { RpcException } from "./RpcException";
 
-export function createRpcMiddlewareFactory(
-  isAuthenticated: (req: Request) => boolean
+export function createRpcMiddlewareFactory<Auth>(
+  validatorFor: (requiredAuth: Auth) => (req: Request) => boolean
 ) {
   function factory<
     Entries extends RpcDefinitionEntries,
@@ -34,11 +34,13 @@ export function createRpcMiddlewareFactory(
         console.log(`[RPC] [${String(endpointName)}] `, ...args);
       }
 
+      const isAuthorized = validatorFor(entry.auth);
+
       router.post(
         `/${createEndpointUrl(endpointName)}`,
         // Authentication funnel
         (req, res, next) => {
-          if (entry.auth && !isAuthenticated(req)) {
+          if (!isAuthorized(req)) {
             log("Permission denied");
             return res.sendStatus(401);
           }
@@ -71,7 +73,7 @@ export function createRpcMiddlewareFactory(
                 .status(httpStatus.internalServerError)
                 .send(e.message);
             }
-            log(`Unexpected error while expecting handler`, e);
+            log(`Unexpected error while executing handler`, e);
             return response.sendStatus(httpStatus.internalServerError);
           }
 

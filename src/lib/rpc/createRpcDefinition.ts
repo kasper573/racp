@@ -1,47 +1,79 @@
 import { ZodType } from "zod";
 import { ResultDescription } from "@reduxjs/toolkit/src/query/endpointDefinitions";
 
-function buildRpcDefinitionImpl<
+function buildRpcDefinition<
+  Auth,
   TagTypes extends string,
   Entries extends RpcDefinitionEntries
->(tagTypes: TagTypes[], entries: Entries): RpcDefinition<Entries, TagTypes> {
+>(
+  tagTypes: TagTypes[],
+  entries: Entries,
+  inheritedAuth?: Auth
+): RpcDefinition<Auth, Entries, TagTypes> {
   return {
     entries,
     tagTypes,
     query(name, argument, result, options) {
-      return buildRpcDefinitionImpl(tagTypes, {
-        ...entries,
-        [name]: { argument, result, intent: "query", ...options },
-      });
+      return buildRpcDefinition(
+        tagTypes,
+        {
+          ...entries,
+          [name]: {
+            argument,
+            result,
+            intent: "query",
+            ...options,
+            auth: options?.auth ?? inheritedAuth,
+          },
+        },
+        inheritedAuth
+      );
     },
     mutation(name, argument, result, options) {
-      return buildRpcDefinitionImpl(tagTypes, {
-        ...entries,
-        [name]: { argument, result, intent: "mutation", ...options },
-      });
+      return buildRpcDefinition(
+        tagTypes,
+        {
+          ...entries,
+          [name]: {
+            argument,
+            result,
+            intent: "mutation",
+            ...options,
+            auth: options?.auth ?? inheritedAuth,
+          },
+        },
+        inheritedAuth
+      );
     },
   };
 }
 
-export function createRpcDefinition<
-  TagTypes extends string,
-  Entries extends RpcDefinitionEntries
->({
-  tagTypes = [],
-  entries,
-}: {
-  tagTypes?: TagTypes[];
-  entries: (
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    builder: RpcDefinition<{}, TagTypes>
-  ) => RpcDefinition<Entries, TagTypes>;
-}) {
-  return entries(buildRpcDefinitionImpl(tagTypes, {}));
+export function createRpcDefinitionFactory<Auth>(defaultAuth: Auth) {
+  function rpcFactory<
+    TagTypes extends string,
+    Entries extends RpcDefinitionEntries
+  >({
+    auth,
+    tagTypes = [],
+    entries,
+  }: {
+    auth?: Auth;
+    tagTypes?: TagTypes[];
+    entries: (
+      // eslint-disable-next-line @typescript-eslint/ban-types
+      builder: RpcDefinition<Auth, {}, TagTypes>
+    ) => RpcDefinition<Auth, Entries, TagTypes>;
+  }) {
+    return entries(buildRpcDefinition(tagTypes, {}, auth ?? defaultAuth));
+  }
+
+  return rpcFactory;
 }
 
 export type RpcIntent = "mutation" | "query";
 
 export interface RpcDefinition<
+  Auth,
   Entries extends RpcDefinitionEntries,
   TagTypes extends string
 > {
@@ -51,10 +83,17 @@ export interface RpcDefinition<
     name: Name,
     argument: ZodType<Argument>,
     result: ZodType<Result>,
-    options?: RpcDefinitionEntryOptions<TagTypes, Argument, Result>
+    options?: RpcDefinitionEntryOptions<Auth, TagTypes, Argument, Result>
   ): RpcDefinition<
+    Auth,
     Entries & {
-      [K in Name]: RpcDefinitionEntry<TagTypes, Argument, Result, "query">;
+      [K in Name]: RpcDefinitionEntry<
+        Auth,
+        TagTypes,
+        Argument,
+        Result,
+        "query"
+      >;
     },
     TagTypes
   >;
@@ -62,10 +101,17 @@ export interface RpcDefinition<
     name: Name,
     argument: ZodType<Argument>,
     result: ZodType<Result>,
-    options?: RpcDefinitionEntryOptions<TagTypes, Argument, Result>
+    options?: RpcDefinitionEntryOptions<Auth, TagTypes, Argument, Result>
   ): RpcDefinition<
+    Auth,
     Entries & {
-      [K in Name]: RpcDefinitionEntry<TagTypes, Argument, Result, "mutation">;
+      [K in Name]: RpcDefinitionEntry<
+        Auth,
+        TagTypes,
+        Argument,
+        Result,
+        "mutation"
+      >;
     },
     TagTypes
   >;
@@ -74,22 +120,25 @@ export interface RpcDefinition<
 export type RpcDefinitionEntries = Record<string, RpcDefinitionEntry>;
 
 export type RpcDefinitionEntryOptions<
+  Auth,
   TagTypes extends string,
   Argument,
   Result
 > = Partial<{
-  auth: boolean;
+  auth: Auth;
   tags: ResultDescription<TagTypes, Result, Argument, unknown, unknown>;
 }>;
 
 export interface RpcDefinitionEntry<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  AuthOptions = any,
   TagTypes extends string = string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Argument = any,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Result = any,
   Intent extends RpcIntent = RpcIntent
-> extends RpcDefinitionEntryOptions<TagTypes, Argument, Result> {
+> extends RpcDefinitionEntryOptions<AuthOptions, TagTypes, Argument, Result> {
   argument: ZodType<Argument>;
   result: ZodType<Result>;
   intent: Intent;

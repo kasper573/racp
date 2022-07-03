@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { ThemeProvider } from "@mui/material";
 import { RouterSwitch } from "react-typesafe-routes";
 import { HelmetProvider } from "react-helmet-async";
-import { useAppSelector } from "./store";
+import { useAppSelector } from "./state/store";
 import { Layout } from "./layout/Layout";
 import { createTheme } from "./fixtures/theme";
 import { router } from "./router";

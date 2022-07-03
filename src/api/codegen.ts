@@ -29,6 +29,7 @@ async function generate() {
     connection: await cfg.presets.dbInfo(template),
     tableNameCasing: "pascal",
     enumNameCasing: "pascal",
+    globalOptionality: "required",
     typeMap,
   });
 
