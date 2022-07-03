@@ -11,7 +11,7 @@ export function createAuthenticator({
 }: AuthenticatorOptions) {
   const salt = genSaltSync(saltRounds);
   return {
-    sign(id: string) {
+    sign(id: unknown) {
       return jwt.sign({ id }, secret, { expiresIn: tokenLifetime });
     },
     compare(plain: string | Buffer, encrypted: string) {

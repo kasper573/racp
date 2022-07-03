@@ -1,33 +1,24 @@
-import * as fs from "fs";
-import * as path from "path";
-import recursiveReadDir = require("recursive-readdir");
 import { createRpcHandlers } from "../../../lib/rpc/createRpcHandlers";
 import { RpcException } from "../../../lib/rpc/RpcException";
+import { RACFG } from "../racfg";
 import { configDefinition } from "./config.definition";
 
-export function createConfigHandlers(rAthenaPath: string) {
-  const configDirectory = path.resolve(rAthenaPath, "conf");
-  const configPath = (configName: string) =>
-    path.resolve(configDirectory, configName);
-
+export function createConfigHandlers(cfg: RACFG) {
   return createRpcHandlers(configDefinition.entries, {
-    async listConfigs() {
-      const files = await recursiveReadDir(configDirectory);
-      return files.map((file) => path.relative(configDirectory, file));
-    },
+    listConfigs: cfg.list,
     async getConfig(configName) {
       try {
-        return fs.readFileSync(configPath(configName), "utf-8");
+        return await cfg.read(configName);
       } catch {
         throw new RpcException("Unknown config");
       }
     },
     async updateConfig({ name, content }) {
-      const path = configPath(name);
-      if (!fs.existsSync(path)) {
+      try {
+        await cfg.update(name, content);
+      } catch {
         throw new RpcException("Unknown config");
       }
-      fs.writeFileSync(path, content);
     },
   });
 }
