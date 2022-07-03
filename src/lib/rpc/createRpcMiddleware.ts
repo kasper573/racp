@@ -71,7 +71,7 @@ export function createRpcMiddlewareFactory(
                 .status(httpStatus.internalServerError)
                 .send(e.message);
             }
-            log(`Unexpected error while expecting handler`, e);
+            log(`Unexpected error while executing handler`, e);
             return response.sendStatus(httpStatus.internalServerError);
           }
 
