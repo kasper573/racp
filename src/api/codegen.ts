@@ -29,7 +29,7 @@ async function generate() {
     ...codegenStylePreferences,
   });
 
-  const filename = path.resolve(__dirname, "services", "radb", "radb.types.ts");
+  const filename = path.resolve(__dirname, "services", "radb.types.ts");
   fs.writeFileSync(filename, tsString, "utf-8");
   execSync(`prettier --write ${filename}`);
 }
