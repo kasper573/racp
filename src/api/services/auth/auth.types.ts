@@ -1,13 +1,8 @@
 import * as zod from "zod";
 
-export type InternalUser = zod.infer<typeof internalUserType>;
-
-export const internalUserType = zod.object({
-  id: zod.string(),
-  username: zod.string(),
-  passwordHash: zod.string(),
+export const publicUserType = zod.object({
+  account_id: zod.number().optional(),
+  userid: zod.string().optional(),
 });
 
 export type PublicUser = zod.infer<typeof publicUserType>;
-
-export const publicUserType = internalUserType.omit({ passwordHash: true });

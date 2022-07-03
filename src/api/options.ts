@@ -10,8 +10,10 @@ export const options = {
     required: true,
     description: "Used for auth encryption. Should be unique and secret",
   },
-  adminPassword: { type: "string", default: "" },
-  rAthenaMode: { choices: ["Renewal", "Prerenewal"], default: "Renewal" },
+  rAthenaMode: {
+    choices: ["Renewal", "Prerenewal"],
+    default: "Renewal",
+  },
   tradeScale: {
     type: "number",
     default: 2,

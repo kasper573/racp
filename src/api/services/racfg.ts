@@ -2,7 +2,9 @@ import * as path from "path";
 import * as fs from "fs";
 import recursiveReadDir = require("recursive-readdir");
 
-// rAthena config system
+/**
+ * rAthena config system
+ */
 export type RACFG = ReturnType<typeof createRACFG>;
 
 export const dbInfoConfigName = "inter_athena.conf";

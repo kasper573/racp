@@ -24,6 +24,7 @@ async function generate() {
   const cfg = createRACFG(rAthenaPath);
   const tsString = await sqlts.toTypeScript({
     client: "mysql",
+    template: path.resolve(__dirname, "codegen.hbs"),
     connection: await cfg.presets.dbInfo(template),
     typeMap,
     ...codegenStylePreferences,
@@ -35,7 +36,6 @@ async function generate() {
 }
 
 const codegenStylePreferences = {
-  columnNameCasing: "camel",
   tableNameCasing: "pascal",
   enumNameCasing: "pascal",
   enumKeyCasing: "pascal",
