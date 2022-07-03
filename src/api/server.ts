@@ -25,11 +25,9 @@ const rpc = createRpcMiddlewareFactory(auth.validatorFor);
 
 app.use(auth.middleware);
 app.use(cors());
-app.use(rpc(configDefinition.entries, configController(racfg)));
-app.use(rpc(itemDefinition.entries, itemController({ raes, ...args })));
-app.use(
-  rpc(authDefinition.entries, authController({ radb, raes, auth, ...args }))
-);
+app.use(rpc(configDefinition, configController(racfg)));
+app.use(rpc(itemDefinition, itemController({ raes, ...args })));
+app.use(rpc(authDefinition, authController({ radb, raes, auth, ...args })));
 
 http.createServer(app).listen(args.port, () => {
   console.log(`API is running on port ${args.port}`);

@@ -4,6 +4,7 @@ import { typedKeys } from "../typedKeys";
 import {
   RpcDefinitionEntry,
   RpcDefinitionEntries,
+  RpcDefinitionFor,
 } from "./createRpcDefinition";
 import { RpcHandler, RpcController } from "./createRpcController";
 import { createEndpointUrl } from "./createRpcEndpoints";
@@ -15,7 +16,15 @@ export function createRpcMiddlewareFactory<Auth>(
   function factory<
     Entries extends RpcDefinitionEntries,
     Handlers extends RpcController<Entries>
-  >(entries: Entries, handlers: Handlers): RequestHandler {
+  >(
+    entriesOrDefinition: Entries | RpcDefinitionFor<Entries>,
+    handlers: Handlers
+  ): RequestHandler {
+    const entries: Entries =
+      "entries" in entriesOrDefinition
+        ? (entriesOrDefinition.entries as Entries)
+        : entriesOrDefinition;
+
     const router = Router();
     router.use(bodyParser.text({ type: "*/*" }));
     for (const endpointName of typedKeys(entries)) {

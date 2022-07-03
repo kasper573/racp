@@ -72,6 +72,11 @@ export function createRpcDefinitionFactory<Auth>(defaultAuth: Auth) {
 
 export type RpcIntent = "mutation" | "query";
 
+export type RpcDefinitionFor<Entries> = Entries extends RpcDefinitionEntries
+  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    RpcDefinition<any, Entries, any>
+  : never;
+
 export interface RpcDefinition<
   Auth,
   Entries extends RpcDefinitionEntries,
