@@ -122,7 +122,7 @@ export const itemFilterType = zod
 export function createItemResolver(tradeScale: number) {
   return createRAESResolver(itemType, {
     getKey: (o) => o.Id,
-    process(item) {
+    postProcess(item) {
       item.Buy = item.Buy ?? (item.Sell ?? 0) * tradeScale;
       item.Sell = item.Sell ?? (item.Buy ?? 0) / tradeScale;
     },

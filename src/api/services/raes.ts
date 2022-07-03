@@ -14,7 +14,10 @@ export type RAES = ReturnType<typeof createRAES>;
 export interface RAESResolver<ET extends ZodType, Key> {
   entityType: ET;
   getKey: (entity: zod.infer<ET>) => Key;
-  process?: (entity: zod.infer<ET>) => void;
+  postProcess?: (
+    entity: zod.infer<ET>,
+    registry: Map<Key, zod.infer<ET>>
+  ) => void;
 }
 
 export function createRAES({
@@ -34,7 +37,7 @@ export function createRAES({
 
   function resolve<ET extends ZodType, Key>(
     file: string,
-    { entityType, getKey, process = noop }: RAESResolver<ET, Key>
+    { entityType, getKey, postProcess = noop }: RAESResolver<ET, Key>
   ): Map<Key, zod.infer<ET>> {
     const imports: ImportNode[] = [{ Path: file, Mode: rAthenaMode }];
     const entities = new Map<Key, zod.infer<ET>>();
@@ -46,11 +49,14 @@ export function createRAES({
         const { Body, Footer } = loadNode(imp.Path);
         for (const raw of Body ?? []) {
           const entity = entityType.parse(raw);
-          process(entity);
           entities.set(getKey(entity), entity);
         }
         imports.push(...(Footer?.Imports ?? []));
       }
+    }
+
+    for (const entity of Array.from(entities.values())) {
+      postProcess(entity, entities);
     }
 
     return entities;

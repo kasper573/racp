@@ -10,6 +10,7 @@ export const publicUserType = LoginEntityType.pick({
 
 export const userGroupType = zod.object({
   Id: zod.number(),
+  Name: zod.string(),
   Level: zod.number(),
   LogCommands: zod.boolean().default(false),
   Commands: toggleRecordType,
