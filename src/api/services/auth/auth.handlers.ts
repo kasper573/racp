@@ -43,9 +43,9 @@ export function createAuthHandlers({
 const userGroupResolver = createRAESResolver(userGroupType, {
   getKey: (group) => group.Id,
   postProcess(group, registry) {
-    const lookup = groupBy(Array.from(registry.values()), "Name");
+    const nameLookup = groupBy(Array.from(registry.values()), "Name");
     for (const [groupName, inherit] of Object.entries(group.Inherit)) {
-      const parent = lookup[groupName]?.[0];
+      const parent = nameLookup[groupName]?.[0];
       if (inherit && parent) {
         group.Permissions = { ...parent.Permissions, ...group.Permissions };
         group.CharCommands = { ...parent.CharCommands, ...group.CharCommands };
