@@ -15,6 +15,9 @@ export type AuthProps =
   | (AuthPropsBase & { atLeast: UserAccessLevel })
   | AuthPropsBase;
 
+/**
+ * Renders children only when the user has the required access level
+ */
 export function Auth({ children, fallback, ...props }: AuthProps) {
   const user = useAppSelector(({ auth }) => auth.user);
   const accessLevel = user?.access ?? UserAccessLevel.Guest;
