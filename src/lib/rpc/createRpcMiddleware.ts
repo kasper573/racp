@@ -10,7 +10,7 @@ import { createEndpointUrl } from "./createRpcEndpoints";
 import { RpcException } from "./RpcException";
 
 export function createRpcMiddlewareFactory<Auth>(
-  createAuthValidator: (requiredAuth: Auth) => (req: Request) => boolean
+  validatorFor: (requiredAuth: Auth) => (req: Request) => boolean
 ) {
   function factory<
     Entries extends RpcDefinitionEntries,
@@ -34,7 +34,7 @@ export function createRpcMiddlewareFactory<Auth>(
         console.log(`[RPC] [${String(endpointName)}] `, ...args);
       }
 
-      const isAuthorized = createAuthValidator(entry.auth);
+      const isAuthorized = validatorFor(entry.auth);
 
       router.post(
         `/${createEndpointUrl(endpointName)}`,

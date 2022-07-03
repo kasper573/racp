@@ -17,12 +17,11 @@ export function createAuthenticator({
       algorithms,
       credentialsRequired: false,
     }),
+    validatorFor(requiredAccess: UserAccessLevel) {
+      return (req: JWTRequest<AuthenticatorTokenPayload>) =>
+        (req.auth?.access ?? 0) >= requiredAccess;
+    },
   };
-}
-
-export function createAccessValidator(requiredAccess: UserAccessLevel) {
-  return (req: JWTRequest<AuthenticatorTokenPayload>) =>
-    (req.auth?.access ?? 0) >= requiredAccess;
 }
 
 export type Authenticator = ReturnType<typeof createAuthenticator>;

@@ -4,10 +4,7 @@ import cors = require("cors");
 import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
 import { configDefinition } from "./services/config/config.definition";
 import { createConfigHandlers } from "./services/config/config.handlers";
-import {
-  createAccessValidator,
-  createAuthenticator,
-} from "./services/auth/Authenticator";
+import { createAuthenticator } from "./services/auth/Authenticator";
 import { authDefinition } from "./services/auth/auth.definition";
 import { createAuthHandlers } from "./services/auth/auth.handlers";
 import { itemDefinition } from "./services/item/item.definition";
@@ -24,7 +21,7 @@ const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
 const raes = createRAES(args);
 const racfg = createRACFG(args.rAthenaPath);
 const radb = createRADB(racfg);
-const rpc = createRpcMiddlewareFactory(createAccessValidator);
+const rpc = createRpcMiddlewareFactory(auth.validatorFor);
 
 app.use(auth.middleware);
 app.use(cors());
