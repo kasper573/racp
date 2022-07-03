@@ -5,7 +5,7 @@ import { Request as JWTRequest } from "express-jwt";
 import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
 import { configDefinition } from "./services/config/config.definition";
 import { createConfigHandlers } from "./services/config/config.handlers";
-import { createAuthenticator } from "./util/authenticator";
+import { createAuthenticator } from "./services/auth/authenticator";
 import { authDefinition } from "./services/auth/auth.definition";
 import { createAuthHandlers } from "./services/auth/auth.handlers";
 import { itemDefinition } from "./services/item/item.definition";
@@ -18,7 +18,7 @@ import { createRADB } from "./services/radb";
 
 const args = readCliArgs(options);
 const app = express();
-const auth = createAuthenticator({ secret: args.jwtSecret });
+const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
 const raes = createRAES(args);
 const racfg = createRACFG(args.rAthenaPath);
 const radb = createRADB(racfg);

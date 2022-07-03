@@ -1,4 +1,4 @@
-// Common CLI argument options used in all scripts
+// Common yargs CLI argument options used in all scripts
 
 export const options = {
   port: {
@@ -13,6 +13,14 @@ export const options = {
   rAthenaMode: {
     choices: ["Renewal", "Prerenewal"],
     default: "Renewal",
+  },
+  adminGroupIds: {
+    type: "number",
+    array: true,
+    default: [],
+    description:
+      "The user group ids that make a user an admin. " +
+      "If left empty no one will have admin access.",
   },
   tradeScale: {
     type: "number",
