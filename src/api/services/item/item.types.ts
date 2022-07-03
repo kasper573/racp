@@ -1,12 +1,10 @@
 import * as zod from "zod";
+import { toggleNameType, toggleRecordType } from "../../util/matchers";
 import { itemScriptType } from "./item.script";
 
 export type Item = zod.infer<typeof itemType>;
 
 export const itemIdType = zod.number();
-
-const flagType = zod.string();
-const flagTogglesType = zod.record(flagType, zod.boolean());
 
 export const itemType = zod.object({
   Id: zod.number(),
@@ -22,10 +20,10 @@ export const itemType = zod.object({
   Defense: zod.number().optional(),
   Range: zod.number().optional(),
   Slots: zod.number().optional(),
-  Jobs: flagTogglesType.optional(),
-  Classes: flagTogglesType.optional(),
+  Jobs: toggleRecordType.optional(),
+  Classes: toggleRecordType.optional(),
   Gender: zod.string().optional(),
-  Locations: flagTogglesType.optional(),
+  Locations: toggleRecordType.optional(),
   WeaponLevel: zod.number().optional(),
   ArmorLevel: zod.number().optional(),
   EquipLevelMin: zod.number().optional(),
@@ -109,13 +107,13 @@ export const itemFilterType = zod
     name: zod.string(),
     description: zod.string(),
     script: zod.string(),
-    types: zod.array(flagType),
-    subTypes: zod.array(flagType),
-    classes: zod.array(flagType),
-    jobs: zod.array(flagType),
-    elements: zod.array(flagType),
-    statuses: zod.array(flagType),
-    races: zod.array(flagType),
+    types: zod.array(toggleNameType),
+    subTypes: zod.array(toggleNameType),
+    classes: zod.array(toggleNameType),
+    jobs: zod.array(toggleNameType),
+    elements: zod.array(toggleNameType),
+    statuses: zod.array(toggleNameType),
+    races: zod.array(toggleNameType),
     slots: zod.tuple([zod.number(), zod.number()]),
   })
   .partial();

@@ -10,7 +10,7 @@ import {
   isRefMatch,
   isStringMatch,
   isToggleMatch,
-} from "../search/search.matchers";
+} from "../../util/matchers";
 import { itemDefinition } from "./item.definition";
 import { Item, ItemFilter, itemType } from "./item.types";
 
