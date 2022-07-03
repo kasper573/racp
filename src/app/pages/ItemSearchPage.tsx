@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Header } from "../layout/Header";
-import { useSearchItemsQuery } from "../client";
+import { useSearchItemsQuery } from "../state/client";
 import { router } from "../router";
 import { Item, ItemFilter } from "../../api/services/item/item.types";
 import { DataGrid } from "../components/DataGrid";

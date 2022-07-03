@@ -1,6 +1,6 @@
 import { List, TextField } from "@mui/material";
 import { useState } from "react";
-import { useListConfigsQuery } from "../client";
+import { useListConfigsQuery } from "../state/client";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { router } from "../router";
 import { LinkListItem } from "../components/Link";

@@ -2,7 +2,7 @@ import { Box, styled } from "@mui/material";
 import { useEffect } from "react";
 import { ItemFilter, itemFilterType } from "../../api/services/item/item.types";
 import { useZodForm } from "../../lib/zod/useZodForm";
-import { useGetItemMetaQuery } from "../client";
+import { useGetItemMetaQuery } from "../state/client";
 import { typedKeys } from "../../lib/typedKeys";
 import { Select } from "../controls/Select";
 import { SliderMenu } from "../controls/SliderMenu";

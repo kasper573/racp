@@ -2,22 +2,24 @@ import "./fixtures/roboto";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
-import { BrowserRouter } from "react-router-dom";
+import { createBrowserHistory } from "history";
+import { Router } from "react-router";
 import { App } from "./App";
-import { createStore } from "./store";
+import { createStore } from "./state/store";
 import { rootId } from "./layout/globalStyles";
-import { setupAuthBehavior } from "./state/auth";
+import { setupAuthBehavior } from "./slices/auth";
 
 const root = document.getElementById(rootId);
 if (root) {
-  const store = createStore();
+  const history = createBrowserHistory();
+  const store = createStore({ history });
   setupAuthBehavior(store, ({ auth }) => auth);
   createRoot(root).render(
     <StrictMode>
       <Provider store={store}>
-        <BrowserRouter>
+        <Router history={history}>
           <App />
-        </BrowserRouter>
+        </Router>
       </Provider>
     </StrictMode>
   );

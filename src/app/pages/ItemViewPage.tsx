@@ -1,6 +1,6 @@
 import { useRouteParams } from "react-typesafe-routes";
 import { Header } from "../layout/Header";
-import { useGetItemQuery } from "../client";
+import { useGetItemQuery } from "../state/client";
 import { router } from "../router";
 import { LoadingPage } from "./LoadingPage";
 

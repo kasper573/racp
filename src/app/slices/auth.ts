@@ -1,7 +1,8 @@
-import { createSlice, Store } from "@reduxjs/toolkit";
+import { AnyAction, createSlice, Store } from "@reduxjs/toolkit";
 import * as zod from "zod";
-import { client } from "../client";
 import { publicUserType } from "../../api/services/auth/auth.types";
+import { client } from "../state/client";
+import { createAppAsyncThunk } from "../state/utils";
 
 export const authState = zod.object({
   token: zod.string().optional(),
@@ -12,11 +13,18 @@ export type AuthState = zod.infer<typeof authState>;
 
 const initialState: AuthState = {};
 
+export const logout = createAppAsyncThunk(
+  "auth/logout",
+  async (_: void, { dispatch }) => {
+    await dispatch(auth.actions.clear());
+  }
+);
+
 export const auth = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    logout(state) {
+    clear(state) {
       delete state.token;
       delete state.user;
     },
@@ -49,7 +57,7 @@ export function setupAuthBehavior<State>(
   const intervalId = setInterval(() => {
     const token = getToken();
     if (token && isTokenExpired(token)) {
-      store.dispatch(auth.actions.logout());
+      store.dispatch(logout() as unknown as AnyAction);
     }
   }, interval);
 

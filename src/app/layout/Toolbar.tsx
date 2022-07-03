@@ -8,10 +8,10 @@ import {
   MenuItem,
   Tooltip,
 } from "@mui/material";
-import { useAppDispatch, useAppSelector } from "../store";
-import { auth } from "../state/auth";
+import { useAppDispatch, useAppSelector } from "../state/store";
+import { logout } from "../slices/auth";
 import { MenuOn } from "../components/MenuOn";
-import { theme } from "../state/theme";
+import { theme } from "../slices/theme";
 import { Auth } from "../components/Auth";
 import { UserAccessLevel } from "../../api/services/auth/auth.types";
 import { LinkMenuItem } from "../components/Link";
@@ -52,9 +52,7 @@ export function Toolbar() {
                 />
               </ListItem>
               <Divider sx={{ mb: 1 }} />
-              <MenuItem onClick={() => dispatch(auth.actions.logout())}>
-                Sign out
-              </MenuItem>
+              <MenuItem onClick={() => dispatch(logout())}>Sign out</MenuItem>
             </>
           )}
         </Auth>

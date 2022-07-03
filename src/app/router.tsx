@@ -17,7 +17,7 @@ import {
 } from "@mui/icons-material";
 import { useLocation } from "react-router-dom";
 import { UserAccessLevel } from "../api/services/auth/auth.types";
-import { useAppSelector } from "./store";
+import { useAppSelector } from "./state/store";
 import { RestrictedPage } from "./pages/RestrictedPage";
 
 const defaultOptions = {
