@@ -14,17 +14,19 @@ import { createItemHandlers } from "./services/item/item.handlers";
 import { createRAES } from "./util/raes";
 import { readCliArgs } from "./util/cli";
 import { options } from "./options";
+import { createRACFG } from "./util/racfg";
 
 const args = readCliArgs(options);
 const app = express();
 const auth = createAuthenticator({ secret: args.jwtSecret });
 const raes = createRAES(args);
+const racfg = createRACFG(args.rAthenaPath);
 const rpc = createRpcMiddlewareFactory((req: JWTRequest) => !!req.auth);
 const users = usersFixture(auth, args.adminPassword);
 
 app.use(auth.middleware);
 app.use(cors());
-app.use(rpc(configDefinition.entries, createConfigHandlers(args.rAthenaPath)));
+app.use(rpc(configDefinition.entries, createConfigHandlers(racfg)));
 app.use(rpc(authDefinition.entries, createAuthHandlers(users, auth)));
 app.use(rpc(itemDefinition.entries, createItemHandlers({ raes, ...args })));
 

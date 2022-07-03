@@ -4,9 +4,11 @@ import sqlts from "@rmp135/sql-ts";
 import { pick } from "lodash";
 import { readCliArgs } from "./util/cli";
 import { options } from "./options";
+import { createRACFG } from "./util/racfg";
 
 async function go() {
   const { rAthenaPath } = readCliArgs(pick(options, "rAthenaPath"));
+  const cfg = createRACFG(rAthenaPath);
 
   const tsString = await sqlts.toTypeScript({
     client: "mysql",
