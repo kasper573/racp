@@ -15,8 +15,11 @@ const initialState: AuthState = {};
 
 export const logout = createAppAsyncThunk(
   "auth/logout",
-  async (_: void, { dispatch }) => {
+  async (_: void, { dispatch, extra: { history, logoutRedirect } }) => {
     await dispatch(auth.actions.clear());
+    if (logoutRedirect !== undefined) {
+      history.push(logoutRedirect);
+    }
   }
 );
 

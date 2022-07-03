@@ -42,7 +42,7 @@ export function createStore(extraArgument: AppThunkExtra) {
 
 export type AppState = StateFromReducersMapObject<typeof reducers>;
 export type AppDispatch = ReturnType<typeof createStore>["dispatch"];
-export type AppThunkExtra = { history: History };
+export type AppThunkExtra = { history: History; logoutRedirect?: string };
 
 export const useAppDispatch: () => AppDispatch = useDispatch;
 export const useAppSelector: TypedUseSelectorHook<AppState> = useSelector;

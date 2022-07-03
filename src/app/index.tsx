@@ -8,11 +8,12 @@ import { App } from "./App";
 import { createStore } from "./state/store";
 import { rootId } from "./layout/globalStyles";
 import { setupAuthBehavior } from "./slices/auth";
+import { logoutRedirect } from "./router";
 
 const root = document.getElementById(rootId);
 if (root) {
   const history = createBrowserHistory();
-  const store = createStore({ history });
+  const store = createStore({ history, logoutRedirect });
   setupAuthBehavior(store, ({ auth }) => auth);
   createRoot(root).render(
     <StrictMode>

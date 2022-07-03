@@ -80,6 +80,8 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
   ),
 }));
 
+export const logoutRedirect = router.home().$;
+
 function requireAuth(requiredAccess = UserAccessLevel.User): RouteMiddleware {
   return (next) => {
     const location = useLocation();
