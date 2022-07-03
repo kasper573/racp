@@ -10,7 +10,7 @@ import {
   CssBaseline,
 } from "@mui/material";
 import { Helmet } from "react-helmet-async";
-import { LoadingPage } from "../components/LoadingPage";
+import { LoadingPage } from "../pages/LoadingPage";
 import { globalStyles } from "./globalStyles";
 import { Logo } from "./Logo";
 import { Toolbar } from "./Toolbar";

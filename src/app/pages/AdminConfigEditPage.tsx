@@ -4,7 +4,7 @@ import { useGetConfigQuery, useUpdateConfigMutation } from "../client";
 import { TextEditor } from "../controls/TextEditor";
 import { router } from "../router";
 import { Header } from "../layout/Header";
-import { LoadingPage } from "../components/LoadingPage";
+import { LoadingPage } from "./LoadingPage";
 
 export default function AdminConfigEditPage() {
   const { configName } = useRouteParams(router.admin().config().edit);

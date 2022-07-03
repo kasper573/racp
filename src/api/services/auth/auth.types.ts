@@ -17,6 +17,8 @@ export const publicUserType = zod.object({
   access: userAccessLevelType,
 });
 
+export type PublicUser = zod.infer<typeof publicUserType>;
+
 export const userGroupType = zod.object({
   Id: zod.number(),
   Name: zod.string(),

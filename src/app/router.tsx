@@ -1,9 +1,9 @@
 import {
-  OptionsRouter,
-  RouteMiddleware,
-  Redirect,
-  stringParser,
   intParser,
+  OptionsRouter,
+  Redirect,
+  RouteMiddleware,
+  stringParser,
 } from "react-typesafe-routes";
 import { lazy } from "react";
 import {
@@ -15,12 +15,9 @@ import {
   PestControlRodent,
   Redeem,
 } from "@mui/icons-material";
+import { UserAccessLevel } from "../api/services/auth/auth.types";
 import { useAppSelector } from "./store";
-
-const AuthMiddleware: RouteMiddleware = (next) => {
-  const isAuthenticated = useAppSelector(({ auth }) => !!auth.token);
-  return isAuthenticated ? next : () => <Redirect to={router.login()} />;
-};
+import { RestrictedPage } from "./pages/RestrictedPage";
 
 const defaultOptions = {
   title: "",
@@ -60,7 +57,7 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
     {
       component: lazy(() => import("./pages/AdminPage")),
       options: { title: "Admin", icon: <AdminPanelSettings /> },
-      middleware: AuthMiddleware,
+      middleware: requireAuth(UserAccessLevel.Admin),
     },
     (route) => ({
       config: route(
@@ -81,7 +78,21 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
   ),
 }));
 
+function requireAuth(requiredAccess = UserAccessLevel.User): RouteMiddleware {
+  return (next) => {
+    const access = useAppSelector(({ auth }) => auth.user?.access);
+    if (access === undefined) {
+      return () => <Redirect to={router.login()} />;
+    }
+    if (access < requiredAccess) {
+      return () => <RestrictedPage />;
+    }
+    return next;
+  };
+}
+
 export type RouterOptions = typeof defaultOptions;
+
 export interface AnyRouteNode<Arg = void> {
   (arg: Arg): { $: string };
   options: RouterOptions;

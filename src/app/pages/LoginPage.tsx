@@ -15,7 +15,7 @@ export default function LoginPage() {
     e.preventDefault();
     const result = await login({ username, password });
     if ("data" in result) {
-      history.push(router.admin().$);
+      history.push(router.home().$);
     }
   }
 
