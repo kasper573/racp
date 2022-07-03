@@ -10,10 +10,12 @@
     "lint:fix": "eslint . --fix & prettier . --write",
     "build:app": "webpack build",
     "dev:app": "cross-env reactRefresh=true apiBaseUrl=http://localhost:8081 webpack serve",
-    "dev:api": "ts-node-dev src/api --jwtSecret dev --port 8081"
+    "dev:api": "ts-node-dev src/api --jwtSecret dev --port 8081",
+    "codegen": "ts-node src/api/codegen"
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
+    "@rmp135/sql-ts": "^1.13.0",
     "@swc/core": "^1.2.204",
     "@types/bcrypt": "^5.0.0",
     "@types/body-parser": "^1.19.2",
@@ -46,6 +48,8 @@
     "html-webpack-plugin": "^5.5.0",
     "jest": "^28.1.0",
     "jsonwebtoken": "^8.5.1",
+    "knex": "^2.1.0",
+    "mysql": "^2.18.1",
     "prettier": "^2.6.2",
     "react-refresh": "^0.14.0",
     "recursive-readdir": "^2.2.2",
