@@ -7,7 +7,7 @@ import { createRAConfigSystem } from "../lib/rathena/RAConfigSystem";
 import { createRADatabaseDriver } from "./radb";
 import { configDefinition } from "./services/config/definition";
 import { configController } from "./services/config/controller";
-import { createAuthenticator } from "./services/auth/Authenticator";
+import { createAuthenticator } from "./services/auth/util/Authenticator";
 import { authDefinition } from "./services/auth/definition";
 import { authController } from "./services/auth/controller";
 import { itemDefinition } from "./services/item/definition";

@@ -1,21 +1,11 @@
-import {
-  createRAEntityResolver,
-  RAEntitySystem,
-} from "../../../lib/rathena/RAEntitySystem";
+import { RAEntitySystem } from "../../../lib/rathena/RAEntitySystem";
 import { createRpcController } from "../../../lib/rpc/createRpcController";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { createSearchController } from "../search/controller";
-import { dedupe, dedupeRecordInsert } from "../../util/dedupe";
-import { select, Selector } from "../../util/select";
-import {
-  isArrayMatch,
-  isRangeMatch,
-  isRefMatch,
-  isStringMatch,
-  isToggleMatch,
-} from "../../util/matchers";
 import { itemDefinition } from "./definition";
-import { Item, ItemFilter, itemType } from "./types";
+import { createItemResolver } from "./util/createItemResolver";
+import { collectItemMeta } from "./util/collectItemMeta";
+import { isMatchingItem } from "./util/isMatchingItem";
 
 export function itemController({
   raes: { resolve },
@@ -44,60 +34,3 @@ export function itemController({
     },
   });
 }
-
-function createItemResolver(tradeScale: number) {
-  return createRAEntityResolver(itemType, {
-    getKey: (o) => o.Id,
-    postProcess(item) {
-      item.Buy = item.Buy ?? (item.Sell ?? 0) * tradeScale;
-      item.Sell = item.Sell ?? (item.Buy ?? 0) / tradeScale;
-    },
-  });
-}
-
-function isMatchingItem(item: Item, filter: ItemFilter): boolean {
-  return (
-    isRefMatch(filter.id, item.Id) &&
-    isStringMatch(filter.name, item.Name) &&
-    isArrayMatch(filter.types, item.Type) &&
-    isArrayMatch(filter.subTypes, item.SubType) &&
-    isToggleMatch(filter.classes, item.Classes) &&
-    isToggleMatch(filter.jobs, item.Jobs) &&
-    isArrayMatch(filter.elements, item.Script?.meta.elements) &&
-    isArrayMatch(filter.statuses, item.Script?.meta.statuses) &&
-    isArrayMatch(filter.races, item.Script?.meta.races) &&
-    isRangeMatch(filter.slots, item.Slots) &&
-    (isStringMatch(filter.script, item.Script?.raw) ||
-      isStringMatch(filter.script, item.EquipScript?.raw) ||
-      isStringMatch(filter.script, item.UnEquipScript?.raw))
-  );
-}
-
-function collectItemMeta(items: Item[]) {
-  return {
-    types: collectItemTypes(items),
-    maxSlots: items.reduce(largestSlot, 0),
-    genders: options(items, (i) => i.Gender),
-    classes: options(items, (i) => Object.keys(i.Classes ?? {})),
-    jobs: options(items, (item) => Object.keys(item.Jobs ?? {})),
-    locations: options(items, (i) => Object.keys(i.Locations ?? {})),
-    elements: options(items, ({ Script }) => Script?.meta.elements),
-    statuses: options(items, ({ Script }) => Script?.meta.statuses),
-    races: options(items, ({ Script }) => Script?.meta.races),
-  };
-}
-
-function collectItemTypes(items: Item[]) {
-  const types: Record<string, string[]> = {};
-  for (const item of items) {
-    dedupeRecordInsert(types, item.Type, item.SubType);
-  }
-  return types;
-}
-
-const noAll = (values: string[]) => values.filter((i) => i !== "All");
-const options = (items: Item[], selector: Selector<Item, string>) =>
-  noAll(dedupe(select(items, selector)));
-
-const largestSlot = (largest: number, item: Item) =>
-  item.Slots !== undefined && item.Slots > largest ? item.Slots : largest;

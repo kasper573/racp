@@ -1,5 +1,14 @@
 import { ParseInput, ParseReturnType, ZodType } from "zod";
-import { dedupe } from "../../util/dedupe";
+import { dedupe } from "../../../util/dedupe";
+
+export interface ItemScript {
+  raw: string;
+  meta: {
+    elements: string[];
+    statuses: string[];
+    races: string[];
+  };
+}
 
 export class ZodItemScript extends ZodType<ItemScript> {
   _parse(input: ParseInput): ParseReturnType<ItemScript> {
@@ -25,15 +34,6 @@ function extract(str: string, expStr: string) {
     values.push(match[1]);
   }
   return values;
-}
-
-export interface ItemScript {
-  raw: string;
-  meta: {
-    elements: string[];
-    statuses: string[];
-    races: string[];
-  };
 }
 
 export const itemScriptType = new ZodItemScript({});

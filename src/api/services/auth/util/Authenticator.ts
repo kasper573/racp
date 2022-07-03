@@ -1,7 +1,7 @@
 import * as jwt from "jsonwebtoken";
 import { expressjwt, Request as JWTRequest } from "express-jwt";
 import { Algorithm } from "jsonwebtoken";
-import { UserAccessLevel } from "./types";
+import { UserAccessLevel } from "../types";
 
 export function createAuthenticator({
   secret,

@@ -1,14 +1,11 @@
-import { groupBy } from "lodash";
 import { createRpcController } from "../../../lib/rpc/createRpcController";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { RADatabaseDriver } from "../../radb";
-import {
-  createRAEntityResolver,
-  RAEntitySystem,
-} from "../../../lib/rathena/RAEntitySystem";
-import { Authenticator } from "./Authenticator";
+import { RAEntitySystem } from "../../../lib/rathena/RAEntitySystem";
+import { Authenticator } from "./util/Authenticator";
 import { authDefinition } from "./definition";
-import { UserAccessLevel, userGroupType } from "./types";
+import { UserAccessLevel } from "./types";
+import { UserGroupResolver } from "./util/UserGroupResolver";
 
 export function authController({
   radb,
@@ -21,7 +18,7 @@ export function authController({
   auth: Authenticator;
   adminPermissionName?: string;
 }) {
-  const groups = raes.resolve("conf/groups.yml", userGroupResolver);
+  const groups = raes.resolve("conf/groups.yml", UserGroupResolver);
   const adminGroupIds = Array.from(groups.values())
     .filter((group) => group.Permissions[adminPermissionName])
     .map((group) => group.Id);
@@ -51,18 +48,3 @@ export function authController({
     },
   });
 }
-
-const userGroupResolver = createRAEntityResolver(userGroupType, {
-  getKey: (group) => group.Id,
-  postProcess(group, registry) {
-    const nameLookup = groupBy(Array.from(registry.values()), "Name");
-    for (const [groupName, inherit] of Object.entries(group.Inherit)) {
-      const parent = nameLookup[groupName]?.[0];
-      if (inherit && parent) {
-        group.Permissions = { ...parent.Permissions, ...group.Permissions };
-        group.CharCommands = { ...parent.CharCommands, ...group.CharCommands };
-        group.Commands = { ...parent.Commands, ...group.Commands };
-      }
-    }
-  },
-});
