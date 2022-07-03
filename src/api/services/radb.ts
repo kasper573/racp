@@ -1,5 +1,5 @@
 import knex from "knex";
-import { LoginEntity } from "./radb.types";
+import { Tables } from "./radb.types";
 import { RACFG } from "./racfg";
 
 /**
@@ -8,12 +8,12 @@ import { RACFG } from "./racfg";
 export type RADB = ReturnType<typeof createRADB>;
 
 export function createRADB(cfg: RACFG) {
-  type TR = {
-    login: LoginEntity;
-  };
-
-  return knex<TR>({
+  const db = knex({
     client: "mysql",
     connection: () => cfg.presets.dbInfo("login_server"),
   });
+  return <TableName extends keyof Tables>(tableName: TableName) => {
+    type Entity = Tables[TableName];
+    return db<Entity, Entity[]>(tableName);
+  };
 }

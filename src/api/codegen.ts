@@ -26,20 +26,17 @@ async function generate() {
     client: "mysql",
     template: path.resolve(__dirname, "codegen.hbs"),
     connection: await cfg.presets.dbInfo(template),
+    tableNameCasing: "pascal",
+    enumNameCasing: "pascal",
+    // eslint-disable-next-line no-template-curly-in-string
+    interfaceNameFormat: "${table}",
     typeMap,
-    ...codegenStylePreferences,
   });
 
   const filename = path.resolve(__dirname, "services", "radb.types.ts");
   fs.writeFileSync(filename, tsString, "utf-8");
   execSync(`prettier --write ${filename}`);
 }
-
-const codegenStylePreferences = {
-  tableNameCasing: "pascal",
-  enumNameCasing: "pascal",
-  enumKeyCasing: "pascal",
-} as const;
 
 // These were missing in the default typeMap
 const typeMap = {

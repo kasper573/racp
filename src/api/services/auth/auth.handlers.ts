@@ -3,13 +3,11 @@ import { RpcException } from "../../../lib/rpc/RpcException";
 import { Authenticator } from "../../util/authenticator";
 import { RADB } from "../radb";
 import { authDefinition } from "./auth.definition";
-import { PublicUser } from "./auth.types";
 
 export function createAuthHandlers(db: RADB, auth: Authenticator) {
   return createRpcHandlers(authDefinition.entries, {
     async login({ username, password }) {
-      const user: PublicUser | undefined = await db
-        .table("login")
+      const user = await db("login")
         .select("account_id", "userid")
         .where("userid", "=", username)
         .where("user_pass", "=", password)
