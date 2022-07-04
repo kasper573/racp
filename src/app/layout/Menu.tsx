@@ -5,7 +5,7 @@ import { RouteList } from "../components/RouteList";
 import { UserAccessLevel } from "../../api/services/auth/types";
 
 const publicRoutes = [router.item, router.monster];
-const protectedRoutes = [router.admin().config];
+const protectedRoutes = Object.values(router.admin.children);
 
 export function Menu() {
   return (
