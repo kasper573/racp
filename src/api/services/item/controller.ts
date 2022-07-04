@@ -24,17 +24,19 @@ export function itemController({
     createItemResolver({ tradeScale })
   );
 
-  let meta: ItemMeta;
-  const info = fs.entry("itemInfo.lub", parseItemInfo, (info) => {
+  let itemMeta: ItemMeta;
+  let itemInfoCount = 0;
+  const itemInfo = fs.entry("itemInfo.lub", parseItemInfo, (info) => {
     for (const item of items.values()) {
       item.Info = info?.[item.Id];
     }
-    meta = collectItemMeta(Array.from(items.values()));
+    itemInfoCount = info ? Object.keys(info).length : 0;
+    itemMeta = collectItemMeta(Array.from(items.values()));
   });
 
   return createRpcController(itemDefinition.entries, {
     async getItemMeta() {
-      return meta;
+      return itemMeta;
     },
     searchItems: createSearchController(
       Array.from(items.values()),
@@ -47,8 +49,11 @@ export function itemController({
       }
       return item;
     },
+    async countItemInfo() {
+      return itemInfoCount;
+    },
     async updateItemInfo(itemInfoAsLuaCode) {
-      return info.update(itemInfoAsLuaCode).success;
+      return itemInfo.update(itemInfoAsLuaCode).success;
     },
   });
 }

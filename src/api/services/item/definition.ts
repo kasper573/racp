@@ -14,7 +14,12 @@ export const itemDefinition = createRpcDefinition({
       .query("getItemMeta", zod.void(), itemMetaType)
       .query("searchItems", ...createSearchTypes(itemType, itemFilterType))
       .query("getItem", itemIdType, itemType)
-      .query("updateItemInfo", zod.string(), zod.boolean(), {
+      .query("countItemInfo", zod.void(), zod.number(), {
+        tags: ["ITEM_INFO"],
+        auth: UserAccessLevel.Admin,
+      })
+      .mutation("updateItemInfo", zod.string(), zod.boolean(), {
+        tags: ["ITEM_INFO"],
         auth: UserAccessLevel.Admin,
       }),
 });
