@@ -1,9 +1,11 @@
 import * as http from "http";
+import * as path from "path";
 import * as express from "express";
 import cors = require("cors");
 import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
 import { createRAEntitySystem } from "../lib/rathena/RAEntitySystem";
 import { createRAConfigSystem } from "../lib/rathena/RAConfigSystem";
+import { createFileStore } from "../lib/createFileStore";
 import { createRADatabaseDriver } from "./radb";
 import { configDefinition } from "./services/config/definition";
 import { configController } from "./services/config/controller";
@@ -22,11 +24,12 @@ const raes = createRAEntitySystem(args);
 const racfg = createRAConfigSystem(args.rAthenaPath);
 const radb = createRADatabaseDriver(racfg);
 const rpc = createRpcMiddlewareFactory(auth.validatorFor);
+const fs = createFileStore(path.join(process.cwd(), "data"));
 
 app.use(auth.middleware);
 app.use(cors());
 app.use(rpc(configDefinition, configController(racfg)));
-app.use(rpc(itemDefinition, itemController({ raes, ...args })));
+app.use(rpc(itemDefinition, itemController({ raes, fs, ...args })));
 app.use(rpc(authDefinition, authController({ radb, raes, auth, ...args })));
 
 http.createServer(app).listen(args.port, () => {

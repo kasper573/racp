@@ -1,7 +1,11 @@
 import { createRAEntityResolver } from "../../../../lib/rathena/RAEntitySystem";
 import { itemType } from "../types";
 
-export function createItemResolver(tradeScale: number) {
+export interface ItemResolverProps {
+  tradeScale: number;
+}
+
+export function createItemResolver({ tradeScale }: ItemResolverProps) {
   return createRAEntityResolver(itemType, {
     getKey: (o) => o.Id,
     postProcess(item) {

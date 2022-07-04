@@ -6,6 +6,20 @@ export type Item = zod.infer<typeof itemType>;
 
 export const itemIdType = zod.number();
 
+// ItemInfo is a separate type because it's loaded separately from client data
+export type ItemInfo = zod.infer<typeof itemInfoType>;
+export const itemInfoType = zod.object({
+  unidentifiedDisplayName: zod.string(),
+  unidentifiedResourceName: zod.string(),
+  unidentifiedDescriptionName: zod.array(zod.string()),
+  identifiedDisplayName: zod.string(),
+  identifiedResourceName: zod.string(),
+  identifiedDescriptionName: zod.array(zod.string()),
+  slotCount: zod.number(),
+  ClassNum: zod.number(),
+  costume: zod.boolean().optional(),
+});
+
 export const itemType = zod.object({
   Id: zod.number(),
   AegisName: zod.string(),
@@ -86,7 +100,10 @@ export const itemType = zod.object({
   Script: itemScriptType.optional(),
   EquipScript: itemScriptType.optional(),
   UnEquipScript: itemScriptType.optional(),
+  Info: itemInfoType.optional(),
 });
+
+export type ItemMeta = zod.infer<typeof itemMetaType>;
 
 export const itemMetaType = zod.object({
   maxSlots: zod.number(),

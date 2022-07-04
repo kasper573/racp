@@ -2,6 +2,7 @@ import * as zod from "zod";
 import { createTagFactory } from "../../../lib/createTagFactory";
 import { createSearchTypes } from "../search/types";
 import { createRpcDefinition } from "../../util/rpc";
+import { UserAccessLevel } from "../auth/types";
 import { itemFilterType, itemIdType, itemMetaType, itemType } from "./types";
 
 const tag = createTagFactory("Item");
@@ -12,5 +13,8 @@ export const itemDefinition = createRpcDefinition({
     builder
       .query("getItemMeta", zod.void(), itemMetaType)
       .query("searchItems", ...createSearchTypes(itemType, itemFilterType))
-      .query("getItem", itemIdType, itemType),
+      .query("getItem", itemIdType, itemType)
+      .query("updateItemInfo", zod.string(), zod.boolean(), {
+        auth: UserAccessLevel.Admin,
+      }),
 });
