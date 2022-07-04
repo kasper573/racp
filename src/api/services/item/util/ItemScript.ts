@@ -1,17 +1,23 @@
+import * as zod from "zod";
 import { ParseInput, ParseReturnType, ZodType } from "zod";
 import { dedupe } from "../../../util/dedupe";
 
-export interface ItemScript {
-  raw: string;
-  meta: {
-    elements: string[];
-    statuses: string[];
-    races: string[];
-  };
-}
+const parsedItemScript = zod.object({
+  raw: zod.string(),
+  meta: zod.object({
+    elements: zod.array(zod.string()),
+    statuses: zod.array(zod.string()),
+    races: zod.array(zod.string()),
+  }),
+});
+
+export type ItemScript = zod.infer<typeof parsedItemScript>;
 
 export class ZodItemScript extends ZodType<ItemScript> {
   _parse(input: ParseInput): ParseReturnType<ItemScript> {
+    if (typeof input.data === "object") {
+      return parsedItemScript._parse(input.data);
+    }
     return {
       status: "valid",
       value: {
