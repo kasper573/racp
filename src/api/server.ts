@@ -23,7 +23,7 @@ const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
 const raes = createRAEntitySystem(args);
 const racfg = createRAConfigSystem(args.rAthenaPath);
 const radb = createRADatabaseDriver(racfg);
-const rpc = createRpcMiddlewareFactory(auth.validatorFor);
+const rpc = createRpcMiddlewareFactory(auth.validatorFor, 2 * Math.pow(10, 7));
 const fs = createFileStore(path.join(process.cwd(), "data"));
 
 app.use(auth.middleware);

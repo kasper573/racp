@@ -11,7 +11,8 @@ import { createEndpointUrl } from "./createRpcEndpoints";
 import { RpcException } from "./RpcException";
 
 export function createRpcMiddlewareFactory<Auth>(
-  validatorFor: (requiredAuth: Auth) => (req: Request) => boolean
+  validatorFor: (requiredAuth: Auth) => (req: Request) => boolean,
+  requestBodySizeLimit?: number
 ) {
   function factory<
     Entries extends RpcDefinitionEntries,
@@ -26,7 +27,7 @@ export function createRpcMiddlewareFactory<Auth>(
         : entriesOrDefinition;
 
     const router = Router();
-    router.use(bodyParser.text({ type: "*/*" }));
+    router.use(bodyParser.text({ type: "*/*", limit: requestBodySizeLimit }));
     for (const endpointName of typedKeys(entries)) {
       const entry = entries[endpointName];
       const handler = handlers[endpointName] as RpcHandler<typeof entry>;
