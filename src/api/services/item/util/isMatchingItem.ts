@@ -1,4 +1,4 @@
-import { Item, ItemFilter } from "../types";
+import { Item, ItemFilter, ItemInfo } from "../types";
 import {
   isArrayMatch,
   isRangeMatch,
@@ -6,11 +6,13 @@ import {
   isStringMatch,
   isToggleMatch,
 } from "../../../util/matchers";
+import { clientTextToString } from "../../../common/clientTextType";
 
 export function isMatchingItem(item: Item, filter: ItemFilter): boolean {
   return (
     isRefMatch(filter.id, item.Id) &&
     isStringMatch(filter.name, item.Name) &&
+    isMatchingDescription(filter.description, item.Info) &&
     isArrayMatch(filter.types, item.Type) &&
     isArrayMatch(filter.subTypes, item.SubType) &&
     isToggleMatch(filter.classes, item.Classes) &&
@@ -23,4 +25,18 @@ export function isMatchingItem(item: Item, filter: ItemFilter): boolean {
       isStringMatch(filter.script, item.EquipScript?.raw) ||
       isStringMatch(filter.script, item.UnEquipScript?.raw))
   );
+}
+
+function isMatchingDescription(description?: string, info?: ItemInfo) {
+  if (!description) {
+    return true;
+  }
+  if (!info) {
+    return false;
+  }
+  return info.identifiedDescriptionName
+    .map(clientTextToString)
+    .join("\n")
+    .toLowerCase()
+    .includes(description.toLowerCase());
 }
