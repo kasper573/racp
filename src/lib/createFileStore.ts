@@ -14,11 +14,18 @@ export function createFileStore(directory: string) {
       onChange: (data?: Data) => void
     ) {
       const filename = path.resolve(directory, relativeFilename);
+
+      let currentData: Data | undefined;
+
       const file: FileStoreEntry<Data> = {
+        get data() {
+          return currentData;
+        },
         update(fileContent: string) {
           const res = parseFileContent(fileContent);
           if (res.success) {
             fs.writeFileSync(filename, fileContent, "utf-8");
+            currentData = res.data;
             onChange?.(res.data);
           }
           return res;
@@ -27,6 +34,7 @@ export function createFileStore(directory: string) {
           if (fs.existsSync(filename)) {
             file.update(fs.readFileSync(filename, "utf-8"));
           } else {
+            currentData = undefined;
             onChange?.(undefined);
           }
         },
@@ -40,6 +48,7 @@ export function createFileStore(directory: string) {
 }
 
 export interface FileStoreEntry<Data> {
+  get data(): Data | undefined;
   update(fileContent: string): ParseResult<Data>;
   reload(): void;
 }
