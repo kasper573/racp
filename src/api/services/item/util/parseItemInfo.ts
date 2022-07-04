@@ -7,7 +7,13 @@ import { ParseResult } from "../../../../lib/createFileStore";
 export function parseItemInfo(
   luaCode: string
 ): ParseResult<Record<string, ItemInfo>> {
-  const root = lua.parse(luaCode);
+  let root: lua.Chunk;
+  try {
+    root = lua.parse(luaCode);
+  } catch {
+    return { success: false };
+  }
+
   const rootTable = find(root.body, (st) =>
     st.type === "AssignmentStatement" &&
     st.init[0].type === "TableConstructorExpression"
