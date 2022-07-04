@@ -29,8 +29,8 @@ export class ZodClientText extends ZodType<ClientTextData> {
 
 export const clientTextType = new ZodClientText({});
 
-export function clientTextToString(text: ClientTextData) {
-  return text.map(({ text }) => text).join("");
+export function clientTextToString(text?: ClientTextData) {
+  return text?.map(({ text }) => text).join("");
 }
 
 function parse(untrimmed: string): ClientTextData {

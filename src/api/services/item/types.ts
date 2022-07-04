@@ -10,11 +10,11 @@ export const itemIdType = zod.number();
 // ItemInfo is a separate type because it's loaded separately from client data
 export type ItemInfo = zod.infer<typeof itemInfoType>;
 export const itemInfoType = zod.object({
-  unidentifiedDisplayName: zod.string(),
-  unidentifiedResourceName: zod.string(),
+  unidentifiedDisplayName: clientTextType,
+  unidentifiedResourceName: clientTextType,
   unidentifiedDescriptionName: zod.array(clientTextType),
-  identifiedDisplayName: zod.string(),
-  identifiedResourceName: zod.string(),
+  identifiedDisplayName: clientTextType,
+  identifiedResourceName: clientTextType,
   identifiedDescriptionName: zod.array(clientTextType),
   slotCount: zod.number(),
   ClassNum: zod.number(),
