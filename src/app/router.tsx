@@ -76,6 +76,10 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
           }),
         })
       ),
+      itemInfo: route("item-info", {
+        component: lazy(() => import("./pages/AdminItemInfoPage")),
+        options: { title: "Item info", icon: <Article /> },
+      }),
     })
   ),
 }));

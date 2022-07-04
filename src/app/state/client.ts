@@ -34,6 +34,8 @@ export const {
   useSearchItemsQuery,
   useListConfigsQuery,
   useGetConfigQuery,
+  useCountItemInfoQuery,
   useUpdateConfigMutation,
+  useUpdateItemInfoMutation,
   useLoginMutation,
 } = client;
