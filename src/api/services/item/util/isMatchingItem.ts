@@ -11,7 +11,9 @@ import { clientTextToString } from "../../../common/clientTextType";
 export function isMatchingItem(item: Item, filter: ItemFilter): boolean {
   return (
     isRefMatch(filter.id, item.Id) &&
-    isStringMatch(filter.name, item.Name) &&
+    (isStringMatch(filter.name, item.Name) ||
+      isStringMatch(filter.name, item.AegisName) ||
+      isStringMatch(filter.name, item.AliasName)) &&
     isMatchingDescription(filter.description, item.Info) &&
     isArrayMatch(filter.types, item.Type) &&
     isArrayMatch(filter.subTypes, item.SubType) &&
