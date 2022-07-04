@@ -1,6 +1,7 @@
 import * as zod from "zod";
 import { toggleNameType, toggleRecordType } from "../../util/matchers";
-import { itemScriptType } from "./util/ItemScript";
+import { clientTextType } from "../../common/clientTextType";
+import { itemScriptType } from "./util/itemScriptType";
 
 export type Item = zod.infer<typeof itemType>;
 
@@ -11,10 +12,10 @@ export type ItemInfo = zod.infer<typeof itemInfoType>;
 export const itemInfoType = zod.object({
   unidentifiedDisplayName: zod.string(),
   unidentifiedResourceName: zod.string(),
-  unidentifiedDescriptionName: zod.array(zod.string()),
+  unidentifiedDescriptionName: zod.array(clientTextType),
   identifiedDisplayName: zod.string(),
   identifiedResourceName: zod.string(),
-  identifiedDescriptionName: zod.array(zod.string()),
+  identifiedDescriptionName: zod.array(clientTextType),
   slotCount: zod.number(),
   ClassNum: zod.number(),
   costume: zod.boolean().optional(),

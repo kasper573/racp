@@ -1,6 +1,7 @@
 import * as zod from "zod";
 import { ParseInput, ParseReturnType, ZodType } from "zod";
 import { dedupe } from "../../../util/dedupe";
+import { chainParse } from "../../../../lib/zod/chainParse";
 
 const parsedItemScript = zod.object({
   raw: zod.string(),
@@ -14,22 +15,25 @@ const parsedItemScript = zod.object({
 export type ItemScript = zod.infer<typeof parsedItemScript>;
 
 export class ZodItemScript extends ZodType<ItemScript> {
-  _parse(input: ParseInput): ParseReturnType<ItemScript> {
-    if (typeof input.data === "object") {
-      return parsedItemScript._parse(input.data);
+  _parse = (input: ParseInput): ParseReturnType<ItemScript> => {
+    if (typeof input.data === "string") {
+      return { status: "valid", value: parse(input.data) };
     }
-    return {
-      status: "valid",
-      value: {
-        raw: String(input.data),
-        meta: {
-          elements: dedupe(extract(input.data, "Ele_(\\w+)")),
-          statuses: dedupe(extract(input.data, "Eff_(\\w+)")),
-          races: dedupe(extract(input.data, "RC_(\\w+)")),
-        },
-      },
-    };
-  }
+    return chainParse(parsedItemScript, this, input);
+  };
+}
+
+export const itemScriptType = new ZodItemScript({});
+
+function parse(str: string) {
+  return {
+    raw: str,
+    meta: {
+      elements: dedupe(extract(str, "Ele_(\\w+)")),
+      statuses: dedupe(extract(str, "Eff_(\\w+)")),
+      races: dedupe(extract(str, "RC_(\\w+)")),
+    },
+  };
 }
 
 function extract(str: string, expStr: string) {
@@ -41,5 +45,3 @@ function extract(str: string, expStr: string) {
   }
   return values;
 }
-
-export const itemScriptType = new ZodItemScript({});
