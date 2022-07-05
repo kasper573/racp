@@ -42,7 +42,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
 
   useEffect(() => {
     if (pageIndex >= pageCount) {
-      setPageIndex(pageCount - 1);
+      setPageIndex(Math.max(0, pageCount - 1));
     }
   }, [pageIndex, pageCount]);
 
