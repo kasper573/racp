@@ -2,7 +2,7 @@ export function findNode<Node extends GraphNode>(
   root: Node | undefined,
   isMatch: (candidate: Node) => boolean | undefined | null
 ) {
-  return filterTree(root, (node, breakFn) => {
+  return filterGraph(root, (node, breakFn) => {
     const success = isMatch(node);
     if (success) {
       breakFn();
@@ -11,7 +11,7 @@ export function findNode<Node extends GraphNode>(
   });
 }
 
-export function filterTree<Node extends GraphNode>(
+export function filterGraph<Node extends GraphNode>(
   node: Node | undefined,
   isMatch: (candidate: Node, breakFn: () => void) => boolean | undefined | null
 ) {
