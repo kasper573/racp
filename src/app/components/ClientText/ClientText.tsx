@@ -35,9 +35,7 @@ function ClientTextImpl({ text }: { text: ClientTextNode }) {
     <Tag node={text}>
       {text.content}
       {text.children?.map((child, index) => (
-        <Fragment key={index}>
-          <ClientText text={child} />
-        </Fragment>
+        <ClientTextImpl key={index} text={child} />
       ))}
     </Tag>
   );
