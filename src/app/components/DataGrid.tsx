@@ -1,5 +1,5 @@
 import { Box, Pagination, styled, Typography } from "@mui/material";
-import { ComponentProps, useState } from "react";
+import { ComponentProps, useEffect, useState } from "react";
 import { DataGrid as MuiDataGrid, GridColumns } from "@mui/x-data-grid";
 import { GridRowId } from "@mui/x-data-grid/models/gridRows";
 import { GridRenderCellParams } from "@mui/x-data-grid/models/params/gridCellParams";
@@ -37,8 +37,14 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
     offset: pageIndex * pageSize,
     limit: pageSize,
   });
-  const pageCount = Math.floor((result?.total ?? 0) / pageSize);
+  const pageCount = Math.ceil((result?.total ?? 0) / pageSize);
   const columnList = processColumnConvention({ columns, id, link });
+
+  useEffect(() => {
+    if (pageIndex >= pageCount) {
+      setPageIndex(pageCount - 1);
+    }
+  }, [pageIndex, pageCount]);
 
   return (
     <Box
@@ -57,7 +63,6 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
           autoPageSize={true}
           page={pageIndex}
           pageSize={pageSize}
-          onPageChange={setPageIndex}
           onPageSizeChange={setPageSize}
           hideFooter
           onSortModelChange={
