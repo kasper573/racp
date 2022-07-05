@@ -4473,7 +4473,7 @@ human-signals@^2.1.0:
   resolved "https://registry.yarnpkg.com/human-signals/-/human-signals-2.1.0.tgz#dc91fcba42e4d06e4abaed33b3e7a3c02f514ea0"
   integrity sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==
 
-iconv-lite@0.4.24:
+iconv-lite@0.4.24, iconv-lite@^0.4.4:
   version "0.4.24"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.24.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"
   integrity sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==
@@ -4730,6 +4730,51 @@ isexe@^2.0.0:
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
   integrity sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==
 
+iso-8859-15@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/iso-8859-15/-/iso-8859-15-0.1.2.tgz#28d1a5cd2a7a39030597ddfb1cb899793842573b"
+  integrity sha512-yVBeEJCnjNplRZS7zMEClE2THk57zvocFQ+DsxyutCXijFYigDUGr1psSo69rU83Qq5CwBcO6dqOM8enCbSKkg==
+
+iso-8859-2@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/iso-8859-2/-/iso-8859-2-0.1.2.tgz#550b4c0f292e7ebc8733a76ffd2e69908c7becfe"
+  integrity sha512-tVp9GhPRMBdPHVwWzPl5heWk8EY0ChVUu7Wdkdw+EuQhGh1Q6FWZ1bGsYyQSO1ZOasWvdQVdcM5k31KJnt9kBQ==
+
+iso-8859-3@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/iso-8859-3/-/iso-8859-3-0.1.2.tgz#3de4feb6bd5f66396523e6922c57d218a5c97764"
+  integrity sha512-vmfNH3hktlbAvDZth2HPWYnK4R5U5/6YYnM5qlnkN7CLNZVqimOWJhGJLCG+pEgtIk9upzE9QeKGwoIohXL9Aw==
+
+iso-8859-4@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/iso-8859-4/-/iso-8859-4-0.1.2.tgz#6ccdc4fd446ad9fd2e0cf3174e7bbd1f585ac3e6"
+  integrity sha512-5zsCLvemq1vrRkDKk6SK0PJiTG517RueqdHB4nxH/tTijtOeZxkUyotDtveADZXYUM+pZSnRR3A0s7LgI2uYYQ==
+
+iso-8859-5@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/iso-8859-5/-/iso-8859-5-0.1.2.tgz#a189088885e0b405d8801f6d6e42c3fe0c43bcab"
+  integrity sha512-Fd3oGABHxcInAPJhf2lBGJftXMTGPLYbr5jY8ql2HLPV+nrNLcizYUbw02dn7rE02KDe5+EfyykJw6Zpv/3ebQ==
+
+iso-8859-6@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/iso-8859-6/-/iso-8859-6-0.1.2.tgz#610c040e5c5f0972730aa2f82b28e5e7874d5661"
+  integrity sha512-eIGTMyBLlSsDLsig0RccPlyyn2ofwlUcMzgFIcIvElIRLl2srCWLKqXwb77lrdXRO8zB5uu4e59vOhyDJ2y29w==
+
+iso-8859-7@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/iso-8859-7/-/iso-8859-7-0.1.2.tgz#4e5afae27ef5e88e1d5e6ce2315b299260d7b999"
+  integrity sha512-hiqEj9lFhlRwdWNXHjCkbMFvOEmX+BvitOyiSPPvlTlMQ5yaKOefnj/nAYqQyUlLfUizZPOW0ag7ynJGRr7toQ==
+
+iso-8859-8-i@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/iso-8859-8-i/-/iso-8859-8-i-0.1.2.tgz#700957e7b7c42ba8b546bb876db8759d00f2195c"
+  integrity sha512-Wo1dlXoQtu9pk9KGomdT+RteUlcar0OTmEKYKFChZVVXA7ouXtQplhDkIOmmOs2eOHbpJu962+HqlcKG0WKTmA==
+
+iso-8859-8@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/iso-8859-8/-/iso-8859-8-0.1.2.tgz#354bd97c0a6de3f9f2ed0d31efb38d42bfa0bce5"
+  integrity sha512-ssefagpYTjZKcWJwC0lNiosKfCacB3ZWv0ani7rVMnjB/nFghk8eXvBhKO0RdY4/dfuaIZOXzswKCepe+Z7oAA==
+
 isobject@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
@@ -4776,6 +4821,11 @@ istanbul-reports@^3.1.3:
   dependencies:
     html-escaper "^2.0.0"
     istanbul-lib-report "^3.0.0"
+
+jconv@^0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/jconv/-/jconv-0.1.5.tgz#c650edba4cc2ce6dd292bf3910b123433c4b47f5"
+  integrity sha512-aH8BnQa8SakaT2Wq+tfbu1cRBE6aMwnDqb2AP/jegh69Lg1WIBVRmwPdb4YErYyPHP7iQhuZ5rnPWBX8DcnRSg==
 
 jest-changed-files@^28.0.2:
   version "28.0.2"
@@ -5331,6 +5381,11 @@ knex@^2.1.0:
     tarn "^3.0.2"
     tildify "2.0.0"
 
+koi8-r@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/koi8-r/-/koi8-r-0.1.2.tgz#a5cd9ddc8555dcd600735b6890f2d3d86954e7e8"
+  integrity sha512-6/PxYCL4ot7cgDbgXQGKFpKYqLPzm8TvZV2kVtHwdY4AWdiiLwnwpTu56ZRZ7t/PTHw/VlNxJVp+awsgcGMsIw==
+
 language-subtag-registry@~0.3.2:
   version "0.3.21"
   resolved "https://registry.yarnpkg.com/language-subtag-registry/-/language-subtag-registry-0.3.21.tgz#04ac218bea46f04cb039084602c6da9e788dd45a"
@@ -5342,6 +5397,36 @@ language-tags@^1.0.5:
   integrity sha512-qJhlO9cGXi6hBGKoxEG/sKZDAHD5Hnu9Hs4WbOY3pCWXDhw0N8x1NenNzm2EnNLkLkk7J2SdxAkDSbb6ftT+UQ==
   dependencies:
     language-subtag-registry "~0.3.2"
+
+legacy-encoding@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/legacy-encoding/-/legacy-encoding-3.0.0.tgz#a13bd39fd9176572e14536d315dfca8ea380d8e1"
+  integrity sha512-qUVsu/aaZl+RIAUVeazsFljyD/3XD7oOq/l1XPcZ5xpp++MnxR7W2oaXrH+jwnAXqCEpsI9ovXXqwmrGDMO2gQ==
+  dependencies:
+    iconv-lite "^0.4.4"
+    iso-8859-15 "^0.1.2"
+    iso-8859-2 "^0.1.2"
+    iso-8859-3 "^0.1.2"
+    iso-8859-4 "^0.1.2"
+    iso-8859-5 "^0.1.2"
+    iso-8859-6 "^0.1.2"
+    iso-8859-7 "^0.1.2"
+    iso-8859-8 "^0.1.2"
+    iso-8859-8-i "^0.1.2"
+    jconv "^0.1.5"
+    koi8-r "^0.1.2"
+    macintosh "^0.1.2"
+    windows-1250 "^0.1.2"
+    windows-1251 "^0.1.2"
+    windows-1252 "^0.1.2"
+    windows-1253 "^0.1.2"
+    windows-1254 "^0.1.2"
+    windows-1255 "^0.1.2"
+    windows-1256 "^0.1.2"
+    windows-1257 "^0.1.2"
+    windows-1258 "^0.1.2"
+    windows-874 "^0.1.2"
+    x-mac-cyrillic "^0.1.2"
 
 leven@^3.1.0:
   version "3.1.0"
@@ -5477,6 +5562,11 @@ luaparse@^0.3.1:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/luaparse/-/luaparse-0.3.1.tgz#0899fe5ff5ad3ccd3166632027d150b91291b330"
   integrity sha512-b21h2bFEbtGXmVqguHogbyrMAA0wOHyp9u/rx+w6Yc9pW1t9YjhGUsp87lYcp7pFRqSWN/PhFkrdIqKEUzRjjQ==
+
+macintosh@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/macintosh/-/macintosh-0.1.2.tgz#82ef4a5128f1aa51f623aa5545c24946076ac9bb"
+  integrity sha512-sMrD4F3qNiMGkYWI3jg8kscXM93K1SWIMilYBtX28cevbahFdLUpIOsu0mAG8st72EQitWbjTCdOnHYM+AV21A==
 
 make-dir@^3.0.0:
   version "3.1.0"
@@ -7479,6 +7569,56 @@ wildcard@^2.0.0:
   resolved "https://registry.yarnpkg.com/wildcard/-/wildcard-2.0.0.tgz#a77d20e5200c6faaac979e4b3aadc7b3dd7f8fec"
   integrity sha512-JcKqAHLPxcdb9KM49dufGXn2x3ssnfjbcaQdLlfZsL9rH9wgDQjUtDxbo8NE0F6SFvydeu1VhZe7hZuHsB2/pw==
 
+windows-1250@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/windows-1250/-/windows-1250-0.1.2.tgz#c37b9a073e405bcf42081d36baaf2fde773b99cc"
+  integrity sha512-6Jl0GTM0jTNrX2zIMvHtXm8XN8Ga9x1iDsEWGmPMT2qQlBJmzLlYCmg2oDTsW41BkzTSwQNvSSzmtKJrNBreaQ==
+
+windows-1251@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/windows-1251/-/windows-1251-0.1.2.tgz#4881d8f9053d0eb7b5fa5d34f0f94d60de43c2d3"
+  integrity sha512-vRE97IjXMzcWZVaX60vRDAKY9RNipoWAY6ZO+cJYSrPcE3Ek1PUe3QeK3nOzkcrvP3Q9L0LplJieZbUtGin7FQ==
+
+windows-1252@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/windows-1252/-/windows-1252-0.1.2.tgz#662b7531e75edd945c2dbcba2bf799c170b8c816"
+  integrity sha512-7NVdtSZYjOZBzYj3n1fO3gKCjwcMQcY3P4DaidThJWLqUCu8pjghkKxETvW7xj2nqnESPBAJpjdTUVPHiR275w==
+
+windows-1253@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/windows-1253/-/windows-1253-0.1.2.tgz#cfa0225b7ddd66a8f4038dea6e938945730f9251"
+  integrity sha512-UjfUOBnCUUJTOGABbTvjHQjXH0WrsYO58d0WMHq8CS8dgIZyx7JzVf868il0JeYddIsbfE2Xie+pRWbx2iPCTw==
+
+windows-1254@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/windows-1254/-/windows-1254-0.1.2.tgz#ad77907c5ee4ec51afa64a45caa245ec2d538b83"
+  integrity sha512-sEMfsrJ8b9vuJT2iVkELYEaBjljM1J2nTbFqQueHQuiZBQeqVx1J7fcoFHWxFbfud4I7zt4JzflBQE06WOEKDg==
+
+windows-1255@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/windows-1255/-/windows-1255-0.1.2.tgz#1d2082cab881755fa322bec42f3f626918cca521"
+  integrity sha512-kiLa+s+ar63L+L34kIwIaCia+Blp+p31hehCoV2LqV5GjsyPq6SxdlQRIvLlflYMrQKi7F5El5d56DmfIsqT4g==
+
+windows-1256@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/windows-1256/-/windows-1256-0.1.2.tgz#9b09574698a412741f4b356c2450a8ff92a90c92"
+  integrity sha512-Sct1HJygOcar0+OujM3nootlbIsajAEP/H1V3mDvatI3ISpY0+ixZAKWtso4cDxlMT9YPvz7j1SlebG+fNi+/g==
+
+windows-1257@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/windows-1257/-/windows-1257-0.1.2.tgz#8b4c44eeb0e971bb7340fbf4f9e674e860cbb666"
+  integrity sha512-tMhiawyN0PIqOqOvLEZl2u9CFIx0YmR92Af+RSdchIxZAn6isdTUvEQ1PGFwMqX9+SV2KDi1pfJvF7N0r1aQLA==
+
+windows-1258@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/windows-1258/-/windows-1258-0.1.2.tgz#30233deaabda11849424693338856b9552de560e"
+  integrity sha512-1kwBYJdRL+Yww/ezzIxhOuE6XN/eIR4hizYh3qhKiJUnH9GU8Pd2aOPsUD8JDXhD/gppe66dsNGzZJT3Fs9nFA==
+
+windows-874@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/windows-874/-/windows-874-0.1.2.tgz#77223b3ed69b75de9886dcfa2bbdd523a7dca277"
+  integrity sha512-cHU69qxjTRKui/bm2j1OyUA3uSDISLhfvNAkIbpiKVMwwlt3b7vQFljBRoLTjxXX0XqDocbLfLMbey8OVVBeAA==
+
 word-wrap@^1.2.3:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/word-wrap/-/word-wrap-1.2.3.tgz#610636f6b1f703891bd34771ccb17fb93b47079c"
@@ -7515,6 +7655,11 @@ ws@^8.4.2:
   version "8.8.0"
   resolved "https://registry.yarnpkg.com/ws/-/ws-8.8.0.tgz#8e71c75e2f6348dbf8d78005107297056cb77769"
   integrity sha512-JDAgSYQ1ksuwqfChJusw1LSJ8BizJ2e/vVu5Lxjq3YvNJNlROv1ui4i+c/kUUrPheBvQl4c5UbERhTwKa6QBJQ==
+
+x-mac-cyrillic@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/x-mac-cyrillic/-/x-mac-cyrillic-0.1.2.tgz#76930fc375754929b10a498e345137f94b747b3c"
+  integrity sha512-w9iiCq1RmIVGadAlCCsnjsM7etmvRonTuHqW0n7Kx+i5gY+UnI8/pbhM0iulluHR6ktiMub8L1509/cJuuogNg==
 
 xtend@^4.0.0:
   version "4.0.2"

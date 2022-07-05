@@ -49,6 +49,7 @@
     "jest": "^28.1.0",
     "jsonwebtoken": "^8.5.1",
     "knex": "^2.1.0",
+    "legacy-encoding": "^3.0.0",
     "luaparse": "^0.3.1",
     "mysql": "^2.18.1",
     "prettier": "^2.6.2",
