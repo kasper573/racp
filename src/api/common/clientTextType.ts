@@ -124,7 +124,7 @@ const entities = {
   },
 };
 
-export function clientTextContent(node?: ClientTextNode) {
+export function clientTextContent(node?: ClientTextNode | ClientTextNode[]) {
   return node
     ? reduceGraph(node, (str, n) => `${str}${n.content ?? ""}`, "")
     : undefined;
