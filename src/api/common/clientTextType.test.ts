@@ -1,49 +1,63 @@
-import {
-  ClientTextData,
-  clientTextToString,
-  clientTextType,
-} from "./clientTextType";
+import { range } from "lodash";
+import { ClientTextNode, clientTextType } from "./clientTextType";
 
 describe("clientTextType", () => {
   it("can parse normal strings", () => {
-    expect(clientTextType.parse("normal string")).toEqual([
-      { text: "normal string" },
-    ]);
+    expect(clientTextType.parse("normal string")).toEqual({
+      content: "normal string",
+    });
   });
 
   it("can parse normal quoted strings", () => {
-    expect(clientTextType.parse(`"normal quoted string"`)).toEqual([
-      { text: "normal quoted string" },
-    ]);
+    expect(clientTextType.parse(`"normal quoted string"`)).toEqual({
+      content: "normal quoted string",
+    });
   });
 
-  it("invalid hex-like strings are ignored", () => {
-    expect(clientTextType.parse(`"^0000 quoted string"`)).toEqual([
-      { text: "^0000 quoted string" },
-    ]);
+  it("numbers remain strings", () => {
+    expect(clientTextType.parse(`<Tag>123</Tag>`)).toEqual({
+      children: [{ tag: "Tag", content: "123" }],
+    });
   });
 
-  it("can parse quoted colored strings", () => {
+  it("can parse alphabet and common symbols", () => {
+    const str = String.fromCharCode(...range(32, 127)).replace(/[<>]/g, "");
+    expect(clientTextType.parse(`<Tag>${str}</Tag>`)).toEqual({
+      children: [{ tag: "Tag", content: str }],
+    });
+  });
+
+  it("can parse tagged strings", () => {
+    expect(
+      clientTextType.parse(
+        `"start <First>foo</First> <Empty></Empty> <Second>bar</Second> end"`
+      )
+    ).toEqual({
+      children: [
+        { content: "start " },
+        { tag: "First", content: "foo" },
+        { content: " " },
+        { tag: "Empty" },
+        { content: " " },
+        { tag: "Second", content: "bar" },
+        { content: " end" },
+      ],
+    });
+  });
+
+  it("can ignore color values", () => {
     expect(
       clientTextType.parse(`"colored ^0000CCquoted ^FF00FFstring"`)
-    ).toEqual([
-      { text: "colored " },
-      { text: "quoted ", color: "0000CC" },
-      { text: "string", color: "FF00FF" },
-    ]);
-  });
-
-  it("can normalize text data to string", () => {
-    expect(
-      clientTextToString(clientTextType.parse(`"foo ^0000CCbar ^FF00FFbaz"`))
-    ).toEqual("foo bar baz");
+    ).toEqual({
+      content: "colored quoted string",
+    });
   });
 
   it("can parse its own output", () => {
-    const data: ClientTextData = [
-      { text: "foo" },
-      { text: "bar", color: "0000CC" },
-    ];
+    const data: ClientTextNode = {
+      content: "foo",
+      children: [{ tag: "bar", content: "baz" }],
+    };
     expect(clientTextType.parse(data)).toEqual(data);
   });
 });

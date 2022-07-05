@@ -6,7 +6,7 @@ import {
   isStringMatch,
   isToggleMatch,
 } from "../../../util/matchers";
-import { clientTextToString } from "../../../common/clientTextType";
+import { findClientTextNode } from "../../../common/clientTextType";
 
 export function isMatchingItem(item: Item, filter: ItemFilter): boolean {
   return (
@@ -36,9 +36,10 @@ function isMatchingDescription(description?: string, info?: ItemInfo) {
   if (!info) {
     return false;
   }
-  return info.identifiedDescriptionName
-    .map(clientTextToString)
-    .join("\n")
-    .toLowerCase()
-    .includes(description.toLowerCase());
+  const lcDesc = description.toLowerCase();
+  return !!info.identifiedDescriptionName.find((text) =>
+    findClientTextNode(text, (node) =>
+      node.content?.toLowerCase().includes(lcDesc)
+    )
+  );
 }

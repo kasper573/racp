@@ -1,11 +1,10 @@
 import { useRouteParams } from "react-typesafe-routes";
 import { ReactElement } from "react";
-import { Typography } from "@mui/material";
 import { Header } from "../layout/Header";
 import { useGetItemQuery } from "../state/client";
 import { router } from "../router";
-import { clientTextToString } from "../../api/common/clientTextType";
 import { TooltipText } from "../components/TooltipText";
+import { ClientTextBlock } from "../components/ClientText";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ItemSearchPage(): ReactElement {
@@ -17,7 +16,7 @@ export default function ItemSearchPage(): ReactElement {
   if (!item) {
     return <Header>Item not found</Header>;
   }
-  const displayName = clientTextToString(item.Info?.identifiedDisplayName);
+  const displayName = item.Info?.identifiedDisplayName?.content;
   const hasDifferentDisplayName =
     displayName !== undefined && displayName !== item.Name;
   return (
@@ -30,13 +29,11 @@ export default function ItemSearchPage(): ReactElement {
           </TooltipText>
         )}
       </Header>
-      <Typography whiteSpace="pre">
-        {item.Info?.identifiedDescriptionName
-          ? item.Info.identifiedDescriptionName
-              .map(clientTextToString)
-              .join("\n")
-          : "This item has no description"}
-      </Typography>
+      {item.Info?.identifiedDescriptionName ? (
+        <ClientTextBlock lines={item.Info.identifiedDescriptionName} />
+      ) : (
+        "This item has no description"
+      )}
     </>
   );
 }
