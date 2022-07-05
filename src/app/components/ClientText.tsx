@@ -24,10 +24,10 @@ export function ClientTextBlock({
   return (
     <ClientTextRoot {...props}>
       {lines.map((text, index) => (
-        <>
-          <ClientTextImpl key={index} text={text} />
+        <Fragment key={index}>
+          <ClientTextImpl text={text} />
           {index !== lastIndex ? "\n" : undefined}
-        </>
+        </Fragment>
       ))}
     </ClientTextRoot>
   );
