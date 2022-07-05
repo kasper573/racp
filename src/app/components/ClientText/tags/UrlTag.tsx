@@ -1,18 +1,12 @@
 import { ClientTextTag } from "../ClientTextTag";
 import { LinkBase } from "../../Link";
+import { useNodeInfo } from "../useNodeInfo";
 
-export const UrlTag: ClientTextTag = ({ children, node }) => {
-  const info = node.children?.find((n) => n.tag === "INFO");
-  const other = node.children?.filter((n) => n.tag !== "INFO");
-
-  if (info?.content) {
-    return (
-      <LinkBase href={info?.content}>
-        {node.content}
-        {other?.map((o) => o.content).join("")}
-      </LinkBase>
-    );
-  }
-
-  return <>{children}</>;
+export const UrlTag: ClientTextTag = ({ node }) => {
+  const { info, content } = useNodeInfo(node);
+  return (
+    <LinkBase href={info[0]?.content ?? "#info-missing"} target="_blank">
+      {content}
+    </LinkBase>
+  );
 };

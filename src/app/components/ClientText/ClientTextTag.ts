@@ -1,7 +1,6 @@
-import { ComponentType, ReactNode } from "react";
+import { ComponentType } from "react";
 import { ClientTextNode } from "../../../api/common/clientTextType";
 
 export type ClientTextTag = ComponentType<{
-  children?: ReactNode;
   node: ClientTextNode;
 }>;

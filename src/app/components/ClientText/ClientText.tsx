@@ -2,7 +2,6 @@ import { styled } from "@mui/material";
 import { ComponentProps, Fragment, useMemo } from "react";
 import { ClientTextNode } from "../../../api/common/clientTextType";
 import tagComponentLookup from "./tags";
-import { ClientTextTag } from "./ClientTextTag";
 
 export function ClientText({
   text,
@@ -29,20 +28,21 @@ export function ClientTextBlock({
   );
 }
 
-function ClientTextImpl({ text }: { text: ClientTextNode }) {
-  const Tag = text.tag ? tagComponentLookup[text.tag] ?? NoTag : NoTag;
-  return (
-    <Tag node={text}>
-      {text.content}
-      {text.children?.map((child, index) => (
-        <ClientTextImpl key={index} text={child} />
-      ))}
-    </Tag>
-  );
-}
-
 const ClientTextRoot = styled("span")`
   white-space: pre-line;
 `;
 
-const NoTag: ClientTextTag = ({ children }) => <>{children}</>;
+function ClientTextImpl({ text }: { text: ClientTextNode }) {
+  const Tag = text.tag ? tagComponentLookup[text.tag] : undefined;
+  if (Tag) {
+    return <Tag node={text} />;
+  }
+  return (
+    <>
+      {text.content}
+      {text.children?.map((child, index) => (
+        <ClientTextImpl key={index} text={child} />
+      ))}
+    </>
+  );
+}
