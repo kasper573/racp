@@ -107,8 +107,8 @@ function isSingleOnlyText(node: ClientTextNode[]): boolean {
 // But in our final data structure we don't want entities, so we decode them back in the end.
 const entities = {
   swaps: Object.entries({
-    "&": "amp",
-    "=": "eq",
+    "&": "&amp;",
+    "=": "&eq;",
   }),
   encode(str: string) {
     return entities.swaps.reduce(
