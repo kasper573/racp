@@ -6,6 +6,7 @@ import ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin
 import ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 import HtmlWebpackPlugin = require("html-webpack-plugin");
 import { load as loadEnv } from "ts-dotenv";
+import { omit } from "lodash";
 import { rootId } from "./src/app/layout/globalStyles";
 
 const env = loadEnv({
@@ -28,7 +29,7 @@ const config: webpack.Configuration = {
   devtool: isDevBuild ? "source-map" : undefined,
   mode: isDevBuild ? "development" : "production",
   plugins: defined([
-    new webpack.EnvironmentPlugin(env),
+    new webpack.EnvironmentPlugin(omit(env, "reactRefresh")),
     new HtmlWebpackPlugin({
       favicon: path.resolve(appDirectory, "favicon.png"),
       template: path.resolve(appDirectory, "index.html"),
