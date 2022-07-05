@@ -11,6 +11,8 @@ import { ComponentProps, forwardRef } from "react";
 type RouterLinkProps = ComponentProps<typeof RTRLink>;
 export type AdditionalLinkProps = Pick<RouterLinkProps, "to">;
 
+export const LinkBase = MuiLink;
+
 const LinkBehavior = forwardRef<HTMLAnchorElement, RouterLinkProps>(
   function Link({ to, ...props }, ref) {
     return <RouterLink ref={ref} to={to.$} {...props} role={undefined} />;
@@ -18,9 +20,9 @@ const LinkBehavior = forwardRef<HTMLAnchorElement, RouterLinkProps>(
 );
 
 export function Link(
-  props: ComponentProps<typeof MuiLink> & AdditionalLinkProps
+  props: ComponentProps<typeof LinkBase> & AdditionalLinkProps
 ) {
-  return <MuiLink component={LinkBehavior} {...props} />;
+  return <LinkBase component={LinkBehavior} {...props} />;
 }
 
 export function LinkButton(
