@@ -10,7 +10,7 @@ export default function ItemSearchPage() {
   const [filter, setFilter] = useState<ItemFilter>({});
   return (
     <>
-      <Header>Item Search</Header>
+      <Header>Items</Header>
       <ItemSearchFilterForm value={filter} onChange={setFilter} />
       <DataGrid<Item, ItemFilter, Item["Id"]>
         filter={filter}
