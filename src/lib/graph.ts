@@ -1,14 +1,14 @@
 export function findNode<Node extends GraphNode>(
   root: Node | undefined,
   isMatch: (candidate: Node) => boolean | undefined | null
-) {
+): Node | undefined {
   return filterGraph(root, (node, breakFn) => {
     const success = isMatch(node);
     if (success) {
       breakFn();
     }
     return success;
-  });
+  })[0];
 }
 
 export function filterGraph<Node extends GraphNode>(
