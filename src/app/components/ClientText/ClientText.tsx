@@ -1,4 +1,4 @@
-import { styled } from "@mui/material";
+import { Divider, styled } from "@mui/material";
 import { ComponentProps, Fragment, useMemo } from "react";
 import { ClientTextNode } from "../../../api/common/clientTextType";
 import tagComponentLookup from "./tags";
@@ -39,10 +39,25 @@ function ClientTextImpl({ text }: { text: ClientTextNode }) {
   }
   return (
     <>
-      {text.content}
+      {transformTextContent(text.content)}
       {text.children?.map((child, index) => (
         <ClientTextImpl key={index} text={child} />
       ))}
     </>
   );
 }
+
+function transformTextContent(content?: string) {
+  if (content === undefined) {
+    return;
+  }
+  if (/^_+$/.test(content)) {
+    return <TextDivider />;
+  }
+  return content;
+}
+
+const TextDivider = styled(Divider)`
+  position: relative;
+  top: 10px;
+`;
