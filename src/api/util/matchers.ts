@@ -9,6 +9,13 @@ export const toggleRecordType = zod
   .record(toggleNameType, zod.boolean())
   .default({});
 
+export function resolveToggles(record: ToggleRecord = {}): ToggleName[] {
+  return Object.entries(record).reduce(
+    (names, [name, on]) => (on ? [...names, name] : names),
+    [] as ToggleName[]
+  );
+}
+
 export function isToggleMatch(req?: ToggleName[], val?: ToggleRecord) {
   if (req === undefined) {
     return true;
