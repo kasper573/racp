@@ -2,11 +2,12 @@ import "dotenv-flow/config";
 import "webpack-dev-server";
 import * as path from "path";
 import * as webpack from "webpack";
+import { load as loadEnv } from "ts-dotenv";
+import { omit } from "lodash";
 import ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 import ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 import HtmlWebpackPlugin = require("html-webpack-plugin");
-import { load as loadEnv } from "ts-dotenv";
-import { omit } from "lodash";
+import { defined } from "./src/lib/defined";
 import { rootId } from "./src/app/layout/globalStyles";
 
 const env = loadEnv({
@@ -76,9 +77,3 @@ const config: webpack.Configuration = {
 };
 
 export default config;
-
-function defined<T>(items: Array<T>) {
-  return items.filter(Boolean) as Array<Exclude<T, Falsy>>;
-}
-
-type Falsy = undefined | null | boolean;
