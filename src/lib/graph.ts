@@ -38,6 +38,27 @@ export function filterGraph<Node extends GraphNode>(
   return matches;
 }
 
+export function reduceGraph<Node extends GraphNode, Value>(
+  node: Node[] | Node | undefined,
+  reduce: (value: Value, candidate: Node) => Value,
+  startValue: Value
+) {
+  if (!node) {
+    return startValue;
+  }
+  let value: Value = startValue;
+  const queue = Array.isArray(node) ? node.slice() : [node];
+  while (queue.length) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const next = queue.shift()!;
+    if (next.children) {
+      queue.push(...next.children);
+    }
+    value = reduce(value, next);
+  }
+  return value;
+}
+
 export interface GraphNode {
   children?: this[];
 }
