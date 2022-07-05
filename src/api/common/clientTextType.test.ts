@@ -1,5 +1,9 @@
 import { range } from "lodash";
-import { ClientTextNode, clientTextType } from "./clientTextType";
+import {
+  clientTextContent,
+  ClientTextNode,
+  clientTextType,
+} from "./clientTextType";
 
 describe("clientTextType", () => {
   it("can parse normal strings", () => {
@@ -43,6 +47,16 @@ describe("clientTextType", () => {
         { content: " end" },
       ],
     });
+  });
+
+  it("can get text content", () => {
+    expect(
+      clientTextContent(
+        clientTextType.parse(
+          `"start <Start>foo</Start> <Middle>1<Inner> bar </Inner>2</Middle> <End>baz</End> end"`
+        )
+      )
+    ).toEqual("start foo 1 bar 2 baz end");
   });
 
   it("can ignore color values", () => {

@@ -7,13 +7,22 @@ import {
   isToggleMatch,
 } from "../../../util/matchers";
 import { findNode } from "../../../../lib/graph";
+import { clientTextContent } from "../../../common/clientTextType";
 
 export function isMatchingItem(item: Item, filter: ItemFilter): boolean {
+  const names: Array<string | undefined> = [
+    item.Name,
+    item.AegisName,
+    item.AliasName,
+    clientTextContent(item.Info?.identifiedDisplayName),
+    clientTextContent(item.Info?.identifiedResourceName),
+    clientTextContent(item.Info?.unidentifiedDisplayName),
+    clientTextContent(item.Info?.unidentifiedResourceName),
+  ];
+
   return (
     isRefMatch(filter.id, item.Id) &&
-    (isStringMatch(filter.name, item.Name) ||
-      isStringMatch(filter.name, item.AegisName) ||
-      isStringMatch(filter.name, item.AliasName)) &&
+    names.some((name) => isStringMatch(filter.name, name)) &&
     isMatchingDescription(filter.description, item.Info) &&
     isArrayMatch(filter.types, item.Type) &&
     isArrayMatch(filter.subTypes, item.SubType) &&

@@ -5,13 +5,17 @@ import { useNodeInfo } from "../useNodeInfo";
 import { useSearchItemsQuery } from "../../../state/client";
 
 export const ItemTag: ClientTextTag = ({ node }) => {
-  const { info, content } = useNodeInfo(node);
+  const { content } = useNodeInfo(node);
 
   // Assume tag content is an item name
-  const name = info[0]?.content;
   const { data } = useSearchItemsQuery(
-    { filter: { name }, limit: 1 },
-    { skip: !name }
+    {
+      filter: {
+        name: { arg: content, caseSensitive: false, matcher: "equals" },
+      },
+      limit: 1,
+    },
+    { skip: !content }
   );
 
   // Link to item if one was found

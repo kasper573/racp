@@ -52,7 +52,7 @@ export function reduceGraph<Node extends GraphNode, Value>(
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const next = queue.shift()!;
     if (next.children) {
-      queue.push(...next.children);
+      queue.unshift(...next.children);
     }
     value = reduce(value, next);
   }

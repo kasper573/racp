@@ -1,5 +1,9 @@
 import * as zod from "zod";
-import { toggleNameType, toggleRecordType } from "../../util/matchers";
+import {
+  stringFilterType,
+  toggleNameType,
+  toggleRecordType,
+} from "../../util/matchers";
 import { clientTextType } from "../../common/clientTextType";
 import { itemScriptType } from "./util/itemScriptType";
 
@@ -122,7 +126,7 @@ export type ItemFilter = zod.infer<typeof itemFilterType>;
 export const itemFilterType = zod
   .object({
     id: itemIdType,
-    name: zod.string(),
+    name: zod.string().or(stringFilterType),
     description: zod.string(),
     script: zod.string(),
     types: zod.array(toggleNameType),

@@ -2,6 +2,7 @@ import * as zod from "zod";
 import { addIssueToContext, ParseInput, ParseReturnType, ZodType } from "zod";
 import { XMLParser } from "fast-xml-parser";
 import { chainParse } from "../../lib/zod/chainParse";
+import { reduceGraph } from "../../lib/graph";
 
 export interface ClientTextNode {
   tag?: string;
@@ -122,3 +123,9 @@ const entities = {
     );
   },
 };
+
+export function clientTextContent(node?: ClientTextNode) {
+  return node
+    ? reduceGraph(node, (str, n) => `${str}${n.content ?? ""}`, "")
+    : undefined;
+}

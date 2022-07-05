@@ -45,14 +45,19 @@ export function isRangeMatch(req?: [number, number], val = 0) {
   return val >= min && val <= max;
 }
 
-export function isStringMatch(req?: string, val?: string) {
-  if (req === undefined) {
+export function isStringMatch(filter?: string | StringFilter, val?: string) {
+  if (typeof filter === "string") {
+    filter = defaultStringFilter(filter);
+  }
+  if (filter === undefined || filter.arg === undefined) {
     return true;
   }
   if (val === undefined) {
-    return req === "";
+    return filter.arg === "";
   }
-  return val.toLowerCase().includes(req.toLowerCase());
+  const a = filter.caseSensitive ? val : val.toLowerCase();
+  const b = filter.caseSensitive ? filter.arg : filter.arg.toLowerCase();
+  return stringMatchers[filter.matcher](a, b);
 }
 
 export function isRefMatch<T>(req?: T, val?: T) {
@@ -61,3 +66,33 @@ export function isRefMatch<T>(req?: T, val?: T) {
   }
   return req === val;
 }
+
+function defaultStringFilter(arg: string): StringFilter {
+  return { caseSensitive: false, matcher: "includes", arg };
+}
+
+const stringMatchers: Record<StringMatcherName, StringMatcherFn> = {
+  includes: (a, b) => a.includes(b),
+  startsWith: (a, b) => a.startsWith(b),
+  endsWith: (a, b) => a.endsWith(b),
+  equals: (a, b) => a === b,
+};
+
+export type StringMatcherFn = (a: string, b: string) => boolean;
+
+export type StringMatcherName = zod.infer<typeof stringMatcherType>;
+
+export const stringMatcherType = zod.union([
+  zod.literal("equals"),
+  zod.literal("startsWith"),
+  zod.literal("endsWith"),
+  zod.literal("includes"),
+]);
+
+export type StringFilter = zod.infer<typeof stringFilterType>;
+
+export const stringFilterType = zod.object({
+  arg: zod.string().optional(),
+  matcher: stringMatcherType,
+  caseSensitive: zod.boolean(),
+});
