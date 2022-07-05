@@ -6,7 +6,7 @@ import {
   isStringMatch,
   isToggleMatch,
 } from "../../../util/matchers";
-import { findClientTextNode } from "../../../common/clientTextType";
+import { findNode } from "../../../../lib/graph";
 
 export function isMatchingItem(item: Item, filter: ItemFilter): boolean {
   return (
@@ -38,8 +38,6 @@ function isMatchingDescription(description?: string, info?: ItemInfo) {
   }
   const lcDesc = description.toLowerCase();
   return !!info.identifiedDescriptionName.find((text) =>
-    findClientTextNode(text, (node) =>
-      node.content?.toLowerCase().includes(lcDesc)
-    )
+    findNode(text, (node) => node.content?.toLowerCase().includes(lcDesc))
   );
 }

@@ -39,23 +39,6 @@ export class ZodClientText extends ZodType<ClientTextNode> {
   };
 }
 
-export function findClientTextNode(
-  node: ClientTextNode,
-  match: (candidate: ClientTextNode) => boolean | undefined | null
-) {
-  const queue = [node];
-  while (queue.length) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const next = queue.shift()!;
-    if (next.children) {
-      queue.push(...next.children);
-    }
-    if (match(next)) {
-      return next;
-    }
-  }
-}
-
 export const clientTextType = new ZodClientText({});
 
 const strayTagRegex = /^([^<>]*)<([^<>]+)>([^<>]*)$/;
