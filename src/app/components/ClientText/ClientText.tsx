@@ -30,10 +30,9 @@ export function ClientTextBlock({
 }
 
 function ClientTextImpl({ text }: { text: ClientTextNode }) {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const Tag: ClientTextTag = tagComponentLookup[text.tag!] ?? Fragment;
+  const Tag = text.tag ? tagComponentLookup[text.tag] ?? NoTag : NoTag;
   return (
-    <Tag>
+    <Tag node={text}>
       {text.content}
       {text.children?.map((child, index) => (
         <Fragment key={index}>
@@ -47,3 +46,5 @@ function ClientTextImpl({ text }: { text: ClientTextNode }) {
 const ClientTextRoot = styled("span")`
   white-space: pre-line;
 `;
+
+const NoTag: ClientTextTag = ({ children }) => <>{children}</>;
