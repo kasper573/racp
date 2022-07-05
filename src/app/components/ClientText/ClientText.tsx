@@ -1,12 +1,8 @@
 import { styled } from "@mui/material";
-import {
-  ComponentProps,
-  ComponentType,
-  createElement,
-  Fragment,
-  useMemo,
-} from "react";
-import { ClientTextNode } from "../../api/common/clientTextType";
+import { ComponentProps, Fragment, useMemo } from "react";
+import { ClientTextNode } from "../../../api/common/clientTextType";
+import tagComponentLookup from "./tags";
+import { ClientTextTag } from "./ClientTextTag";
 
 export function ClientText({
   text,
@@ -34,22 +30,20 @@ export function ClientTextBlock({
 }
 
 function ClientTextImpl({ text }: { text: ClientTextNode }) {
-  const Tag = text.tag ? knownTags[text.tag] : undefined;
-  const content = (
-    <>
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const Tag: ClientTextTag = tagComponentLookup[text.tag!] ?? Fragment;
+  return (
+    <Tag>
       {text.content}
       {text.children?.map((child, index) => (
         <Fragment key={index}>
           <ClientText text={child} />
         </Fragment>
       ))}
-    </>
+    </Tag>
   );
-  return Tag ? createElement(Tag, content) : content;
 }
 
 const ClientTextRoot = styled("span")`
   white-space: pre-line;
 `;
-
-const knownTags: Record<string, ComponentType> = {};

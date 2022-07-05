@@ -4,7 +4,7 @@ import { Header } from "../layout/Header";
 import { useGetItemQuery } from "../state/client";
 import { router } from "../router";
 import { TooltipText } from "../components/TooltipText";
-import { ClientTextBlock } from "../components/ClientText";
+import { ClientTextBlock } from "../components/ClientText/ClientText";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ItemSearchPage(): ReactElement {
