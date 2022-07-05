@@ -1,10 +1,25 @@
 import * as zod from "zod";
 import { toggleNameType, toggleRecordType } from "../../util/matchers";
-import { itemScriptType } from "./util/ItemScript";
+import { clientTextType } from "../../common/clientTextType";
+import { itemScriptType } from "./util/itemScriptType";
 
 export type Item = zod.infer<typeof itemType>;
 
 export const itemIdType = zod.number();
+
+// ItemInfo is a separate type because it's loaded separately from client data
+export type ItemInfo = zod.infer<typeof itemInfoType>;
+export const itemInfoType = zod.object({
+  unidentifiedDisplayName: clientTextType,
+  unidentifiedResourceName: clientTextType,
+  unidentifiedDescriptionName: zod.array(clientTextType),
+  identifiedDisplayName: clientTextType,
+  identifiedResourceName: clientTextType,
+  identifiedDescriptionName: zod.array(clientTextType),
+  slotCount: zod.number(),
+  ClassNum: zod.number(),
+  costume: zod.boolean().optional(),
+});
 
 export const itemType = zod.object({
   Id: zod.number(),
@@ -86,7 +101,10 @@ export const itemType = zod.object({
   Script: itemScriptType.optional(),
   EquipScript: itemScriptType.optional(),
   UnEquipScript: itemScriptType.optional(),
+  Info: itemInfoType.optional(),
 });
+
+export type ItemMeta = zod.infer<typeof itemMetaType>;
 
 export const itemMetaType = zod.object({
   maxSlots: zod.number(),

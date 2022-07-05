@@ -1,6 +1,7 @@
 import { dedupe, dedupeRecordInsert } from "../../../util/dedupe";
 import { select, Selector } from "../../../util/select";
 import { Item } from "../types";
+import { ClientTextNode } from "../../../common/clientTextType";
 
 export function collectItemMeta(items: Item[]) {
   return {
@@ -31,3 +32,6 @@ const options = (items: Item[], selector: Selector<Item, string>) =>
 
 const largestSlot = (largest: number, item: Item) =>
   item.Slots !== undefined && item.Slots > largest ? item.Slots : largest;
+
+const addTag = (tags: Map<string, true>, node: ClientTextNode) =>
+  node.tag ? tags.set(node.tag, true) : tags;

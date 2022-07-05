@@ -1,4 +1,4 @@
-import { Item, ItemFilter } from "../types";
+import { Item, ItemFilter, ItemInfo } from "../types";
 import {
   isArrayMatch,
   isRangeMatch,
@@ -6,11 +6,15 @@ import {
   isStringMatch,
   isToggleMatch,
 } from "../../../util/matchers";
+import { findNode } from "../../../../lib/graph";
 
 export function isMatchingItem(item: Item, filter: ItemFilter): boolean {
   return (
     isRefMatch(filter.id, item.Id) &&
-    isStringMatch(filter.name, item.Name) &&
+    (isStringMatch(filter.name, item.Name) ||
+      isStringMatch(filter.name, item.AegisName) ||
+      isStringMatch(filter.name, item.AliasName)) &&
+    isMatchingDescription(filter.description, item.Info) &&
     isArrayMatch(filter.types, item.Type) &&
     isArrayMatch(filter.subTypes, item.SubType) &&
     isToggleMatch(filter.classes, item.Classes) &&
@@ -22,5 +26,18 @@ export function isMatchingItem(item: Item, filter: ItemFilter): boolean {
     (isStringMatch(filter.script, item.Script?.raw) ||
       isStringMatch(filter.script, item.EquipScript?.raw) ||
       isStringMatch(filter.script, item.UnEquipScript?.raw))
+  );
+}
+
+function isMatchingDescription(description?: string, info?: ItemInfo) {
+  if (!description) {
+    return true;
+  }
+  if (!info) {
+    return false;
+  }
+  const lcDesc = description.toLowerCase();
+  return !!info.identifiedDescriptionName.find((text) =>
+    findNode(text, (node) => node.content?.toLowerCase().includes(lcDesc))
   );
 }
