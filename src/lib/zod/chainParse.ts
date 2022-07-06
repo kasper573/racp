@@ -1,17 +1,12 @@
 import * as zod from "zod";
-import {
-  addIssueToContext,
-  INVALID,
-  ParseInput,
-  ParseReturnType,
-  ZodType,
-} from "zod";
+import { addIssueToContext, INVALID, ParseInput, ZodType } from "zod";
+import { SyncParseReturnType } from "zod/lib/helpers/parseUtil";
 
 export function chainParse<T extends ZodType>(
   type: T,
   thisArg: ZodType,
   input: ParseInput
-): ParseReturnType<zod.infer<T>> {
+): SyncParseReturnType<zod.infer<T>> {
   const res = type.safeParse.call(thisArg, input.data);
   if (res.success) {
     return { status: "valid", value: res.data };
