@@ -24,12 +24,13 @@ export class ZodArrayEntity<Shapes extends ArrayEntityShapes> extends ZodType<
   }
 
   _parse(input: ParseInput): ParseReturnType<ArrayEntity<Shapes>> {
+    type Entity = ArrayEntity<Shapes>;
     const array = chainParse(rawArrayEntity, this, input);
     if (array.status !== "valid") {
       return array as ParseReturnType<ArrayEntity<Shapes>>;
     }
 
-    const entity = {} as ArrayEntity<Shapes>;
+    const entity = {} as Entity;
     const context = this._getOrReturnCtx(input);
 
     if (array.value.length !== this.shapes.length) {
@@ -46,7 +47,7 @@ export class ZodArrayEntity<Shapes extends ArrayEntityShapes> extends ZodType<
       const propTypes = Object.values(shape);
       const propNames = Object.keys(shape);
       for (const propIndex in propTypes) {
-        const propName = propNames[propIndex] as keyof ArrayEntity<Shapes>;
+        const propName = propNames[propIndex] as keyof Entity;
         const propValue = shapeValues[propIndex];
         const propType = propTypes[propIndex];
         const parseResult = propType.safeParse(propValue);
