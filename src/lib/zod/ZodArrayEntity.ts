@@ -40,23 +40,23 @@ export class ZodArrayEntity<Shapes extends ArrayEntityShapes> extends ZodType<
       return INVALID;
     }
 
-    for (const p in this.shapes) {
-      const part = array.value[p];
-      const shape = this.shapes[p];
-      const types = Object.values(shape);
-      const names = Object.keys(shape);
-      for (const i in types) {
-        const name = names[i] as keyof ArrayEntity<Shapes>;
-        const item = part[i];
-        const type = types[i];
-        const res = type.safeParse(item);
-        if (res.success) {
-          entity[name] = res.data;
+    for (const shapeIndex in this.shapes) {
+      const shapeValues = array.value[shapeIndex];
+      const shape = this.shapes[shapeIndex];
+      const propTypes = Object.values(shape);
+      const propNames = Object.keys(shape);
+      for (const propIndex in propTypes) {
+        const propName = propNames[propIndex] as keyof ArrayEntity<Shapes>;
+        const propValue = shapeValues[propIndex];
+        const propType = propTypes[propIndex];
+        const parseResult = propType.safeParse(propValue);
+        if (parseResult.success) {
+          entity[propName] = parseResult.data;
         } else {
-          for (const issue of res.error.issues) {
+          for (const issue of parseResult.error.issues) {
             addIssueToContext(context, {
               ...issue,
-              path: [+p, +i],
+              path: [+shapeIndex, +propIndex],
             });
           }
         }
