@@ -11,7 +11,7 @@
     "build:app": "webpack build",
     "dev:app": "cross-env reactRefresh=true apiBaseUrl=http://localhost:8081 webpack serve",
     "dev:api": "ts-node-dev src/api/server --jwtSecret dev --port 8081",
-    "codegen": "ts-node src/api/codegen"
+    "codegen": "ts-node src/api/rathena/DatabaseDriver.codegen"
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
