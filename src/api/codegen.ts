@@ -5,9 +5,9 @@ import sqlts from "@rmp135/sql-ts";
 import { pick } from "lodash";
 import * as zod from "zod";
 import {
-  createRAConfigSystem,
+  createRAConfigDriver,
   dbInfoConfigName,
-} from "../lib/rathena/RAConfigSystem";
+} from "../lib/rathena/RAConfigDriver";
 import { readCliArgs } from "./util/cli";
 import { options } from "./options";
 
@@ -25,7 +25,7 @@ async function generate() {
     },
   });
 
-  const cfg = createRAConfigSystem(rAthenaPath);
+  const cfg = createRAConfigDriver(rAthenaPath);
   const tsString = await sqlts.toTypeScript({
     client: "mysql",
     template: path.resolve(__dirname, "codegen.hbs"),

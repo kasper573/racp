@@ -2,11 +2,11 @@ import * as path from "path";
 import * as fs from "fs";
 import recursiveReadDir = require("recursive-readdir");
 
-export type RAConfigSystem = ReturnType<typeof createRAConfigSystem>;
+export type RAConfigDriver = ReturnType<typeof createRAConfigDriver>;
 
 export const dbInfoConfigName = "inter_athena.conf";
 
-export function createRAConfigSystem(rAthenaPath: string) {
+export function createRAConfigDriver(rAthenaPath: string) {
   const configDirectory = path.resolve(rAthenaPath, "conf");
   const configPath = (configName: string) =>
     path.resolve(configDirectory, configName);
