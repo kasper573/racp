@@ -1,7 +1,7 @@
 import { createRpcController } from "../../../lib/rpc/createRpcController";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { RADatabaseDriver } from "../../radb";
-import { RAEntitySystem } from "../../../lib/rathena/RAEntitySystem";
+import { RAYamlDriver } from "../../../lib/rathena/RAYamlDriver";
 import { Authenticator } from "./util/Authenticator";
 import { authDefinition } from "./definition";
 import { UserAccessLevel } from "./types";
@@ -9,16 +9,16 @@ import { UserGroupResolver } from "./util/UserGroupResolver";
 
 export function authController({
   radb,
-  raes,
+  rayd,
   auth,
   adminPermissionName = "",
 }: {
   radb: RADatabaseDriver;
-  raes: RAEntitySystem;
+  rayd: RAYamlDriver;
   auth: Authenticator;
   adminPermissionName?: string;
 }) {
-  const groups = raes.resolve("conf/groups.yml", UserGroupResolver);
+  const groups = rayd.resolve("conf/groups.yml", UserGroupResolver);
   const adminGroupIds = Array.from(groups.values())
     .filter((group) => group.Permissions[adminPermissionName])
     .map((group) => group.Id);

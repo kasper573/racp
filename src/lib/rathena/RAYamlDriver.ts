@@ -6,9 +6,9 @@ import { ZodType } from "zod";
 import { isPlainObject } from "@reduxjs/toolkit";
 import { typedKeys } from "../typedKeys";
 
-export type RAEntitySystem = ReturnType<typeof createRAEntitySystem>;
+export type RAYamlDriver = ReturnType<typeof createRAYamlDriver>;
 
-export function createRAEntitySystem({
+export function createRAYamlDriver({
   rAthenaPath,
   rAthenaMode,
 }: {
@@ -25,7 +25,7 @@ export function createRAEntitySystem({
 
   function resolve<ET extends ZodType, Key>(
     file: string,
-    { entityType, getKey, postProcess = noop }: RAEntityResolver<ET, Key>
+    { entityType, getKey, postProcess = noop }: RAYamlResolver<ET, Key>
   ): Map<Key, zod.infer<ET>> {
     const imports: ImportNode[] = [{ Path: file, Mode: rAthenaMode }];
     const entities = new Map<Key, zod.infer<ET>>();
@@ -54,7 +54,7 @@ export function createRAEntitySystem({
   };
 }
 
-export interface RAEntityResolver<ET extends ZodType, Key> {
+export interface RAYamlResolver<ET extends ZodType, Key> {
   entityType: ET;
   getKey: (entity: zod.infer<ET>) => Key;
   postProcess?: (
@@ -63,10 +63,10 @@ export interface RAEntityResolver<ET extends ZodType, Key> {
   ) => void;
 }
 
-export function createRAEntityResolver<ET extends ZodType, Key>(
+export function createRAYamlResolver<ET extends ZodType, Key>(
   entityType: ET,
-  rest: Omit<RAEntityResolver<ET, Key>, "entityType">
-): RAEntityResolver<ET, Key> {
+  rest: Omit<RAYamlResolver<ET, Key>, "entityType">
+): RAYamlResolver<ET, Key> {
   return {
     entityType,
     ...rest,

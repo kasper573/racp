@@ -1,4 +1,4 @@
-import { RAEntitySystem } from "../../../lib/rathena/RAEntitySystem";
+import { RAYamlDriver } from "../../../lib/rathena/RAYamlDriver";
 import { createRpcController } from "../../../lib/rpc/createRpcController";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { createSearchController } from "../search/controller";
@@ -11,15 +11,15 @@ import { parseItemInfo } from "./util/parseItemInfo";
 import { ItemMeta } from "./types";
 
 export function itemController({
-  raes,
+  rayd,
   fs,
   tradeScale,
 }: {
-  raes: RAEntitySystem;
+  rayd: RAYamlDriver;
   fs: FileStore;
   tradeScale: number;
 }) {
-  const items = raes.resolve(
+  const items = rayd.resolve(
     "db/item_db.yml",
     createItemResolver({ tradeScale })
   );

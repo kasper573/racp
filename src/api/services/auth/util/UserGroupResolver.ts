@@ -1,8 +1,8 @@
 import { groupBy } from "lodash";
-import { createRAEntityResolver } from "../../../../lib/rathena/RAEntitySystem";
+import { createRAYamlResolver } from "../../../../lib/rathena/RAYamlDriver";
 import { userGroupType } from "../types";
 
-export const UserGroupResolver = createRAEntityResolver(userGroupType, {
+export const UserGroupResolver = createRAYamlResolver(userGroupType, {
   getKey: (group) => group.Id,
   postProcess(group, registry) {
     const nameLookup = groupBy(Array.from(registry.values()), "Name");
