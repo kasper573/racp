@@ -4,10 +4,7 @@ import { execSync } from "child_process";
 import sqlts from "@rmp135/sql-ts";
 import { pick } from "lodash";
 import * as zod from "zod";
-import {
-  createRAConfigDriver,
-  dbInfoConfigName,
-} from "../lib/rathena/RAConfigDriver";
+import { createConfigDriver, dbInfoConfigName } from "./rathena/ConfigDriver";
 import { readCliArgs } from "./util/cli";
 import { options } from "./options";
 
@@ -25,7 +22,7 @@ async function generate() {
     },
   });
 
-  const cfg = createRAConfigDriver(rAthenaPath);
+  const cfg = createConfigDriver(rAthenaPath);
   const tsString = await sqlts.toTypeScript({
     client: "mysql",
     template: path.resolve(__dirname, "codegen.hbs"),
@@ -36,7 +33,11 @@ async function generate() {
     typeMap,
   });
 
-  const filename = path.resolve(__dirname, "radb.types.ts");
+  const filename = path.resolve(
+    __dirname,
+    "rathena",
+    "DatabaseDriver.types.ts"
+  );
   fs.writeFileSync(filename, tsString, "utf-8");
   execSync(`prettier --write ${filename}`);
 }

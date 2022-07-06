@@ -3,10 +3,10 @@ import * as path from "path";
 import * as express from "express";
 import cors = require("cors");
 import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
-import { createRAYamlDriver } from "../lib/rathena/RAYamlDriver";
-import { createRAConfigDriver } from "../lib/rathena/RAConfigDriver";
 import { createFileStore } from "../lib/createFileStore";
-import { createRADatabaseDriver } from "./radb";
+import { createYamlDriver } from "./rathena/YamlDriver";
+import { createConfigDriver } from "./rathena/ConfigDriver";
+import { createDatabaseDriver } from "./rathena/DatabaseDriver";
 import { configDefinition } from "./services/config/definition";
 import { configController } from "./services/config/controller";
 import { createAuthenticator } from "./services/auth/util/Authenticator";
@@ -20,17 +20,17 @@ import { options } from "./options";
 const args = readCliArgs(options);
 const app = express();
 const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
-const rayd = createRAYamlDriver(args);
-const racd = createRAConfigDriver(args.rAthenaPath);
-const radb = createRADatabaseDriver(racd);
+const yaml = createYamlDriver(args);
+const config = createConfigDriver(args.rAthenaPath);
+const db = createDatabaseDriver(config);
 const rpc = createRpcMiddlewareFactory(auth.validatorFor, 2 * Math.pow(10, 7));
 const fs = createFileStore(path.join(process.cwd(), "data"));
 
 app.use(auth.middleware);
 app.use(cors());
-app.use(rpc(configDefinition, configController(racd)));
-app.use(rpc(itemDefinition, itemController({ rayd, fs, ...args })));
-app.use(rpc(authDefinition, authController({ radb, rayd, auth, ...args })));
+app.use(rpc(configDefinition, configController(config)));
+app.use(rpc(itemDefinition, itemController({ yaml, fs, ...args })));
+app.use(rpc(authDefinition, authController({ db, yaml, auth, ...args })));
 
 http.createServer(app).listen(args.port, () => {
   console.log(`API is running on port ${args.port}`);

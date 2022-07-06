@@ -4,11 +4,11 @@ import * as zod from "zod";
 import * as yaml from "yaml";
 import { ZodType } from "zod";
 import { isPlainObject } from "@reduxjs/toolkit";
-import { typedKeys } from "../typedKeys";
+import { typedKeys } from "../../lib/typedKeys";
 
-export type RAYamlDriver = ReturnType<typeof createRAYamlDriver>;
+export type YamlDriver = ReturnType<typeof createYamlDriver>;
 
-export function createRAYamlDriver({
+export function createYamlDriver({
   rAthenaPath,
   rAthenaMode,
 }: {
@@ -25,7 +25,7 @@ export function createRAYamlDriver({
 
   function resolve<ET extends ZodType, Key>(
     file: string,
-    { entityType, getKey, postProcess = noop }: RAYamlResolver<ET, Key>
+    { entityType, getKey, postProcess = noop }: YamlResolver<ET, Key>
   ): Map<Key, zod.infer<ET>> {
     const imports: ImportNode[] = [{ Path: file, Mode: rAthenaMode }];
     const entities = new Map<Key, zod.infer<ET>>();
@@ -54,7 +54,7 @@ export function createRAYamlDriver({
   };
 }
 
-export interface RAYamlResolver<ET extends ZodType, Key> {
+export interface YamlResolver<ET extends ZodType, Key> {
   entityType: ET;
   getKey: (entity: zod.infer<ET>) => Key;
   postProcess?: (
@@ -63,10 +63,10 @@ export interface RAYamlResolver<ET extends ZodType, Key> {
   ) => void;
 }
 
-export function createRAYamlResolver<ET extends ZodType, Key>(
+export function createYamlResolver<ET extends ZodType, Key>(
   entityType: ET,
-  rest: Omit<RAYamlResolver<ET, Key>, "entityType">
-): RAYamlResolver<ET, Key> {
+  rest: Omit<YamlResolver<ET, Key>, "entityType">
+): YamlResolver<ET, Key> {
   return {
     entityType,
     ...rest,

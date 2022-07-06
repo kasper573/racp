@@ -1,31 +1,31 @@
 import { createRpcController } from "../../../lib/rpc/createRpcController";
 import { RpcException } from "../../../lib/rpc/RpcException";
-import { RADatabaseDriver } from "../../radb";
-import { RAYamlDriver } from "../../../lib/rathena/RAYamlDriver";
+import { DatabaseDriver } from "../../rathena/DatabaseDriver";
+import { YamlDriver } from "../../rathena/YamlDriver";
 import { Authenticator } from "./util/Authenticator";
 import { authDefinition } from "./definition";
 import { UserAccessLevel } from "./types";
 import { UserGroupResolver } from "./util/UserGroupResolver";
 
 export function authController({
-  radb,
-  rayd,
+  db,
+  yaml,
   auth,
   adminPermissionName = "",
 }: {
-  radb: RADatabaseDriver;
-  rayd: RAYamlDriver;
+  db: DatabaseDriver;
+  yaml: YamlDriver;
   auth: Authenticator;
   adminPermissionName?: string;
 }) {
-  const groups = rayd.resolve("conf/groups.yml", UserGroupResolver);
+  const groups = yaml.resolve("conf/groups.yml", UserGroupResolver);
   const adminGroupIds = Array.from(groups.values())
     .filter((group) => group.Permissions[adminPermissionName])
     .map((group) => group.Id);
 
   return createRpcController(authDefinition.entries, {
     async login({ username, password }) {
-      const user = await radb.login
+      const user = await db.login
         .table("login")
         .select("account_id", "userid", "group_id")
         .where("userid", "=", username)

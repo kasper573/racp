@@ -1,9 +1,9 @@
 import { createRpcController } from "../../../lib/rpc/createRpcController";
 import { RpcException } from "../../../lib/rpc/RpcException";
-import { RAConfigDriver } from "../../../lib/rathena/RAConfigDriver";
+import { ConfigDriver } from "../../rathena/ConfigDriver";
 import { configDefinition } from "./definition";
 
-export function configController(cfg: RAConfigDriver) {
+export function configController(cfg: ConfigDriver) {
   return createRpcController(configDefinition.entries, {
     listConfigs: cfg.list,
     async getConfig(configName) {

@@ -1,4 +1,4 @@
-import { RAYamlDriver } from "../../../lib/rathena/RAYamlDriver";
+import { YamlDriver } from "../../rathena/YamlDriver";
 import { createRpcController } from "../../../lib/rpc/createRpcController";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { createSearchController } from "../search/controller";
@@ -11,15 +11,15 @@ import { parseItemInfo } from "./util/parseItemInfo";
 import { ItemMeta } from "./types";
 
 export function itemController({
-  rayd,
+  yaml,
   fs,
   tradeScale,
 }: {
-  rayd: RAYamlDriver;
+  yaml: YamlDriver;
   fs: FileStore;
   tradeScale: number;
 }) {
-  const items = rayd.resolve(
+  const items = yaml.resolve(
     "db/item_db.yml",
     createItemResolver({ tradeScale })
   );

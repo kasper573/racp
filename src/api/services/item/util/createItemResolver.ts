@@ -1,4 +1,4 @@
-import { createRAYamlResolver } from "../../../../lib/rathena/RAYamlDriver";
+import { createYamlResolver } from "../../../rathena/YamlDriver";
 import { itemType } from "../types";
 
 export interface ItemResolverProps {
@@ -6,7 +6,7 @@ export interface ItemResolverProps {
 }
 
 export function createItemResolver({ tradeScale }: ItemResolverProps) {
-  return createRAYamlResolver(itemType, {
+  return createYamlResolver(itemType, {
     getKey: (o) => o.Id,
     postProcess(item) {
       item.Buy = item.Buy ?? (item.Sell ?? 0) * tradeScale;
