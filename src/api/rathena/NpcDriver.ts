@@ -6,8 +6,6 @@ export function* parseNpcEntries(text: string) {
     const monster = npcMonsterType.safeParse(raw);
     if (monster.success) {
       yield monster.data;
-    } else {
-      console.log(monster.error);
     }
   }
 }
