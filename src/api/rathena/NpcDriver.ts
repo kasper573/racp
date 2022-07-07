@@ -1,3 +1,5 @@
+import * as path from "path";
+import * as fs from "fs";
 import * as zod from "zod";
 import { matchRecursive } from "xregexp";
 import { ZodArrayEntity } from "../../lib/zod/ZodArrayEntity";
@@ -9,17 +11,65 @@ export function createNpcDriver({
   rAthenaMode,
 }: {
   rAthenaPath: string;
-  rAthenaMode: string;
+  rAthenaMode: keyof typeof modeFolderNames;
 }) {
+  const npcFolder = path.resolve(rAthenaPath, "npc");
+  const modeFolder = path.resolve(npcFolder, modeFolderNames[rAthenaMode]);
+
   return {
-    resolve<ET extends ZodArrayEntity>(
-      npcConfFile: string,
-      entityType: ET
-    ): Array<zod.infer<ET>> {
-      return [];
+    resolve<ET extends ZodArrayEntity>(npcConfFile: string, entityType: ET) {
+      const parseEntities = createNpcParser(entityType);
+
+      async function loadViaConfFile(npcConfFile: string) {
+        const files = await loadNpcConfFile(npcConfFile, rAthenaPath);
+        const contents = await Promise.all(files.map(loadText));
+        return contents.reduce(
+          (list: Array<zod.infer<ET>>, text) => [
+            ...list,
+            ...parseEntities(text),
+          ],
+          []
+        );
+      }
+
+      const entities: Array<zod.infer<ET>> = [];
+      Promise.all([
+        loadViaConfFile(path.resolve(npcFolder, npcConfFile)),
+        loadViaConfFile(path.resolve(modeFolder, npcConfFile)),
+      ]).then(([baseEntities, modeEntities]) => {
+        entities.push(...baseEntities, ...modeEntities);
+      });
+
+      return entities;
     },
   };
 }
+
+const loadText = (file: string) => fs.promises.readFile(file, "utf-8");
+
+function createNpcParser<ET extends ZodArrayEntity>(entityType: ET) {
+  return (text: string) =>
+    parseTextEntities(text).reduce((entities: Array<zod.infer<ET>>, matrix) => {
+      const res = entityType.safeParse(matrix);
+      return res.success ? [...entities, res.data] : entities;
+    }, []);
+}
+
+async function loadNpcConfFile(npcConfFile: string, rAthenaPath: string) {
+  const text = await loadText(npcConfFile);
+  const entities = parseTextEntities(text).map((matrix) =>
+    npcConfEntity.parse(matrix)
+  );
+  return entities.map((entity) =>
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    path.resolve(rAthenaPath, npcCommandRegex.exec(entity.content)![1])
+  );
+}
+
+const npcCommandRegex = /^npc:\s*(.*)$/;
+const npcConfEntity = new ZodArrayEntity([
+  { content: zod.string().regex(npcCommandRegex) },
+]);
 
 /**
  * Parses npc text file content into an intermediate matrix data structure.
@@ -77,8 +127,13 @@ export function replaceScripts<Placeholder extends string>(
 const scriptPlaceholder = (n: number) =>
   `_SCRIPT_PLACEHOLDER_${n}_${Date.now()}`;
 
-const nonEmptyLines = (s: string) => s.split("\n").filter((l) => l.trim());
+const nonEmptyLines = (s: string) => s.split(/[\r\n]+/).filter((l) => l.trim());
 
 const removeComments = (s: string) => s.replaceAll(/\/\/.*$/gm, "");
+
+const modeFolderNames = {
+  Renewal: "re",
+  Prerenewal: "pre-re",
+};
 
 export type TextMatrixEntry = string[][];
