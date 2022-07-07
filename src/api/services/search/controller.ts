@@ -1,15 +1,16 @@
-import { get } from "lodash";
+import { clamp, get } from "lodash";
 import { SearchQuery, SearchResult, SearchSort } from "./types";
 
 export function createSearchController<Entity, Filter>(
   entities: Entity[],
-  isMatch: (item: Entity, filter: Filter) => boolean
+  isMatch: (item: Entity, filter: Filter) => boolean,
+  limitCap = 50
 ) {
   return async ({
     filter,
     sort,
     offset = 0,
-    limit = 100,
+    limit = limitCap,
   }: SearchQuery<Entity, Filter>): Promise<SearchResult<Entity>> => {
     const matches = filter
       ? entities.filter((entity) => isMatch(entity, filter))
@@ -19,6 +20,8 @@ export function createSearchController<Entity, Filter>(
       matches.sort(createCompareFn(sort));
     }
 
+    limit = clamp(limit, 0, limitCap);
+    offset = clamp(offset, 0, matches.length);
     const sliceEnd = offset + limit;
     const slice = matches.slice(offset, sliceEnd);
     return {
