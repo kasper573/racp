@@ -8,6 +8,7 @@ import {
   ZodType,
   ZodTypeAny,
 } from "zod";
+import { isPlainObject } from "lodash";
 import { chainParse } from "./chainParse";
 
 const rawArrayEntity = zod.array(zod.array(zod.any()));
@@ -22,13 +23,35 @@ export class ZodArrayEntity<
 
   _parse(input: ParseInput): ParseReturnType<ArrayEntity<Shapes>> {
     type Entity = ArrayEntity<Shapes>;
+    const context = this._getOrReturnCtx(input);
+    const entity = {} as Entity;
+
+    // If input is object we use the type shapes directly
+    if (isPlainObject(input.data)) {
+      for (const shape of Object.values(this.shapes)) {
+        const res = zod.object(shape).safeParse(input.data);
+        if (!res.success) {
+          for (const issue of res.error.issues) {
+            addIssueToContext(context, issue);
+          }
+        } else {
+          Object.assign(entity, res.data);
+        }
+      }
+      if (context.common.issues.length) {
+        return INVALID;
+      }
+      return {
+        status: "valid",
+        value: entity,
+      };
+    }
+
+    // Otherwise, we require a matrix
     const array = chainParse(rawArrayEntity, this, input);
     if (array.status !== "valid") {
       return array as ParseReturnType<ArrayEntity<Shapes>>;
     }
-
-    const entity = {} as Entity;
-    const context = this._getOrReturnCtx(input);
 
     if (array.value.length !== this.shapes.length) {
       addIssueToContext(context, {

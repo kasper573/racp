@@ -3,6 +3,25 @@ import { SafeParseError } from "zod/lib/types";
 import { ZodArrayEntity } from "./ZodArrayEntity";
 
 describe("ZodArrayEntity", () => {
+  it("can parse its object form", () => {
+    const entityType = new ZodArrayEntity([
+      { foo: zod.string(), bar: zod.number() },
+      {
+        baz: zod.object({
+          list: zod.array(zod.number()),
+        }),
+      },
+    ]);
+
+    const entity = entityType.parse({
+      foo: "foo",
+      bar: 123,
+      baz: { list: [1, 2, 3] },
+    });
+
+    expect(entity).toEqual(entity);
+  });
+
   it("returns parsed entity for valid input", () => {
     const entityType = new ZodArrayEntity([
       { foo: zod.string(), bar: zod.number() },
