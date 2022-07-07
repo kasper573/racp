@@ -1,13 +1,24 @@
+import * as zod from "zod";
 import { matchRecursive } from "xregexp";
-import { npcMonsterType } from "./NpcDriver.types";
+import { ZodArrayEntity } from "../../lib/zod/ZodArrayEntity";
 
-export function* parseNpcEntries(text: string) {
-  for (const raw of parseTextEntities(text)) {
-    const monster = npcMonsterType.safeParse(raw);
-    if (monster.success) {
-      yield monster.data;
-    }
-  }
+export type NpcDriver = ReturnType<typeof createNpcDriver>;
+
+export function createNpcDriver({
+  rAthenaPath,
+  rAthenaMode,
+}: {
+  rAthenaPath: string;
+  rAthenaMode: string;
+}) {
+  return {
+    resolve<ET extends ZodArrayEntity>(
+      npcConfFile: string,
+      entityType: ET
+    ): Array<zod.infer<ET>> {
+      return [];
+    },
+  };
 }
 
 /**
