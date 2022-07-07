@@ -115,7 +115,7 @@ const Grid = styled(MuiDataGrid)`
 interface ColumnConventionProps<Entity, Id extends GridRowId> {
   columns: Partial<Record<keyof Entity, string>>;
   id: (entity: Entity) => Id;
-  link: (id: Id) => { $: string };
+  link?: (id: Id) => { $: string };
 }
 
 function processColumnConvention<Entity, Id extends GridRowId>({
@@ -134,7 +134,7 @@ function processColumnConvention<Entity, Id extends GridRowId>({
       ...firstColumn,
       width: 300,
       renderCell({ value, row }: GridRenderCellParams) {
-        return <Link to={link(id(row))}>{value}</Link>;
+        return link ? <Link to={link(id(row))}>{value}</Link> : value;
       },
     },
     ...restColumns.map((column) => ({
