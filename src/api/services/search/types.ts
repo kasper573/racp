@@ -1,5 +1,5 @@
 import * as zod from "zod";
-import { AnyZodObject, ZodType } from "zod";
+import { ZodType } from "zod";
 import { Path, zodPath } from "../../../lib/zod/zodPath";
 
 export const sortDirectionType = zod.union([
@@ -7,7 +7,7 @@ export const sortDirectionType = zod.union([
   zod.literal("desc"),
 ]);
 
-export function createSearchTypes<ET extends AnyZodObject, FT extends ZodType>(
+export function createSearchTypes<ET extends ZodType, FT extends ZodType>(
   entityType: ET,
   filterType: FT
 ) {
