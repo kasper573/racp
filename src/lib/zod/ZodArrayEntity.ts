@@ -7,18 +7,15 @@ import {
   ZodRawShape,
   ZodType,
   ZodTypeAny,
-  ZodTypeDef,
 } from "zod";
 import { chainParse } from "./chainParse";
 
-type RawArrayEntity = zod.infer<typeof rawArrayEntity>;
 const rawArrayEntity = zod.array(zod.array(zod.any()));
 
-export class ZodArrayEntity<Shapes extends ArrayEntityShapes> extends ZodType<
-  ArrayEntity<Shapes>,
-  ZodTypeDef,
-  RawArrayEntity
-> {
+export class ZodArrayEntity<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Shapes extends ArrayEntityShapes = any
+> extends ZodType<ArrayEntity<Shapes>> {
   constructor(private shapes: Shapes) {
     super({});
   }
