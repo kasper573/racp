@@ -69,7 +69,7 @@ script3,${mockScript(3)}
   });
 
   it("can ignore comments / empty whitespace lines", () => {
-    const comment = "// comment with margin";
+    const comment = "// comment";
     const entities = parseTextEntities(`
 ${comment}
         
