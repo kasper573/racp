@@ -37,7 +37,7 @@ export const {
   useSearchItemsQuery,
   useListConfigsQuery,
   useGetConfigQuery,
-  useSearchMonsterSpawnsQuery,
+  useSearchMonstersQuery,
   useCountItemInfoQuery,
   useUpdateConfigMutation,
   useUpdateItemInfoMutation,

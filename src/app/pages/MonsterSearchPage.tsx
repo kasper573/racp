@@ -1,25 +1,26 @@
 import { useState } from "react";
 import { Header } from "../layout/Header";
-import { useSearchMonsterSpawnsQuery } from "../state/client";
 import { DataGrid } from "../components/DataGrid";
-import { MonsterFilter, MonsterSpawn } from "../../api/services/monster/types";
+import { Monster, MonsterFilter } from "../../api/services/monster/types";
+import { useSearchMonstersQuery } from "../state/client";
 
 export default function MonsterSearchPage() {
   const [filter, setFilter] = useState<MonsterFilter>({});
   return (
     <>
       <Header>Monsters</Header>
-      <DataGrid<MonsterSpawn, MonsterFilter, MonsterSpawn["id"]>
+      <DataGrid<Monster, MonsterFilter, Monster["Id"]>
         filter={filter}
         columns={columns}
-        query={useSearchMonsterSpawnsQuery}
-        id={(item) => item.id}
+        query={useSearchMonstersQuery}
+        id={(item) => item.Id}
       />
     </>
   );
 }
 
 const columns = {
-  name: "Name",
-  map: "Map",
+  Name: true,
+  BaseExp: true,
+  JobExp: true,
 };

@@ -37,6 +37,7 @@ export const monsterSpawnType = new ZodArrayEntity([
   },
 ]);
 
+export type MonsterDrop = zod.infer<typeof monsterDropType>;
 const monsterDropType = zod.object({
   Item: zod.string(),
   Rate: zod.number(),
@@ -45,6 +46,7 @@ const monsterDropType = zod.object({
   Index: zod.number().optional(),
 });
 
+export type Monster = zod.infer<typeof monsterType>;
 export const monsterType = zod.object({
   Id: zod.number(),
   AegisName: zod.string(),
