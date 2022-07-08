@@ -28,9 +28,12 @@ const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
 const yaml = createYamlDriver({ ...args, logger: logger.chain("yaml") });
 const config = createConfigDriver({ ...args, logger: logger.chain("config") });
 const db = createDatabaseDriver(config);
-const rpc = createRpcMiddlewareFactory(auth.validatorFor, 2 * Math.pow(10, 7));
 const fs = createFileStore(path.join(process.cwd(), "data"));
 const npc = createNpcDriver({ ...args, logger: logger.chain("npc") });
+const rpc = createRpcMiddlewareFactory(auth.validatorFor, {
+  requestBodySizeLimit: 2 * Math.pow(10, 7),
+  log: logger.chain("rpc").log,
+});
 
 app.use(auth.middleware);
 app.use(cors());

@@ -10,9 +10,14 @@ import { RpcHandler, RpcController } from "./createRpcController";
 import { createEndpointUrl } from "./createRpcEndpoints";
 import { RpcException } from "./RpcException";
 
+export interface RpcMiddlewareOptions {
+  requestBodySizeLimit?: number;
+  log?: (...args: unknown[]) => void;
+}
+
 export function createRpcMiddlewareFactory<Auth>(
   validatorFor: (requiredAuth: Auth) => (req: Request) => boolean,
-  requestBodySizeLimit?: number
+  { log, requestBodySizeLimit }: RpcMiddlewareOptions
 ) {
   function factory<
     Entries extends RpcDefinitionEntries,
@@ -40,8 +45,8 @@ export function createRpcMiddlewareFactory<Auth>(
       entry: Entry,
       handler: RpcHandler<Entry>
     ) {
-      function log(...args: unknown[]) {
-        console.log(`[RPC] [${String(endpointName)}] `, ...args);
+      function logRoute(...args: unknown[]) {
+        log?.(`[${String(endpointName)}] `, ...args);
       }
 
       const isAuthorized = validatorFor(entry.auth);
@@ -51,7 +56,7 @@ export function createRpcMiddlewareFactory<Auth>(
         // Authentication funnel
         (req, res, next) => {
           if (!isAuthorized(req)) {
-            log("Permission denied");
+            logRoute("Permission denied");
             return res.sendStatus(401);
           }
           return next();
@@ -63,13 +68,16 @@ export function createRpcMiddlewareFactory<Auth>(
             parsedBody =
               request.body.length > 0 ? JSON.parse(request.body) : undefined;
           } catch {
-            log(`Could not parse request body as JSON`, { body: request.body });
+            logRoute(
+              `Could not parse request body as JSON. Received: `,
+              request.body
+            );
             return response.sendStatus(httpStatus.badRequest);
           }
 
           const argument = entry.argument.safeParse(parsedBody);
           if (!argument.success) {
-            log(`Invalid argument type, ${argument.error.message}`);
+            logRoute(`Invalid argument type, ${argument.error.message}`);
             return response.sendStatus(httpStatus.badRequest);
           }
 
@@ -78,21 +86,25 @@ export function createRpcMiddlewareFactory<Auth>(
             handlerResult = await handler(argument.data);
           } catch (e) {
             if (e instanceof RpcException) {
-              log(`Handler exited due to a known exception: ${e.message} `);
+              logRoute(
+                `Handler exited due to a known exception: ${e.message} `
+              );
               return response
                 .status(httpStatus.internalServerError)
                 .send(e.message);
             }
-            log(`Unexpected error while executing handler`, e);
+            logRoute(`Unexpected error while executing handler`, e);
             return response.sendStatus(httpStatus.internalServerError);
           }
 
           const result = entry.result.safeParse(handlerResult);
           if (!result.success) {
-            log("Return value had wrong data type", {
+            logRoute(
+              "Return value had wrong data type",
               result,
-              expected: entry.result,
-            });
+              "expected",
+              entry.result
+            );
             return response.sendStatus(httpStatus.internalServerError);
           }
           response.json(result.data);
