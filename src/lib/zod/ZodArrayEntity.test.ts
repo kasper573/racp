@@ -78,12 +78,15 @@ describe("ZodArrayEntity", () => {
   });
 
   it("errors for invalid part count", () => {
-    const entityType = new ZodArrayEntity([{ foo: zod.string() }]);
+    const entityType = new ZodArrayEntity([
+      { foo: zod.string() },
+      { bar: zod.string() },
+    ]);
 
-    const res = entityType.safeParse([["foo", "bar"], []]);
+    const res = entityType.safeParse([["foo", "bar"]]);
     expect((res as SafeParseError<unknown>).error.issues[0]).toEqual({
       code: "custom",
-      message: "Array must contain exactly 1 elements",
+      message: "Array must contain at least 2 elements",
       path: [],
     });
   });

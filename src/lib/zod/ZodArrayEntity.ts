@@ -53,10 +53,10 @@ export class ZodArrayEntity<
       return array as ParseReturnType<ArrayEntity<Shapes>>;
     }
 
-    if (array.value.length !== this.shapes.length) {
+    if (array.value.length < this.shapes.length) {
       addIssueToContext(context, {
         code: "custom",
-        message: `Array must contain exactly ${this.shapes.length} elements`,
+        message: `Array must contain at least ${this.shapes.length} elements`,
       });
       return INVALID;
     }
