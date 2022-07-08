@@ -31,7 +31,7 @@ export const monsterSpawnType = new ZodArrayEntity([
     amount: zodNumeric(),
     delay: zodNumeric().optional(),
     delay2: zodNumeric().optional(),
-    event: zodNumeric().optional(),
+    event: zod.string().optional(),
     size: zodNumeric().optional(),
     ai: zodNumeric().optional(),
   },
