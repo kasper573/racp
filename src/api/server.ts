@@ -19,12 +19,14 @@ import { options } from "./options";
 import { monsterController } from "./services/monster/controller";
 import { monsterDefinition } from "./services/monster/definition";
 import { createNpcDriver } from "./rathena/NpcDriver";
+import { createLogger } from "./util/logger";
 
 const args = readCliArgs(options);
+const logger = createLogger(console.log);
 const app = express();
 const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
 const yaml = createYamlDriver(args);
-const config = createConfigDriver(args.rAthenaPath);
+const config = createConfigDriver({ ...args, logger: logger.chain("config") });
 const db = createDatabaseDriver(config);
 const rpc = createRpcMiddlewareFactory(auth.validatorFor, 2 * Math.pow(10, 7));
 const fs = createFileStore(path.join(process.cwd(), "data"));

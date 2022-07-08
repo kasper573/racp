@@ -1,23 +1,35 @@
 import * as path from "path";
 import * as fs from "fs";
 import recursiveReadDir = require("recursive-readdir");
+import { Logger } from "../util/logger";
 
 export type ConfigDriver = ReturnType<typeof createConfigDriver>;
 
 export const dbInfoConfigName = "inter_athena.conf";
 
-export function createConfigDriver(rAthenaPath: string) {
+export function createConfigDriver({
+  rAthenaPath,
+  logger,
+}: {
+  rAthenaPath: string;
+  logger: Logger;
+}) {
   const configDirectory = path.resolve(rAthenaPath, "conf");
   const configPath = (configName: string) =>
     path.resolve(configDirectory, configName);
 
   async function list() {
-    const files = await recursiveReadDir(configDirectory);
-    return files.map((file) => path.relative(configDirectory, file));
+    return logger.logProcess(async () => {
+      const files = await recursiveReadDir(configDirectory);
+      return files.map((file) => path.relative(configDirectory, file));
+    }, `Loading config list`);
   }
 
   async function read(configName: string) {
-    return fs.promises.readFile(configPath(configName), "utf-8");
+    return logger.logProcess(
+      () => fs.promises.readFile(configPath(configName), "utf-8"),
+      `Reading file ${configPath(configName)}`
+    );
   }
 
   function parse(config: string) {
@@ -29,7 +41,10 @@ export function createConfigDriver(rAthenaPath: string) {
   }
 
   async function load(configName: string) {
-    const record = parse(await read(configName));
+    const record = await logger.logProcess(
+      async () => parse(await read(configName)),
+      `Loading values in config "${configName}"`
+    );
     return {
       get(key: string) {
         if (key in record) {
@@ -53,7 +68,10 @@ export function createConfigDriver(rAthenaPath: string) {
 
   async function update(configName: string, value: string) {
     if (await exists(configName)) {
-      return fs.promises.writeFile(configPath(configName), value);
+      return logger.logProcess(
+        () => fs.promises.writeFile(configPath(configName), value),
+        `Updating ${configName}`
+      );
     }
     throw new Error(`Unknown config`);
   }
