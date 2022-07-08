@@ -3,15 +3,18 @@ import * as fs from "fs";
 import * as zod from "zod";
 import { matchRecursive } from "xregexp";
 import { ZodArrayEntity } from "../../lib/zod/ZodArrayEntity";
+import { Logger } from "../util/logger";
 
 export type NpcDriver = ReturnType<typeof createNpcDriver>;
 
 export function createNpcDriver({
   rAthenaPath,
   rAthenaMode,
+  logger,
 }: {
   rAthenaPath: string;
   rAthenaMode: keyof typeof modeFolderNames;
+  logger: Logger;
 }) {
   const npcFolder = path.resolve(rAthenaPath, "npc");
   const modeFolder = path.resolve(npcFolder, modeFolderNames[rAthenaMode]);
@@ -19,15 +22,15 @@ export function createNpcDriver({
   return {
     resolve<ET extends ZodArrayEntity>(npcConfFile: string, entityType: ET) {
       const parseEntities = createNpcParser(entityType);
+      const loadEntities = logger.wrap(async function load(f: string) {
+        return parseEntities(await readFile(f));
+      });
 
       async function loadViaConfFile(npcConfFile: string) {
         const files = await loadNpcConfFile(npcConfFile, rAthenaPath);
-        const contents = await Promise.all(files.map(loadText));
-        return contents.reduce(
-          (list: Array<zod.infer<ET>>, text) => [
-            ...list,
-            ...parseEntities(text),
-          ],
+        const entities = await Promise.all(files.map(loadEntities));
+        return entities.reduce(
+          (flattened, list) => [...flattened, ...list],
           []
         );
       }
@@ -45,7 +48,7 @@ export function createNpcDriver({
   };
 }
 
-const loadText = (file: string) => fs.promises.readFile(file, "utf-8");
+const readFile = (file: string) => fs.promises.readFile(file, "utf-8");
 
 function createNpcParser<ET extends ZodArrayEntity>(entityType: ET) {
   return (text: string) =>
@@ -56,7 +59,7 @@ function createNpcParser<ET extends ZodArrayEntity>(entityType: ET) {
 }
 
 async function loadNpcConfFile(npcConfFile: string, rAthenaPath: string) {
-  const text = await loadText(npcConfFile);
+  const text = await readFile(npcConfFile);
   const entities = parseTextEntities(text).map((matrix) =>
     npcConfEntity.parse(matrix)
   );
