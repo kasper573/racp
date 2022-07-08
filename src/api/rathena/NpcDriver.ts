@@ -21,10 +21,10 @@ export function createNpcDriver({
 
   return {
     resolve<ET extends ZodArrayEntity>(npcConfFile: string, entityType: ET) {
-      const parseEntities = createNpcParser(entityType);
-      const loadEntities = logger.wrap(async function load(f: string) {
-        return parseEntities(await readFile(f));
-      });
+      const loadEntities = createNpcLoader(
+        entityType,
+        logger.chain(npcConfFile)
+      );
 
       async function loadViaConfFile(npcConfFile: string) {
         const files = await loadNpcConfFile(npcConfFile, rAthenaPath);
@@ -50,12 +50,30 @@ export function createNpcDriver({
 
 const readFile = (file: string) => fs.promises.readFile(file, "utf-8");
 
-function createNpcParser<ET extends ZodArrayEntity>(entityType: ET) {
-  return (text: string) =>
-    parseTextEntities(text).reduce((entities: Array<zod.infer<ET>>, matrix) => {
-      const res = entityType.safeParse(matrix);
-      return res.success ? [...entities, res.data] : entities;
-    }, []);
+function createNpcLoader<ET extends ZodArrayEntity>(
+  entityType: ET,
+  logger: Logger
+) {
+  return logger.wrap(async function loadNpc(file: string) {
+    const text = await readFile(file);
+    const fileLogger = logger.chain(path.basename(file));
+    return parseTextEntities(text).reduce(
+      (entities: Array<zod.infer<ET>>, matrix, entityIndex) => {
+        const res = entityType.safeParse(matrix);
+        if (res.success) {
+          return [...entities, res.data];
+        }
+        for (const issue of res.error.issues) {
+          fileLogger.log(
+            `Could not parse entity ${entityIndex}, path [${issue.path}]:`,
+            issue.message
+          );
+        }
+        return entities;
+      },
+      []
+    );
+  });
 }
 
 async function loadNpcConfFile(npcConfFile: string, rAthenaPath: string) {
