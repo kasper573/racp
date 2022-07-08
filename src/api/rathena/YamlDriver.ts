@@ -5,7 +5,7 @@ import * as yaml from "yaml";
 import { ZodType } from "zod";
 import { isPlainObject } from "@reduxjs/toolkit";
 import { typedKeys } from "../../lib/typedKeys";
-import { Logger } from "../util/logger";
+import { Logger } from "../../lib/logger";
 
 export type YamlDriver = ReturnType<typeof createYamlDriver>;
 

@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as zod from "zod";
 import { matchRecursive } from "xregexp";
 import { ZodArrayEntity } from "../../lib/zod/ZodArrayEntity";
-import { Logger } from "../util/logger";
+import { Logger } from "../../lib/logger";
 
 export type NpcDriver = ReturnType<typeof createNpcDriver>;
 

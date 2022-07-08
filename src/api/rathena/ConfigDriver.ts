@@ -1,7 +1,7 @@
 import * as path from "path";
 import * as fs from "fs";
 import recursiveReadDir = require("recursive-readdir");
-import { Logger } from "../util/logger";
+import { Logger } from "../../lib/logger";
 
 export type ConfigDriver = ReturnType<typeof createConfigDriver>;
 

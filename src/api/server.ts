@@ -4,6 +4,7 @@ import * as express from "express";
 import cors = require("cors");
 import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
 import { createFileStore } from "../lib/createFileStore";
+import { createEllipsisLogFn, createLogger } from "../lib/logger";
 import { createYamlDriver } from "./rathena/YamlDriver";
 import { createConfigDriver } from "./rathena/ConfigDriver";
 import { createDatabaseDriver } from "./rathena/DatabaseDriver";
@@ -19,7 +20,6 @@ import { options } from "./options";
 import { monsterController } from "./services/monster/controller";
 import { monsterDefinition } from "./services/monster/definition";
 import { createNpcDriver } from "./rathena/NpcDriver";
-import { createEllipsisLogFn, createLogger } from "./util/logger";
 
 const args = readCliArgs(options);
 const logger = createLogger(createEllipsisLogFn(process.stdout));
