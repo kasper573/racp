@@ -26,12 +26,12 @@ export function createLogger(logFn: LogFn, name?: string): Logger {
         if (result instanceof Promise) {
           result.then(onFunctionFinished);
         } else {
-          onFunctionFinished();
+          onFunctionFinished(result);
         }
 
-        function onFunctionFinished() {
+        function onFunctionFinished(result: unknown) {
           const delta = Date.now() - startTime;
-          log(`(${delta}ms)`, functionCallId);
+          log(`(${delta}ms)`, functionCallId, stringifyResult(result));
         }
 
         return result;
@@ -52,11 +52,37 @@ function createNamedLogFn(logFn: LogFn, name: string): LogFn {
 }
 
 function stringifyArgs(args: unknown[]) {
-  return args
-    .map((arg) =>
-      typeof arg === "number" ? arg : `"${arg}"`.replaceAll(/[\r\n]/g, "")
-    )
-    .join(", ");
+  return (
+    args
+      .filter(Boolean)
+      .map((arg) =>
+        typeof arg === "number"
+          ? `${arg}`
+          : `"${arg}"`.replaceAll(/[\r\n]/g, "")
+      )[0] ?? ""
+  );
+}
+
+function stringifyResult(result: unknown) {
+  const value = quantify(result);
+  if (value !== undefined) {
+    return `-> ${value}`;
+  }
+}
+
+function quantify(value: unknown) {
+  if (value === undefined || value === null) {
+    return;
+  }
+  if (Array.isArray(value)) {
+    return value.length;
+  }
+  switch (typeof value) {
+    case "number":
+    case "bigint":
+    case "boolean":
+      return value;
+  }
 }
 
 function ellipsis(str: string, max: number) {
