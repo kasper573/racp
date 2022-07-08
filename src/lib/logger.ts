@@ -77,6 +77,9 @@ function quantify(value: unknown) {
   if (Array.isArray(value)) {
     return value.length;
   }
+  if (value instanceof Map) {
+    return value.size;
+  }
   switch (typeof value) {
     case "number":
     case "bigint":
