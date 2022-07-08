@@ -19,10 +19,10 @@ import { options } from "./options";
 import { monsterController } from "./services/monster/controller";
 import { monsterDefinition } from "./services/monster/definition";
 import { createNpcDriver } from "./rathena/NpcDriver";
-import { createLogger } from "./util/logger";
+import { createEllipsisLogFn, createLogger } from "./util/logger";
 
 const args = readCliArgs(options);
-const logger = createLogger(console.log);
+const logger = createLogger(createEllipsisLogFn(process.stdout));
 const app = express();
 const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
 const yaml = createYamlDriver(args);
