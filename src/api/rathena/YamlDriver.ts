@@ -5,25 +5,28 @@ import * as yaml from "yaml";
 import { ZodType } from "zod";
 import { isPlainObject } from "@reduxjs/toolkit";
 import { typedKeys } from "../../lib/typedKeys";
+import { Logger } from "../util/logger";
 
 export type YamlDriver = ReturnType<typeof createYamlDriver>;
 
 export function createYamlDriver({
   rAthenaPath,
   rAthenaMode,
+  logger,
 }: {
   rAthenaPath: string;
   rAthenaMode: string;
+  logger: Logger;
 }) {
-  function loadNode(file: string) {
+  const loadNode = logger.wrap(function loadNode(file: string) {
     const unknownObject = yaml.parse(
       fs.readFileSync(path.resolve(rAthenaPath, file), "utf-8")
     );
     filterNulls(unknownObject);
     return dbNode.parse(unknownObject);
-  }
+  });
 
-  function resolve<ET extends ZodType, Key>(
+  const resolve = logger.wrap(function resolve<ET extends ZodType, Key>(
     file: string,
     { entityType, getKey, postProcess = noop }: YamlResolver<ET, Key>
   ): Map<Key, zod.infer<ET>> {
@@ -48,7 +51,8 @@ export function createYamlDriver({
     }
 
     return entities;
-  }
+  });
+
   return {
     resolve,
   };
