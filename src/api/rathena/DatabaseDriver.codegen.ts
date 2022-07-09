@@ -6,6 +6,7 @@ import { pick } from "lodash";
 import * as zod from "zod";
 import { readCliArgs } from "../util/cli";
 import { options } from "../options";
+import { createLogger } from "../../lib/logger";
 import { createConfigDriver, dbInfoConfigName } from "./ConfigDriver";
 
 /**
@@ -22,7 +23,11 @@ async function generate() {
     },
   });
 
-  const cfg = createConfigDriver(rAthenaPath);
+  const cfg = createConfigDriver({
+    rAthenaPath,
+    logger: createLogger(),
+  });
+
   const tsString = await sqlts.toTypeScript({
     client: "mysql",
     template: path.resolve(__dirname, "DatabaseDriver.codegen.hbs"),

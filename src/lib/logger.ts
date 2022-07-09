@@ -11,7 +11,10 @@ export type LogFn = (...args: unknown[]) => void;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyFn = (...args: any[]) => any;
 
-export function createLogger(logFn: LogFn, name?: string): Logger {
+export function createLogger(
+  logFn: LogFn = createEllipsisLogFn(process.stdout),
+  name?: string
+): Logger {
   const log = name ? createNamedLogFn(logFn, name) : logFn;
   const chain = (name: string) => createLogger(log, name);
   return {
