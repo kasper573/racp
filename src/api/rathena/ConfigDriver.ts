@@ -1,35 +1,42 @@
 import * as path from "path";
 import * as fs from "fs";
 import recursiveReadDir = require("recursive-readdir");
+import { Logger } from "../../lib/logger";
 
 export type ConfigDriver = ReturnType<typeof createConfigDriver>;
 
 export const dbInfoConfigName = "inter_athena.conf";
 
-export function createConfigDriver(rAthenaPath: string) {
+export function createConfigDriver({
+  rAthenaPath,
+  logger,
+}: {
+  rAthenaPath: string;
+  logger: Logger;
+}) {
   const configDirectory = path.resolve(rAthenaPath, "conf");
   const configPath = (configName: string) =>
     path.resolve(configDirectory, configName);
 
-  async function list() {
+  const list = logger.wrap(async function list() {
     const files = await recursiveReadDir(configDirectory);
     return files.map((file) => path.relative(configDirectory, file));
-  }
+  });
 
-  async function read(configName: string) {
+  const read = logger.wrap(async function read(configName: string) {
     return fs.promises.readFile(configPath(configName), "utf-8");
-  }
+  });
 
-  function parse(config: string) {
+  const parse = logger.wrap(function parse(config: string) {
     const matches = config.matchAll(/^\s*(\w+):\s*(.*)\s*(\/\/)?/gm);
     return Array.from(matches).reduce(
       (record, [, key, value]) => ({ ...record, [key]: value }),
       {} as Record<string, string>
     );
-  }
+  });
 
-  async function load(configName: string) {
-    const record = parse(await read(configName));
+  const load = logger.wrap(async function load(configName: string) {
+    const record = await parse(await read(configName));
     return {
       get(key: string) {
         if (key in record) {
@@ -40,23 +47,26 @@ export function createConfigDriver(rAthenaPath: string) {
         );
       },
     };
-  }
+  });
 
-  async function exists(configName: string) {
+  const exists = logger.wrap(async function exists(configName: string) {
     try {
       await fs.promises.stat(configPath(configName));
       return true;
     } catch {
       return false;
     }
-  }
+  });
 
-  async function update(configName: string, value: string) {
+  const update = logger.wrap(async function update(
+    configName: string,
+    value: string
+  ) {
     if (await exists(configName)) {
       return fs.promises.writeFile(configPath(configName), value);
     }
     throw new Error(`Unknown config`);
-  }
+  });
 
   const presets = {
     dbInfoConfigName,

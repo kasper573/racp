@@ -113,9 +113,9 @@ const Grid = styled(MuiDataGrid)`
 `;
 
 interface ColumnConventionProps<Entity, Id extends GridRowId> {
-  columns: Partial<Record<keyof Entity, string>>;
+  columns: Partial<Record<keyof Entity, string | boolean>>;
   id: (entity: Entity) => Id;
-  link: (id: Id) => { $: string };
+  link?: (id: Id) => { $: string };
 }
 
 function processColumnConvention<Entity, Id extends GridRowId>({
@@ -124,17 +124,20 @@ function processColumnConvention<Entity, Id extends GridRowId>({
   link,
 }: ColumnConventionProps<Entity, Id>): GridColumns {
   const [firstColumn, ...restColumns] = typedKeys(columns).map(
-    (field): GridEnrichedColDef<Entity> => ({
-      field: String(field),
-      headerName: columns[field],
-    })
+    (field): GridEnrichedColDef<Entity> => {
+      const value = columns[field];
+      return {
+        field: String(field),
+        headerName: typeof value === "string" ? value : String(field),
+      };
+    }
   );
   return [
     {
       ...firstColumn,
-      width: 300,
+      width: 180,
       renderCell({ value, row }: GridRenderCellParams) {
-        return <Link to={link(id(row))}>{value}</Link>;
+        return link ? <Link to={link(id(row))}>{value}</Link> : value;
       },
     },
     ...restColumns.map((column) => ({

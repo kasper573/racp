@@ -1,7 +1,7 @@
 import * as zod from "zod";
-import { AnyZodObject, ZodObject, ZodType } from "zod";
+import { ZodObject, ZodType } from "zod";
 
-export function zodPath<Schema extends AnyZodObject>(obj: Schema) {
+export function zodPath<Schema extends ZodType>(obj: Schema) {
   return zod.string().refine(
     (path) => {
       try {
@@ -18,7 +18,7 @@ export function zodPath<Schema extends AnyZodObject>(obj: Schema) {
 }
 
 export function getZodType<
-  Schema extends AnyZodObject,
+  Schema extends ZodType,
   P extends Path<zod.infer<Schema>>
 >(root: Schema, path: P) {
   const steps = String(path).split(".");
