@@ -40,7 +40,12 @@ app.use(cors());
 app.use(rpc(configDefinition, configController(config)));
 app.use(rpc(itemDefinition, itemController({ yaml, fs, ...args })));
 app.use(rpc(authDefinition, authController({ db, yaml, auth, ...args })));
-app.use(rpc(monsterDefinition, monsterController({ yaml, npc })));
+app.use(
+  rpc(
+    monsterDefinition,
+    monsterController({ mode: args.rAthenaMode, yaml, npc })
+  )
+);
 
 http.createServer(app).listen(args.port, () => {
   console.log(`API is running on port ${args.port}`);

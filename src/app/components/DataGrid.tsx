@@ -135,7 +135,7 @@ function processColumnConvention<Entity, Id extends GridRowId>({
   return [
     {
       ...firstColumn,
-      width: 300,
+      width: 180,
       renderCell({ value, row }: GridRenderCellParams) {
         return link ? <Link to={link(id(row))}>{value}</Link> : value;
       },

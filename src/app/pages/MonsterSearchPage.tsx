@@ -21,6 +21,17 @@ export default function MonsterSearchPage() {
 
 const columns = {
   Name: true,
-  BaseExp: true,
-  JobExp: true,
+  Level: true,
+  Atk: "Attack",
+  MAtk: "M. Attack",
+  Defense: "Defense",
+  MagicDefense: "M. Defense",
+  Hit: true,
+  Flee: true,
+  BaseExp: "Base XP",
+  JobExp: "Job XP",
+  WalkSpeed: "Move Speed",
+  AttackRange: "Atk. Range",
+  SkillRange: "Skill Range",
+  ChaseRange: "Chase Range",
 };

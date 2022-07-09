@@ -88,4 +88,9 @@ export const monsterType = zod.object({
   Modes: toggleRecordType,
   MvpDrops: zod.array(monsterDropType).default([]),
   Drops: zod.array(monsterDropType).default([]),
+  // Post processed
+  Flee: zod.number().optional(),
+  Hit: zod.number().optional(),
+  Atk: zod.number().optional(),
+  MAtk: zod.number().optional(),
 });
