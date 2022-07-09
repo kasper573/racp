@@ -9,17 +9,20 @@ import { monsterDefinition } from "./definition";
 import { createMonsterResolver } from "./util/createMonsterResolver";
 
 export function monsterController({
-  mode,
+  rAthenaMode,
   yaml,
   npc,
 }: {
-  mode: RAthenaMode;
+  rAthenaMode: RAthenaMode;
   yaml: YamlDriver;
   npc: NpcDriver;
 }) {
-  const monsters = yaml.resolve("db/mob_db.yml", createMonsterResolver(mode));
   const spawns = npc.resolve("scripts_monsters.conf", monsterSpawnType);
   const spawnLookup = groupBy(spawns, "id");
+  const monsters = yaml.resolve(
+    "db/mob_db.yml",
+    createMonsterResolver(rAthenaMode)
+  );
 
   return createRpcController(monsterDefinition.entries, {
     searchMonsters: createSearchController(

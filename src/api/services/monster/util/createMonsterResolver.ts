@@ -3,7 +3,7 @@ import { RAthenaMode } from "../../../options";
 import { monsterType } from "../types";
 import { typedAssign } from "../../../../lib/typedAssign";
 
-export function createMonsterResolver(mode: RAthenaMode) {
+export function createMonsterResolver(rAthenaMode: RAthenaMode) {
   return createYamlResolver(monsterType, {
     getKey: (monster) => monster.Id,
     postProcess(monster) {
@@ -15,7 +15,7 @@ export function createMonsterResolver(mode: RAthenaMode) {
         {
           Prerenewal: { Atk: Attack, MAtk: 0 },
           Renewal: { Atk: Attack, MAtk: Attack2 },
-        }[mode]
+        }[rAthenaMode]
       );
     },
   });
