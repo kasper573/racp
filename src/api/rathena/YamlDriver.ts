@@ -18,18 +18,20 @@ export function createYamlDriver({
   rAthenaMode: string;
   logger: Logger;
 }) {
-  const loadNode = logger.wrap(function loadNode(file: string) {
-    const unknownObject = yaml.parse(
-      fs.readFileSync(path.resolve(rAthenaPath, file), "utf-8")
+  async function loadNode(file: string) {
+    const content = await fs.promises.readFile(
+      path.resolve(rAthenaPath, file),
+      "utf-8"
     );
+    const unknownObject = yaml.parse(content);
     filterNulls(unknownObject);
     return dbNode.parse(unknownObject);
-  });
+  }
 
-  const resolve = logger.wrap(function resolve<ET extends ZodType, Key>(
+  const resolve = logger.wrap(async function resolve<ET extends ZodType, Key>(
     file: string,
     { entityType, getKey, postProcess = noop }: YamlResolver<ET, Key>
-  ): Map<Key, zod.infer<ET>> {
+  ): Promise<Map<Key, zod.infer<ET>>> {
     const imports: ImportNode[] = [{ Path: file, Mode: rAthenaMode }];
     const entities = new Map<Key, zod.infer<ET>>();
 
@@ -37,7 +39,7 @@ export function createYamlDriver({
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const imp = imports.shift()!;
       if (!imp.Mode || imp.Mode === rAthenaMode) {
-        const { Body, Footer } = loadNode(imp.Path);
+        const { Body, Footer } = await loadNode(imp.Path);
         for (const raw of Body ?? []) {
           const entity = entityType.parse(raw);
           entities.set(getKey(entity), entity);

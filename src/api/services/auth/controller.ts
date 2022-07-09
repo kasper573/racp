@@ -7,7 +7,7 @@ import { authDefinition } from "./definition";
 import { UserAccessLevel } from "./types";
 import { UserGroupResolver } from "./util/UserGroupResolver";
 
-export function authController({
+export async function authController({
   db,
   yaml,
   auth,
@@ -18,7 +18,7 @@ export function authController({
   auth: Authenticator;
   adminPermissionName?: string;
 }) {
-  const groups = yaml.resolve("conf/groups.yml", UserGroupResolver);
+  const groups = await yaml.resolve("conf/groups.yml", UserGroupResolver);
   const adminGroupIds = Array.from(groups.values())
     .filter((group) => group.Permissions[adminPermissionName])
     .map((group) => group.Id);

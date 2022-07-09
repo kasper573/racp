@@ -10,7 +10,7 @@ import { isMatchingItem } from "./util/isMatchingItem";
 import { parseItemInfo } from "./util/parseItemInfo";
 import { ItemMeta } from "./types";
 
-export function itemController({
+export async function itemController({
   yaml,
   fs,
   tradeScale,
@@ -19,7 +19,7 @@ export function itemController({
   fs: FileStore;
   tradeScale: number;
 }) {
-  const items = yaml.resolve(
+  const items = await yaml.resolve(
     "db/item_db.yml",
     createItemResolver({ tradeScale })
   );

@@ -8,7 +8,7 @@ import { monsterSpawnType } from "./types";
 import { monsterDefinition } from "./definition";
 import { createMonsterResolver } from "./util/createMonsterResolver";
 
-export function monsterController({
+export async function monsterController({
   rAthenaMode,
   yaml,
   npc,
@@ -17,12 +17,12 @@ export function monsterController({
   yaml: YamlDriver;
   npc: NpcDriver;
 }) {
-  const spawns = npc.resolve("scripts_monsters.conf", monsterSpawnType);
+  const [spawns, monsters] = await Promise.all([
+    npc.resolve("scripts_monsters.conf", monsterSpawnType),
+    yaml.resolve("db/mob_db.yml", createMonsterResolver(rAthenaMode)),
+  ]);
+
   const spawnLookup = groupBy(spawns, "id");
-  const monsters = yaml.resolve(
-    "db/mob_db.yml",
-    createMonsterResolver(rAthenaMode)
-  );
 
   return createRpcController(monsterDefinition.entries, {
     searchMonsters: createSearchController(
