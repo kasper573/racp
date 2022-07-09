@@ -1,5 +1,10 @@
 // Common yargs CLI argument options used in all scripts
 
+export const rAthenaModes = ["Renewal", "Prerenewal"] as const;
+export type RAthenaMode = typeof rAthenaModes extends Iterable<infer V>
+  ? V
+  : never;
+
 export const options = {
   port: {
     type: "number",
@@ -11,7 +16,7 @@ export const options = {
     description: "Used for auth encryption. Should be unique and secret",
   },
   rAthenaMode: {
-    choices: ["Renewal", "Prerenewal"],
+    choices: rAthenaModes,
     default: "Renewal",
   },
   adminPermissionName: {

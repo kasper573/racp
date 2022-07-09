@@ -4,6 +4,7 @@ import * as zod from "zod";
 import { matchRecursive } from "xregexp";
 import { ZodArrayEntity } from "../../lib/zod/ZodArrayEntity";
 import { Logger } from "../../lib/logger";
+import { RAthenaMode } from "../options";
 
 export type NpcDriver = ReturnType<typeof createNpcDriver>;
 
@@ -13,7 +14,7 @@ export function createNpcDriver({
   logger,
 }: {
   rAthenaPath: string;
-  rAthenaMode: keyof typeof modeFolderNames;
+  rAthenaMode: RAthenaMode;
   logger: Logger;
 }) {
   const npcFolder = path.resolve(rAthenaPath, "npc");
@@ -136,7 +137,7 @@ const nonEmptyLines = (s: string) => s.split(/[\r\n]+/).filter((l) => l.trim());
 
 const removeComments = (s: string) => s.replaceAll(/\/\/.*$/gm, "");
 
-const modeFolderNames = {
+const modeFolderNames: Record<RAthenaMode, string> = {
   Renewal: "re",
   Prerenewal: "pre-re",
 };
