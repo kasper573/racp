@@ -21,29 +21,34 @@ export function createRpcMiddlewareFactory<Auth>(
 ) {
   function factory<
     Entries extends RpcDefinitionEntries,
-    Handlers extends RpcController<Entries>
+    Controller extends RpcController<Entries>
   >(
     entriesOrDefinition: Entries | RpcDefinitionFor<Entries>,
-    handlers: Handlers
+    controller: Controller | Promise<Controller>
   ): RequestHandler {
     const entries: Entries =
       "entries" in entriesOrDefinition
         ? (entriesOrDefinition.entries as Entries)
         : entriesOrDefinition;
 
+    const controllerPromise =
+      controller instanceof Promise ? controller : Promise.resolve(controller);
+
     const router = Router();
     router.use(bodyParser.text({ type: "*/*", limit: requestBodySizeLimit }));
     for (const endpointName of typedKeys(entries)) {
       const entry = entries[endpointName];
-      const handler = handlers[endpointName] as RpcHandler<typeof entry>;
-      registerRoute(String(endpointName), entry, handler);
+      const handlerPromise = controllerPromise.then(
+        (controller) => controller[endpointName] as RpcHandler<typeof entry>
+      );
+      registerRoute(String(endpointName), entry, handlerPromise);
     }
     return router;
 
     function registerRoute<Entry extends RpcDefinitionEntry>(
       endpointName: string,
       entry: Entry,
-      handler: RpcHandler<Entry>
+      handlerPromise: Promise<RpcHandler<Entry>>
     ) {
       function logRoute(...args: unknown[]) {
         log?.(`[${String(endpointName)}] `, ...args);
@@ -81,9 +86,10 @@ export function createRpcMiddlewareFactory<Auth>(
             return response.sendStatus(httpStatus.badRequest);
           }
 
-          let handlerResult: PromiseResult<ReturnType<typeof handler>>;
+          const handler = await handlerPromise;
+          let rpcResult: PromiseResult<ReturnType<typeof handler>>;
           try {
-            handlerResult = await handler(argument.data);
+            rpcResult = await handler(argument.data);
           } catch (e) {
             if (e instanceof RpcException) {
               logRoute(
@@ -97,17 +103,17 @@ export function createRpcMiddlewareFactory<Auth>(
             return response.sendStatus(httpStatus.internalServerError);
           }
 
-          const result = entry.result.safeParse(handlerResult);
-          if (!result.success) {
+          const parsedRpcResult = entry.result.safeParse(rpcResult);
+          if (!parsedRpcResult.success) {
             logRoute(
               "Return value had wrong data type",
-              result,
+              parsedRpcResult,
               "expected",
               entry.result
             );
             return response.sendStatus(httpStatus.internalServerError);
           }
-          response.json(result.data);
+          response.json(parsedRpcResult.data);
         }
       );
     }
