@@ -132,11 +132,11 @@ const stringNormalizer =
   };
 
 export const matchers = createZodMatcher()
-  .add("eq", zod.number(), zod.number(), (a, b) => a === b)
-  .add("gt", zod.number(), zod.number(), (a, b) => a > b)
-  .add("lt", zod.number(), zod.number(), (a, b) => a < b)
-  .add("gte", zod.number(), zod.number(), (a, b) => a >= b)
-  .add("lte", zod.number(), zod.number(), (a, b) => a <= b)
+  .add("=", zod.number(), zod.number(), (a, b) => a === b)
+  .add(">", zod.number(), zod.number(), (a, b) => a > b)
+  .add("<", zod.number(), zod.number(), (a, b) => a < b)
+  .add(">=", zod.number(), zod.number(), (a, b) => a >= b)
+  .add("<=", zod.number(), zod.number(), (a, b) => a <= b)
   .add("includes", zod.array(primitive), primitive, (list, item) =>
     list.includes(item)
   )
