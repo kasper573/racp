@@ -1,6 +1,6 @@
 import * as zod from "zod";
 import { ZodType } from "zod";
-import { isZodType } from "./zod/isZodType";
+import { isZodType } from "./isZodType";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ZodMatcherEntries = Record<string, ZodMatcherEntry<any, any>>;
