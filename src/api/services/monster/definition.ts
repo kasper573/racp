@@ -2,9 +2,13 @@ import * as zod from "zod";
 import { createTagFactory } from "../../../lib/createTagFactory";
 import { createRpcDefinition } from "../../util/rpc";
 import { createSearchTypes } from "../search/types";
-import { monsterFilterType, monsterSpawnType, monsterType } from "./types";
+import { matchers } from "../../util/matchers";
+import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
+import { monsterSpawnType, monsterType } from "./types";
 
 const tag = createTagFactory("Monster");
+
+export const monsterFilter = createEntityFilter(matchers, monsterType);
 
 export const monsterDefinition = createRpcDefinition({
   tagTypes: [tag.type],
@@ -12,7 +16,7 @@ export const monsterDefinition = createRpcDefinition({
     builder
       .query(
         "searchMonsters",
-        ...createSearchTypes(monsterType, monsterFilterType)
+        ...createSearchTypes(monsterType, monsterFilter.type)
       )
       .query("getMonsterSpawns", zod.number(), zod.array(monsterSpawnType)),
 });

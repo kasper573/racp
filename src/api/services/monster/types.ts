@@ -1,14 +1,8 @@
 import * as zod from "zod";
 import { ZodArrayEntity } from "../../../lib/zod/ZodArrayEntity";
 import { zodNumeric } from "../../../lib/zod/zodNumeric";
-import { stringFilterType, toggleRecordType } from "../../util/matchers";
-
-export type MonsterFilter = zod.infer<typeof monsterFilterType>;
-export const monsterFilterType = zod
-  .object({
-    name: zod.string().or(stringFilterType),
-  })
-  .partial();
+import { matchers, toggleRecordType } from "../../util/matchers";
+import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 
 export type MonsterSpawn = zod.infer<typeof monsterSpawnType>;
 export const monsterSpawnType = new ZodArrayEntity([
@@ -94,3 +88,7 @@ export const monsterType = zod.object({
   Atk: zod.number().optional(),
   MAtk: zod.number().optional(),
 });
+
+export type MonsterFilter = zod.infer<typeof monsterSearch.type>;
+
+export const monsterSearch = createEntityFilter(matchers, monsterType);

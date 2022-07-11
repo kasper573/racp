@@ -1,6 +1,6 @@
 import * as zod from "zod";
 import {
-  createEntitySearch,
+  createEntityFilter,
   createPayloadTypeFor,
   createZodMatcher,
 } from "./ZodMatcher";
@@ -91,7 +91,7 @@ describe("createEntitySearch", () => {
       (a, b) => a >= b
     );
 
-    const search = createEntitySearch(
+    const search = createEntityFilter(
       matcher,
       zod.object({
         name: zod.string(),
@@ -122,7 +122,7 @@ describe("createEntitySearch", () => {
       (a, b) => a >= b
     );
 
-    const search = createEntitySearch(
+    const search = createEntityFilter(
       matcher,
       zod.object({
         name: zod.string(),
@@ -134,6 +134,6 @@ describe("createEntitySearch", () => {
       count: { matcher: "gte", value: 123 },
     };
 
-    expect(search.payloadType.parse(payload)).toEqual(payload);
+    expect(search.type.parse(payload)).toEqual(payload);
   });
 });

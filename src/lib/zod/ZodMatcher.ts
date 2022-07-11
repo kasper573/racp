@@ -97,25 +97,27 @@ export function createPayloadTypeFor<
       zod.union(payloadTypes as any);
 }
 
-export function createEntitySearch<
+export function createEntityFilter<
   Matcher extends ZodMatcher,
   EntityType extends AnyZodObject
 >(matcher: Matcher, entityType: EntityType) {
   type Entity = zod.infer<EntityType>;
-  type Payload = EntitySearchPayload<Matcher["entries"], Entity>;
+  type Payload = EntityFilterPayload<Matcher["entries"], Entity>;
 
-  const payloadType = zod.object(
-    Object.entries(entityType.shape).reduce((shape, [key, type]) => {
-      try {
-        return {
-          ...shape,
-          [key]: createPayloadTypeFor(matcher, type as ZodTypeAny),
-        };
-      } catch {
-        return shape;
-      }
-    }, {})
-  ) as ZodType<Payload>;
+  const type = zod
+    .object(
+      Object.entries(entityType.shape).reduce((shape, [key, type]) => {
+        try {
+          return {
+            ...shape,
+            [key]: createPayloadTypeFor(matcher, type as ZodTypeAny),
+          };
+        } catch {
+          return shape;
+        }
+      }, {})
+    )
+    .partial() as ZodType<Payload>;
 
   return {
     for:
@@ -125,11 +127,11 @@ export function createEntitySearch<
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           matcher.match(entity[key], payload[key] as any)
         ),
-    payloadType,
+    type,
   };
 }
 
-export type EntitySearchPayload<
+export type EntityFilterPayload<
   Entries extends ZodMatcherEntries,
   Entity
 > = Partial<{
