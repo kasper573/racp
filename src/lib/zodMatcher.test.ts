@@ -47,16 +47,33 @@ describe("zodMatcher", () => {
     expect(res).toBe(false);
   });
 
-  it("can create argument type union for a given type", () => {
-    const matcher = createZodMatcher()
-      .add("ignored", zod.void(), zod.string(), () => false)
-      .add("include1", zod.void(), zod.number(), () => false)
-      .add("include2", zod.void(), zod.number(), () => false);
+  describe("createPayloadTypeFor", () => {
+    it("can create argument type union for a given type", () => {
+      const matcher = createZodMatcher()
+        .add("ignored", zod.void(), zod.string(), () => false)
+        .add("include1", zod.void(), zod.number(), () => false)
+        .add("include2", zod.void(), zod.number(), () => false);
 
-    const type = matcher.createPayloadTypeFor(zod.number());
-    const payload1 = { matcher: "include1", value: 123 };
-    const payload2 = { matcher: "include2", value: 234 };
-    expect(type.parse(payload1)).toEqual(payload1);
-    expect(type.parse(payload2)).toEqual(payload2);
+      const type = matcher.createPayloadTypeFor(zod.number());
+      const payload1 = { matcher: "include1", value: 123 };
+      const payload2 = { matcher: "include2", value: 234 };
+      expect(type.parse(payload1)).toEqual(payload1);
+      expect(type.parse(payload2)).toEqual(payload2);
+    });
+
+    it("throws error for empty matcher", () => {
+      const matcher = createZodMatcher();
+      expect(() => matcher.createPayloadTypeFor(zod.any())).toThrow();
+    });
+
+    it("throws error for no matching types", () => {
+      const matcher = createZodMatcher().add(
+        "foo",
+        zod.string(),
+        zod.string(),
+        () => false
+      );
+      expect(() => matcher.createPayloadTypeFor(zod.number())).toThrow();
+    });
   });
 });

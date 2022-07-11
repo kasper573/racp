@@ -39,16 +39,20 @@ export interface ZodMatcher<Entries extends ZodMatcherEntries> {
 
   createPayloadTypeFor<Argument extends ZodType>(
     argument: Argument
-  ): ZodMatcherArgumentTypeFor<Entries, zod.infer<Argument>>;
+  ): ZodMatchPayloadTypeFor<Entries, zod.infer<Argument>>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface ZodMatchPayload<MatcherName extends keyof any, Argument> {
+export interface ZodMatchPayload<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  MatcherName extends keyof any = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Argument = any
+> {
   matcher: MatcherName;
   value: Argument;
 }
 
-export type ZodMatcherArgumentTypeFor<
+export type ZodMatchPayloadTypeFor<
   Matchers extends ZodMatcherEntries,
   Argument
 > = ZodType<
@@ -83,12 +87,23 @@ export function createZodMatcher() {
       },
 
       createPayloadTypeFor(argumentType) {
-        const argumentTypes = Object.entries(entries)
+        const payloadTypes = Object.entries(entries)
           .filter(([, entry]) => isZodType(entry.argument, argumentType))
           .map(([name, entry]) =>
             zod.object({ matcher: zod.literal(name), value: entry.argument })
           );
-        return zod.union(argumentTypes as any);
+
+        if (payloadTypes.length === 0) {
+          throw new Error(
+            `Matcher contains no entries matching given argument type ${argumentType}`
+          );
+        }
+
+        return payloadTypes.length === 1
+          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (payloadTypes[0] as any)
+          : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            zod.union(payloadTypes as any);
       },
     };
   }
