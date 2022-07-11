@@ -92,13 +92,9 @@ export function createPayloadTypeFor<
     );
   }
 
-        return payloadTypes.length === 1
-          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (payloadTypes[0] as any)
-          : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            zod.union(payloadTypes as any);
-      },
-    };
-  }
-  return create({});
+  return payloadTypes.length === 1
+    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (payloadTypes[0] as any)
+    : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      zod.union(payloadTypes as any);
 }
