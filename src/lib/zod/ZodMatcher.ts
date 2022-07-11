@@ -1,5 +1,5 @@
 import * as zod from "zod";
-import { ZodType } from "zod";
+import { AnyZodObject, ZodType, ZodTypeAny } from "zod";
 import { typedKeys } from "../typedKeys";
 import { isZodType } from "./isZodType";
 
@@ -41,6 +41,7 @@ export type ZodMatchPayloadFor<
 
 export class ZodMatcher<Entries extends ZodMatcherEntries = ZodMatcherEntries> {
   constructor(public entries: Entries) {}
+
   add<Name extends string, Target extends ZodType, Argument extends ZodType>(
     name: Name,
     target: Target,
@@ -98,16 +99,30 @@ export function createPayloadTypeFor<
 
 export function createEntitySearch<
   Matcher extends ZodMatcher,
-  EntityType extends ZodType
+  EntityType extends AnyZodObject
 >(matcher: Matcher, entityType: EntityType) {
   type Entity = zod.infer<EntityType>;
   type Payload = EntitySearchPayload<Matcher["entries"], Entity>;
-  const payloadType = zod.number() as unknown as ZodType<Payload>;
+
+  const payloadType = zod.object(
+    Object.entries(entityType.shape).reduce((shape, [key, type]) => {
+      try {
+        return {
+          ...shape,
+          [key]: createPayloadTypeFor(matcher, type as ZodTypeAny),
+        };
+      } catch {
+        return shape;
+      }
+    }, {})
+  ) as ZodType<Payload>;
+
   return {
     for:
       (payload: Payload) =>
       (entity: Entity): boolean =>
         typedKeys(payload).every((key) =>
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           matcher.match(entity[key], payload[key] as any)
         ),
     payloadType,
