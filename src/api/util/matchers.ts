@@ -1,5 +1,6 @@
 import { without } from "lodash";
 import * as zod from "zod";
+import { createZodMatcher } from "../../lib/zod/ZodMatcher";
 
 export type ToggleName = zod.infer<typeof toggleNameType>;
 export const toggleNameType = zod.string();
@@ -103,3 +104,81 @@ export const stringFilterType = zod.object({
   matcher: stringMatcherType,
   caseSensitive: zod.boolean(),
 });
+
+const primitive = zod.union([zod.number(), zod.string(), zod.boolean()]);
+
+const caseSensitiveType = zod.boolean().default(false);
+const stringPayload = zod.union([
+  zod.string(),
+  zod.object({
+    caseSensitive: caseSensitiveType,
+    text: zod.string(),
+  }),
+]);
+
+const stringNormalizer =
+  (fn: (a: string, b: string) => boolean) =>
+  (target: string, payload: zod.infer<typeof stringPayload>) => {
+    const { caseSensitive, text } =
+      typeof payload === "string"
+        ? {
+            caseSensitive: caseSensitiveType._def.defaultValue(),
+            text: payload,
+          }
+        : payload;
+    return caseSensitive
+      ? fn(target, text)
+      : fn(target.toLowerCase(), text.toLowerCase());
+  };
+
+export const matchers = createZodMatcher()
+  .add("eq", zod.number(), zod.number(), (a, b) => a === b)
+  .add("gt", zod.number(), zod.number(), (a, b) => a > b)
+  .add("lt", zod.number(), zod.number(), (a, b) => a < b)
+  .add("gte", zod.number(), zod.number(), (a, b) => a >= b)
+  .add("lte", zod.number(), zod.number(), (a, b) => a <= b)
+  .add("includes", zod.array(primitive), primitive, (list, item) =>
+    list.includes(item)
+  )
+  .add(
+    "includesAll",
+    zod.array(primitive),
+    zod.array(primitive),
+    (a, b) => without(b, ...a).length === 0
+  )
+  .add(
+    "includesSome",
+    zod.array(primitive),
+    zod.array(primitive),
+    (a, b) => without(b, ...a).length < b.length
+  )
+  .add(
+    "between",
+    zod.number(),
+    zod.tuple([zod.number(), zod.number()]),
+    (a, [min, max]) => a >= min && a <= max
+  )
+  .add(
+    "stringEquals",
+    zod.string(),
+    stringPayload,
+    stringNormalizer((a, b) => a === b)
+  )
+  .add(
+    "startsWith",
+    zod.string(),
+    stringPayload,
+    stringNormalizer((a, b) => a.startsWith(b))
+  )
+  .add(
+    "endsWith",
+    zod.string(),
+    stringPayload,
+    stringNormalizer((a, b) => a.endsWith(b))
+  )
+  .add(
+    "includes",
+    zod.string(),
+    stringPayload,
+    stringNormalizer((a, b) => a.includes(b))
+  );
