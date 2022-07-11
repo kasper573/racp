@@ -1,8 +1,9 @@
 import { ZodOptional, ZodType, ZodFirstPartyTypeKind } from "zod";
+import { ZodTypeDef } from "zod/lib/types";
 
 export function isZodType(
   type: ZodType | undefined,
-  check: ZodFirstPartyTypeKind
+  check: ZodFirstPartyTypeKind | ZodType
 ): boolean {
   if (!type) {
     return false;
@@ -10,9 +11,15 @@ export function isZodType(
   if (type instanceof ZodOptional) {
     return isZodType(type._def.innerType, check);
   }
-  const def = type._def as Record<string, unknown>;
-  if ("typeName" in def) {
-    return def.typeName === check;
+  if (typeof check !== "string") {
+    check = getTypeName(check._def);
   }
-  return false;
+  return getTypeName(type._def) === check;
+}
+
+function getTypeName(def: ZodTypeDef) {
+  if ("typeName" in def) {
+    return (def as Record<string, unknown>).typeName as ZodFirstPartyTypeKind;
+  }
+  throw new Error(`Could not get type name from ZodTypeDef ${def}`);
 }
