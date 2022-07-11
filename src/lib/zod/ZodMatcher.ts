@@ -98,3 +98,16 @@ export function createPayloadTypeFor<
     : // eslint-disable-next-line @typescript-eslint/no-explicit-any
       zod.union(payloadTypes as any);
 }
+
+export function createEntitySearch<
+  Matcher extends ZodMatcher,
+  EntityType extends ZodType
+>(matcher: Matcher, entityType: EntityType) {
+  const payloadType = zod.unknown();
+  return {
+    filter(entities: unknown[], payload: unknown) {
+      return entities;
+    },
+    payloadType,
+  };
+}

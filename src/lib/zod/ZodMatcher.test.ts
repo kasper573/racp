@@ -1,5 +1,9 @@
 import * as zod from "zod";
-import { createPayloadTypeFor, createZodMatcher } from "./ZodMatcher";
+import {
+  createEntitySearch,
+  createPayloadTypeFor,
+  createZodMatcher,
+} from "./ZodMatcher";
 
 describe("ZodMatcher", () => {
   it("match function gets called with the correct arguments", () => {
@@ -75,5 +79,59 @@ describe("createPayloadTypeFor", () => {
       () => false
     );
     expect(() => createPayloadTypeFor(matcher, zod.number())).toThrow();
+  });
+});
+
+describe("createEntitySearch", () => {
+  it("can filter entities", () => {
+    const matcher = createZodMatcher().add(
+      "gte",
+      zod.number(),
+      zod.number(),
+      (a, b) => a >= b
+    );
+
+    const search = createEntitySearch(
+      matcher,
+      zod.object({
+        name: zod.string(),
+        count: zod.number(),
+      })
+    );
+
+    const entities = [
+      { name: "foo", count: 10 },
+      { name: "bar", count: 15 },
+      { name: "baz", count: 20 },
+    ];
+
+    const results = search.filter(entities, {
+      name: { matcher: "gte", value: 15 },
+    });
+
+    expect(results).toEqual(entities.slice(0, 2));
+  });
+
+  it("exposes payload type matching the given entity type", () => {
+    const matcher = createZodMatcher().add(
+      "gte",
+      zod.number(),
+      zod.number(),
+      (a, b) => a >= b
+    );
+
+    const search = createEntitySearch(
+      matcher,
+      zod.object({
+        name: zod.string(),
+        count: zod.number(),
+      })
+    );
+
+    const payload = {
+      count: { matcher: "gte", value: 123 },
+    };
+
+    expect(search.payloadType.parse(payload)).toEqual(payload);
   });
 });
