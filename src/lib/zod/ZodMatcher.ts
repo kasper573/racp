@@ -1,5 +1,6 @@
 import * as zod from "zod";
 import { ZodType } from "zod";
+import { typedKeys } from "../typedKeys";
 import { isZodType } from "./isZodType";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,18 +30,14 @@ export interface ZodMatchPayload<
   value: Argument;
 }
 
-export type ZodMatchPayloadTypeFor<
+export type ZodMatchPayloadFor<
   Matchers extends ZodMatcherEntries,
   Argument
-> = ZodType<
-  Values<{
-    [K in keyof Matchers]: zod.infer<Matchers[K]["argument"]> extends Argument
-      ? ZodMatchPayload<K, Argument>
-      : never;
-  }>
->;
-
-type Values<T> = T[keyof T];
+> = Values<{
+  [K in keyof Matchers]: zod.infer<Matchers[K]["argument"]> extends Argument
+    ? ZodMatchPayload<K, Argument>
+    : never;
+}>;
 
 export class ZodMatcher<Entries extends ZodMatcherEntries = ZodMatcherEntries> {
   constructor(public entries: Entries) {}
@@ -79,7 +76,7 @@ export function createPayloadTypeFor<
 >(
   matcher: Matcher,
   argumentType: Argument
-): ZodMatchPayloadTypeFor<Matcher["entries"], zod.infer<Argument>> {
+): ZodType<ZodMatchPayloadFor<Matcher["entries"], zod.infer<Argument>>> {
   const payloadTypes = Object.entries(matcher.entries)
     .filter(([, entry]) => isZodType(entry.argument, argumentType))
     .map(([name, entry]) =>
@@ -103,11 +100,32 @@ export function createEntitySearch<
   Matcher extends ZodMatcher,
   EntityType extends ZodType
 >(matcher: Matcher, entityType: EntityType) {
-  const payloadType = zod.unknown();
+  type Entity = zod.infer<EntityType>;
+  type Payload = EntitySearchPayload<Matcher["entries"], Entity>;
+  const payloadType = zod.number() as unknown as ZodType<Payload>;
   return {
-    filter(entities: unknown[], payload: unknown) {
-      return entities;
-    },
+    for:
+      (payload: Payload) =>
+      (entity: Entity): boolean =>
+        typedKeys(payload).every((key) =>
+          matcher.match(entity[key], payload[key] as any)
+        ),
     payloadType,
   };
 }
+
+export type EntitySearchPayload<
+  Entries extends ZodMatcherEntries,
+  Entity
+> = Partial<{
+  [K in KeysForType<
+    Entity,
+    zod.infer<Values<Entries>["argument"]>
+  >]: ZodMatchPayloadFor<Entries, Entity[K]>;
+}>;
+
+export type Values<T> = T[keyof T];
+
+export type KeysForType<T, S> = Values<{
+  [K in keyof T]: T[K] extends S ? K : never;
+}>;

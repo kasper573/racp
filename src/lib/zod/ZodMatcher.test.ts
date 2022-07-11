@@ -105,11 +105,13 @@ describe("createEntitySearch", () => {
       { name: "baz", count: 20 },
     ];
 
-    const results = search.filter(entities, {
-      name: { matcher: "gte", value: 15 },
-    });
+    const results = entities.filter(
+      search.for({
+        count: { matcher: "gte", value: 15 },
+      })
+    );
 
-    expect(results).toEqual(entities.slice(0, 2));
+    expect(results).toEqual(entities.slice(1, 3));
   });
 
   it("exposes payload type matching the given entity type", () => {
