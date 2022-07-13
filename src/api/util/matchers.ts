@@ -137,6 +137,12 @@ export const matchers = createZodMatcher()
   .add("<", zod.number(), zod.number(), (a, b) => a < b)
   .add(">=", zod.number(), zod.number(), (a, b) => a >= b)
   .add("<=", zod.number(), zod.number(), (a, b) => a <= b)
+  .add(
+    "between",
+    zod.number(),
+    zod.tuple([zod.number(), zod.number()]),
+    (a, [min, max]) => a >= min && a <= max
+  )
   .add("includes", zod.array(primitive), primitive, (list, item) =>
     list.includes(item)
   )
@@ -151,12 +157,6 @@ export const matchers = createZodMatcher()
     zod.array(primitive),
     zod.array(primitive),
     (a, b) => without(b, ...a).length < b.length
-  )
-  .add(
-    "between",
-    zod.number(),
-    zod.tuple([zod.number(), zod.number()]),
-    (a, [min, max]) => a >= min && a <= max
   )
   .add(
     "stringEquals",
