@@ -55,9 +55,9 @@ describe("ZodMatcher", () => {
 describe("createPayloadTypeFor", () => {
   it("can create argument type union for a given type", () => {
     const matcher = createZodMatcher()
-      .add("ignored", zod.void(), zod.string(), () => false)
-      .add("include1", zod.void(), zod.number(), () => false)
-      .add("include2", zod.void(), zod.number(), () => false);
+      .add("ignored", zod.string(), zod.string(), () => false)
+      .add("include1", zod.number(), zod.number(), () => false)
+      .add("include2", zod.number(), zod.number(), () => false);
 
     const type = createPayloadTypeFor(matcher, zod.number());
     const payload1 = { matcher: "include1", value: 123 };
@@ -112,6 +112,35 @@ describe("createEntitySearch", () => {
     );
 
     expect(results).toEqual(entities.slice(1, 3));
+  });
+
+  it("can filter entities with non-primitive argument type", () => {
+    const mmx = zod.tuple([zod.number(), zod.number()]);
+    const matcher = createZodMatcher()
+      .add("other", zod.string(), zod.string(), () => false)
+      .add("mmx", zod.number(), mmx, (a, [min, max]) => a >= min && a <= max);
+
+    const search = createEntityFilter(
+      matcher,
+      zod.object({
+        name: zod.string(),
+        count: zod.number(),
+      })
+    );
+
+    const entities = [
+      { name: "foo", count: 10 },
+      { name: "bar", count: 15 },
+      { name: "baz", count: 20 },
+    ];
+
+    const results = entities.filter(
+      search.for({
+        count: { matcher: "mmx", value: [12, 16] },
+      })
+    );
+
+    expect(results).toEqual(entities.slice(1, 2));
   });
 
   it("exposes payload type matching the given entity type", () => {

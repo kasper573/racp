@@ -6,6 +6,30 @@ import { isZodType } from "./isZodType";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ZodMatcherEntries = Record<string, ZodMatcherEntry<any, any>>;
 
+export type EntriesForArgument<
+  Entries extends ZodMatcherEntries,
+  Argument
+> = OmitNever<{
+  [K in keyof Entries]: IsDefinedType<
+    zod.infer<Entries[K]["argument"]>,
+    Argument
+  > extends true
+    ? Entries[K]
+    : never;
+}>;
+
+export type EntriesForTarget<
+  Entries extends ZodMatcherEntries,
+  Target
+> = OmitNever<{
+  [K in keyof Entries]: IsDefinedType<
+    zod.infer<Entries[K]["target"]>,
+    Target
+  > extends true
+    ? Entries[K]
+    : never;
+}>;
+
 export interface ZodMatcherEntry<
   Target extends ZodType,
   Argument extends ZodType
@@ -30,14 +54,16 @@ export interface ZodMatchPayload<
   value: Argument;
 }
 
-export type ZodMatchPayloadFor<
-  Matchers extends ZodMatcherEntries,
-  Argument
-> = Values<{
-  [K in keyof Matchers]: zod.infer<Matchers[K]["argument"]> extends Argument
-    ? ZodMatchPayload<K, Argument>
-    : never;
-}>;
+export type ZodMatchPayloadForEntries<
+  Entries extends ZodMatcherEntries,
+  Keys extends keyof Entries = keyof Entries
+> = {
+  [K in Keys]: ZodMatchPayload<K, zod.infer<Entries[K]["argument"]>>;
+};
+
+export type ZodMatchPayloadUnion<Entries extends ZodMatcherEntries> = Values<
+  ZodMatchPayloadForEntries<Entries>
+>;
 
 export class ZodMatcher<Entries extends ZodMatcherEntries = ZodMatcherEntries> {
   constructor(public entries: Entries) {}
@@ -74,27 +100,30 @@ export function createZodMatcher() {
 export function createPayloadTypeFor<
   Matcher extends ZodMatcher,
   Argument extends ZodType
->(
-  matcher: Matcher,
-  argumentType: Argument
-): ZodType<ZodMatchPayloadFor<Matcher["entries"], zod.infer<Argument>>> {
+>(matcher: Matcher, targetType: Argument) {
+  type PayloadType = ZodType<
+    ZodMatchPayloadUnion<
+      EntriesForArgument<Matcher["entries"], zod.infer<Argument>>
+    >
+  >;
+
   const payloadTypes = Object.entries(matcher.entries)
-    .filter(([, entry]) => isZodType(entry.argument, argumentType))
+    .filter(([, entry]) => isZodType(entry.target, targetType))
     .map(([name, entry]) =>
       zod.object({ matcher: zod.literal(name), value: entry.argument })
     );
 
   if (payloadTypes.length === 0) {
     throw new Error(
-      `Matcher contains no entries matching given argument type ${argumentType}`
+      `Matcher contains no entries matching given argument type ${targetType}`
     );
   }
 
   return payloadTypes.length === 1
     ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (payloadTypes[0] as any)
+      (payloadTypes[0] as any as PayloadType)
     : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      zod.union(payloadTypes as any);
+      (zod.union(payloadTypes as any) as PayloadType);
 }
 
 export function createEntityFilter<
@@ -135,14 +164,20 @@ export type EntityFilterPayload<
   Entries extends ZodMatcherEntries,
   Entity
 > = Partial<{
-  [K in KeysForType<
-    Entity,
-    zod.infer<Values<Entries>["argument"]>
-  >]: ZodMatchPayloadFor<Entries, Entity[K]>;
+  [K in keyof Entity]: ZodMatchPayloadUnion<
+    EntriesForTarget<Entries, Entity[K]>
+  >;
 }>;
 
-export type Values<T> = T[keyof T];
+type Values<T> = T[keyof T];
 
-export type KeysForType<T, S> = Values<{
-  [K in keyof T]: T[K] extends S ? K : never;
-}>;
+type IsDefinedType<A, B> = Exclude<A, undefined> extends Exclude<B, undefined>
+  ? true
+  : false;
+
+type OmitNever<T> = Pick<
+  T,
+  Values<{
+    [K in keyof T]: T[K] extends never ? never : K;
+  }>
+>;
