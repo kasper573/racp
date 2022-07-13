@@ -1,5 +1,5 @@
 import * as zod from "zod";
-import { AnyZodObject, ZodFirstPartyTypeKind } from "zod";
+import { ZodFirstPartyTypeKind, ZodType } from "zod";
 import { ChangeEvent } from "react";
 import { get, set } from "lodash";
 import produce from "immer";
@@ -10,7 +10,7 @@ import {
 import { Path, PathValue, getZodType } from "./zodPath";
 import { isZodType } from "./isZodType";
 
-export function useZodForm<Schema extends AnyZodObject>({
+export function useZodForm<Schema extends ZodType>({
   schema,
   ...props
 }: ZodFormOptions<Schema>) {
@@ -28,7 +28,7 @@ export function useZodForm<Schema extends AnyZodObject>({
 
       function setFieldValue(updatedFieldValue: PathValue<Entity, P>) {
         setValue(
-          produce(value, (draft) => {
+          produce(value, (draft: Entity) => {
             set(draft, path, updatedFieldValue);
           })
         );
@@ -73,7 +73,7 @@ function parseNumber(str: string) {
   return isNaN(n) ? undefined : n;
 }
 
-export interface ZodFormOptions<Schema extends AnyZodObject>
+export interface ZodFormOptions<Schema extends ZodType>
   extends UseElevatedStateProps<zod.infer<Schema>> {
   schema: Schema;
 }
