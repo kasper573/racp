@@ -114,11 +114,10 @@ const stringNormalizer =
     target: string,
     text: string,
     { caseSensitive = false }: zod.infer<typeof stringOptions> = {}
-  ) => {
-    return caseSensitive
+  ) =>
+    caseSensitive
       ? fn(target, text)
       : fn(target.toLowerCase(), text.toLowerCase());
-  };
 
 export const matcher = createZodMatcher()
   .add("=", zod.number(), zod.number(), zod.void(), (a, b) => a === b)
