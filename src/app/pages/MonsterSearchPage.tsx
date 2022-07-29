@@ -11,30 +11,28 @@ export default function MonsterSearchPage() {
     <>
       <Header>Monsters</Header>
       <MonsterSearchFilterForm value={filter} onChange={setFilter} />
-      <DataGrid<Monster, MonsterFilter, Monster["Id"]>
-        filter={filter}
-        columns={columns}
-        query={useSearchMonstersQuery}
-        id={(item) => item.Id}
-        sx={{ mt: 1 }}
-      />
+      <MonsterGrid filter={filter} sx={{ mt: 1 }} />
     </>
   );
 }
 
-const columns = {
-  Name: true,
-  Level: true,
-  Atk: "Attack",
-  MAtk: "M. Attack",
-  Defense: "Defense",
-  MagicDefense: "M. Defense",
-  Hit: true,
-  Flee: true,
-  BaseExp: "Base XP",
-  JobExp: "Job XP",
-  WalkSpeed: "Move Speed",
-  AttackRange: "Atk. Range",
-  SkillRange: "Skill Range",
-  ChaseRange: "Chase Range",
-};
+const MonsterGrid = DataGrid.define<Monster, MonsterFilter, Monster["Id"]>({
+  query: useSearchMonstersQuery,
+  id: (item) => item.Id,
+  columns: {
+    Name: true,
+    Level: true,
+    Atk: "Attack",
+    MAtk: "M. Attack",
+    Defense: "Defense",
+    MagicDefense: "M. Defense",
+    Hit: true,
+    Flee: true,
+    BaseExp: "Base XP",
+    JobExp: "Job XP",
+    WalkSpeed: "Move Speed",
+    AttackRange: "Atk. Range",
+    SkillRange: "Skill Range",
+    ChaseRange: "Chase Range",
+  },
+});

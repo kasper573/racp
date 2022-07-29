@@ -12,27 +12,25 @@ export default function ItemSearchPage() {
     <>
       <Header>Items</Header>
       <ItemSearchFilterForm value={filter} onChange={setFilter} />
-      <DataGrid<Item, ItemFilter, Item["Id"]>
-        filter={filter}
-        columns={columns}
-        query={useSearchItemsQuery}
-        id={(item) => item.Id}
-        link={(id) => router.item().view({ id })}
-        sx={{ mt: 1 }}
-      />
+      <ItemGrid filter={filter} sx={{ mt: 1 }} />
     </>
   );
 }
 
-const columns = {
-  Name: "Name",
-  Buy: "Buy",
-  Sell: "Sell",
-  Weight: "Weight",
-  Attack: "Atk",
-  MagicAttack: "MAtk",
-  Defense: "Def",
-  EquipLevelMin: "Min Level",
-  EquipLevelMax: "Max Level",
-  Slots: "Slots",
-};
+const ItemGrid = DataGrid.define<Item, ItemFilter, Item["Id"]>({
+  query: useSearchItemsQuery,
+  id: (item) => item.Id,
+  link: (id) => router.item().view({ id }),
+  columns: {
+    Name: "Name",
+    Buy: "Buy",
+    Sell: "Sell",
+    Weight: "Weight",
+    Attack: "Atk",
+    MagicAttack: "MAtk",
+    Defense: "Def",
+    EquipLevelMin: "Min Level",
+    EquipLevelMax: "Max Level",
+    Slots: "Slots",
+  },
+});

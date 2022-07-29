@@ -39,11 +39,6 @@ export interface ZodMatcherFormOptions<
   schema: Schema;
 }
 
-type MatcherTarget<
-  Matcher extends ZodMatcher,
-  MatcherName extends keyof Matcher["entries"]
-> = zod.infer<Matcher["entries"][MatcherName]["target"]>;
-
 type MatchingKeys<Entity extends AnyEntityFilterPayload, V> = Values<
   OmitNever<{
     [K in keyof Entity]-?: V extends Exclude<Entity[K], undefined>["value"]

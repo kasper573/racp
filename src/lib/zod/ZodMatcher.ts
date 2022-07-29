@@ -90,22 +90,32 @@ export class ZodMatcher<Entries extends ZodMatcherEntries = ZodMatcherEntries> {
     options: Options,
     fn: ZodMatcherFn<Target, Argument, Options>
   ) {
-    return new ZodMatcher({
+    return new ZodMatcher<
+      Entries & Record<Name, ZodMatcherEntry<Target, Argument, Options>>
+    >({
       ...this.entries,
       [name]: {
         target,
         argument,
         fn,
       },
-    } as Entries & Record<Name, ZodMatcherEntry<Target, Argument, Options>>);
+    });
   }
 
   match<Name extends keyof Entries>(
     target: zod.infer<Entries[Name]["target"]>,
-    argument: ZodMatcherPayload<Name, zod.infer<Entries[Name]["argument"]>>
+    {
+      matcher,
+      value,
+      options,
+    }: ZodMatcherPayload<
+      Name,
+      zod.infer<Entries[Name]["argument"]>,
+      zod.infer<Entries[Name]["options"]>
+    >
   ): boolean {
-    const entry = this.entries[argument.matcher];
-    return entry.fn(target, argument.value, argument.options);
+    const { fn } = this.entries[matcher];
+    return fn(target, value, options);
   }
 }
 
@@ -176,15 +186,11 @@ export function createEntityFilter<
   };
 }
 
-export type EntityFilterPayload<
-  Entries extends ZodMatcherEntries,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Entity = any
-> = Partial<{
-  [K in keyof Entity]: ZodMatchPayloadUnion<
+export type EntityFilterPayload<Entries extends ZodMatcherEntries, Entity> = {
+  [K in keyof Entity]?: ZodMatchPayloadUnion<
     EntriesForTarget<Entries, Entity[K]>
   >;
-}>;
+};
 
 type IsDefinedType<A, B> = Exclude<A, undefined> extends Exclude<B, undefined>
   ? true
