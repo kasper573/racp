@@ -1,5 +1,5 @@
 import * as zod from "zod";
-import { AnyZodObject, ZodType, ZodTypeAny } from "zod";
+import { AnyZodObject, ZodRawShape, ZodType, ZodTypeAny } from "zod";
 import { typedKeys } from "../typedKeys";
 import { isZodType } from "./isZodType";
 
@@ -98,6 +98,7 @@ export class ZodMatcher<Entries extends ZodMatcherEntries = ZodMatcherEntries> {
         target,
         argument,
         fn,
+        options,
       },
     });
   }
@@ -135,9 +136,14 @@ export function createPayloadTypeFor<
 
   const payloadTypes = Object.entries(matcher.entries)
     .filter(([, entry]) => isZodType(entry.target, targetType))
-    .map(([name, entry]) =>
-      zod.object({ matcher: zod.literal(name), value: entry.argument })
-    );
+    .map(([name, entry]) => {
+      const shape: ZodRawShape & ZodMatcherPayload = {
+        matcher: zod.literal(name),
+        value: entry.argument,
+        options: entry.options,
+      };
+      return zod.object(shape);
+    });
 
   if (payloadTypes.length === 0) {
     throw new Error(

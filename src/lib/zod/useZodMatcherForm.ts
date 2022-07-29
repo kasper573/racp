@@ -16,7 +16,11 @@ export function useZodMatcherForm<
       Entity,
       zod.infer<M["entries"][MatcherName]["target"]>
     >
-  >(matcher: MatcherName, key: Key) {
+  >(
+    matcher: MatcherName,
+    key: Key,
+    options?: zod.infer<M["entries"][MatcherName]["options"]>
+  ) {
     type Argument = zod.infer<M["entries"][MatcherName]["argument"]>;
     const { value, onChange } = field(key) as unknown as ZodFormRegistration<
       ZodMatcherPayload<MatcherName, Argument> | undefined
@@ -24,7 +28,7 @@ export function useZodMatcherForm<
     return {
       value: value?.value,
       onChange(value) {
-        onChange(value === undefined ? undefined : { matcher, value });
+        onChange(value === undefined ? undefined : { matcher, value, options });
       },
     } as ZodFormRegistration<Argument | undefined>;
   }
