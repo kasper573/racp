@@ -9,7 +9,7 @@ import { TooltipText } from "../components/TooltipText";
 import { ClientTextBlock } from "../components/ClientText/ClientText";
 import { TabSwitch } from "../components/TabSwitch";
 import { Script } from "../components/Script";
-import { resolveToggles } from "../../api/util/matchers";
+import { resolveToggles } from "../../api/util/matcher";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ItemSearchPage(): ReactElement {

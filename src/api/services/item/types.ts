@@ -3,7 +3,7 @@ import {
   stringFilterType,
   toggleNameType,
   toggleRecordType,
-} from "../../util/matchers";
+} from "../../util/matcher";
 import { clientTextType } from "../../common/clientTextType";
 import { itemScriptType } from "./util/itemScriptType";
 

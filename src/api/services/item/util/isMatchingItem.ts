@@ -5,7 +5,7 @@ import {
   isRefMatch,
   isStringMatch,
   isToggleMatch,
-} from "../../../util/matchers";
+} from "../../../util/matcher";
 import { clientTextContent } from "../../../common/clientTextType";
 
 export function isMatchingItem(item: Item, filter: ItemFilter): boolean {

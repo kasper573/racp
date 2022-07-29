@@ -97,8 +97,8 @@ export const stringMatcherType = zod.union([
   zod.literal("includes"),
 ]);
 
+// TODO remove old string / matching stuff
 export type StringFilter = zod.infer<typeof stringFilterType>;
-
 export const stringFilterType = zod.object({
   arg: zod.string().optional(),
   matcher: stringMatcherType,
@@ -107,6 +107,7 @@ export const stringFilterType = zod.object({
 
 const primitive = zod.union([zod.number(), zod.string(), zod.boolean()]);
 
+export type StringMatcherPayload = zod.infer<typeof stringPayload>;
 const caseSensitiveType = zod.boolean().default(false);
 const stringPayload = zod.union([
   zod.string(),
@@ -118,7 +119,7 @@ const stringPayload = zod.union([
 
 const stringNormalizer =
   (fn: (a: string, b: string) => boolean) =>
-  (target: string, payload: zod.infer<typeof stringPayload>) => {
+  (target: string, payload: StringMatcherPayload) => {
     const { caseSensitive, text } =
       typeof payload === "string"
         ? {
@@ -131,7 +132,7 @@ const stringNormalizer =
       : fn(target.toLowerCase(), text.toLowerCase());
   };
 
-export const matchers = createZodMatcher()
+export const matcher = createZodMatcher()
   .add("=", zod.number(), zod.number(), (a, b) => a === b)
   .add(">", zod.number(), zod.number(), (a, b) => a > b)
   .add("<", zod.number(), zod.number(), (a, b) => a < b)
@@ -159,7 +160,7 @@ export const matchers = createZodMatcher()
     (a, b) => without(b, ...a).length < b.length
   )
   .add(
-    "stringEquals",
+    "equals",
     zod.string(),
     stringPayload,
     stringNormalizer((a, b) => a === b)
@@ -177,8 +178,21 @@ export const matchers = createZodMatcher()
     stringNormalizer((a, b) => a.endsWith(b))
   )
   .add(
-    "includes",
+    "contains",
     zod.string(),
     stringPayload,
     stringNormalizer((a, b) => a.includes(b))
   );
+
+export function stringTransform({
+  value,
+  onChange,
+}: {
+  value?: string | StringFilter;
+  onChange: (value?: string | StringFilter) => void;
+}) {
+  return {
+    value: typeof value === "string" ? value : value?.arg,
+    onChange,
+  };
+}

@@ -1,5 +1,5 @@
 import * as zod from "zod";
-import { toggleRecordType } from "../../util/matchers";
+import { toggleRecordType } from "../../util/matcher";
 import { getZodType } from "../../../lib/zod/zodPath";
 import { LoginEntityType } from "../../rathena/DatabaseDriver.types";
 

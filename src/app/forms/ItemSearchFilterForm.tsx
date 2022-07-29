@@ -8,9 +8,10 @@ import { Select } from "../controls/Select";
 import { SliderMenu } from "../controls/SliderMenu";
 import { TextField } from "../controls/TextField";
 import { useLatest } from "../hooks/useLatest";
+import { stringTransform } from "../../api/util/matcher";
 
 export function ItemSearchFilterForm({ value, onChange }: FormDataProps) {
-  const { register: reg } = useZodForm({
+  const field = useZodForm({
     schema: itemFilterType,
     value,
     onChange,
@@ -23,48 +24,70 @@ export function ItemSearchFilterForm({ value, onChange }: FormDataProps) {
 
   return (
     <ControlGrid>
-      <TextField size="small" label="ID" type="number" {...reg("id")} />
-      <TextField size="small" label="Name" {...reg("name")} />
+      <TextField
+        size="small"
+        label="ID"
+        type="number"
+        optional
+        {...field("id")}
+      />
+      <TextField
+        size="small"
+        label="Name"
+        optional
+        {...stringTransform(field("name"))}
+      />
       <Select
         label="Primary Type"
         multi
         options={typedKeys(meta?.types)}
-        {...reg("types")}
+        {...field("types")}
       />
       <Select
         label="Subtype"
         multi
         options={itemSubTypes}
         empty={emptySubTypeExplanation}
-        {...reg("subTypes")}
+        {...field("subTypes")}
       />
-      <Select label="Class" multi options={meta?.classes} {...reg("classes")} />
-      <Select label="Job" multi options={meta?.jobs} {...reg("jobs")} />
+      <Select
+        label="Class"
+        multi
+        options={meta?.classes}
+        {...field("classes")}
+      />
+      <Select label="Job" multi options={meta?.jobs} {...field("jobs")} />
       <Select
         label="Element"
         multi
         options={meta?.elements}
-        {...reg("elements")}
+        {...field("elements")}
       />
       <Select
         label="Status"
         multi
         options={meta?.statuses}
-        {...reg("statuses")}
+        {...field("statuses")}
       />
-      <Select label="Race" multi options={meta?.races} {...reg("races")} />
+      <Select label="Race" multi options={meta?.races} {...field("races")} />
       <TextField
         size="small"
         label="Description contains"
-        {...reg("description")}
+        optional
+        {...field("description")}
       />
-      <TextField size="small" label="Script contains" {...reg("script")} />
+      <TextField
+        size="small"
+        label="Script contains"
+        optional
+        {...field("script")}
+      />
       <SliderMenu
         ranged
         size="small"
         label="Slots"
         max={meta?.maxSlots}
-        {...reg("slots")}
+        {...field("slots")}
       />
     </ControlGrid>
   );

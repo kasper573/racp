@@ -3,17 +3,20 @@ import { Header } from "../layout/Header";
 import { DataGrid } from "../components/DataGrid";
 import { Monster, MonsterFilter } from "../../api/services/monster/types";
 import { useSearchMonstersQuery } from "../state/client";
+import { MonsterSearchFilterForm } from "../forms/MonsterSearchFilterForm";
 
 export default function MonsterSearchPage() {
   const [filter, setFilter] = useState<MonsterFilter>({});
   return (
     <>
       <Header>Monsters</Header>
+      <MonsterSearchFilterForm value={filter} onChange={setFilter} />
       <DataGrid<Monster, MonsterFilter, Monster["Id"]>
         filter={filter}
         columns={columns}
         query={useSearchMonstersQuery}
         id={(item) => item.Id}
+        sx={{ mt: 1 }}
       />
     </>
   );

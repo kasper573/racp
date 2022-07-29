@@ -1,7 +1,7 @@
 import * as zod from "zod";
 import { ZodArrayEntity } from "../../../lib/zod/ZodArrayEntity";
 import { zodNumeric } from "../../../lib/zod/zodNumeric";
-import { matchers, toggleRecordType } from "../../util/matchers";
+import { matcher, toggleRecordType } from "../../util/matcher";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 
 export type MonsterSpawn = zod.infer<typeof monsterSpawnType>;
@@ -91,4 +91,4 @@ export const monsterType = zod.object({
 
 export type MonsterFilter = zod.infer<typeof monsterSearch.type>;
 
-export const monsterSearch = createEntityFilter(matchers, monsterType);
+export const monsterSearch = createEntityFilter(matcher, monsterType);

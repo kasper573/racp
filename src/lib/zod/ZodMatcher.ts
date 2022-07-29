@@ -44,7 +44,7 @@ export type ZodMatcherFn<Target extends ZodType, Argument extends ZodType> = (
   argument: zod.infer<Argument>
 ) => boolean;
 
-export interface ZodMatchPayload<
+export interface ZodMatcherPayload<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   MatcherName extends keyof any = any,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -58,7 +58,7 @@ export type ZodMatchPayloadForEntries<
   Entries extends ZodMatcherEntries,
   Keys extends keyof Entries = keyof Entries
 > = {
-  [K in Keys]: ZodMatchPayload<K, zod.infer<Entries[K]["argument"]>>;
+  [K in Keys]: ZodMatcherPayload<K, zod.infer<Entries[K]["argument"]>>;
 };
 
 export type ZodMatchPayloadUnion<Entries extends ZodMatcherEntries> = Values<
@@ -86,7 +86,7 @@ export class ZodMatcher<Entries extends ZodMatcherEntries = ZodMatcherEntries> {
 
   match<Name extends keyof Entries>(
     target: zod.infer<Entries[Name]["target"]>,
-    argument: ZodMatchPayload<Name, zod.infer<Entries[Name]["argument"]>>
+    argument: ZodMatcherPayload<Name, zod.infer<Entries[Name]["argument"]>>
   ): boolean {
     const entry = this.entries[argument.matcher];
     return entry.fn(target, argument.value);
@@ -162,22 +162,23 @@ export function createEntityFilter<
 
 export type EntityFilterPayload<
   Entries extends ZodMatcherEntries,
-  Entity
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Entity = any
 > = Partial<{
   [K in keyof Entity]: ZodMatchPayloadUnion<
     EntriesForTarget<Entries, Entity[K]>
   >;
 }>;
 
-type Values<T> = T[keyof T];
-
 type IsDefinedType<A, B> = Exclude<A, undefined> extends Exclude<B, undefined>
   ? true
   : false;
 
-type OmitNever<T> = Pick<
+export type Values<T> = T[keyof T];
+
+export type OmitNever<T> = Pick<
   T,
   Values<{
-    [K in keyof T]: T[K] extends never ? never : K;
+    [K in keyof T]: [T[K]] extends [never] ? never : K;
   }>
 >;
