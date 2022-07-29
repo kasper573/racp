@@ -107,80 +107,75 @@ export const stringFilterType = zod.object({
 
 const primitive = zod.union([zod.number(), zod.string(), zod.boolean()]);
 
-export type StringMatcherPayload = zod.infer<typeof stringPayload>;
-const caseSensitiveType = zod.boolean().default(false);
-const stringPayload = zod.union([
-  zod.string(),
-  zod.object({
-    caseSensitive: caseSensitiveType,
-    text: zod.string(),
-  }),
-]);
-
+const stringOptions = zod.object({ caseSensitive: zod.boolean() }).partial();
 const stringNormalizer =
   (fn: (a: string, b: string) => boolean) =>
-  (target: string, payload: StringMatcherPayload) => {
-    const { caseSensitive, text } =
-      typeof payload === "string"
-        ? {
-            caseSensitive: caseSensitiveType._def.defaultValue(),
-            text: payload,
-          }
-        : payload;
+  (
+    target: string,
+    text: string,
+    { caseSensitive = false }: zod.infer<typeof stringOptions> = {}
+  ) => {
     return caseSensitive
       ? fn(target, text)
       : fn(target.toLowerCase(), text.toLowerCase());
   };
 
 export const matcher = createZodMatcher()
-  .add("=", zod.number(), zod.number(), (a, b) => a === b)
-  .add(">", zod.number(), zod.number(), (a, b) => a > b)
-  .add("<", zod.number(), zod.number(), (a, b) => a < b)
-  .add(">=", zod.number(), zod.number(), (a, b) => a >= b)
-  .add("<=", zod.number(), zod.number(), (a, b) => a <= b)
+  .add("=", zod.number(), zod.number(), zod.void(), (a, b) => a === b)
+  .add(">", zod.number(), zod.number(), zod.void(), (a, b) => a > b)
+  .add("<", zod.number(), zod.number(), zod.void(), (a, b) => a < b)
+  .add(">=", zod.number(), zod.number(), zod.void(), (a, b) => a >= b)
+  .add("<=", zod.number(), zod.number(), zod.void(), (a, b) => a <= b)
   .add(
     "between",
     zod.number(),
     zod.tuple([zod.number(), zod.number()]),
+    zod.void(),
     (a, [min, max]) => a >= min && a <= max
   )
-  .add("includes", zod.array(primitive), primitive, (list, item) =>
+  .add("includes", zod.array(primitive), primitive, zod.void(), (list, item) =>
     list.includes(item)
   )
   .add(
     "includesAll",
     zod.array(primitive),
     zod.array(primitive),
+    zod.void(),
     (a, b) => without(b, ...a).length === 0
   )
   .add(
     "includesSome",
     zod.array(primitive),
     zod.array(primitive),
+    zod.void(),
     (a, b) => without(b, ...a).length < b.length
   )
   .add(
     "equals",
     zod.string(),
-    stringPayload,
+    zod.string(),
+    stringOptions,
     stringNormalizer((a, b) => a === b)
   )
   .add(
     "startsWith",
     zod.string(),
-    stringPayload,
+    zod.string(),
+    stringOptions,
     stringNormalizer((a, b) => a.startsWith(b))
   )
   .add(
     "endsWith",
     zod.string(),
-    stringPayload,
+    zod.string(),
+    stringOptions,
     stringNormalizer((a, b) => a.endsWith(b))
   )
   .add(
     "contains",
     zod.string(),
-    stringPayload,
+    zod.string(),
+    stringOptions,
     stringNormalizer((a, b) => a.includes(b))
   );
 

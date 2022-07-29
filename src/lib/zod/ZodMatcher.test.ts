@@ -12,10 +12,15 @@ describe("ZodMatcher", () => {
       "test",
       zod.string(),
       zod.string(),
+      zod.object({ foo: zod.number() }),
       fn
     );
-    matcher.match("target", { matcher: "test", value: "value" });
-    expect(fn).toBeCalledWith("target", "value");
+    matcher.match("target", {
+      matcher: "test",
+      value: "value",
+      options: { foo: 123 },
+    });
+    expect(fn).toBeCalledWith("target", "value", { foo: 123 });
   });
 
   it("the correct match function gets called", () => {
@@ -23,8 +28,8 @@ describe("ZodMatcher", () => {
     const fn1 = () => (wasCalled = true);
     const fn2 = () => false;
     const matcher = createZodMatcher()
-      .add("first", zod.unknown(), zod.unknown(), fn1)
-      .add("second", zod.unknown(), zod.unknown(), fn2);
+      .add("first", zod.unknown(), zod.unknown(), zod.void(), fn1)
+      .add("second", zod.unknown(), zod.unknown(), zod.void(), fn2);
     matcher.match(0, { matcher: "first", value: 0 });
     expect(wasCalled).toBe(true);
   });
@@ -34,6 +39,7 @@ describe("ZodMatcher", () => {
       "includes",
       zod.array(zod.number()),
       zod.number(),
+      zod.void(),
       (target, arg) => target.includes(arg)
     );
     const res = matcher.match([5, 10], { matcher: "includes", value: 5 });
@@ -45,6 +51,7 @@ describe("ZodMatcher", () => {
       "includes",
       zod.array(zod.number()),
       zod.number(),
+      zod.void(),
       (target, arg) => target.includes(arg)
     );
     const res = matcher.match([5, 10], { matcher: "includes", value: 20 });
@@ -55,9 +62,9 @@ describe("ZodMatcher", () => {
 describe("createPayloadTypeFor", () => {
   it("can create argument type union for a given type", () => {
     const matcher = createZodMatcher()
-      .add("ignored", zod.string(), zod.string(), () => false)
-      .add("include1", zod.number(), zod.number(), () => false)
-      .add("include2", zod.number(), zod.number(), () => false);
+      .add("ignored", zod.string(), zod.string(), zod.void(), () => false)
+      .add("include1", zod.number(), zod.number(), zod.void(), () => false)
+      .add("include2", zod.number(), zod.number(), zod.void(), () => false);
 
     const type = createPayloadTypeFor(matcher, zod.number());
     const payload1 = { matcher: "include1", value: 123 };
@@ -76,6 +83,7 @@ describe("createPayloadTypeFor", () => {
       "foo",
       zod.string(),
       zod.string(),
+      zod.void(),
       () => false
     );
     expect(() => createPayloadTypeFor(matcher, zod.number())).toThrow();
@@ -88,6 +96,7 @@ describe("createEntitySearch", () => {
       "gte",
       zod.number(),
       zod.number(),
+      zod.void(),
       (a, b) => a >= b
     );
 
@@ -117,8 +126,14 @@ describe("createEntitySearch", () => {
   it("can filter entities with non-primitive argument type", () => {
     const mmx = zod.tuple([zod.number(), zod.number()]);
     const matcher = createZodMatcher()
-      .add("other", zod.string(), zod.string(), () => false)
-      .add("mmx", zod.number(), mmx, (a, [min, max]) => a >= min && a <= max);
+      .add("other", zod.string(), zod.string(), zod.void(), () => false)
+      .add(
+        "mmx",
+        zod.number(),
+        mmx,
+        zod.void(),
+        (a, [min, max]) => a >= min && a <= max
+      );
 
     const search = createEntityFilter(
       matcher,
@@ -148,6 +163,7 @@ describe("createEntitySearch", () => {
       "gte",
       zod.number(),
       zod.number(),
+      zod.void(),
       (a, b) => a >= b
     );
 

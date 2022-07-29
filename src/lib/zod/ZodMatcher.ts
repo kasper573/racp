@@ -4,7 +4,7 @@ import { typedKeys } from "../typedKeys";
 import { isZodType } from "./isZodType";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ZodMatcherEntries = Record<string, ZodMatcherEntry<any, any>>;
+export type ZodMatcherEntries = Record<string, ZodMatcherEntry<any, any, any>>;
 
 export type EntriesForArgument<
   Entries extends ZodMatcherEntries,
@@ -32,26 +32,36 @@ export type EntriesForTarget<
 
 export interface ZodMatcherEntry<
   Target extends ZodType,
-  Argument extends ZodType
+  Argument extends ZodType,
+  Options extends ZodType
 > {
   target: Target;
   argument: Argument;
-  fn: ZodMatcherFn<Target, Argument>;
+  options: Options;
+  fn: ZodMatcherFn<Target, Argument, Options>;
 }
 
-export type ZodMatcherFn<Target extends ZodType, Argument extends ZodType> = (
+export type ZodMatcherFn<
+  Target extends ZodType,
+  Argument extends ZodType,
+  Options extends ZodType
+> = (
   target: zod.infer<Target>,
-  argument: zod.infer<Argument>
+  argument: zod.infer<Argument>,
+  options?: zod.infer<Options>
 ) => boolean;
 
 export interface ZodMatcherPayload<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   MatcherName extends keyof any = any,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Argument = any
+  Argument = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Options = any
 > {
   matcher: MatcherName;
   value: Argument;
+  options?: Options;
 }
 
 export type ZodMatchPayloadForEntries<
@@ -68,11 +78,17 @@ export type ZodMatchPayloadUnion<Entries extends ZodMatcherEntries> = Values<
 export class ZodMatcher<Entries extends ZodMatcherEntries = ZodMatcherEntries> {
   constructor(public entries: Entries) {}
 
-  add<Name extends string, Target extends ZodType, Argument extends ZodType>(
+  add<
+    Name extends string,
+    Target extends ZodType,
+    Argument extends ZodType,
+    Options extends ZodType
+  >(
     name: Name,
     target: Target,
     argument: Argument,
-    fn: ZodMatcherFn<Target, Argument>
+    options: Options,
+    fn: ZodMatcherFn<Target, Argument, Options>
   ) {
     return new ZodMatcher({
       ...this.entries,
@@ -81,7 +97,7 @@ export class ZodMatcher<Entries extends ZodMatcherEntries = ZodMatcherEntries> {
         argument,
         fn,
       },
-    } as Entries & Record<Name, ZodMatcherEntry<Target, Argument>>);
+    } as Entries & Record<Name, ZodMatcherEntry<Target, Argument, Options>>);
   }
 
   match<Name extends keyof Entries>(
@@ -89,7 +105,7 @@ export class ZodMatcher<Entries extends ZodMatcherEntries = ZodMatcherEntries> {
     argument: ZodMatcherPayload<Name, zod.infer<Entries[Name]["argument"]>>
   ): boolean {
     const entry = this.entries[argument.matcher];
-    return entry.fn(target, argument.value);
+    return entry.fn(target, argument.value, argument.options);
   }
 }
 
