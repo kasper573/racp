@@ -98,7 +98,7 @@ export class ZodMatcher<Entries extends ZodMatcherEntries = ZodMatcherEntries> {
         target,
         argument,
         fn,
-        options,
+        options: options.optional(),
       },
     });
   }
