@@ -3,7 +3,7 @@ import { Header } from "../layout/Header";
 import { useSearchItemsQuery } from "../state/client";
 import { router } from "../router";
 import { Item, ItemFilter } from "../../api/services/item/types";
-import { DataGrid } from "../components/DataGrid";
+import { DataGrid, DataGridQueryFn } from "../components/DataGrid";
 import { ItemSearchFilterForm } from "../forms/ItemSearchFilterForm";
 
 export default function ItemSearchPage() {
@@ -18,7 +18,8 @@ export default function ItemSearchPage() {
 }
 
 const ItemGrid = DataGrid.define<Item, ItemFilter, Item["Id"]>({
-  query: useSearchItemsQuery,
+  // Without assertion typescript yields possibly infinite error
+  query: useSearchItemsQuery as unknown as DataGridQueryFn<Item, ItemFilter>,
   id: (item) => item.Id,
   link: (id) => router.item().view({ id }),
   columns: {
