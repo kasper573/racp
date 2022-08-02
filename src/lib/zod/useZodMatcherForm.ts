@@ -11,14 +11,14 @@ export function useZodMatcherForm<
   type Entity = zod.infer<Schema>;
   const field = useZodForm(props);
   function createMatcherFieldProps<
-    MatcherName extends keyof M["entries"],
-    Key extends MatchingKeys<
-      Entity,
-      zod.infer<M["entries"][MatcherName]["target"]>
+    Key extends keyof Entity,
+    MatcherName extends ValidMatchers<
+      M,
+      Exclude<Entity[Key], undefined>["value"]
     >
   >(
-    matcher: MatcherName,
     key: Key,
+    matcher: MatcherName,
     options?: zod.infer<M["entries"][MatcherName]["options"]>
   ) {
     type Argument = zod.infer<M["entries"][MatcherName]["argument"]>;
@@ -43,10 +43,12 @@ export interface ZodMatcherFormOptions<
   schema: Schema;
 }
 
-type MatchingKeys<Entity extends AnyEntityFilterPayload, V> = Values<
+type ValidMatchers<M extends ZodMatcher, Argument> = Values<
   OmitNever<{
-    [K in keyof Entity]-?: V extends Exclude<Entity[K], undefined>["value"]
-      ? K
+    [MatcherName in keyof M["entries"]]-?: Argument extends zod.infer<
+      M["entries"][MatcherName]["argument"]
+    >
+      ? MatcherName
       : never;
   }>
 >;
