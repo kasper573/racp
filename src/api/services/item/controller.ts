@@ -6,9 +6,8 @@ import { FileStore } from "../../../lib/createFileStore";
 import { itemDefinition } from "./definition";
 import { createItemResolver } from "./util/createItemResolver";
 import { collectItemMeta } from "./util/collectItemMeta";
-import { isMatchingItem } from "./util/isMatchingItem";
 import { parseItemInfo } from "./util/parseItemInfo";
-import { ItemMeta } from "./types";
+import { itemFilter, ItemMeta } from "./types";
 
 export async function itemController({
   yaml,
@@ -19,16 +18,15 @@ export async function itemController({
   fs: FileStore;
   tradeScale: number;
 }) {
-  const items = await yaml.resolve(
-    "db/item_db.yml",
-    createItemResolver({ tradeScale })
-  );
+  const resolver = createItemResolver({ tradeScale });
+  const items = await yaml.resolve("db/item_db.yml", resolver);
 
   let itemMeta: ItemMeta;
   let itemInfoCount = 0;
   const itemInfo = fs.entry("itemInfo.lub", parseItemInfo, (info) => {
     for (const item of items.values()) {
       item.Info = info?.[item.Id];
+      resolver.postProcess?.(item, items);
     }
     itemInfoCount = info ? Object.keys(info).length : 0;
     itemMeta = collectItemMeta(Array.from(items.values()));
@@ -40,7 +38,7 @@ export async function itemController({
     },
     searchItems: createSearchController(
       Array.from(items.values()),
-      isMatchingItem
+      (entity, payload) => itemFilter.for(payload)(entity)
     ),
     async getItem(itemId) {
       const item = items.get(itemId);

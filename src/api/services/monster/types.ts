@@ -89,6 +89,6 @@ export const monsterType = zod.object({
   MAtk: zod.number().optional(),
 });
 
-export type MonsterFilter = zod.infer<typeof monsterSearch.type>;
+export type MonsterFilter = zod.infer<typeof monsterFilter.type>;
 
-export const monsterSearch = createEntityFilter(matcher, monsterType);
+export const monsterFilter = createEntityFilter(matcher, monsterType);

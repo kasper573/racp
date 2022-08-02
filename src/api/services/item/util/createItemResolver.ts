@@ -1,5 +1,9 @@
+import * as zod from "zod";
 import { createYamlResolver } from "../../../rathena/YamlDriver";
-import { itemType } from "../types";
+import { Item, itemPostProcessType, itemType } from "../types";
+import { defined } from "../../../../lib/defined";
+import { clientTextContent } from "../../../common/clientTextType";
+import { typedAssign } from "../../../../lib/typedAssign";
 
 export interface ItemResolverProps {
   tradeScale: number;
@@ -9,8 +13,44 @@ export function createItemResolver({ tradeScale }: ItemResolverProps) {
   return createYamlResolver(itemType, {
     getKey: (o) => o.Id,
     postProcess(item) {
-      item.Buy = item.Buy ?? (item.Sell ?? 0) * tradeScale;
-      item.Sell = item.Sell ?? (item.Buy ?? 0) / tradeScale;
+      typedAssign(item, collect(item, tradeScale));
     },
   });
+}
+
+function collect(
+  item: Item,
+  tradeScale: number
+): zod.infer<typeof itemPostProcessType> {
+  const Buy = item.Buy ?? (item.Sell ?? 0) * tradeScale;
+  const Sell = item.Sell ?? (item.Buy ?? 0) / tradeScale;
+  return {
+    Buy,
+    Sell,
+
+    Elements: item.Script?.meta.elements ?? [],
+    Statuses: item.Script?.meta.statuses ?? [],
+    Races: item.Script?.meta.races ?? [],
+
+    NameList: defined([
+      item.Name,
+      item.AegisName,
+      item.AliasName,
+      clientTextContent(item.Info?.identifiedDisplayName),
+      clientTextContent(item.Info?.identifiedResourceName),
+      clientTextContent(item.Info?.unidentifiedDisplayName),
+      clientTextContent(item.Info?.unidentifiedResourceName),
+    ]),
+
+    DescriptionList: defined([
+      clientTextContent(item.Info?.identifiedDescriptionName),
+      clientTextContent(item.Info?.unidentifiedDescriptionName),
+    ]),
+
+    ScriptList: defined([
+      item.Script?.raw,
+      item.EquipScript?.raw,
+      item.UnEquipScript?.raw,
+    ]),
+  };
 }

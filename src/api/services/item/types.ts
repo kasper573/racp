@@ -1,10 +1,7 @@
 import * as zod from "zod";
-import {
-  stringFilterType,
-  toggleNameType,
-  toggleRecordType,
-} from "../../util/matcher";
+import { matcher, toggleRecordType } from "../../util/matcher";
 import { clientTextType } from "../../common/clientTextType";
+import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { itemScriptType } from "./util/itemScriptType";
 
 export type Item = zod.infer<typeof itemType>;
@@ -25,14 +22,23 @@ export const itemInfoType = zod.object({
   costume: zod.boolean().optional(),
 });
 
+export const itemPostProcessType = zod.object({
+  Buy: zod.number(),
+  Sell: zod.number(),
+  ScriptList: zod.array(zod.string()),
+  NameList: zod.array(zod.string()),
+  DescriptionList: zod.array(zod.string()),
+  Elements: zod.array(zod.string()),
+  Statuses: zod.array(zod.string()),
+  Races: zod.array(zod.string()),
+});
+
 export const itemType = zod.object({
   Id: zod.number(),
   AegisName: zod.string(),
   Name: zod.string(),
   Type: zod.string().optional(),
   SubType: zod.string().optional(),
-  Buy: zod.number().optional(),
-  Sell: zod.number().optional(),
   Weight: zod.number().optional(),
   Attack: zod.number().optional(),
   MagicAttack: zod.number().optional(),
@@ -106,6 +112,7 @@ export const itemType = zod.object({
   EquipScript: itemScriptType.optional(),
   UnEquipScript: itemScriptType.optional(),
   Info: itemInfoType.optional(),
+  ...itemPostProcessType.partial().shape,
 });
 
 export type ItemMeta = zod.infer<typeof itemMetaType>;
@@ -122,20 +129,5 @@ export const itemMetaType = zod.object({
   races: zod.array(zod.string()),
 });
 
-export type ItemFilter = zod.infer<typeof itemFilterType>;
-export const itemFilterType = zod
-  .object({
-    id: itemIdType,
-    name: zod.string().or(stringFilterType),
-    description: zod.string(),
-    script: zod.string(),
-    types: zod.array(toggleNameType),
-    subTypes: zod.array(toggleNameType),
-    classes: zod.array(toggleNameType),
-    jobs: zod.array(toggleNameType),
-    elements: zod.array(toggleNameType),
-    statuses: zod.array(toggleNameType),
-    races: zod.array(toggleNameType),
-    slots: zod.tuple([zod.number(), zod.number()]),
-  })
-  .partial();
+export type ItemFilter = zod.infer<typeof itemFilter.type>;
+export const itemFilter = createEntityFilter(matcher, itemType);

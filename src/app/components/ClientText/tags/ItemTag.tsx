@@ -11,7 +11,11 @@ export const ItemTag: ClientTextTag = ({ node }) => {
   const { data } = useSearchItemsQuery(
     {
       filter: {
-        name: { arg: content, caseSensitive: false, matcher: "equals" },
+        NameList: {
+          value: content,
+          matcher: "someItemContains",
+          options: { caseSensitive: false },
+        },
       },
       limit: 1,
     },

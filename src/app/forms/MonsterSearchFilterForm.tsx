@@ -1,6 +1,6 @@
 import { Box, styled } from "@mui/material";
 import { TextField } from "../controls/TextField";
-import { MonsterFilter, monsterSearch } from "../../api/services/monster/types";
+import { MonsterFilter, monsterFilter } from "../../api/services/monster/types";
 import { useZodMatcherForm } from "../../lib/zod/useZodMatcherForm";
 import { matcher } from "../../api/util/matcher";
 
@@ -15,7 +15,7 @@ export function MonsterSearchFilterForm({
 }: MonsterSearchFilterFormProps) {
   const field = useZodMatcherForm({
     matcher,
-    schema: monsterSearch.type,
+    schema: monsterFilter.type,
     value,
     onChange,
   });
@@ -27,13 +27,13 @@ export function MonsterSearchFilterForm({
         label="ID"
         type="number"
         optional
-        {...field("=", "Id")}
+        {...field("Id", "=")}
       />
       <TextField
         size="small"
         label="Name"
         optional
-        {...field("contains", "Name")}
+        {...field("Name", "contains")}
       />
     </ControlGrid>
   );
