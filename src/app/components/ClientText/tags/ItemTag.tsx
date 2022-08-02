@@ -13,7 +13,7 @@ export const ItemTag: ClientTextTag = ({ node }) => {
       filter: {
         NameList: {
           value: content,
-          matcher: "someItemContains",
+          matcher: "someItemEquals",
           options: { caseSensitive: false },
         },
       },

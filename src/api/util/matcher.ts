@@ -131,4 +131,15 @@ export const matcher = createZodMatcher()
       arg = normalizeString(arg, options);
       return list.every((item) => item.includes(arg));
     }
+  )
+  .add(
+    "someItemEquals",
+    zod.array(zod.string()),
+    zod.string(),
+    stringOptions,
+    (list, arg, options) => {
+      list = list.map((item) => normalizeString(item, options));
+      arg = normalizeString(arg, options);
+      return list.includes(arg);
+    }
   );
