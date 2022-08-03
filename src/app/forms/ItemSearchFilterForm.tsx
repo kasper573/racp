@@ -1,17 +1,19 @@
 import { Box, styled } from "@mui/material";
 import { useEffect } from "react";
-import { ItemFilter, itemFilterType } from "../../api/services/item/types";
-import { useZodForm } from "../../lib/zod/useZodForm";
+import { ItemFilter, itemFilter } from "../../api/services/item/types";
 import { useGetItemMetaQuery } from "../state/client";
 import { typedKeys } from "../../lib/typedKeys";
 import { Select } from "../controls/Select";
 import { SliderMenu } from "../controls/SliderMenu";
 import { TextField } from "../controls/TextField";
 import { useLatest } from "../hooks/useLatest";
+import { matcher } from "../../api/util/matcher";
+import { useZodMatcherForm } from "../../lib/zod/useZodMatcherForm";
 
 export function ItemSearchFilterForm({ value, onChange }: FormDataProps) {
-  const { register: reg } = useZodForm({
-    schema: itemFilterType,
+  const field = useZodMatcherForm({
+    matcher,
+    schema: itemFilter.type,
     value,
     onChange,
   });
@@ -23,48 +25,80 @@ export function ItemSearchFilterForm({ value, onChange }: FormDataProps) {
 
   return (
     <ControlGrid>
-      <TextField size="small" label="ID" type="number" {...reg("id")} />
-      <TextField size="small" label="Name" {...reg("name")} />
+      <TextField
+        size="small"
+        label="ID"
+        type="number"
+        optional
+        {...field("Id", "=")}
+      />
+      <TextField
+        size="small"
+        label="Name"
+        optional
+        {...field("Name", "contains")}
+      />
       <Select
         label="Primary Type"
         multi
         options={typedKeys(meta?.types)}
-        {...reg("types")}
+        {...field("Type", "oneOf")}
       />
       <Select
         label="Subtype"
         multi
         options={itemSubTypes}
         empty={emptySubTypeExplanation}
-        {...reg("subTypes")}
+        {...field("SubType", "oneOf")}
       />
-      <Select label="Class" multi options={meta?.classes} {...reg("classes")} />
-      <Select label="Job" multi options={meta?.jobs} {...reg("jobs")} />
+      <Select
+        label="Class"
+        multi
+        options={meta?.classes}
+        {...field("Classes", "enabled")}
+      />
+      <Select
+        label="Job"
+        multi
+        options={meta?.jobs}
+        {...field("Jobs", "enabled")}
+      />
       <Select
         label="Element"
         multi
         options={meta?.elements}
-        {...reg("elements")}
+        {...field("Elements", "includesSome")}
       />
       <Select
         label="Status"
         multi
         options={meta?.statuses}
-        {...reg("statuses")}
+        {...field("Statuses", "includesSome")}
       />
-      <Select label="Race" multi options={meta?.races} {...reg("races")} />
+      <Select
+        label="Race"
+        multi
+        options={meta?.races}
+        {...field("Races", "includesSome")}
+      />
       <TextField
         size="small"
         label="Description contains"
-        {...reg("description")}
+        optional
+        {...field("DescriptionList", "someItemContains")}
       />
-      <TextField size="small" label="Script contains" {...reg("script")} />
+      <TextField
+        size="small"
+        label="Script contains"
+        optional
+        {...field("ScriptList", "someItemContains")}
+      />
       <SliderMenu
         ranged
         size="small"
         label="Slots"
         max={meta?.maxSlots}
-        {...reg("slots")}
+        {...field("Slots", "between")}
       />
     </ControlGrid>
   );
@@ -82,27 +116,29 @@ function useSubTypeBehavior({ value, onChange }: FormDataProps) {
   const latest = useLatest({ onChange, value });
   useEffect(() => {
     const { onChange, value } = latest.current;
-    if ((value.types?.length ?? 0) <= 1) {
-      onChange({ ...value, subTypes: undefined });
+    if (count(value.Type?.value) <= 1) {
+      onChange({ ...value, SubType: undefined });
     }
-  }, [value.types, latest]);
+  }, [value.Type, latest]);
 
   if (!meta) {
     return ["Waiting for data"] as const;
-  } else if (!value.types?.length) {
+  } else if (!count(value.Type?.value)) {
     return ["Select a primary type to enable subtypes"] as const;
-  } else if (value.types?.length > 1) {
+  } else if (count(value.Type?.value) > 1) {
     return ["Please select only one primary type to enable subtypes"] as const;
   }
 
-  const selectedType = value.types[0];
-  const itemSubTypes: string[] = meta?.types[selectedType];
+  const selectedType = value.Type?.value?.[0];
+  const itemSubTypes: string[] = selectedType ? meta?.types[selectedType] : [];
   if (!itemSubTypes?.length) {
     return [`${selectedType} has no subtypes`] as const;
   }
 
   return [undefined, itemSubTypes] as const;
 }
+
+const count = (value: unknown) => (Array.isArray(value) ? value.length : 0);
 
 const ControlGrid = styled(Box)`
   display: grid;

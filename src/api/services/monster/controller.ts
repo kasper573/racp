@@ -4,7 +4,7 @@ import { createSearchController } from "../search/controller";
 import { NpcDriver } from "../../rathena/NpcDriver";
 import { YamlDriver } from "../../rathena/YamlDriver";
 import { RAthenaMode } from "../../options";
-import { monsterSpawnType } from "./types";
+import { monsterFilter, monsterSpawnType } from "./types";
 import { monsterDefinition } from "./definition";
 import { createMonsterResolver } from "./util/createMonsterResolver";
 
@@ -27,7 +27,7 @@ export async function monsterController({
   return createRpcController(monsterDefinition.entries, {
     searchMonsters: createSearchController(
       Array.from(monsters.values()),
-      () => true
+      (entity, payload) => monsterFilter.for(payload)(entity)
     ),
     async getMonsterSpawns(monsterId) {
       return spawnLookup[monsterId] ?? [];

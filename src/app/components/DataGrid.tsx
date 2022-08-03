@@ -12,6 +12,16 @@ import {
 import { typedKeys } from "../../lib/typedKeys";
 import { Link } from "./Link";
 
+export type DataGridProps<
+  Entity,
+  Filter,
+  Id extends GridRowId
+> = ColumnConventionProps<Entity, Id> &
+  Omit<ComponentProps<typeof Box>, "id"> & {
+    filter?: Filter;
+    query: DataGridQueryFn<Entity, Filter>;
+  };
+
 export function DataGrid<Entity, Filter, Id extends GridRowId>({
   filter,
   query: useQuery,
@@ -20,14 +30,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
   link,
   sx,
   ...props
-}: ColumnConventionProps<Entity, Id> &
-  Omit<ComponentProps<typeof Box>, "id"> & {
-    filter?: Filter;
-    query: (query: SearchQuery<Entity, Filter>) => {
-      data?: SearchResult<Entity>;
-      isFetching: boolean;
-    };
-  }) {
+}: DataGridProps<Entity, Filter, Id>) {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(20);
   const [sort, setSort] = useState<SearchSort<Entity>>([]);
@@ -101,6 +104,25 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
     </Box>
   );
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type DataGridQueryFn<Entity = any, Filter = any> = (
+  query: SearchQuery<Entity, Filter>
+) => {
+  data?: SearchResult<Entity>;
+  isFetching: boolean;
+};
+
+type DefinedKeys = "query" | "link" | "id" | "columns";
+DataGrid.define = <Entity, Filter, Id extends GridRowId>(
+  definedProps: Pick<DataGridProps<Entity, Filter, Id>, DefinedKeys>
+) => {
+  return function SpecificDataGrid(
+    restProps: Omit<DataGridProps<Entity, Filter, Id>, DefinedKeys>
+  ) {
+    return <DataGrid {...definedProps} {...restProps} />;
+  };
+};
 
 const Grid = styled(MuiDataGrid)`
   .MuiDataGrid-cell,
