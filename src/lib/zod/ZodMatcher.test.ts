@@ -1,4 +1,5 @@
 import * as zod from "zod";
+import { ZodType } from "zod";
 import {
   createEntityFilter,
   createPayloadTypeFor,
@@ -60,17 +61,50 @@ describe("ZodMatcher", () => {
 });
 
 describe("createPayloadTypeFor", () => {
-  it("can create argument type union for a given type", () => {
-    const matcher = createZodMatcher()
-      .add("ignored", zod.string(), zod.string(), zod.void(), () => false)
-      .add("include1", zod.number(), zod.number(), zod.void(), () => false)
-      .add("include2", zod.number(), zod.number(), zod.void(), () => false);
+  describe(`can create argument type union for type`, () => {
+    it("mixed", () => {
+      const matcher = createZodMatcher()
+        .add("ignored", zod.string(), zod.string(), zod.void(), () => false)
+        .add("include1", zod.number(), zod.number(), zod.void(), () => false)
+        .add("include2", zod.number(), zod.number(), zod.void(), () => false);
 
-    const type = createPayloadTypeFor(matcher, zod.number());
-    const payload1 = { matcher: "include1", value: 123 };
-    const payload2 = { matcher: "include2", value: 234 };
-    expect(type.parse(payload1)).toEqual(payload1);
-    expect(type.parse(payload2)).toEqual(payload2);
+      const type = createPayloadTypeFor(matcher, zod.number());
+      const payload1 = { matcher: "include1", value: 123 };
+      const payload2 = { matcher: "include2", value: 234 };
+      expect(type.parse(payload1)).toEqual(payload1);
+      expect(type.parse(payload2)).toEqual(payload2);
+    });
+
+    describe("number", () => gen(zod.number(), 123));
+    describe("array", () => gen(zod.array(zod.string()), ["foo", "bar"]));
+    describe("object", () =>
+      gen(zod.object({ foo: zod.string(), bar: zod.number() }), {
+        foo: "baz",
+        bar: 123,
+      }));
+
+    function gen<T extends ZodType>(rootType: T, value: zod.infer<T>) {
+      for (const [typeName, targetType] of [
+        ["default", rootType.default(value)],
+        ["optional", rootType.optional()],
+        ["nullable", rootType.nullable()],
+        ["nullish", rootType.nullish()],
+      ] as const) {
+        it(typeName, () => {
+          const matcher = createZodMatcher().add(
+            "foo",
+            targetType,
+            targetType,
+            zod.void(),
+            () => false
+          );
+
+          const type = createPayloadTypeFor(matcher, targetType);
+          const payload = { matcher: "foo", value };
+          expect(type.parse(payload)).toEqual(payload);
+        });
+      }
+    }
   });
 
   it("throws error for empty matcher", () => {

@@ -1,7 +1,7 @@
 import * as zod from "zod";
 import { AnyZodObject, ZodRawShape, ZodType, ZodTypeAny } from "zod";
 import { typedKeys } from "../typedKeys";
-import { isZodType } from "./isZodType";
+import { isZodSubType } from "./isZodType";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ZodMatcherEntries = Record<string, ZodMatcherEntry<any, any, any>>;
@@ -135,7 +135,7 @@ export function createPayloadTypeFor<
   >;
 
   const payloadTypes = Object.entries(matcher.entries)
-    .filter(([, entry]) => isZodType(entry.target, targetType))
+    .filter(([, entry]) => isZodSubType(entry.target, targetType))
     .map(([name, entry]) => {
       const shape: ZodRawShape & ZodMatcherPayload = {
         matcher: zod.literal(name),
