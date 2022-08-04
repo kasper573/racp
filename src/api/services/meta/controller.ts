@@ -8,7 +8,7 @@ import { MonsterRepository } from "../monster/repository";
 import { Monster } from "../monster/types";
 import { metaDefinition } from "./definition";
 
-export async function metaController({
+export function metaController({
   items,
   monsters,
 }: {
