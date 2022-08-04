@@ -4,9 +4,16 @@ import { dedupe, dedupeRecordInsert } from "../../util/dedupe";
 import { select, Selector } from "../../util/select";
 import { ClientTextNode } from "../../common/clientTextType";
 import { ItemRepository } from "../item/repository";
+import { MonsterRepository } from "../monster/repository";
 import { metaDefinition } from "./definition";
 
-export async function metaController({ items }: { items: ItemRepository }) {
+export async function metaController({
+  items,
+  monsters,
+}: {
+  items: ItemRepository;
+  monsters: MonsterRepository;
+}) {
   return createRpcController(metaDefinition.entries, {
     async getMeta() {
       await items.ready;

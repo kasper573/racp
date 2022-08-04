@@ -5,7 +5,7 @@ import { itemDefinition } from "./definition";
 import { itemFilter } from "./types";
 import { ItemRepository } from "./repository";
 
-export function itemController({ items }: { items: ItemRepository }) {
+export function itemController(items: ItemRepository) {
   return createRpcController(itemDefinition.entries, {
     searchItems: createSearchController(
       async () => {
