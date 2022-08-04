@@ -40,9 +40,11 @@ export const matcher = createZodMatcher()
   .add(
     "between",
     zod.number().optional(),
-    zod.tuple([zod.number(), zod.number()]),
+    zod.tuple([zod.number().nullish(), zod.number().nullish()]),
     zod.void(),
-    (a, [min, max]) => a === undefined || (a >= min && a <= max)
+    (a, [min, max]) =>
+      a === undefined ||
+      (a >= (min ?? Number.MIN_VALUE) && a <= (max ?? Number.MAX_VALUE))
   )
   .add(
     "oneOf",

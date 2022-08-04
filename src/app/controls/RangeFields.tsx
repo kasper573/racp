@@ -1,7 +1,8 @@
 import { ComponentProps } from "react";
+import { defined } from "../../lib/defined";
 import { TextField } from "./TextField";
 
-export type Range = [number, number];
+export type Range = [number | undefined, number | undefined];
 
 export interface RangeFieldsProps
   extends Omit<
@@ -20,6 +21,8 @@ export function RangeFields({
 }: RangeFieldsProps) {
   const [a, b] = value ?? ([undefined, undefined] as const);
 
+  const emit = (range: Range) => onChange(flatten(range));
+
   return (
     <>
       <TextField
@@ -27,9 +30,8 @@ export function RangeFields({
         label={`${label} (min)`}
         value={a}
         optional
-        onChange={(newA) =>
-          onChange(newA === undefined ? undefined : [newA, b ?? 0])
-        }
+        onChange={(n) => emit([n, b])}
+        onBlur={() => emit([floor(a, b), b])}
         {...props}
       />
       <TextField
@@ -37,11 +39,19 @@ export function RangeFields({
         label={`${label} (max)`}
         value={b}
         optional
-        onChange={(newB) =>
-          onChange(newB === undefined ? undefined : [a ?? 0, newB])
-        }
+        onChange={(n) => emit([a, n])}
+        onBlur={() => emit([a, ceil(b, a)])}
         {...props}
       />
     </>
   );
 }
+
+const flatten = ([a, b]: Range): Range | undefined =>
+  a === undefined && b === undefined ? undefined : [a, b];
+
+export const floor = (val?: number, limit?: number) =>
+  val === undefined ? val : Math.min(...defined([val, limit]));
+
+export const ceil = (val?: number, limit?: number) =>
+  val === undefined ? val : Math.max(...defined([val, limit]));
