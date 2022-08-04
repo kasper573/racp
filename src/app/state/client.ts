@@ -4,6 +4,7 @@ import { createRpcEndpoints } from "../../lib/rpc/createRpcEndpoints";
 import { authDefinition } from "../../api/services/auth/definition";
 import { itemDefinition } from "../../api/services/item/definition";
 import { monsterDefinition } from "../../api/services/monster/definition";
+import { metaDefinition } from "../../api/services/meta/definition";
 import { AppState } from "./store";
 
 export const client = createApi({
@@ -18,12 +19,14 @@ export const client = createApi({
     },
   }),
   tagTypes: [
+    ...metaDefinition.tagTypes,
     ...configDefinition.tagTypes,
     ...authDefinition.tagTypes,
     ...itemDefinition.tagTypes,
     ...monsterDefinition.tagTypes,
   ],
   endpoints: (builder) => ({
+    ...createRpcEndpoints(builder, metaDefinition.entries),
     ...createRpcEndpoints(builder, configDefinition.entries),
     ...createRpcEndpoints(builder, authDefinition.entries),
     ...createRpcEndpoints(builder, itemDefinition.entries),
@@ -32,7 +35,7 @@ export const client = createApi({
 });
 
 export const {
-  useGetItemMetaQuery,
+  useGetMetaQuery,
   useGetItemQuery,
   useSearchItemsQuery,
   useListConfigsQuery,

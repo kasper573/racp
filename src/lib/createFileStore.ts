@@ -21,7 +21,7 @@ export function createFileStore(directory: string) {
         get data() {
           return currentData;
         },
-        update(fileContent: string) {
+        update: (fileContent: string) => {
           const res = parseFileContent(fileContent);
           if (res.success) {
             fs.writeFileSync(filename, fileContent, "utf-8");
@@ -30,7 +30,7 @@ export function createFileStore(directory: string) {
           }
           return res;
         },
-        reload() {
+        reload: () => {
           if (fs.existsSync(filename)) {
             file.update(fs.readFileSync(filename, "utf-8"));
           } else {

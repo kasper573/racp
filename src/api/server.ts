@@ -20,6 +20,10 @@ import { options } from "./options";
 import { monsterController } from "./services/monster/controller";
 import { monsterDefinition } from "./services/monster/definition";
 import { createNpcDriver } from "./rathena/NpcDriver";
+import { metaDefinition } from "./services/meta/definition";
+import { metaController } from "./services/meta/controller";
+import { createItemRepository } from "./services/item/repository";
+import { createMonsterRepository } from "./services/monster/repository";
 
 const args = readCliArgs(options);
 const logger = createLogger();
@@ -35,12 +39,21 @@ const rpc = createRpcMiddlewareFactory(auth.validatorFor, {
   log: logger.chain("rpc").log,
 });
 
+const itemRepository = createItemRepository({ yaml, fs, ...args });
+const monsterRepository = createMonsterRepository({ ...args, yaml, npc });
+
 app.use(auth.middleware);
 app.use(cors());
 app.use(rpc(configDefinition, configController(config)));
-app.use(rpc(itemDefinition, itemController({ yaml, fs, ...args })));
+app.use(rpc(itemDefinition, itemController(itemRepository)));
 app.use(rpc(authDefinition, authController({ db, yaml, auth, ...args })));
-app.use(rpc(monsterDefinition, monsterController({ ...args, yaml, npc })));
+app.use(rpc(monsterDefinition, monsterController(monsterRepository)));
+app.use(
+  rpc(
+    metaDefinition,
+    metaController({ items: itemRepository, monsters: monsterRepository })
+  )
+);
 
 http.createServer(app).listen(args.port, () => {
   console.log(`API is running on port ${args.port}`);
