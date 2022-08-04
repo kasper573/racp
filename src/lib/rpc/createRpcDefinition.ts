@@ -8,7 +8,7 @@ function buildRpcDefinition<
 >(
   tagTypes: TagTypes[],
   entries: Entries,
-  inheritedAuth?: Auth
+  inheritedOptions?: RpcDefinitionOptions<Auth>
 ): RpcDefinition<Auth, Entries, TagTypes> {
   return {
     entries,
@@ -22,11 +22,11 @@ function buildRpcDefinition<
             argument,
             result,
             intent: "query",
+            ...inheritedOptions,
             ...options,
-            auth: options?.auth ?? inheritedAuth,
           },
         },
-        inheritedAuth
+        inheritedOptions
       );
     },
     mutation(name, argument, result, options) {
@@ -38,33 +38,36 @@ function buildRpcDefinition<
             argument,
             result,
             intent: "mutation",
+            ...inheritedOptions,
             ...options,
-            auth: options?.auth ?? inheritedAuth,
           },
         },
-        inheritedAuth
+        inheritedOptions
       );
     },
   };
 }
 
-export function createRpcDefinitionFactory<Auth>(defaultAuth: Auth) {
+export function createRpcDefinitionFactory<Auth>(
+  defaultOptions: RpcDefinitionOptions<Auth>
+) {
   function rpcFactory<
     TagTypes extends string,
     Entries extends RpcDefinitionEntries
   >({
-    auth,
     tagTypes = [],
     entries,
-  }: {
-    auth?: Auth;
+    ...options
+  }: RpcDefinitionOptions<Auth> & {
     tagTypes?: TagTypes[];
     entries: (
       // eslint-disable-next-line @typescript-eslint/ban-types
       builder: RpcDefinition<Auth, {}, TagTypes>
     ) => RpcDefinition<Auth, Entries, TagTypes>;
   }) {
-    return entries(buildRpcDefinition(tagTypes, {}, auth ?? defaultAuth));
+    return entries(
+      buildRpcDefinition(tagTypes, {}, { ...defaultOptions, ...options })
+    );
   }
 
   return rpcFactory;
@@ -124,15 +127,20 @@ export interface RpcDefinition<
 
 export type RpcDefinitionEntries = Record<string, RpcDefinitionEntry>;
 
+export interface RpcDefinitionOptions<Auth> {
+  auth?: Auth;
+  requestBodySizeLimit?: number;
+}
+
 export type RpcDefinitionEntryOptions<
   Auth,
   TagTypes extends string,
   Argument,
   Result
-> = Partial<{
-  auth: Auth;
-  tags: ResultDescription<TagTypes, Result, Argument, unknown, unknown>;
-}>;
+> = RpcDefinitionOptions<Auth> &
+  Partial<{
+    tags: ResultDescription<TagTypes, Result, Argument, unknown, unknown>;
+  }>;
 
 export interface RpcDefinitionEntry<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

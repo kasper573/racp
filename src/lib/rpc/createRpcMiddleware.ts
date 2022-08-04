@@ -12,13 +12,12 @@ import { createEndpointUrl } from "./createRpcEndpoints";
 import { RpcException } from "./RpcException";
 
 export interface RpcMiddlewareOptions {
-  requestBodySizeLimit?: number;
   logger: Logger;
 }
 
 export function createRpcMiddlewareFactory<Auth>(
   validatorFor: (requiredAuth: Auth) => (req: Request) => boolean,
-  { logger, requestBodySizeLimit }: RpcMiddlewareOptions
+  { logger }: RpcMiddlewareOptions
 ) {
   function factory<
     Entries extends RpcDefinitionEntries,
@@ -36,7 +35,7 @@ export function createRpcMiddlewareFactory<Auth>(
       controller instanceof Promise ? controller : Promise.resolve(controller);
 
     const router = Router();
-    router.use(bodyParser.text({ type: "*/*", limit: requestBodySizeLimit }));
+
     for (const endpointName of typedKeys(entries)) {
       const entry = entries[endpointName];
       const handlerPromise = controllerPromise.then(
@@ -44,6 +43,7 @@ export function createRpcMiddlewareFactory<Auth>(
       );
       registerRoute(String(endpointName), entry, handlerPromise);
     }
+
     return router;
 
     function registerRoute<Entry extends RpcDefinitionEntry>(
@@ -52,7 +52,6 @@ export function createRpcMiddlewareFactory<Auth>(
       handlerPromise: Promise<RpcHandler<Entry>>
     ) {
       const routeLogger = logger.chain(endpointName);
-
       const isAuthorized = validatorFor(entry.auth);
 
       router.post(
@@ -65,6 +64,11 @@ export function createRpcMiddlewareFactory<Auth>(
           }
           return next();
         },
+        // Request body parsing
+        bodyParser.text({
+          type: "*/*",
+          limit: entry.requestBodySizeLimit,
+        }),
         // RPC execution
         async (request, response) => {
           let parsedBody: unknown;
