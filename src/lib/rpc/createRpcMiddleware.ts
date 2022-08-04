@@ -87,6 +87,7 @@ export function createRpcMiddlewareFactory<Auth>(
 
           const handler = await handlerPromise;
           const handlerWithLogging = routeLogger.wrap(handler, "handler");
+
           let rpcResult: PromiseResult<ReturnType<typeof handler>>;
           try {
             rpcResult = await handlerWithLogging(argument.data);
