@@ -1,9 +1,19 @@
-import { dedupe, dedupeRecordInsert } from "../../../util/dedupe";
-import { select, Selector } from "../../../util/select";
-import { Item } from "../types";
-import { ClientTextNode } from "../../../common/clientTextType";
+import { createRpcController } from "../../../lib/rpc/createRpcController";
+import { Item } from "../item/types";
+import { dedupe, dedupeRecordInsert } from "../../util/dedupe";
+import { select, Selector } from "../../util/select";
+import { ClientTextNode } from "../../common/clientTextType";
+import { metaDefinition } from "./definition";
 
-export function collectItemMeta(items: Item[]) {
+export async function metaController({ getItems }: { getItems: () => Item[] }) {
+  return createRpcController(metaDefinition.entries, {
+    async getMeta() {
+      return collectItemMeta(getItems());
+    },
+  });
+}
+
+function collectItemMeta(items: Item[]) {
   return {
     types: collectItemTypes(items),
     maxSlots: items.reduce(largestSlot, 0),

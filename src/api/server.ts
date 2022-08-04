@@ -20,6 +20,8 @@ import { options } from "./options";
 import { monsterController } from "./services/monster/controller";
 import { monsterDefinition } from "./services/monster/definition";
 import { createNpcDriver } from "./rathena/NpcDriver";
+import { metaDefinition } from "./services/meta/definition";
+import { metaController } from "./services/meta/controller";
 
 const args = readCliArgs(options);
 const logger = createLogger();
@@ -40,6 +42,7 @@ app.use(cors());
 app.use(rpc(configDefinition, configController(config)));
 app.use(rpc(itemDefinition, itemController({ yaml, fs, ...args })));
 app.use(rpc(authDefinition, authController({ db, yaml, auth, ...args })));
+app.use(rpc(metaDefinition, metaController({ getItems: () => [] })));
 app.use(rpc(monsterDefinition, monsterController({ ...args, yaml, npc })));
 
 http.createServer(app).listen(args.port, () => {

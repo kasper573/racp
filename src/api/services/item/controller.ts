@@ -5,9 +5,8 @@ import { createSearchController } from "../search/controller";
 import { FileStore } from "../../../lib/createFileStore";
 import { itemDefinition } from "./definition";
 import { createItemResolver } from "./util/createItemResolver";
-import { collectItemMeta } from "./util/collectItemMeta";
 import { parseItemInfo } from "./util/parseItemInfo";
-import { itemFilter, ItemMeta } from "./types";
+import { itemFilter } from "./types";
 
 export async function itemController({
   yaml,
@@ -21,7 +20,6 @@ export async function itemController({
   const resolver = createItemResolver({ tradeScale });
   const items = await yaml.resolve("db/item_db.yml", resolver);
 
-  let itemMeta: ItemMeta;
   let itemInfoCount = 0;
   const itemInfo = fs.entry("itemInfo.lub", parseItemInfo, (info) => {
     for (const item of items.values()) {
@@ -29,13 +27,9 @@ export async function itemController({
       resolver.postProcess?.(item, items);
     }
     itemInfoCount = info ? Object.keys(info).length : 0;
-    itemMeta = collectItemMeta(Array.from(items.values()));
   });
 
   return createRpcController(itemDefinition.entries, {
-    async getItemMeta() {
-      return itemMeta;
-    },
     searchItems: createSearchController(
       Array.from(items.values()),
       (entity, payload) => itemFilter.for(payload)(entity)

@@ -3,7 +3,7 @@ import { TextField } from "../controls/TextField";
 import { MonsterFilter, monsterFilter } from "../../api/services/monster/types";
 import { useZodMatcherForm } from "../../lib/zod/useZodMatcherForm";
 import { matcher } from "../../api/util/matcher";
-import { useGetItemMetaQuery } from "../state/client";
+import { useGetMetaQuery } from "../state/client";
 import { Select } from "../controls/Select";
 import { SliderMenu } from "../controls/SliderMenu";
 
@@ -16,7 +16,7 @@ export function MonsterSearchFilterForm({
   value,
   onChange,
 }: MonsterSearchFilterFormProps) {
-  const { data: meta } = useGetItemMetaQuery();
+  const { data: meta } = useGetMetaQuery();
   const field = useZodMatcherForm({
     matcher,
     schema: monsterFilter.type,
