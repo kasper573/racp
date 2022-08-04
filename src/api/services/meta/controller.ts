@@ -29,7 +29,12 @@ export async function metaController({
 function collectMonsterMeta(monsters: Monster[]) {
   return {
     sizes: options(monsters, (i) => i.Size),
+    monsterModes: options(monsters, (i) => Object.keys(i.Modes ?? {})),
     monsterLevels: collectRange(monsters.map((m) => m.Level)),
+    monsterWalkSpeeds: collectRange(monsters.map((m) => m.WalkSpeed ?? 0)),
+    monsterAttackRanges: collectRange(monsters.map((m) => m.AttackRange)),
+    monsterSkillRanges: collectRange(monsters.map((m) => m.SkillRange)),
+    monsterChaseRanges: collectRange(monsters.map((m) => m.ChaseRange)),
   };
 }
 
