@@ -2,7 +2,7 @@ import { WriteStream } from "tty";
 
 export interface Logger {
   log: LogFn;
-  wrap: <Fn extends AnyFn>(fn: Fn) => Fn;
+  wrap: <Fn extends AnyFn>(fn: Fn, functionName?: string) => Fn;
   chain: (name: string) => Logger;
 }
 
@@ -20,9 +20,9 @@ export function createLogger(
   return {
     log,
     chain,
-    wrap(fn) {
+    wrap(fn, functionName = fn.name) {
       function wrapped(...args: unknown[]) {
-        const functionCallId = `${fn.name}(${stringifyArgs(args)})`;
+        const functionCallId = `${functionName}(${stringifyArgs(args)})`;
 
         const startTime = Date.now();
         const result = fn(...args);

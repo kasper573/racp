@@ -36,7 +36,7 @@ const fs = createFileStore(path.join(process.cwd(), "data"));
 const npc = createNpcDriver({ ...args, logger: logger.chain("npc") });
 const rpc = createRpcMiddlewareFactory(auth.validatorFor, {
   requestBodySizeLimit: 2 * Math.pow(10, 7),
-  log: logger.chain("rpc").log,
+  logger: logger.chain("rpc"),
 });
 
 const itemRepository = createItemRepository({ yaml, fs, ...args });

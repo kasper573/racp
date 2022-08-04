@@ -1,6 +1,7 @@
 import { Router, Request, RequestHandler } from "express";
 import * as bodyParser from "body-parser";
 import { typedKeys } from "../typedKeys";
+import { Logger } from "../logger";
 import {
   RpcDefinitionEntry,
   RpcDefinitionEntries,
@@ -12,12 +13,12 @@ import { RpcException } from "./RpcException";
 
 export interface RpcMiddlewareOptions {
   requestBodySizeLimit?: number;
-  log?: (...args: unknown[]) => void;
+  logger: Logger;
 }
 
 export function createRpcMiddlewareFactory<Auth>(
   validatorFor: (requiredAuth: Auth) => (req: Request) => boolean,
-  { log, requestBodySizeLimit }: RpcMiddlewareOptions
+  { logger, requestBodySizeLimit }: RpcMiddlewareOptions
 ) {
   function factory<
     Entries extends RpcDefinitionEntries,
@@ -50,9 +51,7 @@ export function createRpcMiddlewareFactory<Auth>(
       entry: Entry,
       handlerPromise: Promise<RpcHandler<Entry>>
     ) {
-      function logRoute(...args: unknown[]) {
-        log?.(`[${String(endpointName)}] `, ...args);
-      }
+      const routeLogger = logger.chain(endpointName);
 
       const isAuthorized = validatorFor(entry.auth);
 
@@ -61,7 +60,7 @@ export function createRpcMiddlewareFactory<Auth>(
         // Authentication funnel
         (req, res, next) => {
           if (!isAuthorized(req)) {
-            logRoute("Permission denied");
+            routeLogger.log("Permission denied");
             return res.sendStatus(401);
           }
           return next();
@@ -73,7 +72,7 @@ export function createRpcMiddlewareFactory<Auth>(
             parsedBody =
               request.body.length > 0 ? JSON.parse(request.body) : undefined;
           } catch {
-            logRoute(
+            routeLogger.log(
               `Could not parse request body as JSON. Received: `,
               request.body
             );
@@ -82,30 +81,31 @@ export function createRpcMiddlewareFactory<Auth>(
 
           const argument = entry.argument.safeParse(parsedBody);
           if (!argument.success) {
-            logRoute(`Invalid argument type, ${argument.error.message}`);
+            routeLogger.log(`Invalid argument type, ${argument.error.message}`);
             return response.sendStatus(httpStatus.badRequest);
           }
 
           const handler = await handlerPromise;
+          const handlerWithLogging = routeLogger.wrap(handler, "handler");
           let rpcResult: PromiseResult<ReturnType<typeof handler>>;
           try {
-            rpcResult = await handler(argument.data);
+            rpcResult = await handlerWithLogging(argument.data);
           } catch (e) {
             if (e instanceof RpcException) {
-              logRoute(
+              routeLogger.log(
                 `Handler exited due to a known exception: ${e.message} `
               );
               return response
                 .status(httpStatus.internalServerError)
                 .send(e.message);
             }
-            logRoute(`Unexpected error while executing handler`, e);
+            routeLogger.log(`Unexpected error while executing handler`, e);
             return response.sendStatus(httpStatus.internalServerError);
           }
 
           const parsedRpcResult = entry.result.safeParse(rpcResult);
           if (!parsedRpcResult.success) {
-            logRoute(
+            routeLogger.log(
               "Return value had wrong data type",
               parsedRpcResult,
               "expected",
