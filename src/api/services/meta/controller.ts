@@ -15,14 +15,19 @@ export function metaController({
   items: ItemRepository;
   monsters: MonsterRepository;
 }) {
+  async function getMeta() {
+    await Promise.all([items.ready, monsters.ready]);
+    return {
+      ...collectItemMeta(Array.from(items.map.values())),
+      ...collectMonsterMeta(Array.from(monsters.map.values())),
+    };
+  }
+
+  // Crude caching by collecting meta only once when data is first ready
+  const metaPromise = getMeta();
+
   return createRpcController(metaDefinition.entries, {
-    async getMeta() {
-      await Promise.all([items.ready, monsters.ready]);
-      return {
-        ...collectItemMeta(Array.from(items.map.values())),
-        ...collectMonsterMeta(Array.from(monsters.map.values())),
-      };
-    },
+    getMeta: () => metaPromise,
   });
 }
 
