@@ -6,6 +6,7 @@ import { matcher } from "../../api/util/matcher";
 import { useGetMetaQuery } from "../state/client";
 import { Select } from "../controls/Select";
 import { SliderMenu } from "../controls/SliderMenu";
+import { RangeFields } from "../controls/RangeFields";
 
 export interface MonsterSearchFilterFormProps {
   value: MonsterFilter;
@@ -51,12 +52,28 @@ export function MonsterSearchFilterForm({
         options={meta?.elements}
         {...field("Element", "oneOf")}
       />
+      <Select
+        label="Size"
+        multi
+        options={meta?.sizes}
+        {...field("Size", "oneOf")}
+      />
       <SliderMenu
         ranged
         size="small"
         label="Level"
-        max={300}
+        {...meta?.monsterLevels}
         {...field("Level", "between")}
+      />
+      <RangeFields
+        size="small"
+        label="Base XP"
+        {...field("BaseExp", "between")}
+      />
+      <RangeFields
+        size="small"
+        label="Job XP"
+        {...field("JobExp", "between")}
       />
     </ControlGrid>
   );

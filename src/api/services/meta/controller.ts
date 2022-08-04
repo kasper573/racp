@@ -5,6 +5,7 @@ import { select, Selector } from "../../util/select";
 import { ClientTextNode } from "../../common/clientTextType";
 import { ItemRepository } from "../item/repository";
 import { MonsterRepository } from "../monster/repository";
+import { Monster } from "../monster/types";
 import { metaDefinition } from "./definition";
 
 export async function metaController({
@@ -16,10 +17,20 @@ export async function metaController({
 }) {
   return createRpcController(metaDefinition.entries, {
     async getMeta() {
-      await items.ready;
-      return collectItemMeta(Array.from(items.map.values()));
+      await Promise.all([items.ready, monsters.ready]);
+      return {
+        ...collectItemMeta(Array.from(items.map.values())),
+        ...collectMonsterMeta(Array.from(monsters.map.values())),
+      };
     },
   });
+}
+
+function collectMonsterMeta(monsters: Monster[]) {
+  return {
+    sizes: options(monsters, (i) => i.Size),
+    monsterLevels: collectRange(monsters.map((m) => m.Level)),
+  };
 }
 
 function collectItemMeta(items: Item[]) {
@@ -44,9 +55,14 @@ function collectItemTypes(items: Item[]) {
   return types;
 }
 
+const collectRange = (values: number[]) => ({
+  min: Math.min(0, ...values),
+  max: Math.max(0, ...values),
+});
+
 const noAll = (values: string[]) => values.filter((i) => i !== "All");
 
-const options = (items: Item[], selector: Selector<Item, string>) =>
+const options = <T>(items: T[], selector: Selector<T, string>) =>
   noAll(dedupe(select(items, selector)));
 
 const largestSlot = (largest: number, item: Item) =>

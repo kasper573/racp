@@ -1,6 +1,10 @@
 import * as zod from "zod";
 
+export const rangeType = zod.object({ min: zod.number(), max: zod.number() });
+
 export const metaType = zod.object({
+  monsterLevels: rangeType,
+  sizes: zod.array(zod.string()),
   maxSlots: zod.number(),
   genders: zod.array(zod.string()),
   classes: zod.array(zod.string()),
