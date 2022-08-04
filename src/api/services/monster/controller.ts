@@ -26,7 +26,7 @@ export async function monsterController({
 
   return createRpcController(monsterDefinition.entries, {
     searchMonsters: createSearchController(
-      Array.from(monsters.values()),
+      () => Promise.resolve(Array.from(monsters.values())),
       (entity, payload) => monsterFilter.for(payload)(entity)
     ),
     async getMonsterSpawns(monsterId) {
