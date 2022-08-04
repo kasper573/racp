@@ -3,7 +3,7 @@ import { Item } from "../item/types";
 import { dedupe, dedupeRecordInsert } from "../../util/dedupe";
 import { select, Selector } from "../../util/select";
 import { ClientTextNode } from "../../common/clientTextType";
-import { ItemRepository } from "../item/util/itemRepository";
+import { ItemRepository } from "../item/repository";
 import { metaDefinition } from "./definition";
 
 export async function metaController({ items }: { items: ItemRepository }) {

@@ -22,7 +22,7 @@ import { monsterDefinition } from "./services/monster/definition";
 import { createNpcDriver } from "./rathena/NpcDriver";
 import { metaDefinition } from "./services/meta/definition";
 import { metaController } from "./services/meta/controller";
-import { createItemRepository } from "./services/item/util/itemRepository";
+import { createItemRepository } from "./services/item/repository";
 
 const args = readCliArgs(options);
 const logger = createLogger();

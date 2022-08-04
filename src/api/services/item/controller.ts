@@ -3,7 +3,7 @@ import { RpcException } from "../../../lib/rpc/RpcException";
 import { createSearchController } from "../search/controller";
 import { itemDefinition } from "./definition";
 import { itemFilter } from "./types";
-import { ItemRepository } from "./util/itemRepository";
+import { ItemRepository } from "./repository";
 
 export function itemController({ items }: { items: ItemRepository }) {
   return createRpcController(itemDefinition.entries, {
