@@ -45,7 +45,7 @@ app.use(cors());
 app.use(rpc(configDefinition, configController(config)));
 app.use(rpc(itemDefinition, itemController({ items: itemRepository })));
 app.use(rpc(authDefinition, authController({ db, yaml, auth, ...args })));
-app.use(rpc(metaDefinition, metaController({ getItems: () => [] })));
+app.use(rpc(metaDefinition, metaController({ items: itemRepository })));
 app.use(rpc(monsterDefinition, monsterController({ ...args, yaml, npc })));
 
 http.createServer(app).listen(args.port, () => {

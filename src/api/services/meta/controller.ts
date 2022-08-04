@@ -3,12 +3,14 @@ import { Item } from "../item/types";
 import { dedupe, dedupeRecordInsert } from "../../util/dedupe";
 import { select, Selector } from "../../util/select";
 import { ClientTextNode } from "../../common/clientTextType";
+import { ItemRepository } from "../item/util/itemRepository";
 import { metaDefinition } from "./definition";
 
-export async function metaController({ getItems }: { getItems: () => Item[] }) {
+export async function metaController({ items }: { items: ItemRepository }) {
   return createRpcController(metaDefinition.entries, {
     async getMeta() {
-      return collectItemMeta(getItems());
+      await items.ready;
+      return collectItemMeta(Array.from(items.map.values()));
     },
   });
 }
