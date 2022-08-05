@@ -61,7 +61,7 @@ function stringifyArgs(args: unknown[]) {
       .map((arg) =>
         typeof arg === "number"
           ? `${arg}`
-          : `"${arg}"`.replaceAll(/[\r\n]/g, "")
+          : JSON.stringify(arg).replaceAll(/[\r\n]/g, "")
       )[0] ?? ""
   );
 }
