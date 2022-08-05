@@ -1,6 +1,7 @@
 import { YamlDriver } from "../../rathena/YamlDriver";
 import { FileStore } from "../../../lib/createFileStore";
 import { createAsyncRepository } from "../../../lib/createAsyncRepository";
+import { replaceMap, replaceObject } from "../../../lib/replaceEntries";
 import { Item, ItemInfo } from "./types";
 import { createItemResolver } from "./util/createItemResolver";
 import { parseItemInfo } from "./util/parseItemInfo";
@@ -16,19 +17,18 @@ export function createItemRepository({
   fs: FileStore;
   tradeScale: number;
 }) {
-  let info: Record<string, ItemInfo> = {};
+  const info: Record<string, ItemInfo> = {};
   const map = new Map<number, Item>();
 
   const resolver = createItemResolver({ tradeScale });
 
-  const infoFile = fs.entry("itemInfo.lub", parseItemInfo, (info) =>
-    update({ info })
-  );
+  const infoFile = fs.entry("itemInfo.lub", parseItemInfo, (newInfo) => {
+    replaceObject(info, newInfo);
+    rebuild();
+  });
 
-  function update({ items: newItems = map, info: newInfo = info }) {
-    info = newInfo;
-    map.clear();
-    for (const [key, item] of newItems.entries()) {
+  function rebuild() {
+    for (const [key, item] of map.entries()) {
       item.Info = info?.[item.Id];
       map.set(key, item);
       resolver.postProcess?.(item, map);
@@ -37,8 +37,9 @@ export function createItemRepository({
 
   return createAsyncRepository(
     () => yaml.resolve("db/item_db.yml", resolver),
-    (items = new Map()) => {
-      update({ items });
+    (items) => {
+      replaceMap(map, items);
+      rebuild();
       return {
         info,
         map,
