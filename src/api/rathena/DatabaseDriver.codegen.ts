@@ -25,7 +25,7 @@ async function generate() {
 
   const cfg = createConfigDriver({
     rAthenaPath,
-    logger: createLogger(),
+    logger: createLogger(console.log),
   });
 
   const tsString = await sqlts.toTypeScript({

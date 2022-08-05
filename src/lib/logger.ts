@@ -1,5 +1,3 @@
-import { WriteStream } from "tty";
-
 export interface Logger {
   log: LogFn;
   wrap: <Fn extends AnyFn>(fn: Fn, functionName?: string) => Fn;
@@ -11,10 +9,7 @@ export type LogFn = (...args: unknown[]) => void;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyFn = (...args: any[]) => any;
 
-export function createLogger(
-  logFn: LogFn = createEllipsisLogFn(process.stdout),
-  name?: string
-): Logger {
+export function createLogger(logFn: LogFn, name?: string): Logger {
   const log = name ? createNamedLogFn(logFn, name) : logFn;
   const chain = (name: string) => createLogger(log, name);
   return {
@@ -43,11 +38,6 @@ export function createLogger(
       return wrapped as any;
     },
   };
-}
-
-export function createEllipsisLogFn(writeStream: WriteStream): LogFn {
-  return (...args) =>
-    writeStream.write(ellipsis(args.join(" "), writeStream.columns) + "\n");
 }
 
 function createNamedLogFn(logFn: LogFn, name: string): LogFn {
@@ -89,8 +79,4 @@ function quantify(value: unknown) {
     case "boolean":
       return value;
   }
-}
-
-function ellipsis(str: string, max: number) {
-  return str.length > max ? str.substring(0, max - 3) + "..." : str;
 }

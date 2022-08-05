@@ -5,6 +5,7 @@ import cors = require("cors");
 import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
 import { createFileStore } from "../lib/createFileStore";
 import { createLogger } from "../lib/logger";
+import { createEllipsisLogFn } from "../lib/createEllipsisLogFn";
 import { createYamlDriver } from "./rathena/YamlDriver";
 import { createConfigDriver } from "./rathena/ConfigDriver";
 import { createDatabaseDriver } from "./rathena/DatabaseDriver";
@@ -26,7 +27,13 @@ import { createItemRepository } from "./services/item/repository";
 import { createMonsterRepository } from "./services/monster/repository";
 
 const args = readCliArgs(options);
-const logger = createLogger();
+const logger = createLogger(
+  {
+    verbose: console.log,
+    truncated: createEllipsisLogFn(process.stdout),
+  }[args.log]
+);
+
 const app = express();
 const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
 const yaml = createYamlDriver({ ...args, logger: logger.chain("yaml") });

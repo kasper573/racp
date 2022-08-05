@@ -10,6 +10,10 @@ export const options = {
     type: "number",
     description: "The port to run the api server on",
   },
+  log: {
+    choices: ["verbose", "truncated"] as const,
+    default: "verbose",
+  },
   jwtSecret: {
     type: "string",
     required: true,
