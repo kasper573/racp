@@ -4281,6 +4281,14 @@ graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.2.0, graceful-fs@^4.2.4, 
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.10.tgz#147d3a006da4ca3ce14728c7aefc287c367d7a6c"
   integrity sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA==
 
+grf-loader@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/grf-loader/-/grf-loader-0.0.2.tgz#40f44c909596d37879b1201b7ad0d453a7a142bd"
+  integrity sha512-Do0ZTGe3JEEEAHUp8RNnR0oBAQcTIYOrRaw/X7d6S4gxF3RW53hxGM1cSWUb7VMxszBHOhamJfNUWxxpR5nYBA==
+  dependencies:
+    jdataview "^2.5.0"
+    pako "^1.0.11"
+
 handle-thing@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/handle-thing/-/handle-thing-2.0.1.tgz#857f79ce359580c340d43081cc648970d0bb234e"
@@ -4834,6 +4842,11 @@ jconv@^0.1.5:
   version "0.1.5"
   resolved "https://registry.yarnpkg.com/jconv/-/jconv-0.1.5.tgz#c650edba4cc2ce6dd292bf3910b123433c4b47f5"
   integrity sha512-aH8BnQa8SakaT2Wq+tfbu1cRBE6aMwnDqb2AP/jegh69Lg1WIBVRmwPdb4YErYyPHP7iQhuZ5rnPWBX8DcnRSg==
+
+jdataview@^2.5.0:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/jdataview/-/jdataview-2.5.0.tgz#3081b3fea651f9317ec6bd4feb2ddc98aa41d595"
+  integrity sha512-ZJop3D5nyDcWPBPv4NPnhCvx3HgQNsCXMfw8gpNKY16BobgxmVF+kJ08aHuqk6bJQVeL2mkf6nDCcZPMompalw==
 
 jest-changed-files@^28.0.2:
   version "28.0.2"
@@ -5960,6 +5973,11 @@ p-try@^2.0.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/p-try/-/p-try-2.2.0.tgz#cb2868540e313d61de58fafbe35ce9004d5540e6"
   integrity sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==
+
+pako@^1.0.11:
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.11.tgz#6c9599d340d54dfd3946380252a35705a6b992bf"
+  integrity sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==
 
 param-case@^3.0.4:
   version "3.0.4"

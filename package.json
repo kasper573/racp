@@ -10,7 +10,7 @@
     "lint:fix": "eslint . --fix & prettier . --write",
     "build:app": "webpack build",
     "dev:app": "cross-env reactRefresh=true apiBaseUrl=http://localhost:8081 webpack serve",
-    "dev:api": "ts-node-dev src/api/server --jwtSecret dev --port 8081 --log truncated",
+    "dev:api": "ts-node-dev src/api/server --jwtSecret dev --port 8081",
     "codegen": "ts-node src/api/rathena/DatabaseDriver.codegen"
   },
   "devDependencies": {
@@ -77,6 +77,7 @@
     "@mui/material": "^5.8.5",
     "@mui/x-data-grid": "^5.12.3",
     "@reduxjs/toolkit": "^1.8.2",
+    "grf-loader": "^0.0.2",
     "history": "^4.10.1",
     "immer": "^9.0.15",
     "lodash": "^4.17.21",

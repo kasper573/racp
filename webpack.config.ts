@@ -70,6 +70,9 @@ const config: webpack.Configuration = {
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".jsx"],
+    fallback: {
+      fs: false, // Required because grf-loader incorrectly imports fs
+    },
   },
   devServer: {
     historyApiFallback: true,
