@@ -80,17 +80,14 @@ export default function AdminMapsPage() {
         Database currently contain {mapInfoCount} map info entries and{" "}
         {mapImageCount} map images.
       </Typography>
+
       <FileUploader
         value={[]}
         sx={{ maxWidth: 380, margin: "0 auto" }}
         accept={[".grf", ".lub", ...imageExtensions]}
         isLoading={isLoading}
         onChange={onFilesSelectedForUpload}
-        title={
-          "Select a mapInfo.lub file to update the item info database. " +
-          "Select a data.grf file to automatically upload map images. " +
-          "Select any image files to manually upload map images (file name must be map id)."
-        }
+        title={"Select or drop files here"}
       />
 
       <ErrorMessage sx={{ textAlign: "center", mt: 1 }} error={error} />
@@ -104,7 +101,7 @@ export default function AdminMapsPage() {
       </Box>
 
       {missingMapImages.length > 0 && (
-        <Accordion sx={{ [`&&`]: { marginTop: 2 } }}>
+        <Accordion sx={{ [`&&`]: { marginTop: 0 } }}>
           <AccordionSummary expandIcon={<ExpandMore />}>
             <Typography>
               {missingMapImages.length} missing map images:
@@ -117,6 +114,32 @@ export default function AdminMapsPage() {
           </AccordionDetails>
         </Accordion>
       )}
+
+      <Typography variant="caption" sx={{ marginTop: 4, maxWidth: 600 }}>
+        <strong>Instructions:</strong>
+        <br />
+        - Upload a mapInfo.lub file to update the map info database.
+        <br />
+        - Upload a data.grf file to update the map image database with all map
+        images in the GRF file.
+        <br /> - Upload an image file to manually update the map image database
+        using file name as map id.
+        <br /> - If any map images are missing their map ids will be listed
+        (once you've uploaded map info).
+        <br />
+        <br />
+        <strong>How to deal with missing map images:</strong>
+        <br /> Some GRF files won't contain all map images, or contains images
+        that our GRF parser can't handle, or some maps have 3d model files
+        instead of texture files. In this case you can use a GRF Editor to
+        either find the textures or convert a 3d model to a texture file.
+        <br />
+        <br />
+        Once you've produced the map images you can simply upload them above to
+        manually update the map image database. Keep in mind that the file names
+        must correspond to a map id. This is however the default if you export
+        images from the map directory using a GRF Editor.
+      </Typography>
     </>
   );
 }
