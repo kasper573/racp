@@ -1,6 +1,7 @@
 import * as zod from "zod";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { matcher } from "../../util/matcher";
+import { trimQuotes } from "../../../lib/trimQuotes";
 
 export type MapId = zod.infer<typeof mapIdType>;
 export const mapIdType = zod.string();
@@ -13,16 +14,16 @@ export const mapInfoType = zod.object({
    * The table key is the id, which is assigned after parsing.
    */
   id: mapIdType.default(""),
-  displayName: zod.string(),
+  displayName: zod.string().transform(trimQuotes),
   notifyEnter: zod.boolean().default(false),
   signName: zod
     .object({
-      subTitle: zod.string(),
-      mainTitle: zod.string(),
+      subTitle: zod.string().transform(trimQuotes),
+      mainTitle: zod.string().transform(trimQuotes),
     })
     .partial()
     .default({}),
-  backgroundBmp: zod.string().optional(),
+  backgroundBmp: zod.string().transform(trimQuotes).optional(),
 });
 
 export type MapInfoFilter = zod.infer<typeof mapInfoFilter.type>;
