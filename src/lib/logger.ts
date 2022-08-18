@@ -1,3 +1,5 @@
+import { isPlainObject } from "lodash";
+
 export interface Logger {
   log: LogFn;
   wrap: <Fn extends AnyFn>(fn: Fn, functionName?: string) => Fn;
@@ -51,9 +53,22 @@ function stringifyArgs(args: unknown[]) {
       .map((arg) =>
         typeof arg === "number"
           ? `${arg}`
-          : JSON.stringify(arg).replaceAll(/[\r\n]/g, "")
+          : JSON.stringify(arg, simplifyComplexObjects).replaceAll(
+              /[\r\n]/g,
+              ""
+            )
       )[0] ?? ""
   );
+}
+
+function simplifyComplexObjects(key: string, value: unknown) {
+  if (Array.isArray(value)) {
+    return value.slice(0, 3).concat("...");
+  }
+  if (value && typeof value === "object" && !isPlainObject(value)) {
+    return value.constructor.name;
+  }
+  return value;
 }
 
 function stringifyResult(result: unknown) {
