@@ -2,19 +2,19 @@ import { YamlDriver } from "../../rathena/YamlDriver";
 import { FileStore } from "../../../lib/createFileStore";
 import { createAsyncRepository } from "../../../lib/createAsyncRepository";
 import { replaceMap, replaceObject } from "../../../lib/replaceEntries";
-import { Item, ItemInfo } from "./types";
+import { parseLuaTableAs } from "../../common/parseLuaTableAs";
+import { Item, ItemInfo, itemInfoType } from "./types";
 import { createItemResolver } from "./util/createItemResolver";
-import { parseItemInfo } from "./util/parseItemInfo";
 
 export type ItemRepository = ReturnType<typeof createItemRepository>;
 
 export function createItemRepository({
   yaml,
-  fs,
+  files,
   tradeScale,
 }: {
   yaml: YamlDriver;
-  fs: FileStore;
+  files: FileStore;
   tradeScale: number;
 }) {
   const info: Record<string, ItemInfo> = {};
@@ -22,7 +22,7 @@ export function createItemRepository({
 
   const resolver = createItemResolver({ tradeScale });
 
-  const infoFile = fs.entry("itemInfo.lub", parseItemInfo, (newInfo) => {
+  const infoFile = files.entry("itemInfo.lub", parseItemInfo, (newInfo) => {
     replaceObject(info, newInfo);
     rebuild();
   });
@@ -48,3 +48,6 @@ export function createItemRepository({
     }
   );
 }
+
+const parseItemInfo = (luaCode: string) =>
+  parseLuaTableAs(luaCode, itemInfoType);
