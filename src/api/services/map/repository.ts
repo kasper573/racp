@@ -43,7 +43,7 @@ export function createMapRepository({
       const all = await Promise.allSettled(
         files.map((file) =>
           formatter.write(
-            path.resolve(mapLinker.directory, path.basename(file.name)),
+            mapLinker.path(path.basename(file.name)),
             Buffer.from(file.data)
           )
         )
