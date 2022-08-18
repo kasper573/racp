@@ -60,7 +60,7 @@ const linker = createPublicFileLinker({
 
 const itemRepository = createItemRepository({ yaml, files, ...args });
 const monsterRepository = createMonsterRepository({ ...args, yaml, npc });
-const mapRepository = createMapRepository({ files, linker, formatter });
+const mapRepository = createMapRepository({ files, linker, formatter, npc });
 
 app.use(auth.middleware);
 app.use(cors());

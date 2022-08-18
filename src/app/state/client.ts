@@ -50,6 +50,7 @@ export const {
   useUploadMapImagesMutation,
   useSearchMapsQuery,
   useGetMapQuery,
+  useGetMapWarpsQuery,
   useUploadMapInfoMutation,
   useCountMapImagesQuery,
   useCountMapInfoQuery,

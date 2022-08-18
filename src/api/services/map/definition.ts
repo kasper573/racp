@@ -3,7 +3,7 @@ import { createTagFactory } from "../../../lib/createTagFactory";
 import { createRpcDefinition } from "../../util/rpc";
 import { UserAccessLevel } from "../auth/types";
 import { createSearchTypes } from "../search/types";
-import { mapIdType, mapInfoFilter, mapInfoType } from "./types";
+import { mapIdType, mapInfoFilter, mapInfoType, warpType } from "./types";
 
 const infoTag = createTagFactory("MapInfo");
 const imageTag = createTagFactory("MapImage");
@@ -20,6 +20,7 @@ export const mapDefinition = createRpcDefinition({
       .query("getMap", mapIdType, mapInfoType, {
         tags: (map) => [infoTag.one(map?.id)],
       })
+      .query("getMapWarps", mapIdType, zod.array(warpType))
       .query("countMapInfo", zod.void(), zod.number(), {
         auth: UserAccessLevel.Admin,
         tags: infoTag.many(),

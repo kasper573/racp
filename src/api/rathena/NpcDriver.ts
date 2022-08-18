@@ -21,7 +21,10 @@ export function createNpcDriver({
   const modeFolder = path.resolve(npcFolder, modeFolderNames[rAthenaMode]);
 
   return {
-    resolve<ET extends ZodArrayEntity>(npcConfFile: string, entityType: ET) {
+    async resolve<ET extends ZodArrayEntity>(
+      npcConfFile: string,
+      entityType: ET
+    ): Promise<Array<zod.infer<ET>>> {
       const loadEntities = logger.wrap(createNpcLoader(entityType));
 
       async function loadViaConfFile(npcConfFile: string) {
@@ -33,15 +36,12 @@ export function createNpcDriver({
         );
       }
 
-      const entities: Array<zod.infer<ET>> = [];
-      Promise.all([
+      const [baseEntities, modeEntities] = await Promise.all([
         loadViaConfFile(path.resolve(npcFolder, npcConfFile)),
         loadViaConfFile(path.resolve(modeFolder, npcConfFile)),
-      ]).then(([baseEntities, modeEntities]) => {
-        entities.push(...baseEntities, ...modeEntities);
-      });
+      ]);
 
-      return entities;
+      return [...baseEntities, ...modeEntities];
     },
   };
 }
