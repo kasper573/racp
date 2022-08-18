@@ -1,4 +1,4 @@
-import { useRouteParams } from "react-typesafe-routes";
+import { useRouteParams } from "../../lib/useRouteParams";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { useGetConfigQuery, useUpdateConfigMutation } from "../state/client";
 import { TextEditor } from "../controls/TextEditor";
