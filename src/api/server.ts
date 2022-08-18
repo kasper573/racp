@@ -25,6 +25,8 @@ import { metaDefinition } from "./services/meta/definition";
 import { metaController } from "./services/meta/controller";
 import { createItemRepository } from "./services/item/repository";
 import { createMonsterRepository } from "./services/monster/repository";
+import { mapDefinition } from "./services/map/definition";
+import { mapController } from "./services/map/controller";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -54,6 +56,7 @@ app.use(rpc(configDefinition, configController(config)));
 app.use(rpc(itemDefinition, itemController(itemRepository)));
 app.use(rpc(authDefinition, authController({ db, yaml, auth, ...args })));
 app.use(rpc(monsterDefinition, monsterController(monsterRepository)));
+app.use(rpc(mapDefinition, mapController(logger)));
 app.use(
   rpc(
     metaDefinition,
