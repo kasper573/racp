@@ -1,11 +1,13 @@
 import * as fs from "fs";
 import * as path from "path";
+import { ensureDir } from "./ensureDir";
 
 export type FileStore = ReturnType<typeof createFileStore>;
 
 export function createFileStore(directory: string) {
   ensureDir(directory);
   return {
+    directory,
     entry<Data>(
       relativeFilename: string,
       parseFileContent: ContentParser<Data>,
@@ -55,10 +57,3 @@ export interface FileStoreEntry<Data> {
 export type ContentParser<T = any> = (fileContent: string) => ParseResult<T>;
 
 export type ParseResult<T> = { success: true; data: T } | { success: false };
-
-export function ensureDir(directory: string) {
-  if (!fs.existsSync(directory)) {
-    fs.mkdirSync(directory);
-  }
-  return directory;
-}
