@@ -8,7 +8,7 @@ import {
 import { ErrorMessage } from "../components/ErrorMessage";
 import { FileUploader } from "../components/FileUploader";
 
-export default function AdminItemInfoPage() {
+export default function AdminItemsPage() {
   const { data: itemCount = 0 } = useCountItemInfoQuery();
   const [update, { error: netError, isLoading }] = useUpdateItemInfoMutation();
   const [uploadResult, setUploadResult] = useState<boolean>();

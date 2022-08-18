@@ -1,29 +1,25 @@
-import * as path from "path";
-import * as fs from "fs";
 import { createRpcController } from "../../../lib/rpc/createRpcController";
 import { mapDefinition } from "./definition";
+import { MapRepository } from "./repository";
 
-export async function mapController({
-  mapImagesDir,
-}: {
-  mapImagesDir: string;
-}) {
+export async function mapController(maps: MapRepository) {
   return createRpcController(mapDefinition.entries, {
     async countMapImages() {
-      return fs.readdirSync(mapImagesDir).length;
+      return maps.countImages();
     },
     async uploadMapImages(files) {
-      const all = await Promise.allSettled(
-        files.map((file) =>
-          fs.promises.writeFile(
-            path.resolve(mapImagesDir, path.basename(file.name)),
-            new Uint8Array(file.data)
-          )
-        )
+      return maps.updateImages(
+        files.map(({ name, data }) => ({ name, data: new Uint8Array(data) }))
       );
-      const success = all.filter((r) => r.status === "fulfilled").length;
-      const failed = all.length - success;
-      return { success, failed };
+    },
+    async countMapInfo() {
+      return Object.keys(maps.info).length;
+    },
+    async uploadMapInfo([file]) {
+      if (!file) {
+        return false;
+      }
+      return maps.updateInfo(Buffer.from(file.data).toString("utf8")).success;
     },
   });
 }

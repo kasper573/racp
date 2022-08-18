@@ -3,7 +3,7 @@ import * as path from "path";
 import * as express from "express";
 import cors = require("cors");
 import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
-import { createFileStore, ensureDir } from "../lib/createFileStore";
+import { createFileStore } from "../lib/createFileStore";
 import { createLogger } from "../lib/logger";
 import { createEllipsisLogFn } from "../lib/createEllipsisLogFn";
 import { createYamlDriver } from "./rathena/YamlDriver";
@@ -27,6 +27,7 @@ import { createItemRepository } from "./services/item/repository";
 import { createMonsterRepository } from "./services/monster/repository";
 import { mapDefinition } from "./services/map/definition";
 import { mapController } from "./services/map/controller";
+import { createMapRepository } from "./services/map/repository";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -41,15 +42,15 @@ const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
 const yaml = createYamlDriver({ ...args, logger: logger.chain("yaml") });
 const config = createConfigDriver({ ...args, logger: logger.chain("config") });
 const db = createDatabaseDriver(config);
-const fs = createFileStore(path.join(process.cwd(), "data"));
+const files = createFileStore(path.join(process.cwd(), "data"));
 const npc = createNpcDriver({ ...args, logger: logger.chain("npc") });
 const rpc = createRpcMiddlewareFactory(auth.validatorFor, {
   logger: logger.chain("rpc"),
 });
 
-const itemRepository = createItemRepository({ yaml, fs, ...args });
+const itemRepository = createItemRepository({ yaml, files, ...args });
 const monsterRepository = createMonsterRepository({ ...args, yaml, npc });
-const mapImagesDir = ensureDir(path.join(process.cwd(), "data", "mapImages"));
+const mapRepository = createMapRepository(files);
 
 app.use(auth.middleware);
 app.use(cors());
@@ -57,7 +58,7 @@ app.use(rpc(configDefinition, configController(config)));
 app.use(rpc(itemDefinition, itemController(itemRepository)));
 app.use(rpc(authDefinition, authController({ db, yaml, auth, ...args })));
 app.use(rpc(monsterDefinition, monsterController(monsterRepository)));
-app.use(rpc(mapDefinition, mapController({ mapImagesDir })));
+app.use(rpc(mapDefinition, mapController(mapRepository)));
 app.use(
   rpc(
     metaDefinition,
