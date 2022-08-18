@@ -4,6 +4,7 @@ import { DataGrid, DataGridQueryFn } from "../components/DataGrid";
 import { useSearchMapsQuery } from "../state/client";
 import { MapInfo, MapInfoFilter } from "../../api/services/map/types";
 import { MapSearchFilterForm } from "../forms/MapSearchFilterForm";
+import { router } from "../router";
 
 export default function MapSearchPage() {
   const [filter, setFilter] = useState<MapInfoFilter>({});
@@ -22,8 +23,10 @@ const MapGrid = DataGrid.define<MapInfo, MapInfoFilter, MapInfo["id"]>({
     MapInfo,
     MapInfoFilter
   >,
+  link: (id) => router.map().view({ id }),
   id: (map) => map.id,
   columns: {
     displayName: { headerName: "Name", width: 350 },
+    id: true,
   },
 });

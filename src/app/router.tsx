@@ -56,10 +56,20 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
     component: lazy(() => import("./pages/MonsterSearchPage")),
     options: { title: "Monsters", icon: <PestControlRodent /> },
   }),
-  map: route("map", {
-    component: lazy(() => import("./pages/MapSearchPage")),
-    options: { title: "Maps", icon: <Map /> },
-  }),
+  map: route(
+    "map",
+    {
+      component: lazy(() => import("./pages/MapSearchPage")),
+      options: { title: "Maps", icon: <Map /> },
+    },
+    (route) => ({
+      view: route("view/:id", {
+        component: lazy(() => import("./pages/MapViewPage")),
+        options: { title: "Map", icon: <Map /> },
+        params: { id: stringParser },
+      }),
+    })
+  ),
   admin: route(
     "admin",
     {
