@@ -21,10 +21,10 @@ export default function AdminMapImagesPage() {
     useUploadMapImagesMutation();
   const isLoading = isUploading || isLoadingGRF;
 
-  async function onFileSelectedForUpload(files: File[]) {
+  async function onGrfFilesSelected(grfFiles: File[]) {
     setIsLoadingGRF(true);
     const mapImages = flatten(
-      await Promise.all(files.map(loadMapImagesFromGRF))
+      await Promise.all(grfFiles.map(loadMapImagesFromGRF))
     );
     const rpcFiles = await Promise.all(mapImages.map(fromBrowserFile));
     setIsLoadingGRF(false);
@@ -44,7 +44,7 @@ export default function AdminMapImagesPage() {
         sx={{ maxWidth: 380, margin: "0 auto" }}
         accept=".grf"
         isLoading={isLoading}
-        onChange={onFileSelectedForUpload}
+        onChange={onGrfFilesSelected}
         title="Select your data.grf file to upload new map images."
       />
       <ErrorMessage sx={{ textAlign: "center", mt: 1 }} error={uploadError} />
