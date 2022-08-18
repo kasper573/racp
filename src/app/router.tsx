@@ -10,7 +10,9 @@ import {
   AdminPanelSettings,
   Article,
   Home,
+  Inventory,
   Login,
+  Map,
   ModeEdit,
   PestControlRodent,
   Redeem,
@@ -76,13 +78,13 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
           }),
         })
       ),
-      itemInfo: route("item-info", {
+      itemInfo: route("items", {
         component: lazy(() => import("./pages/AdminItemInfoPage")),
-        options: { title: "Item info", icon: <Article /> },
+        options: { title: "Items", icon: <Inventory /> },
       }),
-      mapInfo: route("map-info", {
-        component: lazy(() => import("./pages/AdminMapInfoPage")),
-        options: { title: "Map info", icon: <Article /> },
+      mapInfo: route("maps", {
+        component: lazy(() => import("./pages/AdminMapImagesPage")),
+        options: { title: "Maps", icon: <Map /> },
       }),
     })
   ),

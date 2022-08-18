@@ -1,4 +1,3 @@
-import FileUpload from "react-material-file-upload";
 import { Typography } from "@mui/material";
 import { useState } from "react";
 import { Header } from "../layout/Header";
@@ -7,6 +6,7 @@ import {
   useUpdateItemInfoMutation,
 } from "../state/client";
 import { ErrorMessage } from "../components/ErrorMessage";
+import { FileUploader } from "../components/FileUploader";
 
 export default function AdminItemInfoPage() {
   const { data: itemCount = 0 } = useCountItemInfoQuery();
@@ -18,14 +18,14 @@ export default function AdminItemInfoPage() {
       : netError;
   return (
     <>
-      <Header>Item info</Header>
+      <Header>Items</Header>
       <Typography paragraph>
         Database currently contain {itemCount} item info entries.
       </Typography>
-      <FileUpload
+      <FileUploader
         value={[]}
         sx={{ maxWidth: 380, margin: "0 auto" }}
-        disabled={isLoading}
+        isLoading={isLoading}
         onChange={async ([file]) => {
           setUploadResult(undefined);
           if (file) {

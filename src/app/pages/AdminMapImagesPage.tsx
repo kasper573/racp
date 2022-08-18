@@ -1,4 +1,3 @@
-import FileUpload from "react-material-file-upload";
 import { Box, Typography } from "@mui/material";
 import { useState } from "react";
 import { Header } from "../layout/Header";
@@ -11,53 +10,45 @@ import {
   useUploadMapImagesMutation,
 } from "../state/client";
 import { fromBrowserFile } from "../../lib/rpc/RpcFile";
+import { FileUploader } from "../components/FileUploader";
 
-export default function AdminMapInfoPage() {
-  const [infoCount] = useState(0);
+export default function AdminMapImagesPage() {
   const { data: mapImageCount = 0 } = useCountMapImagesQuery();
   const [isLoadingMapImages, setIsLoadingMapImages] = useState(false);
   const [uploadCount, setUploadCount] = useState<number>(0);
   const [uploadMapImages, { isLoading: isUploading, error: uploadError }] =
     useUploadMapImagesMutation();
+  const isLoading = isUploading || isLoadingMapImages;
 
   async function onFileSelectedForUpload(file: File) {
-    if (file.name.endsWith(".grf")) {
-      setIsLoadingMapImages(true);
-      const files = await loadMapImages(file);
-      setIsLoadingMapImages(false);
-      setUploadCount(files.length);
-      await uploadMapImages(files);
-    } else if (file.name.endsWith(".lub")) {
-      // TODO implement lub upload
-    }
+    setIsLoadingMapImages(true);
+    const files = await loadMapImages(file);
+    setIsLoadingMapImages(false);
+    setUploadCount(files.length);
+    await uploadMapImages(files);
   }
 
   return (
     <>
-      <Header>Map info</Header>
+      <Header>Maps</Header>
       <Typography paragraph>
-        Database currently contain {infoCount} map info entries and{" "}
-        {mapImageCount} map images.
+        Database currently contain {mapImageCount} map images.
       </Typography>
-      <FileUpload
+      <FileUploader
         value={[]}
         sx={{ maxWidth: 380, margin: "0 auto" }}
-        accept={[".grf", ".lub"]}
-        disabled={isUploading}
+        accept=".grf"
+        isLoading={isLoading}
         onChange={([file]) => onFileSelectedForUpload(file)}
         maxFiles={1}
-        title={
-          "Select your mapInfo.lub file to update the item info database. " +
-          "Select your data.grf file to update the map images." +
-          "This will replace the existing entries."
-        }
+        title="Select your data.grf file to upload new map images."
       />
       <ErrorMessage sx={{ textAlign: "center", mt: 1 }} error={uploadError} />
       <Box sx={{ margin: "0 auto" }}>
         {isUploading && (
-          <Typography>Uploading {uploadCount} map images</Typography>
+          <Typography>Uploading {uploadCount} map images...</Typography>
         )}
-        {isLoadingMapImages && <Typography>Loading GRF file</Typography>}
+        {isLoadingMapImages && <Typography>Loading GRF file...</Typography>}
       </Box>
     </>
   );
