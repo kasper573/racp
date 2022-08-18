@@ -1,5 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import { useState } from "react";
+import { flatten } from "lodash";
 import { Header } from "../layout/Header";
 
 import { ErrorMessage } from "../components/ErrorMessage";
@@ -14,18 +15,22 @@ import { FileUploader } from "../components/FileUploader";
 
 export default function AdminMapImagesPage() {
   const { data: mapImageCount = 0 } = useCountMapImagesQuery();
-  const [isLoadingMapImages, setIsLoadingMapImages] = useState(false);
+  const [isLoadingGRF, setIsLoadingGRF] = useState(false);
   const [uploadCount, setUploadCount] = useState<number>(0);
   const [uploadMapImages, { isLoading: isUploading, error: uploadError }] =
     useUploadMapImagesMutation();
-  const isLoading = isUploading || isLoadingMapImages;
+  const isLoading = isUploading || isLoadingGRF;
 
-  async function onFileSelectedForUpload(file: File) {
-    setIsLoadingMapImages(true);
-    const files = await loadMapImages(file);
-    setIsLoadingMapImages(false);
-    setUploadCount(files.length);
-    await uploadMapImages(files);
+  async function onFileSelectedForUpload(files: File[]) {
+    setIsLoadingGRF(true);
+    const mapImages = flatten(
+      await Promise.all(files.map(loadMapImagesFromGRF))
+    );
+    const rpcFiles = await Promise.all(mapImages.map(fromBrowserFile));
+    setIsLoadingGRF(false);
+
+    setUploadCount(rpcFiles.length);
+    await uploadMapImages(rpcFiles);
   }
 
   return (
@@ -39,8 +44,7 @@ export default function AdminMapImagesPage() {
         sx={{ maxWidth: 380, margin: "0 auto" }}
         accept=".grf"
         isLoading={isLoading}
-        onChange={([file]) => onFileSelectedForUpload(file)}
-        maxFiles={1}
+        onChange={onFileSelectedForUpload}
         title="Select your data.grf file to upload new map images."
       />
       <ErrorMessage sx={{ textAlign: "center", mt: 1 }} error={uploadError} />
@@ -48,13 +52,13 @@ export default function AdminMapImagesPage() {
         {isUploading && (
           <Typography>Uploading {uploadCount} map images...</Typography>
         )}
-        {isLoadingMapImages && <Typography>Loading GRF file...</Typography>}
+        {isLoadingGRF && <Typography>Loading GRF file...</Typography>}
       </Box>
     </>
   );
 }
 
-async function loadMapImages(file: File) {
+async function loadMapImagesFromGRF(file: File) {
   const grf = new GrfBrowser(file);
   await grf.load();
 
@@ -64,13 +68,7 @@ async function loadMapImages(file: File) {
       .map((file) => grf.getFileObject(file, "image/bmp"))
   );
 
-  const successfullyLoadedMapImages = defined(
+  return defined(
     mapImages.map((res) => (res.status === "fulfilled" ? res.value : undefined))
   );
-
-  const rpcFiles = await Promise.all(
-    successfullyLoadedMapImages.map(fromBrowserFile)
-  );
-
-  return rpcFiles;
 }
