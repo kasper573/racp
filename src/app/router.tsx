@@ -79,11 +79,11 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
         })
       ),
       itemInfo: route("items", {
-        component: lazy(() => import("./pages/AdminItemInfoPage")),
+        component: lazy(() => import("./pages/AdminItemsPage")),
         options: { title: "Items", icon: <Inventory /> },
       }),
       mapInfo: route("maps", {
-        component: lazy(() => import("./pages/AdminMapImagesPage")),
+        component: lazy(() => import("./pages/AdminMapsPage")),
         options: { title: "Maps", icon: <Map /> },
       }),
     })

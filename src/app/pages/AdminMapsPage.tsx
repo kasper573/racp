@@ -13,7 +13,7 @@ import {
 import { fromBrowserFile } from "../../lib/rpc/RpcFile";
 import { FileUploader } from "../components/FileUploader";
 
-export default function AdminMapImagesPage() {
+export default function AdminMapsPage() {
   const { data: mapImageCount = 0 } = useCountMapImagesQuery();
   const [isLoadingGRF, setIsLoadingGRF] = useState(false);
   const [uploadCount, setUploadCount] = useState<number>(0);
