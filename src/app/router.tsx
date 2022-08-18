@@ -80,6 +80,10 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
         component: lazy(() => import("./pages/AdminItemInfoPage")),
         options: { title: "Item info", icon: <Article /> },
       }),
+      mapInfo: route("map-info", {
+        component: lazy(() => import("./pages/AdminMapInfoPage")),
+        options: { title: "Map info", icon: <Article /> },
+      }),
     })
   ),
 }));
