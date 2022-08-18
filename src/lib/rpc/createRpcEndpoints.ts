@@ -14,6 +14,7 @@ import {
   RpcDefinitionEntry,
   RpcDefinitionEntries,
 } from "./createRpcDefinition";
+import { RpcFile, toBrowserFile } from "./RpcFile";
 
 export function createRpcEndpoints<
   BaseQuery extends BaseQueryFn<FetchArgs>,
@@ -39,6 +40,13 @@ export function createRpcEndpoints<
       T["result"]["_type"],
       ReducerPath
     >;
+    fileUpload: MutationDefinition<
+      T["argument"]["_type"],
+      BaseQuery,
+      TagTypes,
+      T["result"]["_type"],
+      ReducerPath
+    >;
   }[T["intent"]];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -52,7 +60,7 @@ export function createRpcEndpoints<
         const args: FetchArgs = {
           url: createEndpointUrl(endpointName),
           method: "post",
-          body: JSON.stringify(arg),
+          body: argumentTransformers[intent](arg),
           responseHandler,
         };
         return args;
@@ -65,7 +73,8 @@ export function createRpcEndpoints<
       options.invalidatesTags = tags;
     }
 
-    endpoints[endpointName] = builder[intent](
+    const normalizedIntent = intent === "fileUpload" ? "mutation" : intent;
+    endpoints[endpointName] = builder[normalizedIntent](
       // Sad assert since I can't make EndpointBuilder accept this
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       options as any
@@ -78,6 +87,20 @@ export function createRpcEndpoints<
 }
 
 export const createEndpointUrl = String;
+
+const argumentTransformers = {
+  mutation: JSON.stringify,
+  query: JSON.stringify,
+  fileUpload: filesToFormData,
+};
+
+function filesToFormData(files: RpcFile[]) {
+  const data = new FormData();
+  for (const file of files) {
+    data.append("files", toBrowserFile(file), file.name);
+  }
+  return data;
+}
 
 const responseHandler: ResponseHandler = async (res) => {
   const text = await res.text();
