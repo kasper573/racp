@@ -12,7 +12,7 @@ export const options = {
   },
   log: {
     choices: ["verbose", "truncated"] as const,
-    default: "verbose",
+    default: "truncated",
   },
   jwtSecret: {
     type: "string",
