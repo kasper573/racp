@@ -7,6 +7,7 @@ import { createFileStore } from "../lib/createFileStore";
 import { createLogger } from "../lib/logger";
 import { createEllipsisLogFn } from "../lib/createEllipsisLogFn";
 import { createPublicFileLinker } from "../lib/createPublicFileLinker";
+import { createImageFormatter } from "../lib/createImageFormatter";
 import { createYamlDriver } from "./rathena/YamlDriver";
 import { createConfigDriver } from "./rathena/ConfigDriver";
 import { createDatabaseDriver } from "./rathena/DatabaseDriver";
@@ -49,6 +50,8 @@ const rpc = createRpcMiddlewareFactory(auth.validatorFor, {
   logger: logger.chain("rpc"),
 });
 
+const formatter = createImageFormatter({ extension: ".png", quality: 70 });
+
 const linker = createPublicFileLinker({
   directory: path.join(process.cwd(), "public"),
   hostname: args.hostname,
@@ -57,7 +60,7 @@ const linker = createPublicFileLinker({
 
 const itemRepository = createItemRepository({ yaml, files, ...args });
 const monsterRepository = createMonsterRepository({ ...args, yaml, npc });
-const mapRepository = createMapRepository({ files, linker });
+const mapRepository = createMapRepository({ files, linker, formatter });
 
 app.use(auth.middleware);
 app.use(cors());

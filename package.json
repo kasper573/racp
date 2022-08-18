@@ -49,6 +49,7 @@
     "fork-ts-checker-webpack-plugin": "^7.2.11",
     "html-webpack-plugin": "^5.5.0",
     "jest": "^28.1.0",
+    "jimp": "^0.16.1",
     "jsonwebtoken": "^8.5.1",
     "knex": "^2.1.0",
     "legacy-encoding": "^3.0.0",

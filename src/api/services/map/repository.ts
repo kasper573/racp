@@ -4,21 +4,24 @@ import { replaceObject } from "../../../lib/replaceEntries";
 import { FileStore } from "../../../lib/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { Linker } from "../../../lib/createPublicFileLinker";
+import { ImageFormatter } from "../../../lib/createImageFormatter";
 import { MapId, MapInfo, MapInfoPostProcess, mapInfoType } from "./types";
-
 export type MapRepository = ReturnType<typeof createMapRepository>;
 
 export function createMapRepository({
   files,
   linker,
+  formatter,
 }: {
   files: FileStore;
   linker: Linker;
+  formatter: ImageFormatter;
 }) {
   const info: Record<string, MapInfo> = {};
 
   const mapLinker = linker.chain("mapImages");
-  const mapImageUrl = (mapId: string) => mapLinker.url(`${mapId}.bmp`);
+  const mapImageUrl = (mapId: string) =>
+    mapLinker.url(`${mapId}${formatter.fileExtension}`);
 
   const infoFile = files.entry("mapInfo.lub", parseMapInfo, (newInfo) =>
     replaceObject(info, postProcessMapInfo(newInfo ?? {}, mapImageUrl))
@@ -31,9 +34,9 @@ export function createMapRepository({
     updateImages: async (files: Array<{ name: string; data: Uint8Array }>) => {
       const all = await Promise.allSettled(
         files.map((file) =>
-          fs.promises.writeFile(
+          formatter.write(
             path.resolve(mapLinker.directory, path.basename(file.name)),
-            file.data
+            Buffer.from(file.data)
           )
         )
       );
