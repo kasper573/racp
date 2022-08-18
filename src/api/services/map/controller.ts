@@ -4,8 +4,7 @@ import { mapDefinition } from "./definition";
 
 export async function mapController(logger: Logger) {
   return createRpcController(mapDefinition.entries, {
-    uploadMapImage: async (file) => {
-      logger.log("received file", file);
+    uploadMapImages: async (files) => {
       return true;
     },
   });

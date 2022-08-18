@@ -6,6 +6,5 @@ const tag = createTagFactory("Map");
 
 export const mapDefinition = createRpcDefinition({
   tagTypes: [tag.type],
-  entries: (builder) =>
-    builder.mutation("uploadMapImage", zod.void(), zod.boolean()),
+  entries: (builder) => builder.fileUpload("uploadMapImages", zod.boolean()),
 });
