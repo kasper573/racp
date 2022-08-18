@@ -3,14 +3,15 @@ import { useState } from "react";
 import { Header } from "../layout/Header";
 import {
   useCountItemInfoQuery,
-  useUpdateItemInfoMutation,
+  useUploadItemInfoMutation,
 } from "../state/client";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { FileUploader } from "../components/FileUploader";
+import { fromBrowserFile } from "../../lib/rpc/RpcFile";
 
 export default function AdminItemsPage() {
   const { data: itemCount = 0 } = useCountItemInfoQuery();
-  const [update, { error: netError, isLoading }] = useUpdateItemInfoMutation();
+  const [update, { error: netError, isLoading }] = useUploadItemInfoMutation();
   const [uploadResult, setUploadResult] = useState<boolean>();
   const error =
     uploadResult === false
@@ -26,13 +27,12 @@ export default function AdminItemsPage() {
         value={[]}
         sx={{ maxWidth: 380, margin: "0 auto" }}
         isLoading={isLoading}
-        onChange={async ([file]) => {
+        accept=".lub"
+        onChange={async (files) => {
           setUploadResult(undefined);
-          if (file) {
-            const data = await file.text();
-            const res = await update(data);
-            setUploadResult("data" in res && res.data);
-          }
+          const rpcFiles = await Promise.all(files.map(fromBrowserFile));
+          const res = await update(rpcFiles);
+          setUploadResult("data" in res && res.data);
         }}
         maxFiles={1}
         title={

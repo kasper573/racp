@@ -17,9 +17,8 @@ export const itemDefinition = createRpcDefinition({
         tags: ["ITEM_INFO"],
         auth: UserAccessLevel.Admin,
       })
-      .mutation("updateItemInfo", zod.string(), zod.boolean(), {
+      .fileUpload("uploadItemInfo", zod.boolean(), {
         tags: ["ITEM_INFO"],
         auth: UserAccessLevel.Admin,
-        requestBodySizeLimit: 2 * Math.pow(10, 7),
       }),
 });

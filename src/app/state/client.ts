@@ -46,7 +46,7 @@ export const {
   useSearchMonstersQuery,
   useCountItemInfoQuery,
   useUpdateConfigMutation,
-  useUpdateItemInfoMutation,
+  useUploadItemInfoMutation,
   useUploadMapImagesMutation,
   useUploadMapInfoMutation,
   useCountMapImagesQuery,

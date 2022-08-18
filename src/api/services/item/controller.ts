@@ -24,7 +24,11 @@ export function itemController(items: ItemRepository) {
     async countItemInfo() {
       return Object.keys(items.info).length;
     },
-    async updateItemInfo(itemInfoAsLuaCode) {
+    async uploadItemInfo([luaFile]) {
+      if (!luaFile) {
+        return false;
+      }
+      const itemInfoAsLuaCode = Buffer.from(luaFile.data).toString("utf8");
       return items.updateInfo(itemInfoAsLuaCode).success;
     },
   });
