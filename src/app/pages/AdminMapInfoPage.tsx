@@ -6,12 +6,15 @@ import { Header } from "../layout/Header";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { GrfBrowser } from "../../lib/GrfBrowser";
 import { defined } from "../../lib/defined";
-import { useUploadMapImagesMutation } from "../state/client";
+import {
+  useCountMapImagesQuery,
+  useUploadMapImagesMutation,
+} from "../state/client";
 import { fromBrowserFile } from "../../lib/rpc/RpcFile";
 
 export default function AdminMapInfoPage() {
   const [infoCount] = useState(0);
-  const [mapImageCount] = useState(0);
+  const { data: mapImageCount = 0 } = useCountMapImagesQuery();
   const [isLoadingMapImages, setIsLoadingMapImages] = useState(false);
   const [uploadCount, setUploadCount] = useState<number>(0);
   const [uploadMapImages, { isLoading: isUploading, error: uploadError }] =
@@ -20,7 +23,7 @@ export default function AdminMapInfoPage() {
   async function onFileSelectedForUpload(file: File) {
     if (file.name.endsWith(".grf")) {
       setIsLoadingMapImages(true);
-      const files = (await loadMapImages(file)).slice(0, 1);
+      const files = await loadMapImages(file);
       setIsLoadingMapImages(false);
       setUploadCount(files.length);
       await uploadMapImages(files);

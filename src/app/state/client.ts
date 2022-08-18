@@ -48,5 +48,6 @@ export const {
   useUpdateConfigMutation,
   useUpdateItemInfoMutation,
   useUploadMapImagesMutation,
+  useCountMapImagesQuery,
   useLoginMutation,
 } = client;

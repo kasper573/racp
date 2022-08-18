@@ -4,9 +4,7 @@ import * as path from "path";
 export type FileStore = ReturnType<typeof createFileStore>;
 
 export function createFileStore(directory: string) {
-  if (!fs.existsSync(directory)) {
-    fs.mkdirSync(directory);
-  }
+  ensureDir(directory);
   return {
     entry<Data>(
       relativeFilename: string,
@@ -57,3 +55,10 @@ export interface FileStoreEntry<Data> {
 export type ContentParser<T = any> = (fileContent: string) => ParseResult<T>;
 
 export type ParseResult<T> = { success: true; data: T } | { success: false };
+
+export function ensureDir(directory: string) {
+  if (!fs.existsSync(directory)) {
+    fs.mkdirSync(directory);
+  }
+  return directory;
+}

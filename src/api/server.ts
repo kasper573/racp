@@ -3,7 +3,7 @@ import * as path from "path";
 import * as express from "express";
 import cors = require("cors");
 import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
-import { createFileStore } from "../lib/createFileStore";
+import { createFileStore, ensureDir } from "../lib/createFileStore";
 import { createLogger } from "../lib/logger";
 import { createEllipsisLogFn } from "../lib/createEllipsisLogFn";
 import { createYamlDriver } from "./rathena/YamlDriver";
@@ -49,6 +49,7 @@ const rpc = createRpcMiddlewareFactory(auth.validatorFor, {
 
 const itemRepository = createItemRepository({ yaml, fs, ...args });
 const monsterRepository = createMonsterRepository({ ...args, yaml, npc });
+const mapImagesDir = ensureDir(path.join(process.cwd(), "data", "mapImages"));
 
 app.use(auth.middleware);
 app.use(cors());
@@ -56,7 +57,7 @@ app.use(rpc(configDefinition, configController(config)));
 app.use(rpc(itemDefinition, itemController(itemRepository)));
 app.use(rpc(authDefinition, authController({ db, yaml, auth, ...args })));
 app.use(rpc(monsterDefinition, monsterController(monsterRepository)));
-app.use(rpc(mapDefinition, mapController(logger)));
+app.use(rpc(mapDefinition, mapController({ mapImagesDir })));
 app.use(
   rpc(
     metaDefinition,
