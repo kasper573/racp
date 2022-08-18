@@ -1,4 +1,5 @@
 import { Expression, TableConstructorExpression } from "luaparse";
+import { trimQuotes } from "./trimQuotes";
 
 export function parseLuaTable(table: TableConstructorExpression) {
   const firstField = table.fields[0];
@@ -36,9 +37,6 @@ export function parseLuaTable(table: TableConstructorExpression) {
   }
   return record;
 }
-
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-const trimQuotes = (str: string) => /^"?(.*?)"?$/.exec(str)![1];
 
 function resolve(exp: Expression) {
   switch (exp.type) {
