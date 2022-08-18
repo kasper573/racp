@@ -6,14 +6,14 @@ import { trimQuotes } from "../../../lib/trimQuotes";
 export type MapId = zod.infer<typeof mapIdType>;
 export const mapIdType = zod.string();
 
+export type MapInfoPostProcess = zod.infer<typeof mapInfoPostProcessType>;
+export const mapInfoPostProcessType = zod.object({
+  id: mapIdType.default(""),
+  imageUrl: zod.string().optional(),
+});
+
 export type MapInfo = zod.infer<typeof mapInfoType>;
 export const mapInfoType = zod.object({
-  /**
-   * Defaults to "" to effectively be non-optional.
-   * However, mapInfo.lub does not contain this object property.
-   * The table key is the id, which is assigned after parsing.
-   */
-  id: mapIdType.default(""),
   displayName: zod.string().transform(trimQuotes),
   notifyEnter: zod.boolean().default(false),
   signName: zod
@@ -24,6 +24,7 @@ export const mapInfoType = zod.object({
     .partial()
     .default({}),
   backgroundBmp: zod.string().transform(trimQuotes).optional(),
+  ...mapInfoPostProcessType.shape,
 });
 
 export type MapInfoFilter = zod.infer<typeof mapInfoFilter.type>;

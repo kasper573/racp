@@ -1,30 +1,38 @@
 import * as path from "path";
 import * as fs from "fs";
-import { ensureDir } from "../../../lib/ensureDir";
 import { replaceObject } from "../../../lib/replaceEntries";
 import { FileStore } from "../../../lib/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
-import { MapInfo, mapInfoType } from "./types";
+import { Linker } from "../../../lib/createPublicFileLinker";
+import { MapId, MapInfo, MapInfoPostProcess, mapInfoType } from "./types";
 
 export type MapRepository = ReturnType<typeof createMapRepository>;
 
-export function createMapRepository(files: FileStore) {
-  const imageDir = ensureDir(path.resolve(files.directory, "mapImages"));
+export function createMapRepository({
+  files,
+  linker,
+}: {
+  files: FileStore;
+  linker: Linker;
+}) {
   const info: Record<string, MapInfo> = {};
 
+  const mapLinker = linker.chain("mapImages");
+  const mapImageUrl = (mapId: string) => mapLinker.url(`${mapId}.bmp`);
+
   const infoFile = files.entry("mapInfo.lub", parseMapInfo, (newInfo) =>
-    replaceObject(info, populateMapIds(newInfo ?? {}))
+    replaceObject(info, postProcessMapInfo(newInfo ?? {}, mapImageUrl))
   );
 
   return {
     info,
     updateInfo: infoFile.update,
-    countImages: () => fs.readdirSync(imageDir).length,
+    countImages: () => fs.readdirSync(mapLinker.directory).length,
     updateImages: async (files: Array<{ name: string; data: Uint8Array }>) => {
       const all = await Promise.allSettled(
         files.map((file) =>
           fs.promises.writeFile(
-            path.resolve(imageDir, path.basename(file.name)),
+            path.resolve(mapLinker.directory, path.basename(file.name)),
             file.data
           )
         )
@@ -40,11 +48,18 @@ const parseMapInfo = (luaCode: string) => parseLuaTableAs(luaCode, mapInfoType);
 
 const trimExtension = (id: string) => id.replace(/\.[^.]+$/, "");
 
-function populateMapIds(
-  lookup: Record<string, MapInfo>
+function postProcessMapInfo(
+  lookup: Record<string, MapInfo>,
+  getImageUrl: MapImageUrlResolver
 ): Record<string, MapInfo> {
-  return Object.entries(lookup ?? {}).reduce((updated, [id, info]) => {
-    const trimmedId = trimExtension(id);
-    return { ...updated, [trimmedId]: { ...info, id: trimmedId } };
+  return Object.entries(lookup ?? {}).reduce((updated, [key, info]) => {
+    const id = trimExtension(key);
+    const post: MapInfoPostProcess = {
+      id,
+      imageUrl: getImageUrl(id),
+    };
+    return { ...updated, [id]: { ...info, ...post } };
   }, {});
 }
+
+export type MapImageUrlResolver = (id: MapId) => string;

@@ -6,6 +6,11 @@ export type RAthenaMode = typeof rAthenaModes extends Iterable<infer V>
   : never;
 
 export const options = {
+  hostname: {
+    type: "string",
+    description: "The hostname to run the api server on",
+    default: "localhost",
+  },
   port: {
     type: "number",
     description: "The port to run the api server on",

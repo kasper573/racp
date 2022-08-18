@@ -6,6 +6,7 @@ import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
 import { createFileStore } from "../lib/createFileStore";
 import { createLogger } from "../lib/logger";
 import { createEllipsisLogFn } from "../lib/createEllipsisLogFn";
+import { createPublicFileLinker } from "../lib/createPublicFileLinker";
 import { createYamlDriver } from "./rathena/YamlDriver";
 import { createConfigDriver } from "./rathena/ConfigDriver";
 import { createDatabaseDriver } from "./rathena/DatabaseDriver";
@@ -48,12 +49,19 @@ const rpc = createRpcMiddlewareFactory(auth.validatorFor, {
   logger: logger.chain("rpc"),
 });
 
+const linker = createPublicFileLinker({
+  directory: path.join(process.cwd(), "public"),
+  hostname: args.hostname,
+  port: args.port,
+});
+
 const itemRepository = createItemRepository({ yaml, files, ...args });
 const monsterRepository = createMonsterRepository({ ...args, yaml, npc });
-const mapRepository = createMapRepository(files);
+const mapRepository = createMapRepository({ files, linker });
 
 app.use(auth.middleware);
 app.use(cors());
+app.use(express.static(linker.directory));
 app.use(rpc(configDefinition, configController(config)));
 app.use(rpc(itemDefinition, itemController(itemRepository)));
 app.use(rpc(authDefinition, authController({ db, yaml, auth, ...args })));
@@ -66,6 +74,6 @@ app.use(
   )
 );
 
-http.createServer(app).listen(args.port, () => {
+http.createServer(app).listen(args.port, args.hostname, () => {
   console.log(`API is running on port ${args.port}`);
 });
