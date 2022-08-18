@@ -1,4 +1,5 @@
 import { Expression, TableConstructorExpression } from "luaparse";
+import { trimQuotes } from "./trimQuotes";
 
 export function parseLuaTable(table: TableConstructorExpression) {
   const firstField = table.fields[0];
@@ -21,9 +22,11 @@ export function parseLuaTable(table: TableConstructorExpression) {
   const record: Record<string, unknown> = {};
   for (const field of table.fields) {
     switch (field.type) {
-      case "TableKey":
-        record[`${resolve(field.key)}`] = resolve(field.value);
+      case "TableKey": {
+        const key = trimQuotes(`${resolve(field.key)}`);
+        record[key] = resolve(field.value);
         break;
+      }
       case "TableKeyString":
         record[field.key.name] = resolve(field.value);
         break;

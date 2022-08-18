@@ -1,7 +1,7 @@
 import { FormEvent, useState } from "react";
 import { Stack, styled, TextField } from "@mui/material";
 import { useHistory } from "react-router";
-import { useRouteParams } from "react-typesafe-routes";
+import { useRouteParams } from "../../lib/useRouteParams";
 import { useLoginMutation } from "../state/client";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { router } from "../router";

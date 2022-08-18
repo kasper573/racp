@@ -1,7 +1,7 @@
-import { useRouteParams } from "react-typesafe-routes";
 import { ReactElement } from "react";
 import { Stack } from "@mui/material";
 import { pick } from "lodash";
+import { useRouteParams } from "../../lib/useRouteParams";
 import { Header } from "../layout/Header";
 import { useGetItemQuery } from "../state/client";
 import { router } from "../router";

@@ -24,9 +24,13 @@ export default function AdminMapsPage() {
   const [uploadMapInfo, infoUpload] = useUploadMapInfoMutation();
 
   const parseError =
-    infoUpload.data === false ? { message: "Invalid lub file." } : undefined;
+    infoUpload.data?.length === 0
+      ? { message: "Invalid lub file." }
+      : undefined;
+
   const isLoading =
     imageUpload.isLoading || isLoadingGRF || infoUpload.isLoading;
+
   const error = imageUpload.error || infoUpload.error || parseError;
 
   async function onFilesSelectedForUpload(files: File[]) {

@@ -2,15 +2,24 @@ import * as zod from "zod";
 import { createTagFactory } from "../../../lib/createTagFactory";
 import { createRpcDefinition } from "../../util/rpc";
 import { UserAccessLevel } from "../auth/types";
+import { createSearchTypes } from "../search/types";
+import { mapIdType, mapInfoFilter, mapInfoType } from "./types";
 
 const tag = createTagFactory("Map");
 const mapImagesTag = "MAP_IMAGES";
-const mapInfoTag = "MAP_INFO";
 
 export const mapDefinition = createRpcDefinition({
   tagTypes: [tag.type],
   entries: (builder) =>
     builder
+      .query(
+        "searchMaps",
+        ...createSearchTypes(mapInfoType, mapInfoFilter.type),
+        { tags: (res) => tag.many(res?.entities.map((map) => map.id)) }
+      )
+      .query("getMap", mapIdType, mapInfoType, {
+        tags: (map) => [tag.one(map?.id)],
+      })
       .query("countMapImages", zod.void(), zod.number(), {
         auth: UserAccessLevel.Admin,
         tags: [mapImagesTag],
@@ -22,10 +31,10 @@ export const mapDefinition = createRpcDefinition({
       )
       .query("countMapInfo", zod.void(), zod.number(), {
         auth: UserAccessLevel.Admin,
-        tags: [mapInfoTag],
+        tags: tag.many(),
       })
-      .fileUpload("uploadMapInfo", zod.boolean(), {
-        tags: [mapInfoTag],
+      .fileUpload("uploadMapInfo", zod.array(mapIdType), {
+        tags: tag.many(),
         auth: UserAccessLevel.Admin,
       }),
 });

@@ -3,7 +3,10 @@ import { ComponentProps, useEffect, useState } from "react";
 import { DataGrid as MuiDataGrid, GridColumns } from "@mui/x-data-grid";
 import { GridRowId } from "@mui/x-data-grid/models/gridRows";
 import { GridRenderCellParams } from "@mui/x-data-grid/models/params/gridCellParams";
-import { GridEnrichedColDef } from "@mui/x-data-grid/models/colDef/gridColDef";
+import {
+  GridColDef,
+  GridEnrichedColDef,
+} from "@mui/x-data-grid/models/colDef/gridColDef";
 import {
   SearchQuery,
   SearchResult,
@@ -134,8 +137,10 @@ const Grid = styled(MuiDataGrid)`
   }
 `;
 
+type ColumnConventionEntry = string | boolean | Omit<GridColDef, "field">;
+
 interface ColumnConventionProps<Entity, Id extends GridRowId> {
-  columns: Partial<Record<keyof Entity, string | boolean>>;
+  columns: Partial<Record<keyof Entity, ColumnConventionEntry>>;
   id: (entity: Entity) => Id;
   link?: (id: Id) => { $: string };
 }
@@ -147,17 +152,20 @@ function processColumnConvention<Entity, Id extends GridRowId>({
 }: ColumnConventionProps<Entity, Id>): GridColumns {
   const [firstColumn, ...restColumns] = typedKeys(columns).map(
     (field): GridEnrichedColDef<Entity> => {
-      const value = columns[field];
+      const entry = columns[field];
+      if (typeof entry === "object") {
+        return { field: String(field), ...entry };
+      }
       return {
         field: String(field),
-        headerName: typeof value === "string" ? value : String(field),
+        headerName: typeof entry === "string" ? entry : String(field),
       };
     }
   );
   return [
     {
       ...firstColumn,
-      width: 180,
+      width: firstColumn.width ?? 180,
       renderCell({ value, row }: GridRenderCellParams) {
         return link ? <Link to={link(id(row))}>{value}</Link> : value;
       },

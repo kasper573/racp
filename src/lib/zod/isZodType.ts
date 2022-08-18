@@ -10,6 +10,7 @@ import {
   AnyZodObject,
   ZodObject,
   ZodDefault,
+  ZodEffects,
 } from "zod";
 
 export function isZodType(
@@ -50,11 +51,12 @@ export function isZodSubType(type: ZodType, check: ZodType): boolean {
 
 function normalizeType(type: ZodType) {
   while (
+    type instanceof ZodEffects ||
     type instanceof ZodOptional ||
     type instanceof ZodNullable ||
     type instanceof ZodDefault
   ) {
-    type = type._def.innerType;
+    type = type instanceof ZodEffects ? type.innerType() : type._def.innerType;
   }
   return type;
 }

@@ -4,8 +4,10 @@ import {
 } from "@reduxjs/toolkit/dist/query/endpointDefinitions";
 
 export function createTagFactory<TagType>(type: TagType) {
+  const listTag: TagDescription<TagType> = { type, id: "LIST" };
+
   function many(ids: TagId[] = []): TagDescription<TagType>[] {
-    return ids.map((id) => ({ type, id }));
+    return [listTag, ...ids.map((id) => ({ type, id }))];
   }
   function one(id: TagId): TagDescription<TagType> {
     return { type, id };

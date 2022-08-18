@@ -13,13 +13,11 @@ export function createMapRepository(files: FileStore) {
   const info: Record<string, MapInfo> = {};
 
   const infoFile = files.entry("mapInfo.lub", parseMapInfo, (newInfo) =>
-    replaceObject(info, newInfo)
+    replaceObject(info, populateMapIds(newInfo ?? {}))
   );
 
   return {
-    get info() {
-      return infoFile.data ?? {};
-    },
+    info,
     updateInfo: infoFile.update,
     countImages: () => fs.readdirSync(imageDir).length,
     updateImages: async (files: Array<{ name: string; data: Uint8Array }>) => {
@@ -39,3 +37,14 @@ export function createMapRepository(files: FileStore) {
 }
 
 const parseMapInfo = (luaCode: string) => parseLuaTableAs(luaCode, mapInfoType);
+
+const trimExtension = (id: string) => id.replace(/\.[^.]+$/, "");
+
+function populateMapIds(
+  lookup: Record<string, MapInfo>
+): Record<string, MapInfo> {
+  return Object.entries(lookup ?? {}).reduce((updated, [id, info]) => {
+    const trimmedId = trimExtension(id);
+    return { ...updated, [trimmedId]: { ...info, id: trimmedId } };
+  }, {});
+}
