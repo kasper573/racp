@@ -21,9 +21,11 @@ export function parseLuaTable(table: TableConstructorExpression) {
   const record: Record<string, unknown> = {};
   for (const field of table.fields) {
     switch (field.type) {
-      case "TableKey":
-        record[`${resolve(field.key)}`] = resolve(field.value);
+      case "TableKey": {
+        const key = trimQuotes(`${resolve(field.key)}`);
+        record[key] = resolve(field.value);
         break;
+      }
       case "TableKeyString":
         record[field.key.name] = resolve(field.value);
         break;
@@ -34,6 +36,9 @@ export function parseLuaTable(table: TableConstructorExpression) {
   }
   return record;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const trimQuotes = (str: string) => /^"?(.*?)"?$/.exec(str)![1];
 
 function resolve(exp: Expression) {
   switch (exp.type) {
