@@ -5,9 +5,10 @@ import { SyncParseReturnType } from "zod/lib/helpers/parseUtil";
 export function chainParse<T extends ZodType>(
   type: T,
   thisArg: ZodType,
-  input: ParseInput
+  input: ParseInput,
+  data = input.data
 ): SyncParseReturnType<zod.infer<T>> {
-  const res = type.safeParse.call(thisArg, input.data);
+  const res = type.safeParse.call(thisArg, data);
   if (res.success) {
     return { status: "valid", value: res.data };
   }
