@@ -1,5 +1,8 @@
-import { Router, Request, RequestHandler } from "express";
+import * as zod from "zod";
+import { Router, Request, Response, RequestHandler } from "express";
 import * as bodyParser from "body-parser";
+import fileUpload = require("express-fileupload");
+import { FileArray, UploadedFile } from "express-fileupload";
 import { typedKeys } from "../typedKeys";
 import { Logger } from "../logger";
 import {
@@ -54,76 +57,108 @@ export function createRpcMiddlewareFactory<Auth>(
       const routeLogger = logger.chain(endpointName);
       const isAuthorized = validatorFor(entry.auth);
 
-      router.post(
-        `/${createEndpointUrl(endpointName)}`,
-        // Authentication funnel
-        (req, res, next) => {
-          if (!isAuthorized(req)) {
-            routeLogger.log("Permission denied");
-            return res.sendStatus(401);
-          }
-          return next();
-        },
-        // Request body parsing
-        bodyParser.text({
-          type: "*/*",
-          limit: entry.requestBodySizeLimit,
-        }),
-        // RPC execution
-        async (request, response) => {
-          let parsedBody: unknown;
-          try {
-            parsedBody =
-              request.body.length > 0 ? JSON.parse(request.body) : undefined;
-          } catch {
-            routeLogger.log(
-              `Could not parse request body as JSON. Received: `,
-              request.body
-            );
-            return response.sendStatus(httpStatus.badRequest);
-          }
+      const handlers: RequestHandler[] = [];
 
-          const argument = entry.argument.safeParse(parsedBody);
-          if (!argument.success) {
-            routeLogger.log(`Invalid argument type, ${argument.error.message}`);
-            return response.sendStatus(httpStatus.badRequest);
-          }
-
-          const handler = await handlerPromise;
-          const handlerWithLogging = routeLogger.wrap(handler, "handler");
-
-          let rpcResult: PromiseResult<ReturnType<typeof handler>>;
-          try {
-            rpcResult = await handlerWithLogging(argument.data);
-          } catch (e) {
-            if (e instanceof RpcException) {
-              routeLogger.log(
-                `Handler exited due to a known exception: ${e.message} `
-              );
-              return response
-                .status(httpStatus.internalServerError)
-                .send(e.message);
-            }
-            routeLogger.log(`Unexpected error while executing handler`, e);
-            return response.sendStatus(httpStatus.internalServerError);
-          }
-
-          const parsedRpcResult = entry.result.safeParse(rpcResult);
-          if (!parsedRpcResult.success) {
-            routeLogger.log(
-              "Return value had wrong data type",
-              parsedRpcResult,
-              "expected",
-              entry.result
-            );
-            return response.sendStatus(httpStatus.internalServerError);
-          }
-          response.json(parsedRpcResult.data);
+      // Authentication funnel
+      handlers.push((req, res, next) => {
+        if (!isAuthorized(req)) {
+          routeLogger.log("Permission denied");
+          return res.sendStatus(401);
         }
-      );
+        return next();
+      });
+
+      if (entry.intent === "fileUpload") {
+        handlers.push(
+          fileUpload({ limits: { fileSize: entry.requestBodySizeLimit } }),
+          (request, response) =>
+            handleArgument(
+              request.files ? flattenFiles(request.files) : [],
+              response
+            )
+        );
+      } else {
+        handlers.push(
+          bodyParser.text({
+            type: "*/*",
+            limit: entry.requestBodySizeLimit,
+          }),
+          async (request, response) => {
+            let parsedBody: unknown;
+            try {
+              parsedBody =
+                request.body.length > 0 ? JSON.parse(request.body) : undefined;
+            } catch {
+              routeLogger.log(
+                `Could not parse request body as JSON. Received: `,
+                request.body
+              );
+              return response.sendStatus(httpStatus.badRequest);
+            }
+
+            const argument = entry.argument.safeParse(parsedBody);
+            if (!argument.success) {
+              routeLogger.log(
+                `Invalid argument type, ${argument.error.message}`
+              );
+              return response.sendStatus(httpStatus.badRequest);
+            }
+
+            await handleArgument(argument.data, response);
+          }
+        );
+      }
+
+      router.post(`/${createEndpointUrl(endpointName)}`, ...handlers);
+
+      async function handleArgument(
+        argument: zod.infer<Entry["argument"]>,
+        response: Response
+      ) {
+        const handler = await handlerPromise;
+        const handlerWithLogging = routeLogger.wrap(handler, "handler");
+
+        let rpcResult: PromiseResult<ReturnType<typeof handler>>;
+        try {
+          rpcResult = await handlerWithLogging(argument);
+        } catch (e) {
+          if (e instanceof RpcException) {
+            routeLogger.log(
+              `Handler exited due to a known exception: ${e.message} `
+            );
+            return response
+              .status(httpStatus.internalServerError)
+              .send(e.message);
+          }
+          routeLogger.log(`Unexpected error while executing handler`, e);
+          return response.sendStatus(httpStatus.internalServerError);
+        }
+
+        const parsedRpcResult = entry.result.safeParse(rpcResult);
+        if (!parsedRpcResult.success) {
+          routeLogger.log(
+            "Return value had wrong data type",
+            parsedRpcResult,
+            "expected",
+            entry.result
+          );
+          return response.sendStatus(httpStatus.internalServerError);
+        }
+        response.json(parsedRpcResult.data);
+      }
     }
   }
   return factory;
+}
+
+function flattenFiles(files: FileArray): UploadedFile[] {
+  return Object.values(files).reduce(
+    (flattened: UploadedFile[], fileOrList) => [
+      ...flattened,
+      ...(Array.isArray(fileOrList) ? fileOrList : [fileOrList]),
+    ],
+    []
+  );
 }
 
 type PromiseResult<T> = T extends PromiseLike<infer V> ? V : never;

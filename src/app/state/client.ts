@@ -5,6 +5,7 @@ import { authDefinition } from "../../api/services/auth/definition";
 import { itemDefinition } from "../../api/services/item/definition";
 import { monsterDefinition } from "../../api/services/monster/definition";
 import { metaDefinition } from "../../api/services/meta/definition";
+import { mapDefinition } from "../../api/services/map/definition";
 import { AppState } from "./store";
 
 export const client = createApi({
@@ -24,6 +25,7 @@ export const client = createApi({
     ...authDefinition.tagTypes,
     ...itemDefinition.tagTypes,
     ...monsterDefinition.tagTypes,
+    ...mapDefinition.tagTypes,
   ],
   endpoints: (builder) => ({
     ...createRpcEndpoints(builder, metaDefinition.entries),
@@ -31,6 +33,7 @@ export const client = createApi({
     ...createRpcEndpoints(builder, authDefinition.entries),
     ...createRpcEndpoints(builder, itemDefinition.entries),
     ...createRpcEndpoints(builder, monsterDefinition.entries),
+    ...createRpcEndpoints(builder, mapDefinition.entries),
   }),
 });
 
@@ -44,5 +47,7 @@ export const {
   useCountItemInfoQuery,
   useUpdateConfigMutation,
   useUpdateItemInfoMutation,
+  useUploadMapImagesMutation,
+  useCountMapImagesQuery,
   useLoginMutation,
 } = client;

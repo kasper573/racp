@@ -24,6 +24,9 @@ export function getErrorMessage<T extends ErrorLike>(
   if (!error) {
     return;
   }
+  if (typeof error === "string") {
+    return error;
+  }
   if ("error" in error) {
     return `${error.error}`;
   }
@@ -38,6 +41,7 @@ export function getErrorMessage<T extends ErrorLike>(
 }
 
 type ErrorLike =
+  | string
   | { error?: string }
   | { message?: string }
   | { data?: Record<string, unknown> | unknown };

@@ -11,7 +11,7 @@ export function OnlineBadge({
       variant="dot"
       color="success"
       anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      style={{ opacity: visible ? 1 : 0 }}
+      invisible={!visible}
       {...props}
     />
   );

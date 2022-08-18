@@ -10,7 +10,7 @@
     "lint:fix": "eslint . --fix & prettier . --write",
     "build:app": "webpack build",
     "dev:app": "cross-env reactRefresh=true apiBaseUrl=http://localhost:8081 webpack serve",
-    "dev:api": "ts-node-dev src/api/server --jwtSecret dev --port 8081 --log truncated",
+    "dev:api": "ts-node-dev src/api/server --jwtSecret dev --port 8081",
     "codegen": "ts-node src/api/rathena/DatabaseDriver.codegen"
   },
   "devDependencies": {
@@ -20,6 +20,7 @@
     "@types/body-parser": "^1.19.2",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
+    "@types/express-fileupload": "^1.2.3",
     "@types/express-jwt": "^6.0.4",
     "@types/jest": "^27.5.1",
     "@types/lodash": "^4.14.182",
@@ -42,6 +43,7 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-unused-imports": "^2.0.0",
     "express": "^4.18.1",
+    "express-fileupload": "^1.4.0",
     "express-jwt": "^7.7.5",
     "fast-xml-parser": "^4.0.8",
     "fork-ts-checker-webpack-plugin": "^7.2.11",
@@ -77,6 +79,7 @@
     "@mui/material": "^5.8.5",
     "@mui/x-data-grid": "^5.12.3",
     "@reduxjs/toolkit": "^1.8.2",
+    "grf-loader": "^0.0.2",
     "history": "^4.10.1",
     "immer": "^9.0.15",
     "lodash": "^4.17.21",
