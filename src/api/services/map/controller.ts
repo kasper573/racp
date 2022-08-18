@@ -8,9 +8,7 @@ import { mapInfoFilter } from "./types";
 export async function mapController(maps: MapRepository) {
   return createRpcController(mapDefinition.entries, {
     searchMaps: createSearchController(
-      async () => {
-        return Array.from(Object.values(maps.info));
-      },
+      async () => Array.from(Object.values(maps.info)),
       (entity, payload) => mapInfoFilter.for(payload)(entity)
     ),
     async getMap(mapId) {
