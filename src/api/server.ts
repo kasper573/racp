@@ -53,7 +53,7 @@ const rpc = createRpcMiddlewareFactory(auth.validatorFor, {
 const formatter = createImageFormatter({ extension: ".png", quality: 70 });
 
 const linker = createPublicFileLinker({
-  directory: path.join(process.cwd(), "public"),
+  directory: path.join(process.cwd(), "assets"),
   hostname: args.hostname,
   port: args.port,
 });

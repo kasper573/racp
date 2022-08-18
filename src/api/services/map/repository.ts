@@ -20,8 +20,9 @@ export function createMapRepository({
   const info: Record<string, MapInfo> = {};
 
   const mapLinker = linker.chain("mapImages");
-  const mapImageUrl = (mapId: string) =>
-    mapLinker.url(`${mapId}${formatter.fileExtension}`);
+  const mapImageName = (mapId: string) => `${mapId}${formatter.fileExtension}`;
+  const mapImageUrl = (mapId: string) => mapLinker.url(mapImageName(mapId));
+  const mapImagePath = (mapId: string) => mapLinker.path(mapImageName(mapId));
 
   const infoFile = files.entry("mapInfo.lub", parseMapInfo, (newInfo) =>
     replaceObject(info, postProcessMapInfo(newInfo ?? {}, mapImageUrl))
@@ -31,6 +32,13 @@ export function createMapRepository({
     info,
     updateInfo: infoFile.update,
     countImages: () => fs.readdirSync(mapLinker.directory).length,
+    async hasImage(mapId: MapId) {
+      console.log(mapImagePath(mapId));
+      return fs.promises
+        .access(mapImagePath(mapId))
+        .then(() => true)
+        .catch(() => false);
+    },
     updateImages: async (files: Array<{ name: string; data: Uint8Array }>) => {
       const all = await Promise.allSettled(
         files.map((file) =>

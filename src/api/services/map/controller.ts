@@ -1,6 +1,7 @@
 import { createRpcController } from "../../../lib/rpc/createRpcController";
 import { createSearchController } from "../search/controller";
 import { RpcException } from "../../../lib/rpc/RpcException";
+import { defined } from "../../../lib/defined";
 import { MapRepository } from "./repository";
 import { mapDefinition } from "./definition";
 import { mapInfoFilter } from "./types";
@@ -38,6 +39,14 @@ export async function mapController(maps: MapRepository) {
         return [];
       }
       return Object.values(res.data).map((map) => map.id);
+    },
+    async getMissingMapImages() {
+      const missingIds = await Promise.all(
+        Object.keys(maps.info).map((id) =>
+          maps.hasImage(id).then((has) => (!has ? id : undefined))
+        )
+      );
+      return defined(missingIds);
     },
   });
 }

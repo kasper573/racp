@@ -53,5 +53,6 @@ export const {
   useUploadMapInfoMutation,
   useCountMapImagesQuery,
   useCountMapInfoQuery,
+  useGetMissingMapImagesQuery,
   useLoginMutation,
 } = client;

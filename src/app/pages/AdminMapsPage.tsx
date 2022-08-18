@@ -1,6 +1,13 @@
-import { Box, Typography } from "@mui/material";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Box,
+  Typography,
+} from "@mui/material";
 import { useState } from "react";
 import { flatten } from "lodash";
+import { ExpandMore } from "@mui/icons-material";
 import { Header } from "../layout/Header";
 
 import { ErrorMessage } from "../components/ErrorMessage";
@@ -9,6 +16,7 @@ import { defined } from "../../lib/defined";
 import {
   useCountMapImagesQuery,
   useCountMapInfoQuery,
+  useGetMissingMapImagesQuery,
   useUploadMapImagesMutation,
   useUploadMapInfoMutation,
 } from "../state/client";
@@ -18,7 +26,9 @@ import { FileUploader } from "../components/FileUploader";
 export default function AdminMapsPage() {
   const { data: mapImageCount = 0 } = useCountMapImagesQuery();
   const { data: mapInfoCount = 0 } = useCountMapInfoQuery();
-  const [isLoadingGRF, setIsLoadingGRF] = useState(false);
+  const { data: missingMapImages = [] } = useGetMissingMapImagesQuery();
+
+  const [isPreparingUpload, setIsPreparingUpload] = useState(false);
   const [uploadCount, setUploadCount] = useState<number>(0);
   const [uploadMapImages, imageUpload] = useUploadMapImagesMutation();
   const [uploadMapInfo, infoUpload] = useUploadMapInfoMutation();
@@ -29,32 +39,33 @@ export default function AdminMapsPage() {
       : undefined;
 
   const isLoading =
-    imageUpload.isLoading || isLoadingGRF || infoUpload.isLoading;
+    imageUpload.isLoading || isPreparingUpload || infoUpload.isLoading;
 
   const error = imageUpload.error || infoUpload.error || parseError;
 
   async function onFilesSelectedForUpload(files: File[]) {
-    const grfFiles = files.filter((file) => file.name.endsWith(".grf"));
-    if (grfFiles.length) {
-      handleGrfFiles(grfFiles);
-    }
-
     const lubFiles = files.filter((file) => file.name.endsWith(".lub"));
     if (lubFiles.length) {
       handleLubFiles(lubFiles);
     }
-  }
 
-  async function handleGrfFiles(grfFiles: File[]) {
-    setIsLoadingGRF(true);
-    const mapImages = flatten(
-      await Promise.all(grfFiles.map(loadMapImagesFromGRF))
-    );
-    const rpcFiles = await Promise.all(mapImages.map(fromBrowserFile));
-    setIsLoadingGRF(false);
+    const grfFiles = files.filter((file) => file.name.endsWith(".grf"));
+    const imageFiles = files.filter((file) => isImage(file.name));
+    if (grfFiles.length) {
+      setIsPreparingUpload(true);
+      imageFiles.push(
+        ...flatten(await Promise.all(grfFiles.map(loadMapImagesFromGRF)))
+      );
+      setIsPreparingUpload(false);
+    }
 
-    setUploadCount(rpcFiles.length);
-    await uploadMapImages(rpcFiles);
+    if (imageFiles.length) {
+      setUploadCount(imageFiles.length);
+      setIsPreparingUpload(true);
+      const rpcFiles = await Promise.all(imageFiles.map(fromBrowserFile));
+      setIsPreparingUpload(false);
+      await uploadMapImages(rpcFiles);
+    }
   }
 
   async function handleLubFiles(lubFiles: File[]) {
@@ -72,26 +83,47 @@ export default function AdminMapsPage() {
       <FileUploader
         value={[]}
         sx={{ maxWidth: 380, margin: "0 auto" }}
-        accept={[".grf", ".lub"]}
+        accept={[".grf", ".lub", ...imageExtensions]}
         isLoading={isLoading}
         onChange={onFilesSelectedForUpload}
         title={
-          "Select your mapInfo.lub file to update the item info database. " +
-          "Select your data.grf file to update the map images. " +
-          "This will replace the existing entries."
+          "Select a mapInfo.lub file to update the item info database. " +
+          "Select a data.grf file to automatically upload map images. " +
+          "Select any image files to manually upload map images (file name must be map id)."
         }
       />
+
       <ErrorMessage sx={{ textAlign: "center", mt: 1 }} error={error} />
+
       <Box sx={{ margin: "0 auto" }}>
         {infoUpload.isLoading && <Typography>Updating item info...</Typography>}
+        {isPreparingUpload && <Typography>Loading map images...</Typography>}
         {imageUpload.isLoading && (
           <Typography>Uploading {uploadCount} map images...</Typography>
         )}
-        {isLoadingGRF && <Typography>Loading GRF file...</Typography>}
       </Box>
+
+      {missingMapImages.length > 0 && (
+        <Accordion sx={{ [`&&`]: { marginTop: 2 } }}>
+          <AccordionSummary expandIcon={<ExpandMore />}>
+            <Typography>
+              {missingMapImages.length} missing map images:
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Typography sx={{ maxHeight: 300, overflowY: "auto" }}>
+              {missingMapImages.join(", ")}
+            </Typography>
+          </AccordionDetails>
+        </Accordion>
+      )}
     </>
   );
 }
+
+const imageExtensions = [".png", ".jpg", ".jpeg", ".bmp", ".tga"];
+const isImage = (fileName: string) =>
+  imageExtensions.some((ext) => fileName.endsWith(ext));
 
 async function loadMapImagesFromGRF(file: File) {
   const grf = new GrfBrowser(file);

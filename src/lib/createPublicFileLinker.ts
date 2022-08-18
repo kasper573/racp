@@ -18,6 +18,8 @@ export function createPublicFileLinker({
   return {
     directory: ensureDir(directory),
     location,
+    path: (childLocation: string) =>
+      path.join(...defined([directory, childLocation])),
     url: (childLocation: string) =>
       join(
         add(
@@ -44,6 +46,7 @@ export function createPublicFileLinker({
 export interface Linker {
   directory: string;
   location?: string;
+  path(location: string): string;
   url(location: string): string;
   chain(directory: string): Linker;
 }
