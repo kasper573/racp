@@ -14,27 +14,23 @@ export type AnyFn = (...args: any[]) => any;
 export function createLogger(logFn: LogFn, name?: string): Logger {
   const log = name ? createNamedLogFn(logFn, name) : logFn;
   const chain = (name: string) => createLogger(log, name);
+
   return {
     log,
     chain,
     wrap(fn, functionName = fn.name) {
       function wrapped(...args: unknown[]) {
-        const functionCallId = `${functionName}(${stringifyArgs(args)})`;
-
-        const startTime = Date.now();
+        const logFunction = createFunctionLogger(functionName, args, log);
         const result = fn(...args);
         if (result instanceof Promise) {
-          result.then(onFunctionFinished);
+          return result.then((value) => {
+            logFunction(value);
+            return value;
+          });
         } else {
-          onFunctionFinished(result);
+          logFunction(result);
+          return result;
         }
-
-        function onFunctionFinished(result: unknown) {
-          const delta = Date.now() - startTime;
-          log(`(${delta}ms)`, functionCallId, stringifyResult(result));
-        }
-
-        return result;
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return wrapped as any;
@@ -44,6 +40,18 @@ export function createLogger(logFn: LogFn, name?: string): Logger {
 
 function createNamedLogFn(logFn: LogFn, name: string): LogFn {
   return (...args) => logFn(`[${name}]`, ...args);
+}
+
+function createFunctionLogger(
+  functionName: string,
+  args: unknown[],
+  log: LogFn
+) {
+  const functionCallId = `${functionName}(${stringifyArgs(args)})`;
+  const startTime = Date.now();
+  const delta = Date.now() - startTime;
+  return (result: unknown) =>
+    log(`(${delta}ms)`, functionCallId, stringifyResult(result));
 }
 
 function stringifyArgs(args: unknown[]) {
