@@ -24,9 +24,8 @@ export const mapDefinition = createRpcDefinition({
         auth: UserAccessLevel.Admin,
         tags: [mapInfoTag],
       })
-      .mutation("updateMapInfo", zod.string(), zod.boolean(), {
+      .fileUpload("uploadMapInfo", zod.boolean(), {
         tags: [mapInfoTag],
         auth: UserAccessLevel.Admin,
-        requestBodySizeLimit: 2 * Math.pow(10, 7),
       }),
 });

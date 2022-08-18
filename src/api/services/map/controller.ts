@@ -15,8 +15,11 @@ export async function mapController(maps: MapRepository) {
     async countMapInfo() {
       return Object.keys(maps.info).length;
     },
-    async updateMapInfo(mapInfoAsLuaCode) {
-      return maps.updateInfo(mapInfoAsLuaCode).success;
+    async uploadMapInfo([file]) {
+      if (!file) {
+        return false;
+      }
+      return maps.updateInfo(Buffer.from(file.data).toString("utf8")).success;
     },
   });
 }
