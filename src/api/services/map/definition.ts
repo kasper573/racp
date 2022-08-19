@@ -9,7 +9,7 @@ const infoTag = createTagFactory("MapInfo");
 const imageTag = createTagFactory("MapImage");
 
 export const mapDefinition = createRpcDefinition({
-  tagTypes: [infoTag.type],
+  tagTypes: [infoTag.type, imageTag.type],
   entries: (builder) =>
     builder
       .query(
