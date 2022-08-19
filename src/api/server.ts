@@ -30,6 +30,9 @@ import { createMonsterRepository } from "./services/monster/repository";
 import { mapDefinition } from "./services/map/definition";
 import { mapController } from "./services/map/controller";
 import { createMapRepository } from "./services/map/repository";
+import { createNpcRepository } from "./services/npc/repository";
+import { npcDefinition } from "./services/npc/definition";
+import { npcController } from "./services/npc/controller";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -60,7 +63,8 @@ const linker = createPublicFileLinker({
 
 const itemRepository = createItemRepository({ yaml, files, ...args });
 const monsterRepository = createMonsterRepository({ ...args, yaml, npc });
-const mapRepository = createMapRepository({ files, linker, formatter, npc });
+const mapRepository = createMapRepository({ files, linker, formatter });
+const npcRepository = createNpcRepository(npc);
 
 app.use(auth.middleware);
 app.use(cors());
@@ -70,6 +74,7 @@ app.use(rpc(itemDefinition, itemController(itemRepository)));
 app.use(rpc(authDefinition, authController({ db, yaml, auth, ...args })));
 app.use(rpc(monsterDefinition, monsterController(monsterRepository)));
 app.use(rpc(mapDefinition, mapController(mapRepository)));
+app.use(rpc(npcDefinition, npcController(npcRepository)));
 app.use(
   rpc(
     metaDefinition,

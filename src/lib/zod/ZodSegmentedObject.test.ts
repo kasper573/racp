@@ -1,17 +1,19 @@
 import * as zod from "zod";
 import { SafeParseError } from "zod/lib/types";
-import { ZodArrayEntity } from "./ZodArrayEntity";
+import { createSegmentedObject } from "./ZodSegmentedObject";
 
-describe("ZodArrayEntity", () => {
+describe("ZodSegmentedObject", () => {
   it("can parse its object form", () => {
-    const entityType = new ZodArrayEntity([
-      { foo: zod.string(), bar: zod.number() },
-      {
-        baz: zod.object({
-          list: zod.array(zod.number()),
-        }),
-      },
-    ]);
+    const entityType = createSegmentedObject({
+      foo: zod.string(),
+      bar: zod.number(),
+      baz: zod.object({
+        list: zod.array(zod.number()),
+      }),
+    })
+      .segment("foo", "bar")
+      .segment("baz")
+      .build();
 
     const entity = entityType.parse({
       foo: "foo",
@@ -23,14 +25,16 @@ describe("ZodArrayEntity", () => {
   });
 
   it("returns parsed entity for valid input", () => {
-    const entityType = new ZodArrayEntity([
-      { foo: zod.string(), bar: zod.number() },
-      {
-        baz: zod.object({
-          list: zod.array(zod.number()),
-        }),
-      },
-    ]);
+    const entityType = createSegmentedObject({
+      foo: zod.string(),
+      bar: zod.number(),
+      baz: zod.object({
+        list: zod.array(zod.number()),
+      }),
+    })
+      .segment("foo", "bar")
+      .segment("baz")
+      .build();
 
     const entity = entityType.parse([["foo", 123], [{ list: [1, 2, 3] }]]);
     expect(entity).toEqual({
@@ -41,9 +45,12 @@ describe("ZodArrayEntity", () => {
   });
 
   it("errors for invalid input type", () => {
-    const entityType = new ZodArrayEntity([
-      { foo: zod.string(), bar: zod.number() },
-    ]);
+    const entityType = createSegmentedObject({
+      foo: zod.string(),
+      bar: zod.number(),
+    })
+      .segment("foo", "bar")
+      .build();
 
     const res = entityType.safeParse([["foo", "bar"]]);
     expect((res as SafeParseError<unknown>).error.issues[0]).toEqual({
@@ -56,9 +63,12 @@ describe("ZodArrayEntity", () => {
   });
 
   it("errors for missing input", () => {
-    const entityType = new ZodArrayEntity([
-      { foo: zod.string(), bar: zod.number() },
-    ]);
+    const entityType = createSegmentedObject({
+      foo: zod.string(),
+      bar: zod.number(),
+    })
+      .segment("foo", "bar")
+      .build();
 
     const res = entityType.safeParse([[]]);
     expect((res as SafeParseError<unknown>).error.issues[0]).toEqual({
@@ -78,10 +88,13 @@ describe("ZodArrayEntity", () => {
   });
 
   it("errors for invalid part count", () => {
-    const entityType = new ZodArrayEntity([
-      { foo: zod.string() },
-      { bar: zod.string() },
-    ]);
+    const entityType = createSegmentedObject({
+      foo: zod.string(),
+      bar: zod.string(),
+    })
+      .segment("foo")
+      .segment("bar")
+      .build();
 
     const res = entityType.safeParse([["foo", "bar"]]);
     expect((res as SafeParseError<unknown>).error.issues[0]).toEqual({

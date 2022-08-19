@@ -1,35 +1,32 @@
 import * as zod from "zod";
-import { ZodArrayEntity } from "../../../lib/zod/ZodArrayEntity";
+import { createSegmentedObject } from "../../../lib/zod/ZodSegmentedObject";
 import { zodNumeric } from "../../../lib/zod/zodNumeric";
 import { matcher, toggleRecordType } from "../../util/matcher";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 
 export type MonsterSpawn = zod.infer<typeof monsterSpawnType>;
-export const monsterSpawnType = new ZodArrayEntity([
-  {
-    map: zod.string(),
-    x: zodNumeric().optional(),
-    y: zodNumeric().optional(),
-    rx: zodNumeric().optional(),
-    ry: zodNumeric().optional(),
-  },
-  {
-    type: zod.union([zod.literal("monster"), zod.literal("boss_monster")]),
-  },
-  {
-    name: zod.string(),
-    level: zodNumeric().optional(),
-  },
-  {
-    id: zod.string(),
-    amount: zodNumeric(),
-    delay: zodNumeric().optional(),
-    delay2: zodNumeric().optional(),
-    event: zod.string().optional(),
-    size: zodNumeric().optional(),
-    ai: zodNumeric().optional(),
-  },
-]);
+export const monsterSpawnType = createSegmentedObject({
+  map: zod.string(),
+  x: zodNumeric().optional(),
+  y: zodNumeric().optional(),
+  rx: zodNumeric().optional(),
+  ry: zodNumeric().optional(),
+  type: zod.union([zod.literal("monster"), zod.literal("boss_monster")]),
+  name: zod.string(),
+  level: zodNumeric().optional(),
+  id: zod.string(),
+  amount: zodNumeric(),
+  delay: zodNumeric().optional(),
+  delay2: zodNumeric().optional(),
+  event: zod.string().optional(),
+  size: zodNumeric().optional(),
+  ai: zodNumeric().optional(),
+})
+  .segment("map", "x", "y", "rx", "ry")
+  .segment("type")
+  .segment("name", "level")
+  .segment("id", "amount", "delay2", "event", "size", "ai")
+  .build();
 
 export type MonsterDrop = zod.infer<typeof monsterDropType>;
 const monsterDropType = zod.object({

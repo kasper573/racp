@@ -19,9 +19,6 @@ export async function mapController(maps: MapRepository) {
       }
       return item;
     },
-    async getMapWarps(mapId) {
-      return (await maps.warps)[mapId] ?? [];
-    },
     async countMapImages() {
       return maps.countImages();
     },

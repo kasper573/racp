@@ -1,31 +1,21 @@
 import * as path from "path";
 import * as fs from "fs";
-import { groupBy } from "lodash";
 import { replaceObject } from "../../../lib/replaceEntries";
 import { FileStore } from "../../../lib/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { Linker } from "../../../lib/createPublicFileLinker";
 import { ImageFormatter } from "../../../lib/createImageFormatter";
-import { NpcDriver } from "../../rathena/NpcDriver";
-import {
-  MapId,
-  MapInfo,
-  MapInfoPostProcess,
-  mapInfoType,
-  warpType,
-} from "./types";
+import { MapId, MapInfo, MapInfoPostProcess, mapInfoType } from "./types";
 export type MapRepository = ReturnType<typeof createMapRepository>;
 
 export function createMapRepository({
   files,
   linker,
   formatter,
-  npc,
 }: {
   files: FileStore;
   linker: Linker;
   formatter: ImageFormatter;
-  npc: NpcDriver;
 }) {
   const info: Record<string, MapInfo> = {};
 
@@ -38,13 +28,8 @@ export function createMapRepository({
     replaceObject(info, postProcessMapInfo(newInfo ?? {}, mapImageUrl))
   );
 
-  const warps = npc
-    .resolve("scripts_warps.conf", warpType)
-    .then((warps) => groupBy(warps, "fromMap"));
-
   return {
     info,
-    warps,
     updateInfo: infoFile.update,
     countImages: () => fs.readdirSync(mapLinker.directory).length,
     async hasImage(mapId: MapId) {
