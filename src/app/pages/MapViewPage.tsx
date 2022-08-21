@@ -52,6 +52,9 @@ export default function MapViewPage() {
                   />
                 ),
               },
+              { label: "Monsters", content: <>TODO</> },
+              { label: "Shops", content: <>TODO</> },
+              { label: "NPCs", content: <>TODO</> },
             ]}
           />
         </Stack>
