@@ -6,7 +6,6 @@ import { itemDefinition } from "../../api/services/item/definition";
 import { monsterDefinition } from "../../api/services/monster/definition";
 import { metaDefinition } from "../../api/services/meta/definition";
 import { mapDefinition } from "../../api/services/map/definition";
-import { npcDefinition } from "../../api/services/npc/definition";
 import { AppState } from "./store";
 
 export const client = createApi({
@@ -27,7 +26,6 @@ export const client = createApi({
     ...itemDefinition.tagTypes,
     ...monsterDefinition.tagTypes,
     ...mapDefinition.tagTypes,
-    ...npcDefinition.tagTypes,
   ],
   endpoints: (builder) => ({
     ...createRpcEndpoints(builder, metaDefinition.entries),
@@ -36,7 +34,6 @@ export const client = createApi({
     ...createRpcEndpoints(builder, itemDefinition.entries),
     ...createRpcEndpoints(builder, monsterDefinition.entries),
     ...createRpcEndpoints(builder, mapDefinition.entries),
-    ...createRpcEndpoints(builder, npcDefinition.entries),
   }),
 });
 

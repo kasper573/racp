@@ -4,13 +4,17 @@ import { RpcException } from "../../../lib/rpc/RpcException";
 import { defined } from "../../../lib/defined";
 import { MapRepository } from "./repository";
 import { mapDefinition } from "./definition";
-import { mapInfoFilter } from "./types";
+import { mapInfoFilter, warpFilter } from "./types";
 
 export async function mapController(maps: MapRepository) {
   return createRpcController(mapDefinition.entries, {
     searchMaps: createSearchController(
       async () => Array.from(Object.values(maps.info)),
       (entity, payload) => mapInfoFilter.for(payload)(entity)
+    ),
+    searchWarps: createSearchController(
+      () => maps.warps,
+      (entity, payload) => warpFilter.for(payload)(entity)
     ),
     async getMap(mapId) {
       const item = maps.info[mapId];

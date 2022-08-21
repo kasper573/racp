@@ -5,14 +5,14 @@ import { useGetMapQuery, useSearchWarpsQuery } from "../state/client";
 import { router } from "../router";
 import { useRouteParams } from "../../lib/useRouteParams";
 import { MapPin, MapViewport } from "../components/MapViewport";
+import { DataGrid, DataGridQueryFn } from "../components/DataGrid";
+import { TabSwitch } from "../components/TabSwitch";
 import {
   createWarpId,
   Warp,
   WarpFilter,
   WarpId,
-} from "../../api/services/npc/types";
-import { DataGrid, DataGridQueryFn } from "../components/DataGrid";
-import { TabSwitch } from "../components/TabSwitch";
+} from "../../api/services/map/types";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MapViewPage() {
@@ -62,8 +62,6 @@ export default function MapViewPage() {
     </>
   );
 }
-
-const warpName = (warp: Warp) => `To ${warp.toMap} (${warp.toX}, ${warp.toY})`;
 
 const WarpGrid = DataGrid.define<Warp, WarpFilter, WarpId>({
   // Without assertion typescript yields possibly infinite error
