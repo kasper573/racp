@@ -23,6 +23,7 @@ export type DataGridProps<
   Omit<ComponentProps<typeof Box>, "id"> & {
     filter?: Filter;
     query: DataGridQueryFn<Entity, Filter>;
+    gridProps?: Pick<ComponentProps<typeof MuiDataGrid>, "rowHeight">;
   };
 
 export function DataGrid<Entity, Filter, Id extends GridRowId>({
@@ -32,6 +33,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
   id,
   link,
   sx,
+  gridProps,
   ...props
 }: DataGridProps<Entity, Filter, Id>) {
   const [pageIndex, setPageIndex] = useState(0);
@@ -83,6 +85,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
           disableSelectionOnClick
           rowCount={result?.total ?? 0}
           loading={isFetching}
+          {...gridProps}
         />
       </Box>
       <Box

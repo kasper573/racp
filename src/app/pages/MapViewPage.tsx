@@ -12,6 +12,7 @@ import {
   WarpId,
 } from "../../api/services/npc/types";
 import { DataGrid, DataGridQueryFn } from "../components/DataGrid";
+import { TabSwitch } from "../components/TabSwitch";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MapViewPage() {
@@ -40,15 +41,20 @@ export default function MapViewPage() {
             )}
           </MapViewport>
         </div>
-        <WarpGrid
-          sx={{ width: "100%" }}
-          filter={{
-            fromMap: {
-              value: id,
-              matcher: "equals",
-            },
-          }}
-        />
+        <Stack direction="column" sx={{ flex: 1 }}>
+          <TabSwitch
+            tabs={[
+              {
+                label: "Warps",
+                content: (
+                  <WarpGrid
+                    filter={{ fromMap: { value: id, matcher: "equals" } }}
+                  />
+                ),
+              },
+            ]}
+          />
+        </Stack>
       </Stack>
     </>
   );
