@@ -7,6 +7,7 @@ import { useRouteParams } from "../../lib/useRouteParams";
 import { MapPin, MapViewport } from "../components/MapViewport";
 import { TabSwitch } from "../components/TabSwitch";
 import { WarpGrid } from "../grids/WarpGrid";
+import { MonsterSpawnGrid } from "../grids/MonsterSpawnGrid";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MapViewPage() {
@@ -46,7 +47,14 @@ export default function MapViewPage() {
                   />
                 ),
               },
-              { label: "Monsters", content: <>TODO</> },
+              {
+                label: "Monsters",
+                content: (
+                  <MonsterSpawnGrid
+                    filter={{ map: { value: id, matcher: "equals" } }}
+                  />
+                ),
+              },
               { label: "Shops", content: <>TODO</> },
               { label: "NPCs", content: <>TODO</> },
             ]}

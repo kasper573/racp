@@ -1,4 +1,3 @@
-import { groupBy } from "lodash";
 import { RAthenaMode } from "../../options";
 import { YamlDriver } from "../../rathena/YamlDriver";
 import { NpcDriver } from "../../rathena/NpcDriver";
@@ -26,9 +25,8 @@ export function createMonsterRepository({
       return { spawns, monsters };
     },
     (data) => ({
-      spawns: data?.spawns ?? {},
+      spawns: data?.spawns ?? [],
       map: data?.monsters ?? new Map(),
-      spawnLookup: groupBy(data?.spawns ?? {}, "id"),
     })
   );
 }

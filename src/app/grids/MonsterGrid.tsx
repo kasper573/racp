@@ -1,6 +1,7 @@
 import { DataGrid, DataGridQueryFn } from "../components/DataGrid";
 import { Monster, MonsterFilter } from "../../api/services/monster/types";
 import { useSearchMonstersQuery } from "../state/client";
+import { router } from "../router";
 
 export const MonsterGrid = DataGrid.define<
   Monster,
@@ -12,6 +13,7 @@ export const MonsterGrid = DataGrid.define<
     Monster,
     MonsterFilter
   >,
+  link: (id) => router.monster().view({ id }),
   id: (item) => item.Id,
   columns: {
     Name: true,

@@ -52,10 +52,20 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
       }),
     })
   ),
-  monster: route("monster", {
-    component: lazy(() => import("./pages/MonsterSearchPage")),
-    options: { title: "Monsters", icon: <PestControlRodent /> },
-  }),
+  monster: route(
+    "monster",
+    {
+      component: lazy(() => import("./pages/MonsterSearchPage")),
+      options: { title: "Monsters", icon: <PestControlRodent /> },
+    },
+    (route) => ({
+      view: route("view/:id", {
+        component: lazy(() => import("./pages/MonsterViewPage")),
+        options: { title: "Monster", icon: <PestControlRodent /> },
+        params: { id: intParser },
+      }),
+    })
+  ),
   map: route(
     "map",
     {
