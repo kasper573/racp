@@ -1,8 +1,8 @@
 import * as zod from "zod";
 import { createTagFactory } from "../../../lib/createTagFactory";
-import { createSearchTypes } from "../search/types";
 import { createRpcDefinition } from "../../util/rpc";
 import { UserAccessLevel } from "../auth/types";
+import { createSearchTypes } from "../../common/search";
 import { itemIdType, itemFilter, itemType } from "./types";
 
 const tag = createTagFactory("Item");

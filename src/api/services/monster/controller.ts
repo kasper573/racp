@@ -1,5 +1,5 @@
 import { createRpcController } from "../../../lib/rpc/createRpcController";
-import { createSearchController } from "../search/controller";
+import { createSearchController } from "../../common/search";
 import { monsterFilter, monsterSpawnFilter } from "./types";
 import { monsterDefinition } from "./definition";
 import { MonsterRepository } from "./repository";

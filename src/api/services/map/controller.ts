@@ -1,7 +1,7 @@
 import { createRpcController } from "../../../lib/rpc/createRpcController";
-import { createSearchController } from "../search/controller";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { defined } from "../../../lib/defined";
+import { createSearchController } from "../../common/search";
 import { MapRepository } from "./repository";
 import { mapDefinition } from "./definition";
 import { mapInfoFilter, warpFilter } from "./types";

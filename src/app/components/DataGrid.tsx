@@ -7,12 +7,8 @@ import {
   GridColDef,
   GridEnrichedColDef,
 } from "@mui/x-data-grid/models/colDef/gridColDef";
-import {
-  SearchQuery,
-  SearchResult,
-  SearchSort,
-} from "../../api/services/search/types";
 import { typedKeys } from "../../lib/typedKeys";
+import { SearchQuery, SearchResult, SearchSort } from "../../api/common/search";
 import { Link } from "./Link";
 
 export type DataGridProps<
