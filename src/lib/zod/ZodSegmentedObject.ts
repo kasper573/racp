@@ -1,62 +1,45 @@
 import * as zod from "zod";
 import {
   addIssueToContext,
-  AnyZodObject,
   INVALID,
   ParseInput,
   ParseReturnType,
   ZodObject,
   ZodRawShape,
 } from "zod";
-import { isPlainObject, without } from "lodash";
-import { typedKeys } from "../typedKeys";
+import { isPlainObject } from "lodash";
 import { chainParse } from "./chainParse";
 
 const rawArrayEntity = zod.array(zod.array(zod.any()));
 
-export function createSegmentedObject<Shape extends ZodRawShape>(shape: Shape) {
-  return new SegmentBuilder(zod.object(shape), [], typedKeys(shape));
+export function createSegmentedObject() {
+  return new SegmentBuilder({}, []);
 }
 
-type Segment<Source extends AnyZodObject> = Array<keyof Source["shape"]>;
-
 class SegmentBuilder<
-  Source extends AnyZodObject,
-  Segments extends Array<Segment<Source>>,
-  RemainingShape extends ZodRawShape
+  Combined extends ZodRawShape,
+  Segments extends ZodRawShape[]
 > {
-  constructor(
-    private source: Source,
-    private segments: Segments,
-    private remainingKeys: Array<keyof RemainingShape>
-  ) {}
+  constructor(private combined: Combined, private segments: Segments) {}
 
-  segment<Segment extends Array<keyof RemainingShape>>(...segment: Segment) {
-    type NewRemainingShape = Omit<RemainingShape, Segment[number]>;
-    return new SegmentBuilder<
-      Source,
-      [...Segments, Segment],
-      NewRemainingShape
-    >(
-      this.source,
-      [...this.segments, segment],
-      without(this.remainingKeys, ...segment) as Array<keyof NewRemainingShape>
-    );
+  segment<Segment extends ZodRawShape>(segment: Segment) {
+    return new SegmentBuilder({ ...this.combined, ...segment }, [
+      ...this.segments,
+      segment,
+    ]);
   }
 
-  // Hiding type signature to reduce complexity and because ZodArrayEntity is only an implementation detail
-  // (avoids "Type instantiation is excessively deep...")
-  build(): Source {
+  build() {
     return new ZodSegmentedObject(
-      this.source._def,
+      zod.object(this.combined)._def,
       this.segments
-    ) as unknown as Source;
+    );
   }
 }
 
 class ZodSegmentedObject<
   CombinedShape extends ZodRawShape,
-  Segments extends Array<Segment<ZodObject<CombinedShape>>>
+  Segments extends ZodRawShape[]
 > extends ZodObject<CombinedShape> {
   constructor(
     def: ZodObject<CombinedShape>["_def"],
@@ -66,10 +49,7 @@ class ZodSegmentedObject<
   }
 
   private getSegmentShape(segmentIndex: number): ZodRawShape {
-    return this.segments[segmentIndex].reduce(
-      (shape, key) => ({ ...shape, [key]: this.shape[key] }),
-      {} as ZodRawShape
-    );
+    return this.segments[segmentIndex];
   }
 
   _parse(input: ParseInput): ParseReturnType<this["_output"]> {

@@ -74,10 +74,10 @@ async function loadNpcConfFile(npcConfFile: string, rAthenaPath: string) {
 }
 
 const npcCommandRegex = /^npc:\s*(.*)$/;
-const npcConfEntity = createSegmentedObject({
-  content: zod.string().regex(npcCommandRegex),
-})
-  .segment("content")
+const npcConfEntity = createSegmentedObject()
+  .segment({
+    content: zod.string().regex(npcCommandRegex),
+  })
   .build();
 
 /**

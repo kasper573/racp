@@ -4,15 +4,16 @@ import { createSegmentedObject } from "./ZodSegmentedObject";
 
 describe("ZodSegmentedObject", () => {
   it("can parse its object form", () => {
-    const entityType = createSegmentedObject({
-      foo: zod.string(),
-      bar: zod.number(),
-      baz: zod.object({
-        list: zod.array(zod.number()),
-      }),
-    })
-      .segment("foo", "bar")
-      .segment("baz")
+    const entityType = createSegmentedObject()
+      .segment({
+        foo: zod.string(),
+        bar: zod.number(),
+      })
+      .segment({
+        baz: zod.object({
+          list: zod.array(zod.number()),
+        }),
+      })
       .build();
 
     const entity = entityType.parse({
@@ -25,15 +26,16 @@ describe("ZodSegmentedObject", () => {
   });
 
   it("returns parsed entity for valid input", () => {
-    const entityType = createSegmentedObject({
-      foo: zod.string(),
-      bar: zod.number(),
-      baz: zod.object({
-        list: zod.array(zod.number()),
-      }),
-    })
-      .segment("foo", "bar")
-      .segment("baz")
+    const entityType = createSegmentedObject()
+      .segment({
+        foo: zod.string(),
+        bar: zod.number(),
+      })
+      .segment({
+        baz: zod.object({
+          list: zod.array(zod.number()),
+        }),
+      })
       .build();
 
     const entity = entityType.parse([["foo", 123], [{ list: [1, 2, 3] }]]);
@@ -45,11 +47,11 @@ describe("ZodSegmentedObject", () => {
   });
 
   it("errors for invalid input type", () => {
-    const entityType = createSegmentedObject({
-      foo: zod.string(),
-      bar: zod.number(),
-    })
-      .segment("foo", "bar")
+    const entityType = createSegmentedObject()
+      .segment({
+        foo: zod.string(),
+        bar: zod.number(),
+      })
       .build();
 
     const res = entityType.safeParse([["foo", "bar"]]);
@@ -63,11 +65,11 @@ describe("ZodSegmentedObject", () => {
   });
 
   it("errors for missing input", () => {
-    const entityType = createSegmentedObject({
-      foo: zod.string(),
-      bar: zod.number(),
-    })
-      .segment("foo", "bar")
+    const entityType = createSegmentedObject()
+      .segment({
+        foo: zod.string(),
+        bar: zod.number(),
+      })
       .build();
 
     const res = entityType.safeParse([[]]);
@@ -88,12 +90,13 @@ describe("ZodSegmentedObject", () => {
   });
 
   it("errors for invalid part count", () => {
-    const entityType = createSegmentedObject({
-      foo: zod.string(),
-      bar: zod.string(),
-    })
-      .segment("foo")
-      .segment("bar")
+    const entityType = createSegmentedObject()
+      .segment({
+        foo: zod.string(),
+      })
+      .segment({
+        bar: zod.string(),
+      })
       .build();
 
     const res = entityType.safeParse([["foo", "bar"]]);
