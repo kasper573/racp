@@ -16,10 +16,10 @@ export function metaController({
   monsters: MonsterRepository;
 }) {
   async function getMeta() {
-    await Promise.all([items.ready, monsters.ready]);
+    const [, monsterMap] = await Promise.all([items.ready, monsters.map]);
     return {
       ...collectItemMeta(Array.from(items.map.values())),
-      ...collectMonsterMeta(Array.from(monsters.map.values())),
+      ...collectMonsterMeta(Array.from(monsterMap.values())),
     };
   }
 
