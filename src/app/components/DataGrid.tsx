@@ -142,7 +142,7 @@ type ColumnConventionEntry = string | boolean | Omit<GridColDef, "field">;
 interface ColumnConventionProps<Entity, Id extends GridRowId> {
   columns: Partial<Record<keyof Entity, ColumnConventionEntry>>;
   id: (entity: Entity) => Id;
-  link?: (id: Id) => { $: string };
+  link?: (id: Id, entity: Entity) => { $: string };
 }
 
 function processColumnConvention<Entity, Id extends GridRowId>({
@@ -166,13 +166,17 @@ function processColumnConvention<Entity, Id extends GridRowId>({
     {
       ...firstColumn,
       width: firstColumn.width ?? 180,
-      renderCell({ value, row }: GridRenderCellParams) {
-        return link ? <Link to={link(id(row))}>{value}</Link> : value;
-      },
+      renderCell:
+        firstColumn.renderCell ??
+        (({ value, row }: GridRenderCellParams) => {
+          return link ? <Link to={link(id(row), row)}>{value}</Link> : value;
+        }),
     },
     ...restColumns.map((column) => ({
       ...column,
-      renderCell: ({ value }: GridRenderCellParams) => value ?? "-",
+      renderCell:
+        column.renderCell ??
+        (({ value }: GridRenderCellParams) => value ?? "-"),
     })),
   ];
 }
