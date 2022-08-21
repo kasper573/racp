@@ -5,28 +5,18 @@ import { useGetMapQuery, useSearchWarpsQuery } from "../state/client";
 import { router } from "../router";
 import { useRouteParams } from "../../lib/useRouteParams";
 import { MapPin, MapViewport } from "../components/MapViewport";
-import { Link } from "../components/Link";
-import { Warp, WarpFilter } from "../../api/services/npc/types";
-import { SearchQuery } from "../../api/services/search/types";
+import {
+  createWarpId,
+  Warp,
+  WarpFilter,
+  WarpId,
+} from "../../api/services/npc/types";
+import { DataGrid, DataGridQueryFn } from "../components/DataGrid";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MapViewPage() {
   const { id, x, y } = useRouteParams(router.map().view);
-  const { data: map, isLoading: isLoadingMap } = useGetMapQuery(id);
-  const search: SearchQuery<Warp, WarpFilter> = {
-    filter: {
-      fromMap: {
-        value: id,
-        matcher: "equals",
-        options: { caseSensitive: false },
-      },
-    },
-    limit: 50,
-  };
-  const { data: warps, isLoading: isLoadingWarps } =
-    useSearchWarpsQuery(search);
-
-  const isLoading = isLoadingMap || isLoadingWarps;
+  const { data: map, isLoading } = useGetMapQuery(id);
 
   if (isLoading) {
     return <LoadingPage />;
@@ -38,7 +28,7 @@ export default function MapViewPage() {
   return (
     <>
       <Header back={router.map}>{map.displayName}</Header>
-      <Stack spacing={2} direction="row">
+      <Stack spacing={2} direction="row" sx={{ flex: 1 }}>
         <div>
           <MapViewport imageUrl={map.imageUrl} sx={{ width: "50%" }}>
             {x !== undefined && y !== undefined && (
@@ -50,22 +40,31 @@ export default function MapViewPage() {
             )}
           </MapViewport>
         </div>
-        <div>
-          {warps?.entities.map((warp: Warp, index: number) => (
-            <li key={index}>
-              <Link
-                to={router
-                  .map()
-                  .view({ id: warp.toMap, x: warp.toX, y: warp.toY })}
-              >
-                {warpName(warp)}
-              </Link>
-            </li>
-          ))}
-        </div>
+        <WarpGrid
+          sx={{ width: "100%" }}
+          filter={{
+            fromMap: {
+              value: id,
+              matcher: "equals",
+            },
+          }}
+        />
       </Stack>
     </>
   );
 }
 
 const warpName = (warp: Warp) => `To ${warp.toMap} (${warp.toX}, ${warp.toY})`;
+
+const WarpGrid = DataGrid.define<Warp, WarpFilter, WarpId>({
+  // Without assertion typescript yields possibly infinite error
+  query: useSearchWarpsQuery as unknown as DataGridQueryFn<Warp, WarpFilter>,
+  id: createWarpId,
+  link: (id, warp) =>
+    router.map().view({ id: warp.toMap, x: warp.toX, y: warp.toY }),
+  columns: {
+    toMap: "Destination",
+    fromX: "X",
+    fromY: "Y",
+  },
+});
