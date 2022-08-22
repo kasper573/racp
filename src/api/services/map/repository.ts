@@ -5,17 +5,26 @@ import { FileStore } from "../../../lib/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { Linker } from "../../../lib/createPublicFileLinker";
 import { ImageFormatter } from "../../../lib/createImageFormatter";
-import { MapId, MapInfo, MapInfoPostProcess, mapInfoType } from "./types";
+import { NpcDriver } from "../../rathena/NpcDriver";
+import {
+  MapId,
+  MapInfo,
+  MapInfoPostProcess,
+  mapInfoType,
+  warpType,
+} from "./types";
 export type MapRepository = ReturnType<typeof createMapRepository>;
 
 export function createMapRepository({
   files,
   linker,
   formatter,
+  npc,
 }: {
   files: FileStore;
   linker: Linker;
   formatter: ImageFormatter;
+  npc: NpcDriver;
 }) {
   const info: Record<string, MapInfo> = {};
 
@@ -32,8 +41,8 @@ export function createMapRepository({
     info,
     updateInfo: infoFile.update,
     countImages: () => fs.readdirSync(mapLinker.directory).length,
+    warps: npc.resolve("scripts_warps.conf", warpType),
     async hasImage(mapId: MapId) {
-      console.log(mapImagePath(mapId));
       return fs.promises
         .access(mapImagePath(mapId))
         .then(() => true)
@@ -43,7 +52,7 @@ export function createMapRepository({
       const all = await Promise.allSettled(
         files.map((file) =>
           formatter.write(
-            path.resolve(mapLinker.directory, path.basename(file.name)),
+            mapLinker.path(path.basename(file.name)),
             Buffer.from(file.data)
           )
         )

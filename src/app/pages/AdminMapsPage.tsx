@@ -92,7 +92,7 @@ export default function AdminMapsPage() {
 
       <ErrorMessage sx={{ textAlign: "center", mt: 1 }} error={error} />
 
-      <Box sx={{ margin: "0 auto" }}>
+      <Box sx={{ margin: "0 auto", marginBottom: 2 }}>
         {infoUpload.isLoading && <Typography>Updating item info...</Typography>}
         {isPreparingUpload && <Typography>Loading map images...</Typography>}
         {imageUpload.isLoading && (

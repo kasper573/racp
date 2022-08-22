@@ -4,31 +4,67 @@ import {
   INVALID,
   ParseInput,
   ParseReturnType,
+  ZodObject,
   ZodRawShape,
-  ZodType,
-  ZodTypeAny,
 } from "zod";
 import { isPlainObject } from "lodash";
 import { chainParse } from "./chainParse";
 
 const rawArrayEntity = zod.array(zod.array(zod.any()));
 
-export class ZodArrayEntity<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Shapes extends ArrayEntityShapes = any
-> extends ZodType<ArrayEntity<Shapes>> {
-  constructor(private shapes: Shapes) {
-    super({});
+export function createSegmentedObject() {
+  return new SegmentBuilder({}, []);
+}
+
+class SegmentBuilder<
+  Combined extends ZodRawShape,
+  Segments extends ZodRawShape[]
+> {
+  constructor(private combined: Combined, private segments: Segments) {}
+
+  segment<Segment extends ZodRawShape>(segment: Segment) {
+    return new SegmentBuilder({ ...this.combined, ...segment }, [
+      ...this.segments,
+      segment,
+    ]);
   }
 
-  _parse(input: ParseInput): ParseReturnType<ArrayEntity<Shapes>> {
-    type Entity = ArrayEntity<Shapes>;
+  build() {
+    return new ZodSegmentedObject(
+      zod.object(this.combined)._def,
+      this.segments
+    );
+  }
+}
+
+class ZodSegmentedObject<
+  CombinedShape extends ZodRawShape,
+  Segments extends ZodRawShape[]
+> extends ZodObject<CombinedShape> {
+  constructor(
+    def: ZodObject<CombinedShape>["_def"],
+    private segments: Segments
+  ) {
+    super(def);
+  }
+
+  private getSegmentShape(segmentIndex: number): ZodRawShape {
+    return this.segments[segmentIndex];
+  }
+
+  _parse(input: ParseInput): ParseReturnType<this["_output"]> {
+    type Entity = zod.infer<this>;
     const context = this._getOrReturnCtx(input);
     const entity = {} as Entity;
 
     // If input is object we use the type shapes directly
     if (isPlainObject(input.data)) {
-      for (const shape of Object.values(this.shapes)) {
+      for (
+        let segmentIndex = 0;
+        segmentIndex < this.segments.length;
+        segmentIndex++
+      ) {
+        const shape = this.getSegmentShape(segmentIndex);
         const res = zod.object(shape).safeParse(input.data);
         if (!res.success) {
           for (const issue of res.error.issues) {
@@ -50,20 +86,24 @@ export class ZodArrayEntity<
     // Otherwise, we require a matrix
     const array = chainParse(rawArrayEntity, this, input);
     if (array.status !== "valid") {
-      return array as ParseReturnType<ArrayEntity<Shapes>>;
+      return array as ParseReturnType<this["_output"]>;
     }
 
-    if (array.value.length < this.shapes.length) {
+    if (array.value.length < this.segments.length) {
       addIssueToContext(context, {
         code: "custom",
-        message: `Array must contain at least ${this.shapes.length} elements`,
+        message: `Array must contain at least ${this.segments.length} elements`,
       });
       return INVALID;
     }
 
-    for (const shapeIndex in this.shapes) {
-      const shapeValues = array.value[shapeIndex];
-      const shape = this.shapes[shapeIndex];
+    for (
+      let segmentIndex = 0;
+      segmentIndex < this.segments.length;
+      segmentIndex++
+    ) {
+      const shape = this.getSegmentShape(segmentIndex);
+      const shapeValues = array.value[segmentIndex];
       const propTypes = Object.values(shape);
       const propNames = Object.keys(shape);
       for (const propIndex in propTypes) {
@@ -77,7 +117,7 @@ export class ZodArrayEntity<
           for (const issue of parseResult.error.issues) {
             addIssueToContext(context, {
               ...issue,
-              path: [+shapeIndex, +propIndex],
+              path: [+segmentIndex, +propIndex],
             });
           }
         }
@@ -94,19 +134,3 @@ export class ZodArrayEntity<
     };
   }
 }
-
-export type ArrayEntityShapes = [ZodRawShape, ...ZodRawShape[]];
-
-export type ArrayEntity<Shapes extends ArrayEntityShapes> = inferZodRecord<
-  UnionToIntersection<Shapes[number]>
->;
-
-type inferZodRecord<T> = {
-  [K in keyof T]: T[K] extends ZodTypeAny ? zod.infer<T[K]> : never;
-};
-
-type UnionToIntersection<U> =
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (U extends any ? (k: U) => void : never) extends (k: infer I) => void
-    ? I
-    : never;

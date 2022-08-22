@@ -2,7 +2,8 @@ import * as path from "path";
 import * as fs from "fs";
 import * as zod from "zod";
 import { matchRecursive } from "xregexp";
-import { ZodArrayEntity } from "../../lib/zod/ZodArrayEntity";
+import { AnyZodObject } from "zod";
+import { createSegmentedObject } from "../../lib/zod/ZodSegmentedObject";
 import { Logger } from "../../lib/logger";
 import { RAthenaMode } from "../options";
 
@@ -21,7 +22,10 @@ export function createNpcDriver({
   const modeFolder = path.resolve(npcFolder, modeFolderNames[rAthenaMode]);
 
   return {
-    resolve<ET extends ZodArrayEntity>(npcConfFile: string, entityType: ET) {
+    async resolve<ET extends AnyZodObject>(
+      npcConfFile: string,
+      entityType: ET
+    ): Promise<Array<zod.infer<ET>>> {
       const loadEntities = logger.wrap(createNpcLoader(entityType));
 
       async function loadViaConfFile(npcConfFile: string) {
@@ -33,22 +37,19 @@ export function createNpcDriver({
         );
       }
 
-      const entities: Array<zod.infer<ET>> = [];
-      Promise.all([
+      const [baseEntities, modeEntities] = await Promise.all([
         loadViaConfFile(path.resolve(npcFolder, npcConfFile)),
         loadViaConfFile(path.resolve(modeFolder, npcConfFile)),
-      ]).then(([baseEntities, modeEntities]) => {
-        entities.push(...baseEntities, ...modeEntities);
-      });
+      ]);
 
-      return entities;
+      return [...baseEntities, ...modeEntities];
     },
   };
 }
 
 const readFile = (file: string) => fs.promises.readFile(file, "utf-8");
 
-function createNpcLoader<ET extends ZodArrayEntity>(entityType: ET) {
+function createNpcLoader<ET extends AnyZodObject>(entityType: ET) {
   return async function loadNpc(file: string) {
     const text = await readFile(file);
     return parseTextEntities(text).reduce(
@@ -73,9 +74,11 @@ async function loadNpcConfFile(npcConfFile: string, rAthenaPath: string) {
 }
 
 const npcCommandRegex = /^npc:\s*(.*)$/;
-const npcConfEntity = new ZodArrayEntity([
-  { content: zod.string().regex(npcCommandRegex) },
-]);
+const npcConfEntity = createSegmentedObject()
+  .segment({
+    content: zod.string().regex(npcCommandRegex),
+  })
+  .build();
 
 /**
  * Parses npc text file content into an intermediate matrix data structure.

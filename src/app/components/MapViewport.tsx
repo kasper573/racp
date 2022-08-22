@@ -32,7 +32,8 @@ const Viewport = styled(Box)<{ imageUrl?: string }>`
 
 export const MapPin = styled(Box)<{ x: number; y: number }>`
   position: absolute;
-  top: ${({ y }) => y}px;
-  left: ${({ x }) => x}px;
-  transform: translate(-50%, -50%);
+  bottom: 0;
+  left: 0;
+  transform-origin: center;
+  transform: ${({ x, y }) => `translate(${x}px, ${-y}px) translate(-50%, 50%)`};
 `;

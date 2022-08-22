@@ -1,5 +1,5 @@
 import { Box, Pagination, styled, Typography } from "@mui/material";
-import { ComponentProps, useEffect, useState } from "react";
+import { MouseEvent, ComponentProps, useEffect, useState } from "react";
 import { DataGrid as MuiDataGrid, GridColumns } from "@mui/x-data-grid";
 import { GridRowId } from "@mui/x-data-grid/models/gridRows";
 import { GridRenderCellParams } from "@mui/x-data-grid/models/params/gridCellParams";
@@ -7,12 +7,8 @@ import {
   GridColDef,
   GridEnrichedColDef,
 } from "@mui/x-data-grid/models/colDef/gridColDef";
-import {
-  SearchQuery,
-  SearchResult,
-  SearchSort,
-} from "../../api/services/search/types";
 import { typedKeys } from "../../lib/typedKeys";
+import { SearchQuery, SearchResult, SearchSort } from "../../api/common/search";
 import { Link } from "./Link";
 
 export type DataGridProps<
@@ -23,6 +19,8 @@ export type DataGridProps<
   Omit<ComponentProps<typeof Box>, "id"> & {
     filter?: Filter;
     query: DataGridQueryFn<Entity, Filter>;
+    gridProps?: Pick<ComponentProps<typeof MuiDataGrid>, "rowHeight">;
+    onHoveredEntityChange?: (entity?: Entity) => void;
   };
 
 export function DataGrid<Entity, Filter, Id extends GridRowId>({
@@ -32,6 +30,8 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
   id,
   link,
   sx,
+  gridProps,
+  onHoveredEntityChange,
   ...props
 }: DataGridProps<Entity, Filter, Id>) {
   const [pageIndex, setPageIndex] = useState(0);
@@ -52,6 +52,16 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
     }
   }, [pageIndex, pageCount]);
 
+  function emitHoverChange(target?: HTMLElement) {
+    const hovered =
+      target !== undefined
+        ? result?.entities?.find(
+            (entity) => id(entity) === target?.getAttribute("data-id")
+          )
+        : undefined;
+    onHoveredEntityChange?.(hovered);
+  }
+
   return (
     <Box
       sx={{ height: "100%", display: "flex", flexDirection: "column", ...sx }}
@@ -70,6 +80,13 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
           page={pageIndex}
           pageSize={pageSize}
           onPageSizeChange={setPageSize}
+          componentsProps={{
+            row: {
+              onMouseEnter: (e: MouseEvent<HTMLElement>) =>
+                emitHoverChange(e.currentTarget),
+              onMouseLeave: () => emitHoverChange(undefined),
+            },
+          }}
           hideFooter
           onSortModelChange={
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,6 +100,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
           disableSelectionOnClick
           rowCount={result?.total ?? 0}
           loading={isFetching}
+          {...gridProps}
         />
       </Box>
       <Box
@@ -142,7 +160,7 @@ type ColumnConventionEntry = string | boolean | Omit<GridColDef, "field">;
 interface ColumnConventionProps<Entity, Id extends GridRowId> {
   columns: Partial<Record<keyof Entity, ColumnConventionEntry>>;
   id: (entity: Entity) => Id;
-  link?: (id: Id) => { $: string };
+  link?: (id: Id, entity: Entity) => { $: string };
 }
 
 function processColumnConvention<Entity, Id extends GridRowId>({
@@ -166,13 +184,17 @@ function processColumnConvention<Entity, Id extends GridRowId>({
     {
       ...firstColumn,
       width: firstColumn.width ?? 180,
-      renderCell({ value, row }: GridRenderCellParams) {
-        return link ? <Link to={link(id(row))}>{value}</Link> : value;
-      },
+      renderCell:
+        firstColumn.renderCell ??
+        (({ value, row }: GridRenderCellParams) => {
+          return link ? <Link to={link(id(row), row)}>{value}</Link> : value;
+        }),
     },
     ...restColumns.map((column) => ({
       ...column,
-      renderCell: ({ value }: GridRenderCellParams) => value ?? "-",
+      renderCell:
+        column.renderCell ??
+        (({ value }: GridRenderCellParams) => value ?? "-"),
     })),
   ];
 }

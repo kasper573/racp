@@ -1,28 +1,32 @@
-import { Box, Paper, Tab, Tabs } from "@mui/material";
-import { ComponentProps, ReactElement, useState } from "react";
+import { ComponentProps, ReactElement, ReactNode, useState } from "react";
+import { Box, Tab, Tabs } from "@mui/material";
 
 export interface TabSwitchProps extends ComponentProps<typeof Box> {
   tabs: Array<{ label: string; content: ReactElement }>;
+  tabsProps?: Omit<ComponentProps<typeof Tabs>, "value" | "onChange">;
+  renderContent?: (content: ReactNode) => ReactNode;
 }
 
-export function TabSwitch({ tabs, ...props }: TabSwitchProps) {
+export function TabSwitch({
+  tabs,
+  tabsProps,
+  renderContent = (content) => content,
+}: TabSwitchProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const { content } = tabs[activeIndex];
 
   return (
-    <Box {...props}>
-      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-        <Tabs
-          value={activeIndex}
-          onChange={(e, newIndex) => setActiveIndex(newIndex)}
-          aria-label="basic tabs example"
-        >
-          {tabs.map(({ label }, index) => (
-            <Tab key={index} label={label} />
-          ))}
-        </Tabs>
-      </Box>
-      <Paper sx={{ p: 2 }}>{content}</Paper>
-    </Box>
+    <>
+      <Tabs
+        value={activeIndex}
+        onChange={(e, newIndex) => setActiveIndex(newIndex)}
+        {...tabsProps}
+      >
+        {tabs.map(({ label }, index) => (
+          <Tab key={index} label={label} />
+        ))}
+      </Tabs>
+      {renderContent(content)}
+    </>
   );
 }

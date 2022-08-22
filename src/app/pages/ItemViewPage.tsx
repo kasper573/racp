@@ -7,7 +7,7 @@ import { useGetItemQuery } from "../state/client";
 import { router } from "../router";
 import { TooltipText } from "../components/TooltipText";
 import { ClientTextBlock } from "../components/ClientText/ClientText";
-import { TabSwitch } from "../components/TabSwitch";
+import { TabbedPaper } from "../components/TabbedPaper";
 import { Script } from "../components/Script";
 import { resolveToggles } from "../../api/util/matcher";
 import { LoadingPage } from "./LoadingPage";
@@ -41,7 +41,7 @@ export default function ItemSearchPage(): ReactElement {
         )}
       </Header>
 
-      <TabSwitch
+      <TabbedPaper
         tabs={[
           {
             label: "Description",
@@ -56,7 +56,7 @@ export default function ItemSearchPage(): ReactElement {
 
       <Stack spacing={3} direction="row" sx={{ mt: 2, width: "100%" }}>
         {scripts.length > 0 && (
-          <TabSwitch
+          <TabbedPaper
             tabs={scripts.map(([label, script]) => ({
               label,
               content: (
@@ -66,7 +66,7 @@ export default function ItemSearchPage(): ReactElement {
           />
         )}
         {jobs.length > 0 && (
-          <TabSwitch
+          <TabbedPaper
             tabs={[
               {
                 label: "Applicable jobs",
