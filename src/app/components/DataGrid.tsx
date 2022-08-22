@@ -1,5 +1,5 @@
 import { Box, Pagination, styled, Typography } from "@mui/material";
-import { ComponentProps, useEffect, useState } from "react";
+import { MouseEvent, ComponentProps, useEffect, useState } from "react";
 import { DataGrid as MuiDataGrid, GridColumns } from "@mui/x-data-grid";
 import { GridRowId } from "@mui/x-data-grid/models/gridRows";
 import { GridRenderCellParams } from "@mui/x-data-grid/models/params/gridCellParams";
@@ -20,6 +20,7 @@ export type DataGridProps<
     filter?: Filter;
     query: DataGridQueryFn<Entity, Filter>;
     gridProps?: Pick<ComponentProps<typeof MuiDataGrid>, "rowHeight">;
+    onHoveredEntityChange?: (entity?: Entity) => void;
   };
 
 export function DataGrid<Entity, Filter, Id extends GridRowId>({
@@ -30,6 +31,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
   link,
   sx,
   gridProps,
+  onHoveredEntityChange,
   ...props
 }: DataGridProps<Entity, Filter, Id>) {
   const [pageIndex, setPageIndex] = useState(0);
@@ -50,6 +52,16 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
     }
   }, [pageIndex, pageCount]);
 
+  function emitHoverChange(target?: HTMLElement) {
+    const hovered =
+      target !== undefined
+        ? result?.entities?.find(
+            (entity) => id(entity) === target?.getAttribute("data-id")
+          )
+        : undefined;
+    onHoveredEntityChange?.(hovered);
+  }
+
   return (
     <Box
       sx={{ height: "100%", display: "flex", flexDirection: "column", ...sx }}
@@ -68,6 +80,13 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
           page={pageIndex}
           pageSize={pageSize}
           onPageSizeChange={setPageSize}
+          componentsProps={{
+            row: {
+              onMouseEnter: (e: MouseEvent<HTMLElement>) =>
+                emitHoverChange(e.currentTarget),
+              onMouseLeave: () => emitHoverChange(undefined),
+            },
+          }}
           hideFooter
           onSortModelChange={
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

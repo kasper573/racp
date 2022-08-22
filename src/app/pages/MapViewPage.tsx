@@ -1,5 +1,6 @@
-import { Stack, Tooltip } from "@mui/material";
+import { Stack, styled, Tooltip } from "@mui/material";
 import { Place } from "@mui/icons-material";
+import { useState } from "react";
 import { Header } from "../layout/Header";
 import { useGetMapQuery } from "../state/client";
 import { router } from "../router";
@@ -11,6 +12,7 @@ import { MonsterSpawnGrid } from "../grids/MonsterSpawnGrid";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MapViewPage() {
+  const [pin, setPin] = useState<[number, number]>();
   const { id, x, y } = useRouteParams(router.map().view);
   const { data: map, isLoading } = useGetMapQuery(id);
 
@@ -34,6 +36,11 @@ export default function MapViewPage() {
                 </Tooltip>
               </MapPin>
             )}
+            {pin !== undefined && (
+              <MapPin x={pin[0]} y={pin[1]}>
+                <PinWithShadow />
+              </MapPin>
+            )}
           </MapViewport>
         </div>
         <Stack direction="column" sx={{ flex: 1 }}>
@@ -44,6 +51,9 @@ export default function MapViewPage() {
                 content: (
                   <WarpGrid
                     filter={{ fromMap: { value: id, matcher: "equals" } }}
+                    onHoveredEntityChange={(entity) =>
+                      setPin(entity ? [entity.fromX, entity.fromY] : undefined)
+                    }
                   />
                 ),
               },
@@ -52,11 +62,16 @@ export default function MapViewPage() {
                 content: (
                   <MonsterSpawnGrid
                     filter={{ map: { value: id, matcher: "equals" } }}
+                    onHoveredEntityChange={(entity) =>
+                      setPin(
+                        entity?.x !== undefined && entity?.y !== undefined
+                          ? [entity.x, entity.y]
+                          : undefined
+                      )
+                    }
                   />
                 ),
               },
-              { label: "Shops", content: <>TODO</> },
-              { label: "NPCs", content: <>TODO</> },
             ]}
           />
         </Stack>
@@ -64,3 +79,7 @@ export default function MapViewPage() {
     </>
   );
 }
+
+const PinWithShadow = styled(Place)`
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.7));
+`;
