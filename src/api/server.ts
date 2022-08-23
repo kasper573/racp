@@ -44,7 +44,10 @@ const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
 const yaml = createYamlDriver({ ...args, logger: logger.chain("yaml") });
 const config = createConfigDriver({ ...args, logger: logger.chain("config") });
 const db = createDatabaseDriver(config);
-const files = createFileStore(path.join(process.cwd(), "data"));
+const files = createFileStore(
+  path.join(process.cwd(), "data"),
+  logger.chain("fs")
+);
 const npc = createNpcDriver({ ...args, logger: logger.chain("npc") });
 const rpc = createRpcMiddlewareFactory(auth.validatorFor, {
   logger: logger.chain("rpc"),
