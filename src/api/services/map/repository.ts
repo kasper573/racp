@@ -81,8 +81,12 @@ export function createMapRepository({
     get mapBounds() {
       return boundsFile.data ?? {};
     },
-    async updateBounds(bounds: MapBoundsRegistry) {
-      boundsFile.update(JSON.stringify(bounds, null, 2));
+    async updateBounds(registryChanges: MapBoundsRegistry) {
+      const updatedRegistry = {
+        ...(boundsFile.data ?? {}),
+        ...registryChanges,
+      };
+      boundsFile.update(JSON.stringify(updatedRegistry, null, 2));
     },
   };
 }
