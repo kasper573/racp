@@ -1,5 +1,12 @@
 import { Box, styled, Typography } from "@mui/material";
-import { ComponentProps, createContext, useContext, useMemo } from "react";
+import {
+  ComponentProps,
+  createContext,
+  forwardRef,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 import { useImage } from "../hooks/useImage";
 import { cropSurroundingColors, RGB } from "../../lib/cropSurroundingColors";
 import { MapBounds } from "../../api/services/map/types";
@@ -14,6 +21,7 @@ export function MapViewport({
   bounds,
   ...props
 }: MapViewportProps) {
+  const [container, setContainer] = useState<HTMLElement>();
   const { image: originalImage, isBroken } = useImage(imageUrl);
   const image = useMemo(
     () =>
@@ -25,6 +33,7 @@ export function MapViewport({
   return (
     <Box {...props}>
       <Viewport
+        ref={setContainer}
         imageUrl={image?.src}
         style={{
           width: "100%",
@@ -36,7 +45,7 @@ export function MapViewport({
           <Typography color="error">Map image could not be loaded</Typography>
         )}
         {bounds && image && (
-          <MapViewportContext.Provider value={{ bounds }}>
+          <MapViewportContext.Provider value={{ bounds, container }}>
             {children}
           </MapViewportContext.Provider>
         )}
@@ -52,48 +61,60 @@ export function MapViewport({
 
 const Viewport = styled(Box)<{ imageUrl?: string }>`
   position: relative;
+  background-color: ${(props) => props.theme.palette.divider};
   background-image: ${({ imageUrl }) =>
     imageUrl ? `url(${imageUrl})` : undefined};
   background-repeat: no-repeat;
   background-size: 100% 100%;
 `;
 
-export function MapPin({
-  x,
-  y,
-  children,
-  ...props
-}: ComponentProps<typeof PinContainer>) {
+export const MapCoordinate = forwardRef<
+  HTMLDivElement,
+  ComponentProps<typeof MapCoordinateContainer> & { x: number; y: number }
+>(({ x, y, style, children, ...props }, ref) => {
   const {
     bounds: { width, height },
   } = useContext(MapViewportContext);
   return (
-    <PinContainer x={x / width} y={y / height} {...props}>
-      <PinAnchor>
-        <PinContent>{children}</PinContent>
-      </PinAnchor>
-    </PinContainer>
+    <MapCoordinateContainer
+      ref={ref}
+      style={{
+        left: `${(x * 100) / width}%`,
+        bottom: `${(y * 100) / height}%`,
+        ...style,
+      }}
+      {...props}
+    >
+      <MapCoordinateAnchor>
+        <MapCoordinateContent>{children}</MapCoordinateContent>
+      </MapCoordinateAnchor>
+    </MapCoordinateContainer>
   );
-}
+});
 
-const PinContainer = styled(Box)<{ x: number; y: number }>`
+const MapCoordinateContainer = styled(Box)`
   position: absolute;
-  left: ${({ x }) => x * 100}%;
-  bottom: ${({ y }) => y * 100}%;
 `;
 
-const PinAnchor = styled(Box)`
+const MapCoordinateAnchor = styled(Box)`
   position: relative;
 `;
 
-const PinContent = styled(Box)`
+const MapCoordinateContent = styled(Box)`
   position: absolute;
   bottom: 0;
   transform: translateX(-50%);
   display: flex;
 `;
 
-const MapViewportContext = createContext<{ bounds: MapBounds }>({
+const Abs = styled("div")`
+  position: absolute;
+`;
+
+export const MapViewportContext = createContext<{
+  bounds: MapBounds;
+  container?: HTMLElement;
+}>({
   bounds: { width: 0, height: 0 },
 });
 

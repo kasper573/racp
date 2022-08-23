@@ -11,6 +11,8 @@ import { ComponentProps, forwardRef } from "react";
 type RouterLinkProps = ComponentProps<typeof RTRLink>;
 export type AdditionalLinkProps = Pick<RouterLinkProps, "to">;
 
+export type LinkTo = AdditionalLinkProps["to"];
+
 export const LinkBase = MuiLink;
 
 const LinkBehavior = forwardRef<HTMLAnchorElement, RouterLinkProps>(

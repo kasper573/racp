@@ -1,16 +1,17 @@
-import { Stack, styled, Typography } from "@mui/material";
-import { Place } from "@mui/icons-material";
+import { Stack } from "@mui/material";
 import { useState } from "react";
 import { Header } from "../layout/Header";
 import { useGetMapQuery, useSearchWarpsQuery } from "../state/client";
 import { router } from "../router";
 import { useRouteParams } from "../../lib/useRouteParams";
-import { MapPin, MapViewport } from "../components/MapViewport";
+import { MapViewport } from "../components/MapViewport";
 import { TabSwitch } from "../components/TabSwitch";
 import { WarpGrid } from "../grids/WarpGrid";
 import { MonsterSpawnGrid } from "../grids/MonsterSpawnGrid";
 import { DataGridQueryFn } from "../components/DataGrid";
 import { Warp, WarpFilter } from "../../api/services/map/types";
+import { MapPin } from "../components/MapPin";
+import { Link } from "../components/Link";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MapViewPage() {
@@ -22,7 +23,7 @@ export default function MapViewPage() {
 
   const { data: warps } = (
     useSearchWarpsQuery as unknown as DataGridQueryFn<Warp, WarpFilter>
-  )({ filter: { fromMap: { value: id, matcher: "equals" } }, limit: 100 });
+  )({ filter: { fromMap: { value: id, matcher: "equals" } }, limit: 50 });
 
   if (isLoading) {
     return <LoadingPage />;
@@ -41,21 +42,22 @@ export default function MapViewPage() {
           bounds={map.bounds}
         >
           {warps?.entities.map((warp, index) => (
-            <MapPin key={index} x={warp.fromX} y={warp.fromY}>
-              <Stack direction="column" alignItems="center">
-                <Typography
-                  variant="caption"
-                  noWrap
-                  sx={{
-                    position: "absolute",
-                    left: 24,
-                    textShadow: "0 0 0.5rem #000",
-                  }}
+            <MapPin
+              key={index}
+              x={warp.fromX}
+              y={warp.fromY}
+              wrap={(el) => (
+                <Link
+                  to={router
+                    .map()
+                    .view({ id: warp.toMap, x: warp.toX, y: warp.toY })}
+                  sx={{ textDecoration: "none" }}
                 >
-                  {warp.toMap} ({warp.fromX}, {warp.fromY})
-                </Typography>
-                <PinWithShadow />
-              </Stack>
+                  {el}
+                </Link>
+              )}
+            >
+              {warp.toMap}
             </MapPin>
           ))}
         </MapViewport>
@@ -97,7 +99,3 @@ export default function MapViewPage() {
     </>
   );
 }
-
-const PinWithShadow = styled(Place)`
-  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.7));
-`;
