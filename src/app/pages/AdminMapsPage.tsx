@@ -23,6 +23,7 @@ import {
 import { fromBrowserFile } from "../../lib/rpc/RpcFile";
 import { FileUploader } from "../components/FileUploader";
 import { LinkBase } from "../components/Link";
+import { cropSurroundingColors, RGB } from "../../lib/cropSurroundingColors";
 
 export default function AdminMapsPage() {
   const { data: mapImageCount = 0 } = useCountMapImagesQuery();
@@ -78,7 +79,8 @@ export default function AdminMapsPage() {
     if (imageFiles.length) {
       setUploadCount(imageFiles.length);
       setIsPreparingUpload(true);
-      const rpcFiles = await Promise.all(imageFiles.map(fromBrowserFile));
+      const croppedImages = await Promise.all(imageFiles.map(cropMapImage));
+      const rpcFiles = await Promise.all(croppedImages.map(fromBrowserFile));
       setIsPreparingUpload(false);
       uploadMapImages(rpcFiles);
     }
@@ -245,4 +247,9 @@ async function readBoundsFromGATs(files: File[]) {
     }),
     {} as Record<string, { width: number; height: number }>
   );
+}
+
+const magenta: RGB = [255, 0, 255];
+async function cropMapImage(file: File) {
+  return cropSurroundingColors(file, [magenta]);
 }

@@ -1,28 +1,32 @@
-import trimImageData from "trim-image-data";
+import trimImageData, { TrimOptions } from "trim-image-data";
+import { loadImage } from "./loadImage";
 
 export type RGB = [number, number, number];
 
-export function cropSurroundingColors(
-  image: HTMLImageElement,
-  backgroundColors: RGB[]
-) {
-  const imageData = canvasToData(imageToCanvas(image));
-  const trimmed = trimImageData(imageData, {
-    trimColor: ({ red, green, blue }) =>
-      !backgroundColors.some(
-        ([r, g, b]) => r === red && g === green && b === blue
-      ),
+export async function cropSurroundingColors(
+  imageFile: File,
+  colors: RGB[]
+): Promise<File> {
+  const image = await loadImage(URL.createObjectURL(imageFile));
+  if (!image) {
+    throw new Error("Could not load image");
+  }
+  const originalData = canvasToData(imageToCanvas(image));
+  const croppedData = trimImageData(originalData, createTrimOptions(colors));
+  const croppedCanvas = imageDataToCanvas(croppedData);
+  return new Promise((resolve, reject) => {
+    croppedCanvas.toBlob((blob) => {
+      blob
+        ? resolve(new File([blob], imageFile.name, { type: imageFile.type }))
+        : reject();
+    }, imageFile.type);
   });
-  return canvasToImage(imageDataToCanvas(trimmed));
 }
 
-function canvasToImage(canvas: HTMLCanvasElement) {
-  const image = new Image();
-  image.src = canvas.toDataURL("image/png");
-  image.width = canvas.width;
-  image.height = canvas.height;
-  return image;
-}
+const createTrimOptions = (colors: RGB[]): TrimOptions => ({
+  trimColor: ({ red, green, blue }) =>
+    !colors.some(([r, g, b]) => r === red && g === green && b === blue),
+});
 
 function imageToCanvas(image: HTMLImageElement) {
   const canvas = document.createElement("canvas");

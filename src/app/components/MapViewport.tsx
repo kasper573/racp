@@ -4,11 +4,10 @@ import {
   createContext,
   forwardRef,
   useContext,
-  useMemo,
   useState,
 } from "react";
 import { useImage } from "../hooks/useImage";
-import { cropSurroundingColors, RGB } from "../../lib/cropSurroundingColors";
+import { RGB } from "../../lib/cropSurroundingColors";
 import { MapBounds } from "../../api/services/map/types";
 
 export interface MapViewportProps extends ComponentProps<typeof Viewport> {
@@ -22,14 +21,7 @@ export function MapViewport({
   ...props
 }: MapViewportProps) {
   const [container, setContainer] = useState<HTMLElement>();
-  const { image: originalImage, isBroken } = useImage(imageUrl);
-  const image = useMemo(
-    () =>
-      originalImage
-        ? cropSurroundingColors(originalImage, [magenta])
-        : undefined,
-    [originalImage]
-  );
+  const { image, isBroken } = useImage(imageUrl);
   return (
     <Box {...props}>
       <Viewport
@@ -105,10 +97,6 @@ const MapCoordinateContent = styled(Box)`
   bottom: 0;
   transform: translateX(-50%);
   display: flex;
-`;
-
-const Abs = styled("div")`
-  position: absolute;
 `;
 
 export const MapViewportContext = createContext<{
