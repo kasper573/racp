@@ -7,7 +7,6 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { ExpandMore } from "@mui/icons-material";
-import { GrfBrowser } from "grf-loader";
 import { Header } from "../layout/Header";
 
 import { ErrorMessage } from "../components/ErrorMessage";
@@ -24,6 +23,7 @@ import { fromBrowserFile } from "../../lib/rpc/RpcFile";
 import { FileUploader } from "../components/FileUploader";
 import { LinkBase } from "../components/Link";
 import { cropSurroundingColors, RGB } from "../../lib/cropSurroundingColors";
+import { GrfBrowser } from "../../lib/grf/GrfBrowser";
 
 export default function AdminMapsPage() {
   const { data: mapImageCount = 0 } = useCountMapImagesQuery();
