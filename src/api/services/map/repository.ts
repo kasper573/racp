@@ -82,7 +82,7 @@ export function createMapRepository({
       return boundsFile.data ?? {};
     },
     async updateBounds(bounds: MapBoundsRegistry) {
-      boundsFile.update(JSON.stringify(bounds));
+      boundsFile.update(JSON.stringify(bounds, null, 2));
     },
   };
 }
