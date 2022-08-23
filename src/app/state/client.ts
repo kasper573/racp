@@ -51,10 +51,12 @@ export const {
   useSearchMapsQuery,
   useSearchMonsterSpawnsQuery,
   useGetMapQuery,
+  useCountMapBoundsQuery,
   useSearchWarpsQuery,
   useUploadMapInfoMutation,
+  useUpdateMapBoundsMutation,
   useCountMapImagesQuery,
   useCountMapInfoQuery,
-  useGetMissingMapImagesQuery,
+  useGetMissingMapDataQuery,
   useLoginMutation,
 } = client;

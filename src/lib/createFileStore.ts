@@ -1,18 +1,20 @@
 import * as fs from "fs";
 import * as path from "path";
 import { ensureDir } from "./ensureDir";
+import { Logger } from "./logger";
 
 export type FileStore = ReturnType<typeof createFileStore>;
 
-export function createFileStore(directory: string) {
+export function createFileStore(directory: string, logger: Logger) {
   ensureDir(directory);
   return {
     directory,
     entry<Data>(
       relativeFilename: string,
       parseFileContent: ContentParser<Data>,
-      onChange: (data?: Data) => void
+      onChange?: (data?: Data) => void
     ) {
+      const entryLogger = logger.chain(relativeFilename);
       const filename = path.resolve(directory, relativeFilename);
 
       let currentData: Data | undefined;
@@ -25,8 +27,13 @@ export function createFileStore(directory: string) {
           const res = parseFileContent(fileContent);
           if (res.success) {
             fs.writeFileSync(filename, fileContent, "utf-8");
+            entryLogger.log("updated, new size:", fileContent.length);
             currentData = res.data;
             onChange?.(res.data);
+          } else {
+            entryLogger.log(
+              `Could not update file. Failed to parse new content: ${res}`
+            );
           }
           return res;
         },

@@ -1,15 +1,16 @@
 import * as path from "path";
 import * as fs from "fs";
-import { replaceObject } from "../../../lib/replaceEntries";
 import { FileStore } from "../../../lib/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { Linker } from "../../../lib/createPublicFileLinker";
 import { ImageFormatter } from "../../../lib/createImageFormatter";
 import { NpcDriver } from "../../rathena/NpcDriver";
+import { typedAssign } from "../../../lib/typedAssign";
 import {
+  MapBoundsRegistry,
+  mapBoundsRegistryType,
   MapId,
   MapInfo,
-  MapInfoPostProcess,
   mapInfoType,
   warpType,
 } from "./types";
@@ -33,8 +34,24 @@ export function createMapRepository({
   const mapImageUrl = (mapId: string) => mapLinker.url(mapImageName(mapId));
   const mapImagePath = (mapId: string) => mapLinker.path(mapImageName(mapId));
 
-  const infoFile = files.entry("mapInfo.lub", parseMapInfo, (newInfo) =>
-    replaceObject(info, postProcessMapInfo(newInfo ?? {}, mapImageUrl))
+  const infoFile = files.entry("mapInfo.lub", parseMapInfo, (newInfo = {}) => {
+    for (const [key, entry] of Object.entries(newInfo)) {
+      const id = trimExtension(key);
+      info[id] = { ...info[id], ...entry, id, imageUrl: mapImageUrl(id) };
+    }
+  });
+
+  const boundsFile = files.entry(
+    "mapBounds.json",
+    (str) => mapBoundsRegistryType.safeParse(JSON.parse(str)),
+    (newBoundsRegistry) => {
+      for (const [mapId, bounds] of Object.entries(newBoundsRegistry ?? {})) {
+        const entry = info[mapId];
+        if (entry) {
+          typedAssign(entry, { bounds });
+        }
+      }
+    }
   );
 
   return {
@@ -61,25 +78,15 @@ export function createMapRepository({
       const failed = all.length - success;
       return { success, failed };
     },
+    get mapBounds() {
+      return boundsFile.data ?? {};
+    },
+    async updateBounds(bounds: MapBoundsRegistry) {
+      boundsFile.update(JSON.stringify(bounds, null, 2));
+    },
   };
 }
 
 const parseMapInfo = (luaCode: string) => parseLuaTableAs(luaCode, mapInfoType);
 
 const trimExtension = (id: string) => id.replace(/\.[^.]+$/, "");
-
-function postProcessMapInfo(
-  lookup: Record<string, MapInfo>,
-  getImageUrl: MapImageUrlResolver
-): Record<string, MapInfo> {
-  return Object.entries(lookup ?? {}).reduce((updated, [key, info]) => {
-    const id = trimExtension(key);
-    const post: MapInfoPostProcess = {
-      id,
-      imageUrl: getImageUrl(id),
-    };
-    return { ...updated, [id]: { ...info, ...post } };
-  }, {});
-}
-
-export type MapImageUrlResolver = (id: MapId) => string;

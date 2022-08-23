@@ -1,39 +1,109 @@
 import { Box, styled, Typography } from "@mui/material";
-import { ComponentProps } from "react";
+import {
+  ComponentProps,
+  createContext,
+  forwardRef,
+  useContext,
+  useState,
+} from "react";
 import { useImage } from "../hooks/useImage";
+import { RGB } from "../../lib/cropSurroundingColors";
+import { MapBounds } from "../../api/services/map/types";
+
+export interface MapViewportProps extends ComponentProps<typeof Viewport> {
+  bounds?: MapBounds;
+}
 
 export function MapViewport({
   imageUrl,
   children,
+  bounds,
   ...props
-}: ComponentProps<typeof Viewport>) {
+}: MapViewportProps) {
+  const [container, setContainer] = useState<HTMLElement>();
   const { image, isBroken } = useImage(imageUrl);
   return (
     <Box {...props}>
       <Viewport
-        imageUrl={imageUrl}
-        style={{ width: image?.width, height: image?.height }}
+        ref={setContainer}
+        imageUrl={image?.src}
+        style={{
+          width: "100%",
+          aspectRatio: image ? `${image.width} / ${image.height}` : undefined,
+        }}
       >
-        {!imageUrl && <Typography>Map image missing</Typography>}
-        {isBroken && <Typography>Map image could not be loaded</Typography>}
-        {image ? children : undefined}
+        {!imageUrl && <Typography color="error">Map image missing</Typography>}
+        {isBroken && (
+          <Typography color="error">Map image could not be loaded</Typography>
+        )}
+        {bounds && image && (
+          <MapViewportContext.Provider value={{ bounds, container }}>
+            {children}
+          </MapViewportContext.Provider>
+        )}
       </Viewport>
+      {!bounds && (
+        <Typography color="error">
+          Map bounds missing, cannot display pins
+        </Typography>
+      )}
     </Box>
   );
 }
 
 const Viewport = styled(Box)<{ imageUrl?: string }>`
   position: relative;
+  background-color: ${(props) => props.theme.palette.divider};
   background-image: ${({ imageUrl }) =>
     imageUrl ? `url(${imageUrl})` : undefined};
   background-repeat: no-repeat;
-  background-size: cover;
+  background-size: 100% 100%;
 `;
 
-export const MapPin = styled(Box)<{ x: number; y: number }>`
+export const MapCoordinate = forwardRef<
+  HTMLDivElement,
+  ComponentProps<typeof MapCoordinateContainer> & { x: number; y: number }
+>(({ x, y, style, children, ...props }, ref) => {
+  const {
+    bounds: { width, height },
+  } = useContext(MapViewportContext);
+  return (
+    <MapCoordinateContainer
+      ref={ref}
+      style={{
+        left: `${(x * 100) / width}%`,
+        bottom: `${(y * 100) / height}%`,
+        ...style,
+      }}
+      {...props}
+    >
+      <MapCoordinateAnchor>
+        <MapCoordinateContent>{children}</MapCoordinateContent>
+      </MapCoordinateAnchor>
+    </MapCoordinateContainer>
+  );
+});
+
+const MapCoordinateContainer = styled(Box)`
+  position: absolute;
+`;
+
+const MapCoordinateAnchor = styled(Box)`
+  position: relative;
+`;
+
+const MapCoordinateContent = styled(Box)`
   position: absolute;
   bottom: 0;
-  left: 0;
-  transform-origin: center;
-  transform: ${({ x, y }) => `translate(${x}px, ${-y}px) translate(-50%, 50%)`};
+  transform: translateX(-50%);
+  display: flex;
 `;
+
+export const MapViewportContext = createContext<{
+  bounds: MapBounds;
+  container?: HTMLElement;
+}>({
+  bounds: { width: 0, height: 0 },
+});
+
+const magenta: RGB = [255, 0, 255];

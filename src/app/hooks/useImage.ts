@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { loadImage } from "../../lib/loadImage";
 
 export function useImage(imageUrl?: string) {
   const [image, setImage] = useState<HTMLImageElement>();
@@ -22,13 +23,4 @@ export function useImage(imageUrl?: string) {
   }, [imageUrl]);
 
   return { image, isLoading, isBroken };
-}
-
-function loadImage(imageUrl: string) {
-  return new Promise<HTMLImageElement | undefined>((resolve, reject) => {
-    const image = new Image();
-    image.src = imageUrl;
-    image.onload = () => resolve(image);
-    image.onerror = () => reject(undefined);
-  });
 }

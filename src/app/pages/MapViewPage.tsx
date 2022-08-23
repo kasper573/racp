@@ -1,20 +1,29 @@
-import { Stack, styled, Tooltip } from "@mui/material";
-import { Place } from "@mui/icons-material";
+import { Stack } from "@mui/material";
 import { useState } from "react";
 import { Header } from "../layout/Header";
-import { useGetMapQuery } from "../state/client";
+import { useGetMapQuery, useSearchWarpsQuery } from "../state/client";
 import { router } from "../router";
 import { useRouteParams } from "../../lib/useRouteParams";
-import { MapPin, MapViewport } from "../components/MapViewport";
+import { MapViewport } from "../components/MapViewport";
 import { TabSwitch } from "../components/TabSwitch";
 import { WarpGrid } from "../grids/WarpGrid";
 import { MonsterSpawnGrid } from "../grids/MonsterSpawnGrid";
+import { DataGridQueryFn } from "../components/DataGrid";
+import { Warp, WarpFilter } from "../../api/services/map/types";
+import { MapPin } from "../components/MapPin";
+import { Link } from "../components/Link";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MapViewPage() {
-  const [pin, setPin] = useState<[number, number]>();
+  const [hoverHighlight, setHoverHighlight] = useState<[number, number]>();
   const { id, x, y } = useRouteParams(router.map().view);
   const { data: map, isLoading } = useGetMapQuery(id);
+  const routeHighlight =
+    x !== undefined && y !== undefined ? ([x, y] as const) : undefined;
+
+  const { data: warps } = (
+    useSearchWarpsQuery as unknown as DataGridQueryFn<Warp, WarpFilter>
+  )({ filter: { fromMap: { value: id, matcher: "equals" } }, limit: 50 });
 
   if (isLoading) {
     return <LoadingPage />;
@@ -27,22 +36,31 @@ export default function MapViewPage() {
     <>
       <Header back={router.map}>{map.displayName}</Header>
       <Stack spacing={2} direction="row" sx={{ flex: 1 }}>
-        <div>
-          <MapViewport imageUrl={map.imageUrl} sx={{ width: "50%" }}>
-            {x !== undefined && y !== undefined && (
-              <MapPin x={x} y={y}>
-                <Tooltip title={`Navigation: ${x}, ${y}`}>
-                  <Place />
-                </Tooltip>
-              </MapPin>
-            )}
-            {pin !== undefined && (
-              <MapPin x={pin[0]} y={pin[1]}>
-                <PinWithShadow />
-              </MapPin>
-            )}
-          </MapViewport>
-        </div>
+        <MapViewport
+          sx={{ flex: 1 }}
+          imageUrl={map.imageUrl}
+          bounds={map.bounds}
+        >
+          {warps?.entities.map((warp, index) => (
+            <MapPin
+              key={index}
+              x={warp.fromX}
+              y={warp.fromY}
+              wrap={(el) => (
+                <Link
+                  to={router
+                    .map()
+                    .view({ id: warp.toMap, x: warp.toX, y: warp.toY })}
+                  sx={{ textDecoration: "none" }}
+                >
+                  {el}
+                </Link>
+              )}
+            >
+              {warp.toMap}
+            </MapPin>
+          ))}
+        </MapViewport>
         <Stack direction="column" sx={{ flex: 1 }}>
           <TabSwitch
             tabs={[
@@ -52,7 +70,9 @@ export default function MapViewPage() {
                   <WarpGrid
                     filter={{ fromMap: { value: id, matcher: "equals" } }}
                     onHoveredEntityChange={(entity) =>
-                      setPin(entity ? [entity.fromX, entity.fromY] : undefined)
+                      setHoverHighlight(
+                        entity ? [entity.fromX, entity.fromY] : undefined
+                      )
                     }
                   />
                 ),
@@ -63,7 +83,7 @@ export default function MapViewPage() {
                   <MonsterSpawnGrid
                     filter={{ map: { value: id, matcher: "equals" } }}
                     onHoveredEntityChange={(entity) =>
-                      setPin(
+                      setHoverHighlight(
                         entity?.x !== undefined && entity?.y !== undefined
                           ? [entity.x, entity.y]
                           : undefined
@@ -79,7 +99,3 @@ export default function MapViewPage() {
     </>
   );
 }
-
-const PinWithShadow = styled(Place)`
-  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.7));
-`;

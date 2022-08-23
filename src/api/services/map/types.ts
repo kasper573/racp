@@ -8,10 +8,17 @@ import { zodNumeric } from "../../../lib/zod/zodNumeric";
 export type MapId = zod.infer<typeof mapIdType>;
 export const mapIdType = zod.string();
 
+export type MapBounds = zod.infer<typeof mapBoundsType>;
+export const mapBoundsType = zod.object({
+  width: zod.number(),
+  height: zod.number(),
+});
+
 export type MapInfoPostProcess = zod.infer<typeof mapInfoPostProcessType>;
 export const mapInfoPostProcessType = zod.object({
   id: mapIdType.default(""),
   imageUrl: zod.string().optional(),
+  bounds: mapBoundsType.optional(),
 });
 
 export type MapInfo = zod.infer<typeof mapInfoType>;
@@ -60,3 +67,6 @@ export const createWarpId = (warp: Warp) => JSON.stringify(warp);
 
 export type WarpFilter = zod.infer<typeof warpFilter.type>;
 export const warpFilter = createEntityFilter(matcher, warpType);
+
+export type MapBoundsRegistry = zod.infer<typeof mapBoundsRegistryType>;
+export const mapBoundsRegistryType = zod.record(mapIdType, mapBoundsType);

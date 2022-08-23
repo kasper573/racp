@@ -44,13 +44,28 @@ export async function mapController(maps: MapRepository) {
       }
       return Object.values(res.data).map((map) => map.id);
     },
-    async getMissingMapImages() {
-      const missingIds = await Promise.all(
-        Object.keys(maps.info).map((id) =>
-          maps.hasImage(id).then((has) => (!has ? id : undefined))
+    async updateMapBounds(bounds) {
+      maps.updateBounds(bounds);
+    },
+    async countMapBounds() {
+      return Object.keys(maps.mapBounds).length;
+    },
+    async getMissingMapData() {
+      const images = defined(
+        await Promise.all(
+          Object.keys(maps.info).map((id) =>
+            maps.hasImage(id).then((has) => (!has ? id : undefined))
+          )
         )
       );
-      return defined(missingIds);
+      const bounds = defined(
+        await Promise.all(
+          Object.keys(maps.info).map((id) =>
+            !maps.mapBounds[id] ? id : undefined
+          )
+        )
+      );
+      return { images, bounds };
     },
   });
 }
