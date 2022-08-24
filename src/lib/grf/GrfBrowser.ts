@@ -16,4 +16,10 @@ export class GrfBrowser extends GrfBase<File | Blob> {
       reader.readAsArrayBuffer(buffer.slice(offset, offset + length));
     });
   }
+
+  static async load(fd: File | Blob) {
+    const grf = new GrfBrowser(fd);
+    await grf.load();
+    return grf;
+  }
 }

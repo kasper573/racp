@@ -63,14 +63,17 @@ export function usePromiseTracker() {
   const trackOne = <T>(promise: Promise<T>, task: string) =>
     track(task, promise);
 
-  const progress =
-    tasks.reduce((n, t) => n + taskProgress(t), 0) / tasks.length;
-  const isPending = progress < 1 && tasks.length > 0;
-  const isSettled = !isPending;
+  const pendingTasks = tasks.filter((task) => task.pending.length > 0);
+  const pendingTaskNames = pendingTasks.map((task) => task.name);
 
-  const pendingTaskNames = tasks
-    .filter((task) => taskProgress(task) < 1)
-    .map((task) => task.name);
+  const progress =
+    pendingTasks.length > 0
+      ? pendingTasks.reduce((n, t) => n + taskProgress(t), 0) /
+        pendingTasks.length
+      : 1;
+
+  const isPending = pendingTasks.length > 0;
+  const isSettled = !isPending;
 
   return {
     progress,

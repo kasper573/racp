@@ -14,16 +14,11 @@ import {
   useCountMapImagesQuery,
   useCountMapInfoQuery,
   useGetMissingMapDataQuery,
-  useUpdateMapBoundsMutation,
-  useUploadMapImagesMutation,
-  useUploadMapInfoMutation,
 } from "../state/client";
-import { fromBrowserFile } from "../../lib/rpc/RpcFile";
 import { FileUploader } from "../components/FileUploader";
 import { LinkBase } from "../components/Link";
-import { cropSurroundingColors, RGB } from "../../lib/cropSurroundingColors";
-import { loadMapDataFromGRFs, readBoundsFromGATs } from "../../lib/grf/utils";
-import { usePromiseTracker } from "../hooks/usePromiseTracker";
+import { useMapFileUploader } from "../hooks/useMapFileUploader";
+import { RGB } from "../../lib/cropSurroundingColors";
 
 export default function AdminMapsPage() {
   const { data: mapImageCount = 0 } = useCountMapImagesQuery();
@@ -31,75 +26,10 @@ export default function AdminMapsPage() {
   const { data: mapBoundsCount = 0 } = useCountMapBoundsQuery();
   const { data: missingMapData } = useGetMissingMapDataQuery();
 
-  const promiseTracker = usePromiseTracker();
-  const [uploadMapImages, imageUpload] = useUploadMapImagesMutation();
-  const [uploadMapInfo, infoUpload] = useUploadMapInfoMutation();
-  const [updateMapBounds, boundsUpdate] = useUpdateMapBoundsMutation();
-
-  const parseError =
-    infoUpload.data?.length === 0
-      ? { message: "Invalid lub file." }
-      : undefined;
-
-  const error =
-    imageUpload.error || infoUpload.error || parseError || boundsUpdate.error;
-
-  async function onFilesSelectedForUpload(files: File[]) {
-    promiseTracker.reset();
-
-    const lubFiles = files.filter((file) => file.name.endsWith(".lub"));
-    const grfFiles = files.filter((file) => file.name.endsWith(".grf"));
-    const gatFiles = files.filter((file) => file.name.endsWith(".gat"));
-    const imageFiles = files.filter((file) => isImage(file.name));
-
-    if (lubFiles.length) {
-      promiseTracker
-        .trackAll(lubFiles.map(fromBrowserFile), "Loading lub file")
-        .then((files) =>
-          promiseTracker.trackOne(
-            uploadMapInfo(files),
-            `Uploading ${files.length} lub files`
-          )
-        );
-    }
-
-    if (grfFiles.length) {
-      const grfResult = await promiseTracker.trackOne(
-        loadMapDataFromGRFs(grfFiles),
-        "Loading map data from GRF files"
-      );
-      imageFiles.push(...grfResult.imageFiles);
-      gatFiles.push(...grfResult.gatFiles);
-    }
-
-    if (gatFiles.length) {
-      const bounds = await promiseTracker.trackOne(
-        readBoundsFromGATs(gatFiles),
-        "Reading map bounds from GAT files"
-      );
-      const count = Object.keys(bounds).length;
-      promiseTracker.trackOne(
-        updateMapBounds(bounds),
-        `Uploading ${count} map bounds`
-      );
-    }
-
-    if (imageFiles.length) {
-      const cropped = await promiseTracker.trackAll(
-        imageFiles.map(cropMapImage),
-        `Cropping ${imageFiles.length} map images`
-      );
-      const rpcFiles = await promiseTracker.trackAll(
-        cropped.map(fromBrowserFile),
-        `Preparing ${cropped.length} map images for upload`
-      );
-
-      promiseTracker.trackAll(
-        rpcFiles.map((file) => uploadMapImages([file])),
-        `Uploading ${rpcFiles.length} map images`
-      );
-    }
-  }
+  const uploader = useMapFileUploader({
+    imageExtensions,
+    cropColor,
+  });
 
   return (
     <>
@@ -113,24 +43,27 @@ export default function AdminMapsPage() {
         value={[]}
         sx={{ maxWidth: 380, margin: "0 auto" }}
         accept={[".grf", ".lub", ".gat", ...imageExtensions]}
-        isLoading={promiseTracker.isPending}
-        onChange={onFilesSelectedForUpload}
+        isLoading={uploader.isPending}
+        onChange={uploader.upload}
         title={"Select or drop files here"}
       />
 
-      <ErrorMessage sx={{ textAlign: "center", mt: 1 }} error={error} />
+      <ErrorMessage
+        sx={{ textAlign: "center", mt: 1 }}
+        error={uploader.error}
+      />
 
-      {promiseTracker.isPending && (
+      {uploader.isPending && (
         <LinearProgress
           variant="determinate"
-          value={promiseTracker.progress * 100}
+          value={uploader.progress * 100}
           sx={{ width: "50%", margin: "0 auto", marginBottom: 2 }}
         />
       )}
 
-      {promiseTracker.tasks.length > 0 && (
+      {uploader.tasks.length > 0 && (
         <Typography sx={{ margin: "0 auto", marginBottom: 2 }}>
-          {promiseTracker.tasks.join(", ")}
+          {uploader.tasks.join(", ")}
         </Typography>
       )}
 
@@ -200,10 +133,4 @@ export default function AdminMapsPage() {
 }
 
 const imageExtensions = [".png", ".jpg", ".jpeg", ".bmp", ".tga"];
-const isImage = (fileName: string) =>
-  imageExtensions.some((ext) => fileName.endsWith(ext));
-
-const magenta: RGB = [255, 0, 255];
-async function cropMapImage(file: File) {
-  return cropSurroundingColors(file, [magenta]);
-}
+const cropColor: RGB = [255, 0, 255]; // magenta
