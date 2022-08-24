@@ -2,10 +2,9 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Box,
+  LinearProgress,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
 import { ExpandMore } from "@mui/icons-material";
 import { Header } from "../layout/Header";
 
@@ -24,6 +23,7 @@ import { FileUploader } from "../components/FileUploader";
 import { LinkBase } from "../components/Link";
 import { cropSurroundingColors, RGB } from "../../lib/cropSurroundingColors";
 import { loadMapDataFromGRFs, readBoundsFromGATs } from "../../lib/grf/utils";
+import { usePromiseTracker } from "../hooks/usePromiseTracker";
 
 export default function AdminMapsPage() {
   const { data: mapImageCount = 0 } = useCountMapImagesQuery();
@@ -31,8 +31,7 @@ export default function AdminMapsPage() {
   const { data: mapBoundsCount = 0 } = useCountMapBoundsQuery();
   const { data: missingMapData } = useGetMissingMapDataQuery();
 
-  const [isPreparingUpload, setIsPreparingUpload] = useState(false);
-  const [uploadCount, setUploadCount] = useState<number>(0);
+  const promiseTracker = usePromiseTracker();
   const [uploadMapImages, imageUpload] = useUploadMapImagesMutation();
   const [uploadMapInfo, infoUpload] = useUploadMapInfoMutation();
   const [updateMapBounds, boundsUpdate] = useUpdateMapBoundsMutation();
@@ -42,47 +41,63 @@ export default function AdminMapsPage() {
       ? { message: "Invalid lub file." }
       : undefined;
 
-  const isUploading =
-    imageUpload.isLoading ||
-    isPreparingUpload ||
-    infoUpload.isLoading ||
-    boundsUpdate.isLoading;
-
   const error =
     imageUpload.error || infoUpload.error || parseError || boundsUpdate.error;
 
   async function onFilesSelectedForUpload(files: File[]) {
+    promiseTracker.reset();
+
     const lubFiles = files.filter((file) => file.name.endsWith(".lub"));
     const grfFiles = files.filter((file) => file.name.endsWith(".grf"));
     const gatFiles = files.filter((file) => file.name.endsWith(".gat"));
     const imageFiles = files.filter((file) => isImage(file.name));
 
     if (lubFiles.length) {
-      Promise.all(lubFiles.map(fromBrowserFile)).then(uploadMapInfo);
+      promiseTracker
+        .trackAll(lubFiles.map(fromBrowserFile), "Loading lub file")
+        .then((files) =>
+          promiseTracker.trackOne(
+            uploadMapInfo(files),
+            `Uploading ${files.length} lub files`
+          )
+        );
     }
 
     if (grfFiles.length) {
-      setIsPreparingUpload(true);
-      const grfResult = await loadMapDataFromGRFs(grfFiles);
+      const grfResult = await promiseTracker.trackOne(
+        loadMapDataFromGRFs(grfFiles),
+        "Loading map data from GRF files"
+      );
       imageFiles.push(...grfResult.imageFiles);
       gatFiles.push(...grfResult.gatFiles);
-      setIsPreparingUpload(false);
     }
 
     if (gatFiles.length) {
-      setIsPreparingUpload(true);
-      const bounds = await readBoundsFromGATs(gatFiles);
-      setIsPreparingUpload(false);
-      updateMapBounds(bounds);
+      const bounds = await promiseTracker.trackOne(
+        readBoundsFromGATs(gatFiles),
+        "Reading map bounds from GAT files"
+      );
+      const count = Object.keys(bounds).length;
+      promiseTracker.trackOne(
+        updateMapBounds(bounds),
+        `Uploading ${count} map bounds`
+      );
     }
 
     if (imageFiles.length) {
-      setUploadCount(imageFiles.length);
-      setIsPreparingUpload(true);
-      const croppedImages = await Promise.all(imageFiles.map(cropMapImage));
-      const rpcFiles = await Promise.all(croppedImages.map(fromBrowserFile));
-      setIsPreparingUpload(false);
-      uploadMapImages(rpcFiles);
+      const cropped = await promiseTracker.trackAll(
+        imageFiles.map(cropMapImage),
+        `Cropping ${imageFiles.length} map images`
+      );
+      const rpcFiles = await promiseTracker.trackAll(
+        cropped.map(fromBrowserFile),
+        `Preparing ${cropped.length} map images for upload`
+      );
+
+      promiseTracker.trackAll(
+        rpcFiles.map((file) => uploadMapImages([file])),
+        `Uploading ${rpcFiles.length} map images`
+      );
     }
   }
 
@@ -98,23 +113,26 @@ export default function AdminMapsPage() {
         value={[]}
         sx={{ maxWidth: 380, margin: "0 auto" }}
         accept={[".grf", ".lub", ".gat", ...imageExtensions]}
-        isLoading={isUploading}
+        isLoading={promiseTracker.isPending}
         onChange={onFilesSelectedForUpload}
         title={"Select or drop files here"}
       />
 
       <ErrorMessage sx={{ textAlign: "center", mt: 1 }} error={error} />
 
-      <Box sx={{ margin: "0 auto", marginBottom: 2 }}>
-        {infoUpload.isLoading && <Typography>Updating item info...</Typography>}
-        {isPreparingUpload && <Typography>Loading map data...</Typography>}
-        {imageUpload.isLoading && (
-          <Typography>Uploading {uploadCount} map images...</Typography>
-        )}
-        {boundsUpdate.isLoading && (
-          <Typography>Updating {uploadCount} map bounds...</Typography>
-        )}
-      </Box>
+      {promiseTracker.isPending && (
+        <LinearProgress
+          variant="determinate"
+          value={promiseTracker.progress * 100}
+          sx={{ width: "50%", margin: "0 auto", marginBottom: 2 }}
+        />
+      )}
+
+      {promiseTracker.tasks.length > 0 && (
+        <Typography sx={{ margin: "0 auto", marginBottom: 2 }}>
+          {promiseTracker.tasks.join(", ")}
+        </Typography>
+      )}
 
       {missingMapData && missingMapData.images.length > 0 && (
         <Accordion sx={{ [`&&`]: { marginTop: 0 } }}>

@@ -6,9 +6,10 @@ export interface FileUploaderProps extends ComponentProps<typeof FileUpload> {
   isLoading?: boolean;
 }
 
-export function FileUploader({ isLoading, ...props }: FileUploaderProps) {
+export function FileUploader({ isLoading, sx, ...props }: FileUploaderProps) {
   return (
     <FileUpload
+      sx={{ ...sx, border: `0 !important` }}
       disabled={isLoading}
       buttonText={
         isLoading
