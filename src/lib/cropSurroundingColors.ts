@@ -7,26 +7,29 @@ export async function cropSurroundingColors(
   imageFile: File,
   colors: RGB[]
 ): Promise<File> {
-  const image = await loadImage(URL.createObjectURL(imageFile));
+  const image = await loadImage(imageFile);
   if (!image) {
     throw new Error("Could not load image");
   }
   const originalData = canvasToData(imageToCanvas(image));
   const croppedData = trimImageData(originalData, createTrimOptions(colors));
   const croppedCanvas = imageDataToCanvas(croppedData);
-  return new Promise((resolve, reject) => {
-    croppedCanvas.toBlob((blob) => {
-      blob
-        ? resolve(new File([blob], imageFile.name, { type: imageFile.type }))
-        : reject();
-    }, imageFile.type);
-  });
+  const blob = await canvasToBlob(croppedCanvas, imageFile.type);
+  return new File([blob], imageFile.name, { type: imageFile.type });
 }
 
 const createTrimOptions = (colors: RGB[]): TrimOptions => ({
   trimColor: ({ red, green, blue }) =>
     !colors.some(([r, g, b]) => r === red && g === green && b === blue),
 });
+
+function canvasToBlob(canvas: HTMLCanvasElement, type?: string) {
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      blob ? resolve(blob) : reject();
+    }, type);
+  });
+}
 
 function imageToCanvas(image: HTMLImageElement) {
   const canvas = document.createElement("canvas");
