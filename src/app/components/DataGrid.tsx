@@ -155,10 +155,13 @@ const Grid = styled(MuiDataGrid)`
   }
 `;
 
-type ColumnConventionEntry = string | boolean | Omit<GridColDef, "field">;
+type ColumnConventionEntry<Entity> =
+  | string
+  | boolean
+  | Omit<GridColDef<Entity>, "field">;
 
 interface ColumnConventionProps<Entity, Id extends GridRowId> {
-  columns: Partial<Record<keyof Entity, ColumnConventionEntry>>;
+  columns: Partial<Record<keyof Entity, ColumnConventionEntry<Entity>>>;
   id: (entity: Entity) => Id;
   link?: (id: Id, entity: Entity) => { $: string };
 }
