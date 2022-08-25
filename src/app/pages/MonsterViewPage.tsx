@@ -32,7 +32,6 @@ export default function MonsterViewPage(): ReactElement {
     return <Header>Monster not found</Header>;
   }
 
-  const dropNames = monster.Drops.map((drop) => drop.Item);
   return (
     <>
       <Header back={router.monster}>{monster.Name}&nbsp;</Header>
