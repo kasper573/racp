@@ -107,7 +107,7 @@ export default function MapViewPage() {
                         tab,
                       })}
                     >
-                      <MapPinLabel>{warp.toMap}</MapPinLabel>
+                      <MapPinLabel color="white">{warp.toMap}</MapPinLabel>
                     </LinkOnMap>
                   }
                 >
@@ -129,7 +129,7 @@ export default function MapViewPage() {
                           to={router.monster().view({ id: group.id })}
                           sx={{ lineHeight: "1em" }}
                         >
-                          <MapPinLabel>
+                          <MapPinLabel color={monsterColor}>
                             {group.name}{" "}
                             {group.size > 1 ? `x${group.size}` : ""}
                           </MapPinLabel>
@@ -138,7 +138,9 @@ export default function MapViewPage() {
                     </>
                   }
                 >
-                  <PestControlRodent sx={mapPinIconCss} />
+                  <PestControlRodent
+                    sx={{ ...mapPinIconCss, color: monsterColor }}
+                  />
                 </MapPin>
               ))}
           </MapViewport>
@@ -203,6 +205,8 @@ export default function MapViewPage() {
   );
 }
 
+const monsterColor = "#ff7878";
+
 const mapPinIconCss = {
   color: "#fff",
   filter: `drop-shadow( 0 0 1px rgba(0, 0, 0, 1))`,
@@ -215,7 +219,6 @@ const LinkOnMap = styled(Link)`
 
 const MapPinLabel = styled(Typography)`
   line-height: 1em;
-  color: #fff;
   font-size: ${(p) => p.theme.typography.caption.fontSize};
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
 `;
