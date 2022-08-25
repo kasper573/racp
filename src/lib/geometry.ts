@@ -10,9 +10,11 @@ export interface Area extends Point {
 
 export function center(points: Point[]) {
   const { left, top, right, bottom } = bounds(points);
-  const x = left + (right - left) / 2;
-  const y = top + (bottom - top) / 2;
-  return { x, y };
+  const width = right - left;
+  const height = bottom - top;
+  const x = left + width / 2;
+  const y = top + height / 2;
+  return { x, y, width, height };
 }
 
 export function bounds(points: Point[]) {
@@ -43,7 +45,7 @@ export function bounds(points: Point[]) {
 }
 
 export function intersect(
-  { x, y, width, height }: Area,
+  { x = 0, y = 0, width = 1, height = 1 }: Partial<Area>,
   point?: Point,
   grace = 5
 ): boolean {

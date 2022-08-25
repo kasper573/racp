@@ -25,6 +25,7 @@ export function MapPin({
       {anchorEl && (
         <Popper
           open
+          sx={{ zIndex: highlight ? 1 : undefined }}
           placement="right"
           disablePortal={false}
           anchorEl={anchorEl}
@@ -55,4 +56,5 @@ const Highlight = styled(Box, {
   border-radius: 4px;
   background-color: ${(p) =>
     p.enabled ? p.theme.palette.primary.main : undefined};
+  z-index: ${(p) => (p.enabled ? 1 : undefined)};
 `;

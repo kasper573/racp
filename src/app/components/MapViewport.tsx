@@ -17,19 +17,22 @@ export function MapViewport({
   imageUrl,
   children,
   bounds,
+  style,
   ...props
 }: MapViewportProps) {
   const [container, setContainer] = useState<HTMLElement>();
   const { image, isBroken } = useImage(imageUrl);
   return (
-    <Box {...props}>
+    <>
       <Viewport
         ref={setContainer}
         imageUrl={image?.src}
         style={{
           width: "100%",
           aspectRatio: image ? `${image.width} / ${image.height}` : undefined,
+          ...style,
         }}
+        {...props}
       >
         {!imageUrl && <Typography color="error">Map image missing</Typography>}
         {isBroken && (
@@ -46,7 +49,7 @@ export function MapViewport({
           Map bounds missing, cannot display pins
         </Typography>
       )}
-    </Box>
+    </>
   );
 }
 

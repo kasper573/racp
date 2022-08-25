@@ -22,33 +22,40 @@ import { TabSwitch } from "../components/TabSwitch";
 import { WarpGrid } from "../grids/WarpGrid";
 import { MonsterSpawnGrid } from "../grids/MonsterSpawnGrid";
 import { DataGridQueryFn } from "../components/DataGrid";
-import { Warp, WarpFilter } from "../../api/services/map/types";
+import {
+  createWarpId,
+  Warp,
+  WarpFilter,
+  WarpId,
+} from "../../api/services/map/types";
 import { MapPin } from "../components/MapPin";
 import { Link } from "../components/Link";
 import {
+  createMonsterSpawnId,
   MonsterSpawn,
   MonsterSpawnFilter,
+  MonsterSpawnId,
 } from "../../api/services/monster/types";
 import { defined } from "../../lib/defined";
 import { createSwarms } from "../../lib/createSwarms";
-import { center, distance, intersect, Point } from "../../lib/geometry";
+import { Area, center, distance, intersect, Point } from "../../lib/geometry";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MapViewPage() {
   const history = useHistory();
   const [showWarpPins, setShowWarpPins] = useState(true);
   const [showMonsterPins, setShowMonsterPins] = useState(true);
-  const [hoverHighlight, setHoverHighlight] = useState<Point>();
+  const [highlightSpawnId, setHighlightSpawnId] = useState<MonsterSpawnId>();
+  const [highlightWarpId, setHighlightWarpId] = useState<WarpId>();
   const { id, x, y, tab = "warps" } = useRouteParams(router.map().view);
   const { data: map, isLoading } = useGetMapQuery(id);
-  const routeHighlight =
-    x !== undefined && y !== undefined ? { x, y } : undefined;
+  const routePoint = definedPoint({ x, y });
 
-  const { data: warps } = (
+  const { data: { entities: warps = [] } = {} } = (
     useSearchWarpsQuery as unknown as DataGridQueryFn<Warp, WarpFilter>
   )({ filter: { fromMap: { value: id, matcher: "equals" } }, limit: 50 });
 
-  const { data: pinnedSpawns } = (
+  const { data: { entities: spawns = [] } = {} } = (
     useSearchMonsterSpawnsQuery as unknown as DataGridQueryFn<
       MonsterSpawn,
       MonsterSpawnFilter
@@ -62,10 +69,7 @@ export default function MapViewPage() {
     limit: 50,
   });
 
-  const spawnSwarms = useMemo(
-    () => (pinnedSpawns ? createMonsterSwarms(pinnedSpawns.entities) : []),
-    [pinnedSpawns]
-  );
+  const spawnSwarms = useMemo(() => createMonsterSwarms(spawns), [spawns]);
 
   if (isLoading) {
     return <LoadingPage />;
@@ -74,33 +78,33 @@ export default function MapViewPage() {
     return <Header>Map not found</Header>;
   }
 
-  function isHighlighted(x = 0, y = 0, width = 0, height = 0) {
-    const area = { x, y, width, height };
-    return intersect(area, hoverHighlight) || intersect(area, routeHighlight);
-  }
+  const highlightedSwarm = spawnSwarms.find((swarm) =>
+    swarm.all.some(
+      (spawn) =>
+        createMonsterSpawnId(spawn) === highlightSpawnId ||
+        intersect(spawn, routePoint)
+    )
+  );
+
+  const highlightedWarp = warps.find(
+    (warp) =>
+      createWarpId(warp) === highlightWarpId ||
+      intersect(warpArea(warp), routePoint)
+  );
 
   return (
     <>
       <Header back={router.map}>{map.displayName}</Header>
       <Stack spacing={2} direction="row" sx={{ flex: 1 }}>
         <Stack direction="column" sx={{ flex: 2 }}>
-          <MapViewport
-            sx={{ flex: 1 }}
-            imageUrl={map.imageUrl}
-            bounds={map.bounds}
-          >
+          <MapViewport imageUrl={map.imageUrl} bounds={map.bounds}>
             {showWarpPins &&
-              warps?.entities.map((warp, index) => (
+              warps.map((warp, index) => (
                 <MapPin
                   key={index}
                   x={warp.fromX}
                   y={warp.fromY}
-                  highlight={isHighlighted(
-                    warp.fromX,
-                    warp.fromY,
-                    warp.width,
-                    warp.height
-                  )}
+                  highlight={warp === highlightedWarp}
                   label={
                     <LinkOnMap
                       to={router.map().view({
@@ -123,7 +127,7 @@ export default function MapViewPage() {
                   key={index}
                   x={swarm.x}
                   y={swarm.y}
-                  highlight={isHighlighted(swarm.x, swarm.y, 1, 1)}
+                  highlight={swarm === highlightedSwarm}
                   label={
                     <>
                       {swarm.groups.map((group, index) => (
@@ -153,7 +157,7 @@ export default function MapViewPage() {
                   onChange={(e) => setShowWarpPins(e.target.checked)}
                 />
               }
-              label="Show Warp Pins"
+              label="Show Warps"
             />
             <FormControlLabel
               control={
@@ -162,7 +166,7 @@ export default function MapViewPage() {
                   onChange={(e) => setShowMonsterPins(e.target.checked)}
                 />
               }
-              label="Show Monster Pins"
+              label="Show Monsters"
             />
           </Stack>
         </Stack>
@@ -180,10 +184,8 @@ export default function MapViewPage() {
                   <WarpGrid
                     filter={{ fromMap: { value: id, matcher: "equals" } }}
                     onHoveredEntityChange={(entity) =>
-                      setHoverHighlight(
-                        entity
-                          ? { x: entity.fromX, y: entity.fromY }
-                          : undefined
+                      setHighlightWarpId(
+                        entity ? createWarpId(entity) : undefined
                       )
                     }
                   />
@@ -197,10 +199,8 @@ export default function MapViewPage() {
                     filter={{ map: { value: id, matcher: "equals" } }}
                     gridProps={{ columnVisibilityModel: { map: false } }}
                     onHoveredEntityChange={(entity) =>
-                      setHoverHighlight(
-                        entity?.x !== undefined && entity?.y !== undefined
-                          ? { x: entity.x, y: entity.y }
-                          : undefined
+                      setHighlightSpawnId(
+                        entity ? createMonsterSpawnId(entity) : undefined
                       )
                     }
                   />
@@ -231,7 +231,7 @@ const MapPinLabel = styled(Typography)`
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
 `;
 
-function createMonsterSwarms(spawns: MonsterSpawn[], swarmDistance = 30) {
+function createMonsterSwarms(spawns: MonsterSpawn[], swarmDistance = 15) {
   const spawnsWithLocations = defined(
     spawns.map(({ x, y, ...props }) =>
       x !== undefined && y !== undefined ? { ...props, x, y } : undefined
@@ -244,6 +244,7 @@ function createMonsterSwarms(spawns: MonsterSpawn[], swarmDistance = 30) {
   return swarms.map((swarm) => {
     return {
       ...center(swarm),
+      all: swarm,
       groups: Object.values(groupBy(swarm, (spawn) => spawn.id)).map(
         (group) => ({
           name: group[0].name,
@@ -253,4 +254,17 @@ function createMonsterSwarms(spawns: MonsterSpawn[], swarmDistance = 30) {
       ),
     };
   });
+}
+
+const warpArea = (warp: Warp): Area => ({
+  x: warp.fromX,
+  y: warp.fromY,
+  width: warp.width,
+  height: warp.height,
+});
+
+function definedPoint(point?: Partial<Point>) {
+  return point?.x !== undefined && point?.y !== undefined
+    ? { x: point.x, y: point.y }
+    : undefined;
 }
