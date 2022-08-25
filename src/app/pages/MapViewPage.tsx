@@ -22,16 +22,10 @@ import { TabSwitch } from "../components/TabSwitch";
 import { WarpGrid } from "../grids/WarpGrid";
 import { MonsterSpawnGrid } from "../grids/MonsterSpawnGrid";
 import { DataGridQueryFn } from "../components/DataGrid";
-import {
-  createWarpId,
-  Warp,
-  WarpFilter,
-  WarpId,
-} from "../../api/services/map/types";
+import { Warp, WarpFilter, WarpId } from "../../api/services/map/types";
 import { MapPin } from "../components/MapPin";
 import { Link } from "../components/Link";
 import {
-  createMonsterSpawnId,
   MonsterSpawn,
   MonsterSpawnFilter,
   MonsterSpawnId,
@@ -81,14 +75,13 @@ export default function MapViewPage() {
   const highlightedSwarm = spawnSwarms.find((swarm) =>
     swarm.all.some(
       (spawn) =>
-        createMonsterSpawnId(spawn) === highlightSpawnId ||
-        intersect(spawn, routePoint)
+        spawn.npcEntityId === highlightSpawnId || intersect(spawn, routePoint)
     )
   );
 
   const highlightedWarp = warps.find(
     (warp) =>
-      createWarpId(warp) === highlightWarpId ||
+      warp.npcEntityId === highlightWarpId ||
       intersect(warpArea(warp), routePoint)
   );
 
@@ -184,9 +177,7 @@ export default function MapViewPage() {
                   <WarpGrid
                     filter={{ fromMap: { value: id, matcher: "equals" } }}
                     onHoveredEntityChange={(entity) =>
-                      setHighlightWarpId(
-                        entity ? createWarpId(entity) : undefined
-                      )
+                      setHighlightWarpId(entity?.npcEntityId)
                     }
                   />
                 ),
@@ -199,9 +190,7 @@ export default function MapViewPage() {
                     filter={{ map: { value: id, matcher: "equals" } }}
                     gridProps={{ columnVisibilityModel: { map: false } }}
                     onHoveredEntityChange={(entity) =>
-                      setHighlightSpawnId(
-                        entity ? createMonsterSpawnId(entity) : undefined
-                      )
+                      setHighlightSpawnId(entity?.npcEntityId)
                     }
                   />
                 ),

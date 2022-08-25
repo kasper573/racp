@@ -2,7 +2,7 @@ import * as path from "path";
 import * as fs from "fs";
 import * as zod from "zod";
 import { matchRecursive } from "xregexp";
-import { AnyZodObject } from "zod";
+import { ZodObject, ZodString } from "zod";
 import { createSegmentedObject } from "../../lib/zod/ZodSegmentedObject";
 import { Logger } from "../../lib/logger";
 import { RAthenaMode } from "../options";
@@ -22,11 +22,13 @@ export function createNpcDriver({
   const modeFolder = path.resolve(npcFolder, modeFolderNames[rAthenaMode]);
 
   return {
-    async resolve<ET extends AnyZodObject>(
+    async resolve<ET extends AnyNpcEntityType>(
       npcConfFile: string,
       entityType: ET
     ): Promise<Array<zod.infer<ET>>> {
-      const loadEntities = logger.wrap(createNpcLoader(entityType));
+      const loadEntities = logger.wrap(
+        createNpcLoader(rAthenaPath, entityType)
+      );
 
       async function loadViaConfFile(npcConfFile: string) {
         const files = await loadNpcConfFile(npcConfFile, rAthenaPath);
@@ -48,13 +50,21 @@ export function createNpcDriver({
 }
 
 const readFile = (file: string) => fs.promises.readFile(file, "utf-8");
+const createNpcEntityId = (rAthenaPath: string, file: string, index: number) =>
+  `${path.relative(rAthenaPath, file)}#${index}`;
 
-function createNpcLoader<ET extends AnyZodObject>(entityType: ET) {
+function createNpcLoader<ET extends AnyNpcEntityType>(
+  rAthenaPath: string,
+  entityType: ET
+) {
   return async function loadNpc(file: string) {
     const text = await readFile(file);
     return parseTextEntities(text).reduce(
-      (entities: Array<zod.infer<ET>>, matrix) => {
-        const res = entityType.safeParse(matrix);
+      (entities: Array<zod.infer<ET>>, matrix, index) => {
+        const res = entityType.safeParse([
+          [createNpcEntityId(rAthenaPath, file, index)],
+          ...matrix,
+        ]);
         return res.success ? [...entities, res.data] : entities;
       },
       []
@@ -146,3 +156,8 @@ const modeFolderNames: Record<RAthenaMode, string> = {
 };
 
 export type TextMatrixEntry = string[][];
+
+export type AnyNpcEntityType = ZodObject<{
+  // Must be the first segment
+  npcEntityId: ZodString;
+}>;

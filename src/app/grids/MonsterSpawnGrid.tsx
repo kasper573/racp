@@ -1,6 +1,5 @@
 import { DataGrid, DataGridQueryFn } from "../components/DataGrid";
 import {
-  createMonsterSpawnId,
   MonsterSpawn,
   MonsterSpawnFilter,
   MonsterSpawnId,
@@ -20,7 +19,7 @@ export const MonsterSpawnGrid = DataGrid.define<
     MonsterSpawn,
     MonsterSpawnFilter
   >,
-  id: createMonsterSpawnId,
+  id: (spawn) => spawn.npcEntityId,
   columns: {
     name: {
       headerName: "Name",

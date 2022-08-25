@@ -1,10 +1,5 @@
 import { DataGrid, DataGridQueryFn } from "../components/DataGrid";
-import {
-  createWarpId,
-  Warp,
-  WarpFilter,
-  WarpId,
-} from "../../api/services/map/types";
+import { Warp, WarpFilter, WarpId } from "../../api/services/map/types";
 import { useSearchWarpsQuery } from "../state/client";
 import { router } from "../router";
 import { Link } from "../components/Link";
@@ -12,7 +7,7 @@ import { Link } from "../components/Link";
 export const WarpGrid = DataGrid.define<Warp, WarpFilter, WarpId>({
   // Without assertion typescript yields possibly infinite error
   query: useSearchWarpsQuery as unknown as DataGridQueryFn<Warp, WarpFilter>,
-  id: createWarpId,
+  id: (warp) => warp.npcEntityId,
   columns: {
     toMap: {
       headerName: "Destination",
