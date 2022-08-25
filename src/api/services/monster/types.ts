@@ -4,13 +4,22 @@ import { zodNumeric } from "../../../lib/zod/zodNumeric";
 import { matcher, toggleRecordType } from "../../util/matcher";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 
+export type MonsterDropPostProcess = zod.infer<
+  typeof monsterDropPostProcessType
+>;
+export const monsterDropPostProcessType = zod.object({
+  ItemId: zod.number().default(-1),
+  Name: zod.string().default(""),
+});
+
 export type MonsterDrop = zod.infer<typeof monsterDropType>;
 const monsterDropType = zod.object({
-  Item: zod.string(),
+  Item: zod.string(), // AegisName
   Rate: zod.number(),
   StealProtected: zod.boolean().optional(),
   RandomOptionGroup: zod.string().optional(),
   Index: zod.number().optional(),
+  ...monsterDropPostProcessType.shape,
 });
 
 export type Monster = zod.infer<typeof monsterType>;

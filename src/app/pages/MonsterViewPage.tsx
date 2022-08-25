@@ -11,7 +11,6 @@ import { MonsterSpawnGrid } from "../grids/MonsterSpawnGrid";
 import { TabSwitch } from "../components/TabSwitch";
 import { TabbedPaper } from "../components/TabbedPaper";
 import { Link } from "../components/Link";
-import { useRichDrops } from "../hooks/useRichDrops";
 import { KVTable } from "../components/KVTable";
 import { LoadingPage } from "./LoadingPage";
 
@@ -23,7 +22,7 @@ export default function MonsterViewPage(): ReactElement {
     limit: 1,
   });
   const monster = data?.entities[0];
-  const drops = useRichDrops(monster);
+  const drops = monster ? [...monster.Drops, ...monster.MvpDrops] : [];
 
   if (isLoading) {
     return <LoadingPage />;
@@ -113,7 +112,7 @@ export default function MonsterViewPage(): ReactElement {
                         width: 200,
                         renderCell({ row: item }) {
                           return (
-                            <Link to={router.item().view({ id: item.Id })}>
+                            <Link to={router.item().view({ id: item.ItemId })}>
                               {item.Name}
                             </Link>
                           );
@@ -128,7 +127,7 @@ export default function MonsterViewPage(): ReactElement {
                       },
                     ]}
                     rows={drops}
-                    getRowId={(drop) => drop.Id}
+                    getRowId={(drop) => drop.ItemId}
                     hideFooter
                   />
                 ),

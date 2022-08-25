@@ -61,24 +61,19 @@ const linker = createPublicFileLinker({
   port: args.port,
 });
 
-const itemRepository = createItemRepository({ yaml, files, ...args });
-const monsterRepository = createMonsterRepository({ ...args, yaml, npc });
-const mapRepository = createMapRepository({ files, linker, formatter, npc });
+const items = createItemRepository({ yaml, files, ...args });
+const monsters = createMonsterRepository({ ...args, yaml, npc, items });
+const maps = createMapRepository({ files, linker, formatter, npc });
 
 app.use(auth.middleware);
 app.use(cors());
 app.use(express.static(linker.directory));
 app.use(rpc(configDefinition, configController(config)));
-app.use(rpc(itemDefinition, itemController(itemRepository)));
+app.use(rpc(itemDefinition, itemController(items)));
 app.use(rpc(authDefinition, authController({ db, yaml, auth, ...args })));
-app.use(rpc(monsterDefinition, monsterController(monsterRepository)));
-app.use(rpc(mapDefinition, mapController(mapRepository)));
-app.use(
-  rpc(
-    metaDefinition,
-    metaController({ items: itemRepository, monsters: monsterRepository })
-  )
-);
+app.use(rpc(monsterDefinition, monsterController(monsters)));
+app.use(rpc(mapDefinition, mapController(maps)));
+app.use(rpc(metaDefinition, metaController({ items, monsters })));
 
 http.createServer(app).listen(args.port, args.hostname, () => {
   console.log(`API is running on port ${args.port}`);
