@@ -1,5 +1,6 @@
 import { Stack } from "@mui/material";
 import { useState } from "react";
+import { useHistory } from "react-router";
 import { Header } from "../layout/Header";
 import { useGetMapQuery, useSearchWarpsQuery } from "../state/client";
 import { router } from "../router";
@@ -15,8 +16,9 @@ import { Link } from "../components/Link";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MapViewPage() {
+  const history = useHistory();
   const [hoverHighlight, setHoverHighlight] = useState<Point>();
-  const { id, x, y } = useRouteParams(router.map().view);
+  const { id, x, y, tab = "warps" } = useRouteParams(router.map().view);
   const { data: map, isLoading } = useGetMapQuery(id);
   const routeHighlight =
     x !== undefined && y !== undefined ? ([x, y] as Point) : undefined;
@@ -77,8 +79,13 @@ export default function MapViewPage() {
         </MapViewport>
         <Stack direction="column" sx={{ flex: 1 }}>
           <TabSwitch
+            activeTabId={tab}
+            onChange={(e, newTab) =>
+              history.replace(router.map().view({ id, tab: newTab, x, y }).$)
+            }
             tabs={[
               {
+                id: "warps",
                 label: "Warps",
                 content: (
                   <WarpGrid
@@ -92,6 +99,7 @@ export default function MapViewPage() {
                 ),
               },
               {
+                id: "monsters",
                 label: "Monsters",
                 content: (
                   <MonsterSpawnGrid

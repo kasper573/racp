@@ -1,32 +1,42 @@
 import { ComponentProps, ReactElement, ReactNode, useState } from "react";
-import { Box, Tab, Tabs } from "@mui/material";
+import { Tab, Tabs } from "@mui/material";
 
-export interface TabSwitchProps extends ComponentProps<typeof Box> {
-  tabs: Array<{ label: string; content: ReactElement }>;
-  tabsProps?: Omit<ComponentProps<typeof Tabs>, "value" | "onChange">;
+export interface TabItem {
+  id?: string;
+  label: string;
+  content: ReactElement;
+}
+
+export interface TabSwitchProps
+  extends Omit<ComponentProps<typeof Tabs>, "value"> {
+  activeTabId?: TabItem["id"];
+  tabs: TabItem[];
   renderContent?: (content: ReactNode) => ReactNode;
 }
 
 export function TabSwitch({
-  tabs,
-  tabsProps,
+  tabs: inputTabs,
+  activeTabId: inputId,
   renderContent = (content) => content,
+  ...tabsProps
 }: TabSwitchProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const { content } = tabs[activeIndex];
+  const tabs = inputTabs.map((tab, index) => ({ ...tab, id: tab.id ?? index }));
+  const [localId, setLocalId] = useState(tabs[0]?.id);
+  const activeId = inputId ?? localId;
+  const activeTab = tabs.find(({ id }) => id === activeId);
 
   return (
     <>
       <Tabs
-        value={activeIndex}
-        onChange={(e, newIndex) => setActiveIndex(newIndex)}
+        value={activeId}
+        onChange={(e, newId) => setLocalId(newId)}
         {...tabsProps}
       >
-        {tabs.map(({ label }, index) => (
-          <Tab key={index} label={label} />
+        {tabs.map(({ label, id }, index) => (
+          <Tab key={index} label={label} value={id} />
         ))}
       </Tabs>
-      {renderContent(content)}
+      {activeTab ? renderContent(activeTab.content) : undefined}
     </>
   );
 }

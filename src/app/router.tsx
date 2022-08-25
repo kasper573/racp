@@ -73,10 +73,15 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
       options: { title: "Maps", icon: <Map /> },
     },
     (route) => ({
-      view: route("view/:id&:x?&:y?", {
+      view: route("view/:id/:tab?&:x?&:y?", {
         component: lazy(() => import("./pages/MapViewPage")),
         options: { title: "Map", icon: <Map /> },
-        params: { id: stringParser, x: intParser, y: intParser },
+        params: {
+          id: stringParser,
+          x: intParser,
+          y: intParser,
+          tab: stringParser,
+        },
       }),
     })
   ),
