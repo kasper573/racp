@@ -65,7 +65,7 @@ export default function MapViewPage() {
                   <Link
                     to={router
                       .map()
-                      .view({ id: warp.toMap, x: warp.toX, y: warp.toY })}
+                      .view({ id: warp.toMap, x: warp.toX, y: warp.toY, tab })}
                     sx={{ textDecoration: "none" }}
                   >
                     {el}
