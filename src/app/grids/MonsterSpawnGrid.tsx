@@ -30,7 +30,7 @@ export const MonsterSpawnGrid = DataGrid.define<
           <Link
             to={router.map().view({ id: spawn.map, x: spawn.x, y: spawn.y })}
           >
-            {spawn.map} ({spawn.x}, {spawn.y})
+            {monsterSpawnMapLabel(spawn)}
           </Link>
         );
       },
@@ -57,6 +57,13 @@ export const MonsterSpawnGrid = DataGrid.define<
     },
   },
 });
+
+function monsterSpawnMapLabel(spawn: MonsterSpawn) {
+  if (spawn.x !== undefined && spawn.y !== undefined) {
+    return `${spawn.map} (${spawn.x},${spawn.y})`;
+  }
+  return spawn.map;
+}
 
 function renderTime({ value }: { value?: number }) {
   return value !== undefined ? durationString(value) : "-";

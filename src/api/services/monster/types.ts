@@ -69,10 +69,10 @@ export type MonsterSpawn = zod.infer<typeof monsterSpawnType>;
 export const monsterSpawnType = createSegmentedObject()
   .segment({
     map: zod.string(),
-    x: zodNumeric().optional(),
-    y: zodNumeric().optional(),
-    rx: zodNumeric().optional(),
-    ry: zodNumeric().optional(),
+    x: zodNumeric().optional().transform(trimZero),
+    y: zodNumeric().optional().transform(trimZero),
+    rx: zodNumeric().optional().transform(trimZero),
+    ry: zodNumeric().optional().transform(trimZero),
   })
   .segment({
     type: zod.union([zod.literal("monster"), zod.literal("boss_monster")]),
@@ -98,3 +98,7 @@ export const createMonsterSpawnId = (spawn: MonsterSpawn) =>
 
 export type MonsterSpawnFilter = zod.infer<typeof monsterSpawnFilter.type>;
 export const monsterSpawnFilter = createEntityFilter(matcher, monsterSpawnType);
+
+function trimZero(value?: number) {
+  return value === 0 ? undefined : value;
+}
