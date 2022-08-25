@@ -8,6 +8,7 @@ import {
 import { fromBrowserFile } from "../../lib/rpc/RpcFile";
 import { GrfBrowser } from "../../lib/grf/GrfBrowser";
 import { MapBounds, MapBoundsRegistry } from "../../api/services/map/types";
+import { parseGAT } from "../../lib/grf/parseGAT";
 import { usePromiseTracker } from "./usePromiseTracker";
 
 export function useMapFileUploader({
@@ -64,15 +65,15 @@ export function useMapFileUploader({
     }
 
     if (gatFiles.length) {
-      const bounds = await tracker.trackAll(
-        gatFiles.map(readBoundsFromGAT),
+      const gatObjects = await tracker.trackAll(
+        gatFiles.map((file) => file.arrayBuffer().then(parseGAT)),
         "Reading map bounds from GAT files"
       );
 
-      const registry = createMapBoundsRegistry(gatFiles, bounds);
+      const registry = createMapBoundsRegistry(gatFiles, gatObjects);
       tracker.trackOne(
         updateMapBounds(registry),
-        `Uploading ${bounds.length} map bounds`
+        `Uploading ${gatObjects.length} map bounds`
       );
     }
 
