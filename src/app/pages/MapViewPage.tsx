@@ -15,11 +15,11 @@ import { Link } from "../components/Link";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MapViewPage() {
-  const [hoverHighlight, setHoverHighlight] = useState<[number, number]>();
+  const [hoverHighlight, setHoverHighlight] = useState<Point>();
   const { id, x, y } = useRouteParams(router.map().view);
   const { data: map, isLoading } = useGetMapQuery(id);
   const routeHighlight =
-    x !== undefined && y !== undefined ? ([x, y] as const) : undefined;
+    x !== undefined && y !== undefined ? ([x, y] as Point) : undefined;
 
   const { data: warps } = (
     useSearchWarpsQuery as unknown as DataGridQueryFn<Warp, WarpFilter>
@@ -32,6 +32,16 @@ export default function MapViewPage() {
     return <Header>Map not found</Header>;
   }
 
+  const hoverWarp = warps?.entities.find((warp) =>
+    isIntersection(warpArea(warp), hoverHighlight)
+  );
+  let routeWarp = warps?.entities.find((warp) =>
+    isIntersection(warpArea(warp), routeHighlight)
+  );
+  if (hoverWarp) {
+    routeWarp = undefined;
+  }
+
   return (
     <>
       <Header back={router.map}>{map.displayName}</Header>
@@ -41,25 +51,29 @@ export default function MapViewPage() {
           imageUrl={map.imageUrl}
           bounds={map.bounds}
         >
-          {warps?.entities.map((warp, index) => (
-            <MapPin
-              key={index}
-              x={warp.fromX}
-              y={warp.fromY}
-              wrap={(el) => (
-                <Link
-                  to={router
-                    .map()
-                    .view({ id: warp.toMap, x: warp.toX, y: warp.toY })}
-                  sx={{ textDecoration: "none" }}
-                >
-                  {el}
-                </Link>
-              )}
-            >
-              {warp.toMap}
-            </MapPin>
-          ))}
+          {warps?.entities.map((warp, index) => {
+            const area: Area = [warp.fromX, warp.fromY, warp.spanX, warp.spanY];
+            return (
+              <MapPin
+                key={index}
+                x={area[0]}
+                y={area[1]}
+                highlight={[routeWarp, hoverWarp].includes(warp)}
+                wrap={(el) => (
+                  <Link
+                    to={router
+                      .map()
+                      .view({ id: warp.toMap, x: warp.toX, y: warp.toY })}
+                    sx={{ textDecoration: "none" }}
+                  >
+                    {el}
+                  </Link>
+                )}
+              >
+                {warp.toMap}
+              </MapPin>
+            );
+          })}
         </MapViewport>
         <Stack direction="column" sx={{ flex: 1 }}>
           <TabSwitch
@@ -97,5 +111,29 @@ export default function MapViewPage() {
         </Stack>
       </Stack>
     </>
+  );
+}
+
+type Area = [number, number, number, number];
+type Point = [number, number];
+
+const warpArea = (warp: Warp): Area => [
+  warp.fromX,
+  warp.fromY,
+  warp.spanX,
+  warp.spanY,
+];
+
+function isIntersection([x, y, w, h]: Area, point?: Point, grace = 5): boolean {
+  w += grace * 2;
+  h += grace * 2;
+  x -= w / 2;
+  y -= h / 2;
+  return (
+    point !== undefined &&
+    x <= point[0] &&
+    x + w >= point[0] &&
+    y <= point[1] &&
+    y + h >= point[1]
   );
 }
