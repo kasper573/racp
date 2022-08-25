@@ -1,15 +1,12 @@
 import { ComponentProps, ReactNode, useContext, useState } from "react";
-import { Popper, styled, Theme, Typography } from "@mui/material";
+import { Box, Popper, styled } from "@mui/material";
 import { MapCoordinate, MapViewportContext } from "./MapViewport";
 import { LinkTo } from "./Link";
 
 export interface MapPinProps
   extends Omit<ComponentProps<typeof MapCoordinate>, "onClick"> {
-  width?: number;
-  height?: number;
   linkTo?: LinkTo;
   onClick?: () => void;
-  wrap?: (el: ReactNode) => ReactNode;
   highlight?: boolean;
   label?: ReactNode;
 }
@@ -17,10 +14,7 @@ export interface MapPinProps
 export function MapPin({
   children,
   linkTo,
-  wrap = (v) => v,
   highlight = false,
-  width,
-  height,
   label,
   ...props
 }: MapPinProps) {
@@ -44,27 +38,21 @@ export function MapPin({
             },
           ]}
         >
-          {wrap(
-            <MapPinLabel variant="caption" noWrap highlight={highlight}>
-              {label}
-            </MapPinLabel>
-          )}
+          <Highlight enabled={highlight}>{label}</Highlight>
         </Popper>
       )}
       <MapCoordinate ref={setAnchorEl} {...props}>
-        {wrap(children)}
+        {children}
       </MapCoordinate>
     </>
   );
 }
 
-const color = (p: { highlight?: boolean; theme: Theme }) =>
-  p.highlight ? p.theme.palette.primary.main : "#fff";
-
-const MapPinLabel = styled(Typography, {
-  shouldForwardProp: (prop) => prop !== "highlight",
-})<{ highlight: boolean }>`
-  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
-    1px 1px 0 #000;
-  color: ${color};
+const Highlight = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "enabled",
+})<{ enabled: boolean }>`
+  padding: 2px 4px;
+  border-radius: 4px;
+  background-color: ${(p) =>
+    p.enabled ? p.theme.palette.primary.main : undefined};
 `;
