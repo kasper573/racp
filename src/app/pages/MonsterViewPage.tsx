@@ -1,7 +1,6 @@
 import { ReactElement } from "react";
 import { Box, Stack } from "@mui/material";
 import { pick } from "lodash";
-import { DataGrid } from "@mui/x-data-grid";
 import { useHistory } from "react-router";
 import { useRouteParams } from "../../lib/useRouteParams";
 import { Header } from "../layout/Header";
@@ -10,8 +9,8 @@ import { router } from "../router";
 import { MonsterSpawnGrid } from "../grids/MonsterSpawnGrid";
 import { TabSwitch } from "../components/TabSwitch";
 import { TabbedPaper } from "../components/TabbedPaper";
-import { Link } from "../components/Link";
 import { KVTable } from "../components/KVTable";
+import { MonsterDropGrid } from "../grids/MonsterDropGrid";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MonsterViewPage(): ReactElement {
@@ -103,34 +102,7 @@ export default function MonsterViewPage(): ReactElement {
               {
                 id: "drops",
                 label: "Drops",
-                content: (
-                  <DataGrid
-                    columns={[
-                      {
-                        field: "Name",
-                        headerName: "Name",
-                        width: 200,
-                        renderCell({ row: item }) {
-                          return (
-                            <Link to={router.item().view({ id: item.ItemId })}>
-                              {item.Name}
-                            </Link>
-                          );
-                        },
-                      },
-                      {
-                        field: "Rate",
-                        headerName: "Chance",
-                        renderCell({ value }) {
-                          return value / 1000 + "%";
-                        },
-                      },
-                    ]}
-                    rows={drops}
-                    getRowId={(drop) => drop.ItemId}
-                    hideFooter
-                  />
-                ),
+                content: <MonsterDropGrid drops={drops} />,
               },
             ]}
           />
