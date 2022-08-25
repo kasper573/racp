@@ -104,6 +104,7 @@ export default function MapViewPage() {
                 content: (
                   <MonsterSpawnGrid
                     filter={{ map: { value: id, matcher: "equals" } }}
+                    gridProps={{ columnVisibilityModel: { map: false } }}
                     onHoveredEntityChange={(entity) =>
                       setHoverHighlight(
                         entity?.x !== undefined && entity?.y !== undefined

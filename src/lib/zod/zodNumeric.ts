@@ -1,3 +1,4 @@
+import * as zod from "zod";
 import {
   addIssueToContext,
   INVALID,
@@ -7,9 +8,13 @@ import {
 } from "zod";
 import { ZodTypeDef } from "zod/lib/types";
 
-export const zodNumeric = () => new ZodNumeric({});
+export const zodNumeric = () => new ZodNumeric();
 
 export class ZodNumeric extends ZodType<number, ZodTypeDef, number | string> {
+  constructor() {
+    super(zod.number()._def);
+  }
+
   _parse(input: ParseInput): ParseReturnType<number> {
     const type = typeof input.data;
     let num: number;

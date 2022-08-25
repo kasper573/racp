@@ -19,7 +19,10 @@ export type DataGridProps<
   Omit<ComponentProps<typeof Box>, "id"> & {
     filter?: Filter;
     query: DataGridQueryFn<Entity, Filter>;
-    gridProps?: Pick<ComponentProps<typeof MuiDataGrid>, "rowHeight">;
+    gridProps?: Pick<
+      ComponentProps<typeof MuiDataGrid>,
+      "rowHeight" | "columnVisibilityModel"
+    >;
     onHoveredEntityChange?: (entity?: Entity) => void;
   };
 
