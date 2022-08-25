@@ -84,8 +84,8 @@ export const monsterSpawnType = createSegmentedObject()
   .segment({
     id: zodNumeric(),
     amount: zodNumeric(),
-    delay: zodNumeric().optional(),
-    delay2: zodNumeric().optional(),
+    spawnDelay: zodNumeric().optional(),
+    spawnWindow: zodNumeric().optional(),
     event: zod.string().optional(),
     size: zodNumeric().optional(),
     ai: zodNumeric().optional(),

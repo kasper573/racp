@@ -7,6 +7,7 @@ import {
 } from "../../api/services/monster/types";
 import { useSearchMonsterSpawnsQuery } from "../state/client";
 import { router } from "../router";
+import { durationString } from "../../lib/durationString";
 
 export const MonsterSpawnGrid = DataGrid.define<
   MonsterSpawn,
@@ -22,8 +23,20 @@ export const MonsterSpawnGrid = DataGrid.define<
   link: (spawnId, { id }) => router.monster().view({ id }),
   columns: {
     name: "Name",
-    level: "Level",
-    x: { headerName: "X", width: 50 },
-    y: { headerName: "Y", width: 50 },
+    amount: "Amount",
+    spawnDelay: {
+      headerName: "Spawn time",
+      width: 120,
+      renderCell: renderTime,
+    },
+    spawnWindow: {
+      headerName: "Spawn window",
+      width: 140,
+      renderCell: renderTime,
+    },
   },
 });
+
+function renderTime({ value }: { value?: number }) {
+  return value !== undefined ? durationString(value) : "-";
+}
