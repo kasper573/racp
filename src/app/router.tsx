@@ -59,10 +59,10 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
       options: { title: "Monsters", icon: <PestControlRodent /> },
     },
     (route) => ({
-      view: route("view/:id", {
+      view: route("view/:id/:tab?", {
         component: lazy(() => import("./pages/MonsterViewPage")),
         options: { title: "Monster", icon: <PestControlRodent /> },
-        params: { id: intParser },
+        params: { id: intParser, tab: stringParser },
       }),
     })
   ),
