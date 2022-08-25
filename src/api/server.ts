@@ -30,6 +30,7 @@ import { createMonsterRepository } from "./services/monster/repository";
 import { mapDefinition } from "./services/map/definition";
 import { mapController } from "./services/map/controller";
 import { createMapRepository } from "./services/map/repository";
+import { linkDropsWithItems } from "./services/item/util/linkDropsWithItems";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -62,8 +63,10 @@ const linker = createPublicFileLinker({
 });
 
 const items = createItemRepository({ yaml, files, ...args });
-const monsters = createMonsterRepository({ ...args, yaml, npc, items });
+const monsters = createMonsterRepository({ ...args, yaml, npc });
 const maps = createMapRepository({ files, linker, formatter, npc });
+
+linkDropsWithItems(items, monsters);
 
 app.use(auth.middleware);
 app.use(cors());

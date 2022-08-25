@@ -3,18 +3,29 @@ import { Stack } from "@mui/material";
 import { pick } from "lodash";
 import { useRouteParams } from "../../lib/useRouteParams";
 import { Header } from "../layout/Header";
-import { useGetItemQuery } from "../state/client";
+import { useGetItemQuery, useSearchMonstersQuery } from "../state/client";
 import { router } from "../router";
 import { TooltipText } from "../components/TooltipText";
 import { ClientTextBlock } from "../components/ClientText/ClientText";
 import { TabbedPaper } from "../components/TabbedPaper";
 import { Script } from "../components/Script";
 import { resolveToggles } from "../../api/util/matcher";
+import { DataGridQueryFn } from "../components/DataGrid";
+import { Monster, MonsterFilter } from "../../api/services/monster/types";
+import { Link } from "../components/Link";
+import { dropChanceString } from "../grids/MonsterDropGrid";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ItemSearchPage(): ReactElement {
   const { id } = useRouteParams(router.item().view);
   const { data: item, isLoading } = useGetItemQuery(id);
+  const { data: { entities: droppedBy = [] } = {} } = (
+    useSearchMonstersQuery as unknown as DataGridQueryFn<Monster, MonsterFilter>
+  )({
+    filter: { Id: { value: item?.DroppedBy ?? [], matcher: "oneOfN" } },
+    limit: item?.DroppedBy?.length,
+  });
+
   if (isLoading) {
     return <LoadingPage />;
   }
@@ -30,6 +41,18 @@ export default function ItemSearchPage(): ReactElement {
     pick(item, "Script", "EquipScript", "UnEquipScript")
   );
 
+  const droppers = droppedBy
+    .map((monster) => {
+      const drop = [...monster.Drops, ...monster.MvpDrops].find(
+        (drop) => drop.ItemId === item.Id
+      );
+      return {
+        monster,
+        drop,
+      };
+    })
+    .sort((a, b) => (b.drop?.Rate ?? 0) - (a.drop?.Rate ?? 0));
+
   return (
     <>
       <Header back={router.item}>
@@ -41,40 +64,66 @@ export default function ItemSearchPage(): ReactElement {
         )}
       </Header>
 
-      <TabbedPaper
-        tabs={[
-          {
-            label: "Description",
-            content: item.Info?.identifiedDescriptionName ? (
-              <ClientTextBlock lines={item.Info.identifiedDescriptionName} />
-            ) : (
-              <>This item has no description</>
-            ),
-          },
-        ]}
-      />
-
-      <Stack spacing={3} direction="row" sx={{ mt: 2, width: "100%" }}>
-        {scripts.length > 0 && (
-          <TabbedPaper
-            tabs={scripts.map(([label, script]) => ({
-              label,
-              content: (
-                <Script sx={{ maxWidth: 400 }}>{script.raw ?? "-"}</Script>
+      <Stack spacing={2} direction="column">
+        <TabbedPaper
+          tabs={[
+            {
+              label: "Description",
+              content: item.Info?.identifiedDescriptionName ? (
+                <ClientTextBlock lines={item.Info.identifiedDescriptionName} />
+              ) : (
+                <>This item has no description</>
               ),
-            }))}
-          />
-        )}
-        {jobs.length > 0 && (
+            },
+          ]}
+        />
+
+        <Stack spacing={3} direction="row" sx={{ width: "100%" }}>
+          {scripts.length > 0 && (
+            <TabbedPaper
+              tabs={scripts.map(([label, script]) => ({
+                label,
+                content: (
+                  <Script sx={{ maxWidth: 400 }}>{script.raw ?? "-"}</Script>
+                ),
+              }))}
+            />
+          )}
           <TabbedPaper
             tabs={[
               {
                 label: "Applicable jobs",
-                content: <>{jobs.join(", ")}</>,
+                content: <>{jobs.length > 0 ? jobs.join(", ") : "None"}</>,
               },
             ]}
           />
-        )}
+          <TabbedPaper
+            tabs={[
+              {
+                label: "Dropped by",
+                content: (
+                  <>
+                    {droppers.map(({ monster, drop }, index) => (
+                      <>
+                        <span>
+                          <Link
+                            to={router.monster().view({ id: monster.Id })}
+                            sx={{ whiteSpace: "noWrap" }}
+                          >
+                            {monster.Name}{" "}
+                          </Link>
+                          {drop ? `(${dropChanceString(drop.Rate)})` : ""}
+                        </span>
+                        {index !== droppedBy.length - 1 && ", "}
+                      </>
+                    ))}
+                    {droppers.length === 0 && "None"}
+                  </>
+                ),
+              },
+            ]}
+          />
+        </Stack>
       </Stack>
     </>
   );

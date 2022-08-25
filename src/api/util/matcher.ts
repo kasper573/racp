@@ -47,6 +47,13 @@ export const matcher = createZodMatcher()
       (a >= (min ?? Number.MIN_VALUE) && a <= (max ?? Number.MAX_VALUE))
   )
   .add(
+    "oneOfN",
+    zod.number(),
+    zod.array(zod.number()),
+    zod.void(),
+    (item, list) => list.includes(item)
+  )
+  .add(
     "oneOf",
     zod.string(),
     zod.array(zod.string()),

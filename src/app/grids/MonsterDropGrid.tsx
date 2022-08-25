@@ -29,7 +29,7 @@ export function MonsterDropGrid({
           field: "Rate",
           headerName: "Chance",
           renderCell({ value }) {
-            return value / 1000 + "%";
+            return dropChanceString(value);
           },
         },
       ]}
@@ -39,4 +39,8 @@ export function MonsterDropGrid({
       {...props}
     />
   );
+}
+
+export function dropChanceString(drop: MonsterDrop["Rate"]) {
+  return `${drop / 1000}%`;
 }

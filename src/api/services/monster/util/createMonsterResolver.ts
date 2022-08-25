@@ -1,13 +1,9 @@
 import { createYamlResolver } from "../../../rathena/YamlDriver";
 import { RAthenaMode } from "../../../options";
-import { MonsterDropPostProcess, monsterType } from "../types";
+import { monsterType } from "../types";
 import { typedAssign } from "../../../../lib/typedAssign";
-import { Item } from "../../item/types";
 
-export function createMonsterResolver(
-  rAthenaMode: RAthenaMode,
-  itemsByAegisName: Record<string, Item[]>
-) {
+export function createMonsterResolver(rAthenaMode: RAthenaMode) {
   return createYamlResolver(monsterType, {
     getKey: (monster) => monster.Id,
     postProcess(monster) {
@@ -21,16 +17,6 @@ export function createMonsterResolver(
           Renewal: { Atk: Attack, MAtk: Attack2 },
         }[rAthenaMode]
       );
-      for (const drop of monster.Drops) {
-        const item = itemsByAegisName[drop.Item]?.[0];
-        if (item) {
-          const props: MonsterDropPostProcess = {
-            ItemId: item.Id,
-            Name: item.Name,
-          };
-          typedAssign(drop, props);
-        }
-      }
     },
   });
 }
