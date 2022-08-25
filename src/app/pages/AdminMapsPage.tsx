@@ -18,7 +18,7 @@ import {
 import { FileUploader } from "../components/FileUploader";
 import { LinkBase } from "../components/Link";
 import { useMapFileUploader } from "../hooks/useMapFileUploader";
-import { RGB } from "../../lib/cropSurroundingColors";
+import { useBlockNavigation } from "../hooks/useBlockNavigation";
 
 export default function AdminMapsPage() {
   const { data: mapImageCount = 0 } = useCountMapImagesQuery();
@@ -26,10 +26,12 @@ export default function AdminMapsPage() {
   const { data: mapBoundsCount = 0 } = useCountMapBoundsQuery();
   const { data: missingMapData } = useGetMissingMapDataQuery();
 
-  const uploader = useMapFileUploader({
-    imageExtensions,
-    cropColor,
-  });
+  const uploader = useMapFileUploader();
+
+  useBlockNavigation(
+    uploader.isPending,
+    "Map data is still being uploaded. If you leave this page, data may be lost."
+  );
 
   return (
     <>
@@ -42,7 +44,7 @@ export default function AdminMapsPage() {
       <FileUploader
         value={[]}
         sx={{ maxWidth: 380, margin: "0 auto" }}
-        accept={[".grf", ".lub", ".gat", ...imageExtensions]}
+        accept={uploader.fileExtensions}
         isLoading={uploader.isPending}
         onChange={uploader.upload}
         title={"Select or drop files here"}
@@ -131,6 +133,3 @@ export default function AdminMapsPage() {
     </>
   );
 }
-
-const imageExtensions = [".png", ".jpg", ".jpeg", ".bmp", ".tga"];
-const cropColor: RGB = [255, 0, 255]; // magenta

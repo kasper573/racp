@@ -11,12 +11,10 @@ import { MapBounds, MapBoundsRegistry } from "../../api/services/map/types";
 import { usePromiseTracker } from "./usePromiseTracker";
 
 export function useMapFileUploader({
-  imageExtensions,
-  cropColor,
+  cropColor = [255, 0, 255], // Magenta
 }: {
-  imageExtensions: string[];
-  cropColor: RGB;
-}) {
+  cropColor?: RGB;
+} = {}) {
   const [uploadMapImages, imageUpload] = useUploadMapImagesMutation();
   const [uploadMapInfo, infoUpload] = useUploadMapInfoMutation();
   const [updateMapBounds, boundsUpdate] = useUpdateMapBoundsMutation();
@@ -106,6 +104,7 @@ export function useMapFileUploader({
     ...pick(tracker, "isPending", "tasks", "progress"),
     upload,
     error,
+    fileExtensions: [...imageExtensions, ".lub", ".gat", ".grf"],
   };
 }
 
@@ -165,3 +164,5 @@ function createMapBoundsRegistry(files: File[], bounds: MapBounds[]) {
     {}
   );
 }
+
+const imageExtensions = [".png", ".jpg", ".jpeg", ".bmp", ".tga"];
