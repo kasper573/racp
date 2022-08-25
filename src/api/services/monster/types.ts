@@ -71,8 +71,8 @@ export const monsterSpawnType = createSegmentedObject()
     map: zod.string(),
     x: zodNumeric().optional().transform(trimZero),
     y: zodNumeric().optional().transform(trimZero),
-    rx: zodNumeric().optional().transform(trimZero),
-    ry: zodNumeric().optional().transform(trimZero),
+    width: zodNumeric().optional().transform(trimZero),
+    height: zodNumeric().optional().transform(trimZero),
   })
   .segment({
     type: zod.union([zod.literal("monster"), zod.literal("boss_monster")]),

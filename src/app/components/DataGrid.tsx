@@ -73,6 +73,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
       <Box sx={{ flex: 1 }}>
         <Grid
           disableColumnFilter
+          disableColumnSelector={gridProps?.columnVisibilityModel !== undefined}
           columns={columnList}
           rows={result?.entities ?? []}
           getRowId={(row) => id(row as Entity)}

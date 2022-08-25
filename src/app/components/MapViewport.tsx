@@ -7,7 +7,6 @@ import {
   useState,
 } from "react";
 import { useImage } from "../hooks/useImage";
-import { RGB } from "../../lib/cropSurroundingColors";
 import { MapBounds } from "../../api/services/map/types";
 
 export interface MapViewportProps extends ComponentProps<typeof Viewport> {
@@ -69,7 +68,6 @@ export const MapCoordinate = forwardRef<
   } = useContext(MapViewportContext);
   return (
     <MapCoordinateContainer
-      ref={ref}
       style={{
         left: `${(x * 100) / width}%`,
         bottom: `${(y * 100) / height}%`,
@@ -78,7 +76,7 @@ export const MapCoordinate = forwardRef<
       {...props}
     >
       <MapCoordinateAnchor>
-        <MapCoordinateContent>{children}</MapCoordinateContent>
+        <MapCoordinateContent ref={ref}>{children}</MapCoordinateContent>
       </MapCoordinateAnchor>
     </MapCoordinateContainer>
   );
@@ -105,5 +103,3 @@ export const MapViewportContext = createContext<{
 }>({
   bounds: { width: 0, height: 0 },
 });
-
-const magenta: RGB = [255, 0, 255];

@@ -54,8 +54,8 @@ export const warpType = createSegmentedObject()
     name: zod.string(),
   })
   .segment({
-    spanX: zodNumeric(),
-    spanY: zodNumeric(),
+    width: zodNumeric(),
+    height: zodNumeric(),
     toMap: mapIdType,
     toX: zodNumeric(),
     toY: zodNumeric(),

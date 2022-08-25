@@ -1,15 +1,17 @@
-import { ComponentProps, useContext, useState } from "react";
+import { ComponentProps, ReactNode, useContext, useState } from "react";
 import { Popper, styled, Theme, Typography } from "@mui/material";
-import { Place } from "@mui/icons-material";
 import { MapCoordinate, MapViewportContext } from "./MapViewport";
 import { LinkTo } from "./Link";
 
 export interface MapPinProps
   extends Omit<ComponentProps<typeof MapCoordinate>, "onClick"> {
+  width?: number;
+  height?: number;
   linkTo?: LinkTo;
   onClick?: () => void;
-  wrap?: (el: JSX.Element) => JSX.Element;
+  wrap?: (el: ReactNode) => ReactNode;
   highlight?: boolean;
+  label?: ReactNode;
 }
 
 export function MapPin({
@@ -17,10 +19,13 @@ export function MapPin({
   linkTo,
   wrap = (v) => v,
   highlight = false,
+  width,
+  height,
+  label,
   ...props
 }: MapPinProps) {
   const { container } = useContext(MapViewportContext);
-  const [anchorEl, setAnchorEl] = useState<SVGSVGElement | null>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   return (
     <>
       {anchorEl && (
@@ -41,13 +46,13 @@ export function MapPin({
         >
           {wrap(
             <MapPinLabel variant="caption" noWrap highlight={highlight}>
-              {children}
+              {label}
             </MapPinLabel>
           )}
         </Popper>
       )}
-      <MapCoordinate {...props}>
-        {wrap(<MapPinIcon ref={setAnchorEl} highlight={highlight} />)}
+      <MapCoordinate ref={setAnchorEl} {...props}>
+        {wrap(children)}
       </MapCoordinate>
     </>
   );
@@ -62,11 +67,4 @@ const MapPinLabel = styled(Typography, {
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
     1px 1px 0 #000;
   color: ${color};
-`;
-
-const MapPinIcon = styled(Place, {
-  shouldForwardProp: (prop) => prop !== "highlight",
-})<{ highlight: boolean }>`
-  filter: drop-shadow(0 0 2px #000);
-  fill: ${color};
 `;
