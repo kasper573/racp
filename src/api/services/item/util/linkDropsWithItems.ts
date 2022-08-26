@@ -15,7 +15,7 @@ export async function linkDropsWithItems(
   );
 
   for (const monster of monsterMap.values()) {
-    for (const drop of monster.Drops) {
+    for (const drop of [...monster.Drops, ...monster.MvpDrops]) {
       for (const item of itemsByAegisName[drop.Item] ?? []) {
         item.DroppedBy = item.DroppedBy ?? [];
         if (!item.DroppedBy.includes(monster.Id)) {
@@ -24,6 +24,7 @@ export async function linkDropsWithItems(
         const props: MonsterDropPostProcess = {
           ItemId: item.Id,
           Name: item.Name,
+          Slots: item.Slots,
         };
         typedAssign(drop, props);
       }
