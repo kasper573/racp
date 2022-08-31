@@ -1,9 +1,13 @@
 import { WriteStream } from "tty";
 import { LogFn } from "./logger";
 
+const fallbackColumns = 80;
+
 export function createEllipsisLogFn(writeStream: WriteStream): LogFn {
   return (...args) =>
-    writeStream.write(ellipsis(args.join(" "), writeStream.columns) + "\n");
+    writeStream.write(
+      ellipsis(args.join(" "), writeStream.columns ?? fallbackColumns) + "\n"
+    );
 }
 
 function ellipsis(str: string, max: number) {

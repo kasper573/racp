@@ -11,7 +11,8 @@
     "build:app": "webpack build",
     "dev:app": "cross-env reactRefresh=true apiBaseUrl=http://localhost:8081 webpack serve",
     "dev:api": "ts-node-dev src/api/server --jwtSecret dev --port 8081",
-    "codegen": "ts-node src/api/rathena/DatabaseDriver.codegen"
+    "codegen": "ts-node src/api/rathena/DatabaseDriver.codegen",
+    "configure-rathena": "ts-node configureRAthena.ts"
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "0.5.7",
@@ -26,6 +27,7 @@
     "@types/jest": "27.5.1",
     "@types/lodash": "4.14.182",
     "@types/luaparse": "0.2.8",
+    "@types/mysql": "^2.15.21",
     "@types/node": "18.0.0",
     "@types/pako": "2.0.0",
     "@types/react": "18.0.14",
@@ -56,7 +58,7 @@
     "knex": "2.1.0",
     "legacy-encoding": "3.0.0",
     "luaparse": "0.3.1",
-    "mysql": "2.18.1",
+    "mysql": "^2.18.1",
     "prettier": "2.6.2",
     "react-refresh": "0.14.0",
     "recursive-readdir": "2.2.2",

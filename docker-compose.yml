@@ -1,0 +1,58 @@
+# Matches the default rathena db configuration
+x-mysql-conf: &mysql-conf
+  MYSQL_USER: racp
+  MYSQL_PASSWORD: racp
+  MYSQL_DATABASE: racp
+
+version: "3.4"
+services:
+  db:
+    image: mariadb:latest
+    restart: always
+    expose:
+      - "3306"
+    ports:
+      - "3306:3306"
+    environment:
+      <<: *mysql-conf
+      MYSQL_ROOT_PASSWORD: racp
+      MYSQL_ROOT_HOST: "%"
+    volumes:
+      - "./docker-volumes/mariadb:/var/lib/mysql"
+  api:
+    build:
+      context: .
+      dockerfile: api.dockerfile
+      args:
+        RATHENA_PATH: "/opt/rathena"
+        RACP_PATH: "/opt/racp"
+    depends_on:
+      - db
+    ports:
+      - "8081:8081"
+    environment:
+      <<: *mysql-conf
+      MYSQL_PORT: 3306
+      MYSQL_HOST: "db"
+      WAIT_HOSTS: "db:3306"
+      NODE_OPTIONS: "--max-old-space-size=8192"
+      port: 8081
+      hostname: 0.0.0.0
+    command: sh -c "
+      /wait &&
+      cd /opt/racp/ && yarn configure-rathena &&
+      cd /opt/rathena/ && ./athena-start start &
+      cd /opt/racp/ && yarn dev:api
+      "
+  app:
+    build:
+      context: .
+      dockerfile: app.dockerfile
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+    environment:
+      port: 8080
+      apiBaseUrl: http://api:8080
+    command: yarn dev:app

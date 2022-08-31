@@ -3,6 +3,7 @@ assets
 dist
 data
 node_modules
+docker-volumes
 .env.local
 .idea
 .DS_Store
