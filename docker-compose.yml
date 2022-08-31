@@ -35,14 +35,14 @@ services:
       MYSQL_PORT: 3306
       MYSQL_HOST: "db"
       WAIT_HOSTS: "db:3306"
-      NODE_OPTIONS: "--max-old-space-size=8192"
       port: 8081
       hostname: 0.0.0.0
+      jwtSecret: "secret"
     command: sh -c "
       /wait &&
       cd /opt/racp/ && yarn configure-rathena &&
       cd /opt/rathena/ && ./athena-start start &
-      cd /opt/racp/ && yarn dev:api
+      cd /opt/racp/ && yarn api:prod
       "
   app:
     build:
@@ -53,6 +53,5 @@ services:
     ports:
       - "8080:8080"
     environment:
-      port: 8080
-      apiBaseUrl: http://api:8080
-    command: yarn dev:app
+      apiBaseUrl: http://localhost:8081
+    command: yarn app:prod -p 8080
