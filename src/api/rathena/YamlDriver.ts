@@ -18,11 +18,18 @@ export function createYamlDriver({
   rAthenaMode: string;
   logger: Logger;
 }) {
-  async function loadNode(file: string) {
-    const content = await fs.promises.readFile(
-      path.resolve(rAthenaPath, file),
-      "utf-8"
-    );
+  async function loadNode(file: string): Promise<DBNode | undefined> {
+    const filePath = path.resolve(rAthenaPath, file);
+    let content: string;
+    try {
+      content = await fs.promises.readFile(filePath, "utf-8");
+    } catch (e) {
+      // "File not found" errors are permitted, so we don't log them.
+      if ((e as NodeJS.ErrnoException)?.code !== "ENOENT") {
+        logger.log(`Error while loading node: "${filePath}"`, e);
+      }
+      return;
+    }
     const unknownObject = yaml.parse(content);
     filterNulls(unknownObject);
     return dbNode.parse(unknownObject);
@@ -39,7 +46,11 @@ export function createYamlDriver({
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const imp = imports.shift()!;
       if (!imp.Mode || imp.Mode === rAthenaMode) {
-        const { Body, Footer } = await loadNode(imp.Path);
+        const res = await loadNode(imp.Path);
+        if (!res) {
+          continue;
+        }
+        const { Body, Footer } = res;
         for (const raw of Body ?? []) {
           const entity = entityType.parse(raw);
           entities.set(getKey(entity), entity);
@@ -96,6 +107,7 @@ const footerNode = zod.object({
 
 const bodyNode = zod.array(zod.unknown());
 
+type DBNode = zod.infer<typeof dbNode>;
 const dbNode = zod.object({
   Header: headerNode,
   Body: bodyNode.optional(),
