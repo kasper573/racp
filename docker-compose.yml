@@ -1,58 +1,29 @@
-x-mysql-conf: &mysql-conf
-  MYSQL_USER: racp
-  MYSQL_PASSWORD: racp
-  MYSQL_DATABASE: racp
-
 version: "3.4"
 services:
-  db:
-    image: mariadb:latest
-    restart: always
+  all:
+    build: .
     expose:
       - "3306"
-    ports:
-      - "3306:3306"
-    environment:
-      <<: *mysql-conf
-      MYSQL_ROOT_PASSWORD: racp
-      MYSQL_ROOT_HOST: "%"
-    volumes:
-      - "./docker-volumes/mariadb:/var/lib/mysql"
-  api:
-    build:
-      context: .
-      dockerfile: api.dockerfile
-      args:
-        RATHENA_PATH: "/opt/rathena"
-        RACP_PATH: "/opt/racp"
-    depends_on:
-      - db
+      - "8081"
+      - "80"
     ports:
       - "8081:8081"
+      - "3306:3306"
+      - "80:80"
+    volumes:
+      - "./docker-volumes/mariadb:/var/lib/mysql"
     environment:
-      <<: *mysql-conf
+      MYSQL_ROOT_PASSWORD: "racp"
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_USER: "racp"
+      MYSQL_PASSWORD: "racp"
+      MYSQL_DATABASE: "racp"
       MYSQL_PORT: 3306
-      MYSQL_HOST: "db"
-      ADMIN_USER: admin
-      ADMIN_PASSWORD: admin
-      WAIT_HOSTS: "db:3306"
+      MYSQL_HOST: "localhost"
+      ADMIN_USER: "admin"
+      ADMIN_PASSWORD: "admin"
       port: 8081
       hostname: 0.0.0.0
       jwtSecret: "secret"
-    command: sh -c "
-      /wait &&
-      cd /opt/racp/ && yarn configure-rathena &&
-      cd /opt/rathena/ && ./athena-start start &
-      cd /opt/racp/ && yarn api:prod
-      "
-  app:
-    build:
-      context: .
-      dockerfile: app.dockerfile
-    expose:
-      - "8080"
-    ports:
-      - "8080:8080"
-    environment:
-      apiBaseUrl: http://localhost:8081
-    command: yarn app:prod -p 8080
+      apiBaseUrl: "http://localhost:8081"
+      adminPermissionName: "channel_admin"

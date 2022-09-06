@@ -1,13 +1,6 @@
 name: CI
 on: ["push"]
 jobs:
-  run-everything:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: isbang/compose-action@v1.2.0
-        with:
-          compose-file: "./docker-compose.yml"
   build:
     runs-on: ubuntu-latest
     steps:
