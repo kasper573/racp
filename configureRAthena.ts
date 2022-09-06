@@ -14,6 +14,7 @@ import { UserAccessLevel } from "./src/api/services/auth/types";
  * Updates a clean rathena build with the settings we need to run racp + rathena in docker.
  */
 async function configureRAthena() {
+  const logger = createLogger(console.log);
   const args = readCliArgs({
     ...pick(options, "rAthenaPath"),
     MYSQL_HOST: { type: "string", required: true },
@@ -25,12 +26,12 @@ async function configureRAthena() {
     ADMIN_PASSWORD: { type: "string", required: true },
   });
 
-  const logger = createLogger(console.log);
   const cfg = createConfigDriver({
     rAthenaPath: args.rAthenaPath,
     logger,
   });
 
+  console.log(`Updating ${cfg.presets.dbInfoConfigName}...`);
   const dbInfo = await cfg.load(cfg.presets.dbInfoConfigName);
   dbInfo.update(
     [
@@ -90,6 +91,7 @@ async function runSqlFile(
   const sql = await fs.promises.readFile(file, "utf-8");
 
   try {
+    logger.log(`Executing SQL: ${file}...`);
     await runQuery(conn, sql);
   } catch (e) {
     logger.log(`Error while running sql file "${file}": ${e}`);
