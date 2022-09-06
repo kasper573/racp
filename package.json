@@ -1,7 +1,7 @@
 {
-  "name": "deckforge",
+  "name": "racp",
   "version": "0.0.1",
-  "description": "Deck builder",
+  "description": "rAthena Control Panel",
   "main": "index.js",
   "license": "UNLICENSED",
   "scripts": {
