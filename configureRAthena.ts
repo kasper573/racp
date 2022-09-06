@@ -8,7 +8,8 @@ import { options } from "./src/api/options";
 import { createConfigDriver } from "./src/api/rathena/ConfigDriver";
 import { createUser } from "./src/api/services/auth/controller";
 import { createDatabaseDriver } from "./src/api/rathena/DatabaseDriver";
-import { UserAccessLevel } from "./src/api/services/auth/types";
+import { createYamlDriver } from "./src/api/rathena/YamlDriver";
+import { createAuthRepository } from "./src/api/services/auth/repository";
 
 /**
  * Updates a clean rathena build with the settings we need to run racp + rathena in docker.
@@ -16,7 +17,7 @@ import { UserAccessLevel } from "./src/api/services/auth/types";
 async function configureRAthena() {
   const logger = createLogger(console.log);
   const args = readCliArgs({
-    ...pick(options, "rAthenaPath"),
+    ...pick(options, "rAthenaPath", "adminPermissionName", "rAthenaMode"),
     MYSQL_HOST: { type: "string", required: true },
     MYSQL_PORT: { type: "number", required: true },
     MYSQL_USER: { type: "string", required: true },
@@ -26,10 +27,9 @@ async function configureRAthena() {
     ADMIN_PASSWORD: { type: "string", required: true },
   });
 
-  const cfg = createConfigDriver({
-    rAthenaPath: args.rAthenaPath,
-    logger,
-  });
+  const yaml = createYamlDriver({ ...args, logger });
+  const cfg = createConfigDriver({ ...args, logger });
+  const auth = createAuthRepository({ ...args, yaml });
 
   console.log(`Updating ${cfg.presets.dbInfoConfigName}...`);
   const dbInfo = await cfg.load(cfg.presets.dbInfoConfigName);
@@ -75,7 +75,7 @@ async function configureRAthena() {
     username: args.ADMIN_USER,
     password: args.ADMIN_PASSWORD,
     email: "admin@localhost",
-    group: UserAccessLevel.Admin,
+    group: (await auth.adminGroupIds)[0],
   });
 
   conn.destroy();

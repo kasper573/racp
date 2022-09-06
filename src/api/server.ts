@@ -31,6 +31,7 @@ import { mapDefinition } from "./services/map/definition";
 import { mapController } from "./services/map/controller";
 import { createMapRepository } from "./services/map/repository";
 import { linkDropsWithItems } from "./services/item/util/linkDropsWithItems";
+import { createAuthRepository } from "./services/auth/repository";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -41,7 +42,8 @@ const logger = createLogger(
 );
 
 const app = express();
-const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
+const authenticator = createAuthenticator({ secret: args.jwtSecret, ...args });
+const { sign } = authenticator;
 const yaml = createYamlDriver({ ...args, logger: logger.chain("yaml") });
 const config = createConfigDriver({ ...args, logger: logger.chain("config") });
 const db = createDatabaseDriver(config);
@@ -50,7 +52,7 @@ const files = createFileStore(
   logger.chain("fs")
 );
 const npc = createNpcDriver({ ...args, logger: logger.chain("npc") });
-const rpc = createRpcMiddlewareFactory(auth.validatorFor, {
+const rpc = createRpcMiddlewareFactory(authenticator.validatorFor, {
   logger: logger.chain("rpc"),
 });
 
@@ -62,18 +64,19 @@ const linker = createPublicFileLinker({
   port: args.port,
 });
 
+const auth = createAuthRepository({ yaml, ...args });
 const items = createItemRepository({ yaml, files, ...args });
 const monsters = createMonsterRepository({ ...args, yaml, npc });
 const maps = createMapRepository({ files, linker, formatter, npc });
 
 linkDropsWithItems(items, monsters);
 
-app.use(auth.middleware);
+app.use(authenticator.middleware);
 app.use(cors());
 app.use(express.static(linker.directory));
 app.use(rpc(configDefinition, configController(config)));
 app.use(rpc(itemDefinition, itemController(items)));
-app.use(rpc(authDefinition, authController({ db, yaml, auth, ...args })));
+app.use(rpc(authDefinition, authController({ db, auth, sign, ...args })));
 app.use(rpc(monsterDefinition, monsterController(monsters)));
 app.use(rpc(mapDefinition, mapController(maps)));
 app.use(rpc(metaDefinition, metaController({ items, monsters })));
