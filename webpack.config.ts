@@ -15,7 +15,7 @@ const env = loadEnv({
   reactRefresh: { type: Boolean, optional: true },
   apiBaseUrl: String,
   appTitle: String,
-  port: { type: Number, default: 8080 },
+  appPort: { type: Number, default: 8080 },
 });
 
 const appDirectory = path.resolve(__dirname, "src", "app");
@@ -74,7 +74,7 @@ const config: webpack.Configuration = {
   },
   devServer: {
     historyApiFallback: true,
-    port: env.port,
+    port: env.appPort,
   },
 };
 

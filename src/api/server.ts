@@ -61,7 +61,7 @@ const formatter = createImageFormatter({ extension: ".png", quality: 70 });
 const linker = createPublicFileLinker({
   directory: path.join(process.cwd(), "assets"),
   hostname: args.hostname,
-  port: args.port,
+  port: args.apiPort,
 });
 
 const auth = createAuthRepository({ yaml, ...args });
@@ -81,6 +81,6 @@ app.use(rpc(monsterDefinition, monsterController(monsters)));
 app.use(rpc(mapDefinition, mapController(maps)));
 app.use(rpc(metaDefinition, metaController({ items, monsters })));
 
-http.createServer(app).listen(args.port, args.hostname, () => {
+http.createServer(app).listen(args.apiPort, args.hostname, () => {
   console.log(`API is running on port ${args.port}`);
 });
