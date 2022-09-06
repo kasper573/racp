@@ -5,28 +5,34 @@ ARG RACP_PATH
 ENV rAthenaPath $RATHENA_PATH
 
 RUN apk update
-RUN apk add --no-cache \
-    coreutils \
-    util-linux \
-    git \
-    make \
-    gcc \
-    g++ \
-    mariadb-connector-c-dev \
-    mariadb-client \
-    pcre-dev \
-    pcre libstdc++ \
-    dos2unix \
-    bind-tools \
-    zlib-dev \
-    linux-headers
+RUN apk add git
+
+# Disabling rathena dependencies & build because RACP currently
+# don't need rathena to be running, it just needs its source files on disk.
+
+#RUN apk update
+#RUN apk add --no-cache \
+#    coreutils \
+#    util-linux \
+#    git \
+#    make \
+#    gcc \
+#    g++ \
+#    mariadb-connector-c-dev \
+#    mariadb-client \
+#    pcre-dev \
+#    pcre libstdc++ \
+#    dos2unix \
+#    bind-tools \
+#    zlib-dev \
+#    linux-headers
 
 RUN git clone https://github.com/rathena/rathena.git $RATHENA_PATH
-RUN cd $RATHENA_PATH  \
-    && ./configure \
-    && make clean \
-    && make server \
-    && chmod a+x login-server char-server map-server
+#RUN cd $RATHENA_PATH  \
+#    && ./configure \
+#    && make clean \
+#    && make server \
+#    && chmod a+x login-server char-server map-server
 
 WORKDIR $RACP_PATH
 COPY package.json .
