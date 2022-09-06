@@ -33,6 +33,8 @@ services:
       <<: *mysql-conf
       MYSQL_PORT: 3306
       MYSQL_HOST: "db"
+      ADMIN_USER: admin
+      ADMIN_PASSWORD: admin
       WAIT_HOSTS: "db:3306"
       port: 8081
       hostname: 0.0.0.0

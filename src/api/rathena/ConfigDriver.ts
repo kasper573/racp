@@ -69,11 +69,21 @@ export function createConfigDriver({
     async dbInfo(prefix: string) {
       const info = await load(dbInfoConfigName);
       return {
-        host: info.get(`${prefix}_ip`),
-        port: parseInt(info.get(`${prefix}_port`), 10),
-        user: info.get(`${prefix}_id`),
-        password: info.get(`${prefix}_pw`),
-        database: info.get(`${prefix}_db`),
+        get host() {
+          return info.get(`${prefix}_ip`);
+        },
+        get port() {
+          return parseInt(info.get(`${prefix}_port`), 10);
+        },
+        get user() {
+          return info.get(`${prefix}_id`);
+        },
+        get password() {
+          return info.get(`${prefix}_pw`);
+        },
+        get database() {
+          return info.get(`${prefix}_db`);
+        },
       };
     },
   };

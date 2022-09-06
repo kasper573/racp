@@ -48,3 +48,20 @@ export async function authController({
     },
   });
 }
+
+export async function createUser(
+  db: DatabaseDriver,
+  user: {
+    username: string;
+    password: string;
+    email: string;
+    group: UserAccessLevel;
+  }
+) {
+  await db.login.table("login").insert({
+    userid: user.username,
+    user_pass: user.password,
+    email: user.email,
+    group_id: user.group,
+  });
+}
