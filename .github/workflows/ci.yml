@@ -1,8 +1,5 @@
 name: CI
-on:
-  push:
-  pull_request:
-  workflow_dispatch:
+on: ["push"]
 jobs:
   run-everything:
     runs-on: ubuntu-latest
