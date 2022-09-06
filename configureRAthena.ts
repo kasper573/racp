@@ -77,7 +77,7 @@ async function runSqlFile(
 
   try {
     await new Promise<void>((resolve, reject) =>
-      conn.query(sql, (err, res) => {
+      conn.query(sql, (err) => {
         if (err) {
           reject(err);
         } else {

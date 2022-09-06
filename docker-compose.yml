@@ -1,4 +1,3 @@
-# Matches the default rathena db configuration
 x-mysql-conf: &mysql-conf
   MYSQL_USER: racp
   MYSQL_PASSWORD: racp
