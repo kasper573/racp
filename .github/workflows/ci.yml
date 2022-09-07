@@ -47,7 +47,8 @@ jobs:
           adminPermissionName: "channel_admin"
         with:
           image: ${{ secrets.DOCKER_HUB_USERNAME }}/racp
-          run: yarn configure-rathena && yarn api:prod & yarn app:prod -p 8081
+          options: --expose 8080 -p 8080:8080 -p 8081:8081 -p 3306:3306
+          run: yarn configure-rathena && yarn api:prod & yarn app:prod -p 8080
   build:
     runs-on: ubuntu-latest
     steps:
