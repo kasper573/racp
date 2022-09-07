@@ -37,9 +37,9 @@ jobs:
           MYSQL_HOST: "localhost"
           ADMIN_USER: "admin"
           ADMIN_PASSWORD: "admin"
-          port: 8081
           hostname: 0.0.0.0
           jwtSecret: "secret"
+          apiPort: 8081
           apiBaseUrl: "http://localhost:8081"
           adminPermissionName: "channel_admin"
 
