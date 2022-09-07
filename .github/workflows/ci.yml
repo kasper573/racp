@@ -24,7 +24,7 @@ jobs:
           file: ./Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/racp:${{ github.sha }}
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/racp
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/racp:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/racp:buildcache,mode=max
         env:
@@ -46,7 +46,7 @@ jobs:
       - name: "Test run RACP"
         uses: addnab/docker-run-action@v3
         with:
-          image: ${{ secrets.DOCKER_HUB_USERNAME }}/racp:${{ github.sha }}
+          image: ${{ secrets.DOCKER_HUB_USERNAME }}/racp
           run: yarn configure-rathena && yarn api:prod & yarn app:prod -p 8081
   build:
     runs-on: ubuntu-latest
