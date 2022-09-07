@@ -43,6 +43,7 @@ export function Layout({ children }: { children?: ReactNode }) {
         </MuiToolbar>
       </AppBar>
       <MuiDrawer
+        role="menu"
         variant="permanent"
         sx={{
           "& .MuiDrawer-paper": {

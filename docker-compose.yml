@@ -1,0 +1,66 @@
+x-mysql-conf: &mysql-conf
+  MYSQL_USER: racp
+  MYSQL_PASSWORD: racp
+  MYSQL_DATABASE: racp
+
+x-racp-build: &racp-build
+  context: .
+  dockerfile: racp.dockerfile
+
+version: "3.4"
+services:
+  db:
+    image: mariadb:latest
+    restart: always
+    expose:
+      - "3306"
+    ports:
+      - "3306:3306"
+    environment:
+      <<: *mysql-conf
+      MYSQL_ROOT_PASSWORD: racp
+      MYSQL_ROOT_HOST: "%"
+    volumes:
+      - ./docker-volumes/mariadb:/var/lib/mysql
+  api:
+    build: *racp-build
+    depends_on: ["db"]
+    expose:
+      - "8081"
+    ports:
+      - "8081:8081"
+    environment:
+      <<: *mysql-conf
+      MYSQL_PORT: 3306
+      MYSQL_HOST: "db"
+      apiPort: 8081
+      hostname: 0.0.0.0
+      ADMIN_USER: racp
+      ADMIN_PASSWORD: racp
+      jwtSecret: secret
+      adminPermissionName: channel_admin
+    command: sh -c "yarn configure-rathena && yarn api:prod"
+  app:
+    build: *racp-build
+    depends_on: ["api"]
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+    environment:
+      appPort: 8080
+      apiBaseUrl: http://localhost:8081 # localhost due to value being used directly in the app and used from browser
+    command: yarn app:prod -p 8080
+  cypress:
+    image: cypress/included:6.8.0
+    build:
+      context: .
+    environment:
+      CYPRESS_BASE_URL: http://app:8080
+      # Matches the ADMIN_USER/ADMIN_PASSWORD from the api service
+      CYPRESS_ADMIN_USER: racp
+      CYPRESS_ADMIN_PASSWORD: racp
+      # Matches the preinstalled user in the rathena default database
+      CYPRESS_MEMBER_USER: s1
+      CYPRESS_MEMBER_PASSWORD: p1
+    command: sh -c "npx wait-on http://app:8080 --log && npx cypress run"

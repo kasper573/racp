@@ -7,6 +7,7 @@ export function OnlineBadge({
 }: ComponentProps<typeof Badge> & { visible?: boolean }) {
   return (
     <StyledBadge
+      data-testid="online-badge"
       overlap="circular"
       variant="dot"
       color="success"

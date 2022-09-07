@@ -10,11 +10,13 @@ const protectedRoutes = Object.values(router.admin.children);
 export function Menu() {
   return (
     <>
-      <RouteList routes={publicRoutes} />
+      <RouteList aria-label="Main menu" routes={publicRoutes} />
       <Auth atLeast={UserAccessLevel.Admin}>
-        <Typography sx={{ pl: 2 }}>Admin</Typography>
+        <Typography id="admin-menu" sx={{ pl: 2 }}>
+          Admin
+        </Typography>
         <Divider />
-        <RouteList routes={protectedRoutes} />
+        <RouteList aria-labelledby="admin-menu" routes={protectedRoutes} />
       </Auth>
     </>
   );

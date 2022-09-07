@@ -1,9 +1,12 @@
 import { defineConfig } from "cypress";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const dotenvFlowPlugin = require("cypress-dotenv-flow");
 
 export default defineConfig({
   e2e: {
+    specPattern: "cypress/**/*.spec.ts",
     setupNodeEvents(on, config) {
-      // implement node event listeners here
+      return dotenvFlowPlugin(config);
     },
   },
   fixturesFolder: false,
