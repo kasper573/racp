@@ -61,4 +61,4 @@ services:
       # Matches the preinstalled user in the rathena default database
       CYPRESS_MEMBER_USER: s1
       CYPRESS_MEMBER_PASSWORD: p1
-    command: sh -c "npx wait-on http://app:8080 --log && npx cypress run"
+    command: sh -c "npx wait-on http://app:8080 --log && npx cypress run --record"

@@ -29,7 +29,5 @@ jobs:
       - uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true
         env:
-          CYPRESS_RECORD: true
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_PROJECT_ID  }}
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_RECORD_KEY  }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY  }}
       - run: docker-compose up --build --exit-code-from cypress
