@@ -77,7 +77,8 @@
     "webpack-dev-server": "4.9.2",
     "xregexp": "5.1.1",
     "yaml": "2.1.1",
-    "yargs": "17.5.1"
+    "yargs": "17.5.1",
+    "rathena": "https://github.com/rathena/rathena.git#4a43856"
   },
   "dependencies": {
     "@emotion/react": "11.9.3",

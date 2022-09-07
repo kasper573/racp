@@ -7,11 +7,10 @@ RUN apt-get -y install nodejs
 RUN npm install -g yarn
 
 ENV RACP_PATH "/opt/racp"
-ENV rAthenaPath "/opt/rathena"
+ENV rAthenaPath "${RACP_PATH}/node_modules/rathena"
 WORKDIR $RACP_PATH
 COPY package.json .
 RUN yarn install
-RUN git clone https://github.com/rathena/rathena.git $rAthenaPath
 COPY ./ ./
 
 # Disabling rathena dependencies & build because RACP currently
