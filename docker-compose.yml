@@ -52,8 +52,6 @@ services:
       context: .
       dockerfile: cypress.dockerfile
     environment:
-      ELECTRON_RUN_AS_NODE: 1
-      CYPRESS_BROWSER: chrome
       CYPRESS_BASE_URL: http://app:8080
       # Matches the ADMIN_USER/ADMIN_PASSWORD from the api service
       CYPRESS_ADMIN_USER: racp
