@@ -1,5 +1,6 @@
 import * as zod from "zod";
 import { SafeParseError } from "zod/lib/types";
+import { expect } from "@jest/globals";
 import { createSegmentedObject } from "./ZodSegmentedObject";
 
 describe("ZodSegmentedObject", () => {
