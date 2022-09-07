@@ -3,6 +3,7 @@ on: ["push"]
 jobs:
   e2e-test:
     runs-on: ubuntu-latest
+    container: cypress/included:6.8.0
     steps:
       - uses: actions/checkout@v3
       - uses: sudo-bot/action-docker-compose@latest
