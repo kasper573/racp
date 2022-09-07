@@ -5,10 +5,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: isbang/compose-action@v1.2.0
+      - uses: sudo-bot/action-docker-compose@latest
         with:
-          compose-file: "./docker-compose.yml"
-          up-flags: --exit-code-from cypress
+          cli-args: up --exit-code-from cypress
   lint-and-unit-test:
     runs-on: ubuntu-latest
     steps:
