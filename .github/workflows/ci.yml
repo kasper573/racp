@@ -36,6 +36,8 @@ jobs:
             -p 8081:8081
             -p 3306:3306
             --expose 8080
+            --expose 8081
+            --expose 3306
             --env MYSQL_ROOT_PASSWORD=racp
             --env MYSQL_ROOT_HOST=%
             --env MYSQL_USER=racp
