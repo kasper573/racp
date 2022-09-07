@@ -11,7 +11,7 @@
     "build:app": "webpack build",
     "app:dev": "cross-env reactRefresh=true apiBaseUrl=http://localhost:8081 webpack serve",
     "app:prod": "cross-env NODE_ENV=production webpack && serve dist -s",
-    "api:dev": "ts-node-dev src/api/server --jwtSecret dev --appPort 8081",
+    "api:dev": "ts-node-dev src/api/server --jwtSecret dev --apiPort 8081",
     "api:prod": "ts-node src/api/server",
     "codegen": "ts-node src/api/rathena/DatabaseDriver.codegen",
     "configure-rathena": "ts-node configureRAthena.ts"
