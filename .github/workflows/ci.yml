@@ -23,7 +23,6 @@ jobs:
           context: ./
           file: ./Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
-          load: true
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/racp:${{ github.sha }}
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/racp:buildcache
