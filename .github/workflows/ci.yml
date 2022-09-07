@@ -24,7 +24,7 @@ jobs:
           file: ./Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/racp:${{ github.head_ref }}.${{ github.sha }}
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/racp:${{ github.sha }}
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/racp:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/racp:buildcache,mode=max
         env:
@@ -46,7 +46,7 @@ jobs:
       - name: "Test run RACP"
         uses: addnab/docker-run-action@v3
         with:
-          image: ${{ secrets.DOCKER_HUB_USERNAME }}/racp:${{ github.head_ref }}.${{ github.sha }}
+          image: ${{ secrets.DOCKER_HUB_USERNAME }}/racp:${{ github.sha }}
           run: echo "hello world"
   build:
     runs-on: ubuntu-latest
