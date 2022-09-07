@@ -30,24 +30,26 @@ jobs:
 
       - name: "Test run RACP"
         uses: addnab/docker-run-action@v3
-        env:
-          MYSQL_ROOT_PASSWORD: "racp"
-          MYSQL_ROOT_HOST: "%"
-          MYSQL_USER: "racp"
-          MYSQL_PASSWORD: "racp"
-          MYSQL_DATABASE: "racp"
-          MYSQL_PORT: 3306
-          MYSQL_HOST: "localhost"
-          ADMIN_USER: "admin"
-          ADMIN_PASSWORD: "admin"
-          hostname: 0.0.0.0
-          jwtSecret: "secret"
-          apiPort: 8081
-          apiBaseUrl: "http://localhost:8081"
-          adminPermissionName: "channel_admin"
         with:
           image: ${{ secrets.DOCKER_HUB_USERNAME }}/racp
-          options: --expose 8080 -p 8080:8080 -p 8081:8081 -p 3306:3306
+          options: -p 8080:8080
+            -p 8081:8081
+            -p 3306:3306
+            --expose 8080
+            --env MYSQL_ROOT_PASSWORD="racp"
+            --env MYSQL_ROOT_HOST="%"
+            --env MYSQL_USER="racp"
+            --env MYSQL_PASSWORD="racp"
+            --env MYSQL_DATABASE="racp"
+            --env MYSQL_PORT=3306
+            --env MYSQL_HOST="localhost"
+            --env ADMIN_USER="admin"
+            --env ADMIN_PASSWORD="admin"
+            --env hostname=0.0.0.0
+            --env jwtSecret="secret"
+            --env apiPort=8081
+            --env apiBaseUrl="http://localhost:8081"
+            --env adminPermissionName="channel_admin"
           run: yarn configure-rathena && yarn api:prod & yarn app:prod -p 8080
   lint-and-unit-test:
     name: Lint and Unit Test
