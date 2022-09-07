@@ -49,7 +49,8 @@ jobs:
           image: ${{ secrets.DOCKER_HUB_USERNAME }}/racp
           options: --expose 8080 -p 8080:8080 -p 8081:8081 -p 3306:3306
           run: yarn configure-rathena && yarn api:prod & yarn app:prod -p 8080
-  build:
+  lint-and-unit-test:
+    name: Lint and Unit Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
