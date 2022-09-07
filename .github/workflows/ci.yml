@@ -23,6 +23,7 @@ jobs:
           context: ./
           file: ./Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
+          load: true
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/racp:${{ github.sha }}
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/racp:buildcache
@@ -47,7 +48,7 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: ${{ secrets.DOCKER_HUB_USERNAME }}/racp:${{ github.sha }}
-          run: echo "hello world"
+          run: yarn configure-rathena && yarn api:prod & yarn app:prod -p 8081
   build:
     runs-on: ubuntu-latest
     steps:
