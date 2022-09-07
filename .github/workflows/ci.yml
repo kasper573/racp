@@ -42,13 +42,13 @@ jobs:
             --env MYSQL_PASSWORD="racp"
             --env MYSQL_DATABASE="racp"
             --env MYSQL_PORT=3306
-            --env MYSQL_HOST="localhost"
+            --env MYSQL_HOST="127.0.0.1"
             --env ADMIN_USER="admin"
             --env ADMIN_PASSWORD="admin"
             --env hostname=0.0.0.0
             --env jwtSecret="secret"
             --env apiPort=8081
-            --env apiBaseUrl="http://localhost:8081"
+            --env apiBaseUrl="http://127.0.0.1:8081"
             --env adminPermissionName="channel_admin"
           run: yarn configure-rathena && yarn api:prod & yarn app:prod -p 8080
   lint-and-unit-test:
