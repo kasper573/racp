@@ -24,14 +24,14 @@ jobs:
           file: ./Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/racp
-          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/racp:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/racp:buildcache,mode=max
+          tags: ${{ github.repository }}/${{ github.ref_name }}
+          cache-from: type=registry,ref=${{ github.repository }}/${{ github.ref_name }}:buildcache
+          cache-to: type=registry,ref=${{ github.repository }}/${{ github.ref_name }}:buildcache,mode=max
 
       - name: "Test run RACP"
         uses: addnab/docker-run-action@v3
         with:
-          image: ${{ secrets.DOCKER_HUB_USERNAME }}/racp
+          image: ${{ github.repository }}/${{ github.ref_name }}
           options: -p 8080:8080
             -p 8081:8081
             -p 3306:3306
