@@ -1,4 +1,5 @@
-FROM cypress/included:6.8.0
+
+FROM cypress/included:10.7.0
 
 WORKDIR /opt/cypress/
 COPY package.json .
