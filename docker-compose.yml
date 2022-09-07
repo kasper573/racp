@@ -3,10 +3,6 @@ x-mysql-conf: &mysql-conf
   MYSQL_PASSWORD: racp
   MYSQL_DATABASE: racp
 
-x-racp-build: &racp-build
-  context: .
-  dockerfile: racp.dockerfile
-
 version: "3.4"
 services:
   db:
@@ -23,7 +19,7 @@ services:
     volumes:
       - ./docker-volumes/mariadb:/var/lib/mysql
   api:
-    build: *racp-build
+    build: .
     depends_on: ["db"]
     expose:
       - "8081"
@@ -41,7 +37,7 @@ services:
       adminPermissionName: channel_admin
     command: sh -c "yarn configure-rathena && yarn api:prod"
   app:
-    build: *racp-build
+    build: .
     depends_on: ["api"]
     expose:
       - "8080"
