@@ -48,9 +48,9 @@ services:
       apiBaseUrl: http://localhost:8081 # localhost due to value being used directly in the app and used from browser
     command: yarn app:prod -p 8080
   cypress:
-    image: cypress/included:6.8.0
     build:
       context: .
+      dockerfile: cypress.dockerfile
     environment:
       ELECTRON_RUN_AS_NODE: 1
       CYPRESS_BROWSER: chrome
