@@ -27,6 +27,9 @@ jobs:
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/racp
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/racp:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/racp:buildcache,mode=max
+
+      - name: "Test run RACP"
+        uses: addnab/docker-run-action@v3
         env:
           MYSQL_ROOT_PASSWORD: "racp"
           MYSQL_ROOT_HOST: "%"
@@ -42,9 +45,6 @@ jobs:
           apiPort: 8081
           apiBaseUrl: "http://localhost:8081"
           adminPermissionName: "channel_admin"
-
-      - name: "Test run RACP"
-        uses: addnab/docker-run-action@v3
         with:
           image: ${{ secrets.DOCKER_HUB_USERNAME }}/racp
           run: yarn configure-rathena && yarn api:prod & yarn app:prod -p 8081
