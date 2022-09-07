@@ -3,6 +3,7 @@ assets
 dist
 data
 node_modules
+cypress/downloads
 docker-volumes
 .env.local
 .idea

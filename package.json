@@ -43,6 +43,7 @@
     "cors": "2.8.5",
     "cross-env": "7.0.3",
     "css-loader": "6.7.1",
+    "cypress": "^10.7.0",
     "dotenv-flow": "3.2.0",
     "eslint": "8.22.0",
     "eslint-config-react-app": "7.0.1",
@@ -62,6 +63,7 @@
     "luaparse": "0.3.1",
     "mysql": "^2.18.1",
     "prettier": "2.6.2",
+    "rathena": "https://github.com/rathena/rathena.git#4a43856",
     "react-refresh": "0.14.0",
     "recursive-readdir": "2.2.2",
     "serve": "^14.0.1",
@@ -77,8 +79,7 @@
     "webpack-dev-server": "4.9.2",
     "xregexp": "5.1.1",
     "yaml": "2.1.1",
-    "yargs": "17.5.1",
-    "rathena": "https://github.com/rathena/rathena.git#4a43856"
+    "yargs": "17.5.1"
   },
   "dependencies": {
     "@emotion/react": "11.9.3",
