@@ -64,7 +64,7 @@ jobs:
       - run: yarn e2e:ci:run
         env:
           MYSQL_PORT: 3306
-          MYSQL_HOST: localhost
+          MYSQL_HOST: db
           MYSQL_USER: ragnarok
           MYSQL_PASSWORD: ragnarok
           MYSQL_DATABASE: ragnarok
