@@ -37,7 +37,7 @@ jobs:
 
   e2e-test-ci:
     runs-on: ubuntu-latest
-    container: cypress/included:9.7.0
+    container: cypress/included:10.7.0
     services:
       db:
         image: mariadb:latest
