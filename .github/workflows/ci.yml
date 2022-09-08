@@ -26,6 +26,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: >
-          CYPRESS_PROJECT_ID=${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY=${{ secrets.CYPRESS_RECORD_KEY }}
-          docker-compose up --build --exit-code-from cypress
+          docker-compose up --exit-code-from cypress
