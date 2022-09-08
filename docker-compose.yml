@@ -1,7 +1,9 @@
 x-mysql-conf: &mysql-conf
-  MYSQL_USER: racp
-  MYSQL_PASSWORD: racp
-  MYSQL_DATABASE: racp
+  # Matches the default settings of rathena for convenience
+  # Makes it easy to reuse the db service for local development with a local rathena server
+  MYSQL_USER: ragnarok
+  MYSQL_PASSWORD: ragnarok
+  MYSQL_DATABASE: ragnarok
 
 x-racp-build: &racp-build
   context: .
