@@ -2,11 +2,7 @@
   "root": true,
   "plugins": ["@typescript-eslint", "import", "unused-imports"],
   "parser": "@typescript-eslint/parser",
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "react-app"
-  ],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
   "rules": {
     "import/order": ["error"],
     "@typescript-eslint/no-unused-vars": "off",
