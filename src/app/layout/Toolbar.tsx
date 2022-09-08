@@ -36,9 +36,13 @@ export function Toolbar() {
       <MenuOn
         trigger={(open) => (
           <IconButton sx={{ ml: 1 }} onClick={open}>
-            <OnlineBadge visible={!!username}>
+            {username ? (
+              <OnlineBadge>
+                <AccountCircle />
+              </OnlineBadge>
+            ) : (
               <AccountCircle />
-            </OnlineBadge>
+            )}
           </IconButton>
         )}
       >
