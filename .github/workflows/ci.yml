@@ -23,7 +23,7 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: yarn test
 
-  e2e-test-ci:
+  e2e-test:
     runs-on: ubuntu-latest
     container: cypress/included:10.7.0
     services:
