@@ -30,6 +30,7 @@ jobs:
           username: "ksandin"
           password: "${{ secrets.GITHUB_TOKEN }}"
           registry: "ghcr.io"
+          image_name: "racp/${{ github.ref_name }}"
           compose_file: docker-compose.yml
       - run: >
           CYPRESS_PROJECT_ID=${{ secrets.CYPRESS_PROJECT_ID }}
