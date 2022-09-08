@@ -15,7 +15,7 @@
     "api:prod": "ts-node src/api/server",
     "e2e:dev": "cross-env CYPRESS_BASE_URL=http://localhost:8080 cypress open",
     "e2e:ci:dependencies": "yarn configure-rathena && concurrently \"yarn api:prod\" \"yarn app:prod\"",
-    "e2e:ci:run": "cross-var npx start-server-and-test e2e:ci:dependencies $CYPRESS_BASE_URL 'cypress run'",
+    "e2e:ci:run": "cross-var npx start-server-and-test e2e:ci:dependencies $CYPRESS_BASE_URL 'cypress run --record'",
     "codegen": "ts-node src/api/rathena/DatabaseDriver.codegen",
     "configure-rathena": "ts-node configureRAthena.ts"
   },
