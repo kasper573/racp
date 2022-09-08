@@ -38,6 +38,16 @@ jobs:
   e2e-test-ci:
     runs-on: ubuntu-latest
     container: cypress/included:9.7.0
+    services:
+      db:
+        image: mariadb:latest
+        ports: [3306]
+        env:
+          MYSQL_USER: ragnarok
+          MYSQL_PASSWORD: ragnarok
+          MYSQL_DATABASE: ragnarok
+          MYSQL_ROOT_PASSWORD: racp
+          MYSQL_ROOT_HOST: "%"
     steps:
       - uses: actions/checkout@v3
 
@@ -48,21 +58,13 @@ jobs:
 
       - run: yarn install --frozen-lockfile
 
-      - name: Set up MariaDB
-        uses: getong/mariadb-action@v1.1
-        with:
-          mysql root password: racp
-          mysql database: ragnarok
-          mysql user: ragnarok
-          mysql password: ragnarok
-
       - name: Allow access to rathena files
         run: chmod -R a+rwX ./node_modules/rathena
 
       - run: yarn e2e:ci:run
         env:
           MYSQL_PORT: 3306
-          MYSQL_HOST: 127.0.0.1
+          MYSQL_HOST: db
           MYSQL_USER: ragnarok
           MYSQL_PASSWORD: ragnarok
           MYSQL_DATABASE: ragnarok
