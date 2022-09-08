@@ -41,18 +41,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Restore yarn workspaces
-        id: yarn-cache
-        uses: actions/cache@master
+      - uses: actions/setup-node@v3
         with:
-          path: |
-            node_modules
-            */*/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          node-version: "16"
+          cache: "yarn"
 
-      - name: Install dependencies
-        if: steps.yarn-cache.outputs.cache-hit != 'true'
-        run: yarn install --no-progress --non-interactive
+      - run: yarn install --frozen-lockfile
 
       - name: Set up MariaDB
         uses: getong/mariadb-action@v1.1
@@ -73,7 +67,7 @@ jobs:
           apiPort: 8081
           appPort: 8080
           apiBaseUrl: http://localhost:8081
-          rAthenaPath: ${{ env.GITHUB_WORKSPACE }}/node_modules/rathena
+          rAthenaPath: ./node_modules/rathena
           CYPRESS_BASE_URL: http://localhost:8080
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
