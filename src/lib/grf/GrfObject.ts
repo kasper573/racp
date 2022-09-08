@@ -1,8 +1,8 @@
 // Based on https://github.com/vthibault/grf-loader
 
 import { inflate } from "pako";
-import * as JDataView from "jdataview";
 import { decodeFull, decodeHeader } from "./des";
+import { Loader } from "./Loader";
 
 export interface TFileEntry {
   type: number;
@@ -20,40 +20,19 @@ const HEADER_SIGNATURE = "Master of Magic";
 const HEADER_SIZE = 46;
 const FILE_TABLE_SIZE = Uint32Array.BYTES_PER_ELEMENT * 2;
 
-export abstract class GrfBase<T> {
+export class GrfObject<Stream> extends Loader<Stream> {
   public version = 0x200;
   public fileCount = 0;
-  public loaded = false;
   public files = new Map<string, TFileEntry>();
   private fileTableOffset = 0;
 
-  constructor(private fd: T) {}
-
-  abstract getStreamBuffer(
-    fd: T,
-    offset: number,
-    length: number
-  ): Promise<Uint8Array>;
-
-  public async getStreamReader(
-    offset: number,
-    length: number
-  ): Promise<JDataView> {
-    const buffer = await this.getStreamBuffer(this.fd, offset, length);
-
-    return new JDataView(buffer, void 0, void 0, true);
-  }
-
-  public async load(): Promise<void> {
-    if (!this.loaded) {
-      await this.parseHeader();
-      await this.parseFileList();
-      this.loaded = true;
-    }
+  public async loadImpl(): Promise<void> {
+    await this.parseHeader();
+    await this.parseFileList();
   }
 
   private async parseHeader(): Promise<void> {
-    const reader = await this.getStreamReader(0, HEADER_SIZE);
+    const reader = await this.getDataView(0, HEADER_SIZE);
 
     const signature = reader.getString(15);
     if (signature !== HEADER_SIGNATURE) {
@@ -73,16 +52,12 @@ export abstract class GrfBase<T> {
 
   private async parseFileList(): Promise<void> {
     // Read table list, stored information
-    const reader = await this.getStreamReader(
-      this.fileTableOffset,
-      FILE_TABLE_SIZE
-    );
-    const compressedSize = reader.getUint32();
-    const realSize = reader.getUint32();
+    const view = await this.getDataView(this.fileTableOffset, FILE_TABLE_SIZE);
+    const compressedSize = view.getUint32();
+    const realSize = view.getUint32();
 
     // Load the chunk and decompress it
-    const compressed = await this.getStreamBuffer(
-      this.fd,
+    const compressed = await this.getBuffer(
       this.fileTableOffset + FILE_TABLE_SIZE,
       compressedSize
     );
@@ -149,8 +124,7 @@ export abstract class GrfBase<T> {
       return Promise.resolve({ data: null, error: `File "${path}" not found` });
     }
 
-    const buffer = await this.getStreamBuffer(
-      this.fd,
+    const buffer = await this.getBuffer(
       entry.offset + HEADER_SIZE,
       entry.lengthAligned
     );

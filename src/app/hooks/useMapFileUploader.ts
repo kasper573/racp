@@ -6,9 +6,10 @@ import {
   useUploadMapInfoMutation,
 } from "../state/client";
 import { fromBrowserFile } from "../../lib/rpc/RpcFile";
-import { GrfBrowser } from "../../lib/grf/GrfBrowser";
+import { GrfObject } from "../../lib/grf/GrfObject";
 import { MapBounds, MapBoundsRegistry } from "../../api/services/map/types";
 import { parseGAT } from "../../lib/grf/parseGAT";
+import { readFileStream } from "../../lib/grf/readFileStream";
 import { usePromiseTracker } from "./usePromiseTracker";
 
 export function useMapFileUploader({
@@ -35,7 +36,7 @@ export function useMapFileUploader({
     const files = _files.slice();
     const grfFiles = files.filter((file) => file.name.endsWith(".grf"));
     const grfBrowsers = await tracker.trackAll(
-      grfFiles.map(GrfBrowser.load),
+      grfFiles.map((file) => new GrfObject(readFileStream, file).load()),
       "Initializing GRF loaders"
     );
 
@@ -112,7 +113,9 @@ export function useMapFileUploader({
 const fileNameToMapName = (filename: string) =>
   /([^/\\]+)\.\w+$/.exec(filename)?.[1] ?? "";
 
-function unpackGATAndImageFiles(grf: GrfBrowser): Promise<File[]>[] {
+function unpackGATAndImageFiles<Stream>(
+  grf: GrfObject<Stream>
+): Promise<File[]>[] {
   const gatFilePathRegex = /^data\\(.*)\.gat$/;
 
   return Array.from(grf.files.keys())
@@ -147,13 +150,6 @@ function unpackGATAndImageFiles(grf: GrfBrowser): Promise<File[]>[] {
 
       return out;
     });
-}
-
-async function readBoundsFromGAT(file: File) {
-  const view = new DataView(await file.arrayBuffer());
-  const width = view.getUint32(6, true);
-  const height = view.getUint32(10, true);
-  return { width, height };
 }
 
 function createMapBoundsRegistry(files: File[], bounds: MapBounds[]) {
