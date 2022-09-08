@@ -27,12 +27,12 @@ export default function LoginPage() {
     <Form onSubmit={submit}>
       <Stack spacing={2}>
         <TextField
-          placeholder="Username"
+          label="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
         <TextField
-          placeholder="Password"
+          label="Password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

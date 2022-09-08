@@ -11,7 +11,7 @@ export const options = {
     description: "The hostname to run the api server on",
     default: "localhost",
   },
-  port: {
+  apiPort: {
     type: "number",
     description: "The port to run the api server on",
   },

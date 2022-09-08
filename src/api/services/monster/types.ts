@@ -10,6 +10,7 @@ export type MonsterDropPostProcess = zod.infer<
 export const monsterDropPostProcessType = zod.object({
   ItemId: zod.number().default(-1),
   Name: zod.string().default(""),
+  Slots: zod.number().optional(),
 });
 
 export type MonsterDrop = zod.infer<typeof monsterDropType>;

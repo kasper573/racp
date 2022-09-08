@@ -27,14 +27,6 @@ export function createConfigDriver({
     return fs.promises.readFile(configPath(configName), "utf-8");
   });
 
-  const parse = logger.wrap(function parse(config: string) {
-    const matches = config.matchAll(/^\s*(\w+):\s*(.*)\s*(\/\/)?/gm);
-    return Array.from(matches).reduce(
-      (record, [, key, value]) => ({ ...record, [key]: value }),
-      {} as Record<string, string>
-    );
-  });
-
   const load = logger.wrap(async function load(configName: string) {
     const record = await parse(await read(configName));
     return {
@@ -45,6 +37,10 @@ export function createConfigDriver({
         throw new Error(
           `Config "${configName}" does not contain a "${key}" key`
         );
+      },
+      update(...[values]: Parameters<typeof format>) {
+        Object.assign(record, values);
+        return update(configName, format(record));
       },
     };
   });
@@ -73,11 +69,21 @@ export function createConfigDriver({
     async dbInfo(prefix: string) {
       const info = await load(dbInfoConfigName);
       return {
-        host: info.get(`${prefix}_ip`),
-        port: parseInt(info.get(`${prefix}_port`), 10),
-        user: info.get(`${prefix}_id`),
-        password: info.get(`${prefix}_pw`),
-        database: info.get(`${prefix}_db`),
+        get host() {
+          return info.get(`${prefix}_ip`);
+        },
+        get port() {
+          return parseInt(info.get(`${prefix}_port`), 10);
+        },
+        get user() {
+          return info.get(`${prefix}_id`);
+        },
+        get password() {
+          return info.get(`${prefix}_pw`);
+        },
+        get database() {
+          return info.get(`${prefix}_db`);
+        },
       };
     },
   };
@@ -91,4 +97,18 @@ export function createConfigDriver({
     load,
     presets,
   };
+}
+
+function format(config: Record<string, unknown>) {
+  return Object.entries(config)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join("\n");
+}
+
+function parse(config: string) {
+  const matches = config.matchAll(/^\s*(\w+):\s*(.*)\s*(\/\/)?/gm);
+  return Array.from(matches).reduce(
+    (record, [, key, value]) => ({ ...record, [key]: value }),
+    {} as Record<string, string>
+  );
 }

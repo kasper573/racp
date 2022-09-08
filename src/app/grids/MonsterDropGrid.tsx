@@ -20,7 +20,7 @@ export function MonsterDropGrid({
           renderCell({ row: item }) {
             return (
               <Link to={router.item().view({ id: item.ItemId })}>
-                {item.Name}
+                {itemNameString(item.Name, item.Slots)}
               </Link>
             );
           },
@@ -39,6 +39,10 @@ export function MonsterDropGrid({
       {...props}
     />
   );
+}
+
+export function itemNameString(name: string, slots?: number) {
+  return slots !== undefined ? `${name} [${slots}]` : name;
 }
 
 export function dropChanceString(drop: MonsterDrop["Rate"]) {

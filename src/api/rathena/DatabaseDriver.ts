@@ -1,4 +1,4 @@
-import knex from "knex";
+import knex, { Knex } from "knex";
 import { singletons } from "../../lib/singletons";
 import { ConfigDriver } from "./ConfigDriver";
 import { Tables } from "./DatabaseDriver.types";
@@ -11,23 +11,35 @@ export type DatabaseDriver = ReturnType<typeof createDatabaseDriver>;
  * The drivers are initialized lazily on first use.
  */
 export function createDatabaseDriver(cfg: ConfigDriver) {
-  return singletons({
+  const db = singletons({
     login: () => driverForDB(cfg, "login_server"),
     ipban: () => driverForDB(cfg, "ipban_server"),
     map: () => driverForDB(cfg, "map_server"),
     char: () => driverForDB(cfg, "char_server"),
+    destroy: () => destroy,
   });
-}
 
-function driverForDB(cfg: ConfigDriver, dbPrefix: string) {
-  const db = knex({
-    client: "mysql",
-    connection: () => cfg.presets.dbInfo(dbPrefix),
-  });
-  return {
-    table: <TableName extends keyof Tables>(tableName: TableName) => {
-      type Entity = Tables[TableName];
-      return db<Entity, Entity[]>(tableName);
-    },
-  };
+  function destroy() {
+    return Promise.all(
+      Object.values(drivers).map((driver) => driver.destroy())
+    );
+  }
+
+  const drivers: Record<string, Knex> = {};
+
+  function driverForDB(cfg: ConfigDriver, dbPrefix: string) {
+    const driver = knex({
+      client: "mysql",
+      connection: () => cfg.presets.dbInfo(dbPrefix),
+    });
+    drivers[dbPrefix] = driver;
+    return {
+      table: <TableName extends keyof Tables>(tableName: TableName) => {
+        type Entity = Tables[TableName];
+        return driver<Entity, Entity[]>(tableName);
+      },
+    };
+  }
+
+  return db;
 }

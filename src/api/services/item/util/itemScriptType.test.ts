@@ -1,3 +1,4 @@
+import { expect } from "@jest/globals";
 import { ItemScript, itemScriptType } from "./itemScriptType";
 
 describe("itemScriptType", () => {

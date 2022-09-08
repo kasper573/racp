@@ -1,4 +1,5 @@
 import { range } from "lodash";
+import { expect } from "@jest/globals";
 import {
   clientTextContent,
   ClientTextNode,

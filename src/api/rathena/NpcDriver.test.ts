@@ -1,3 +1,4 @@
+import { expect } from "@jest/globals";
 import { parseTextEntities, replaceScripts } from "./NpcDriver";
 
 describe("parseTextEntities", () => {

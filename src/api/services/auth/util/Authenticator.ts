@@ -8,27 +8,31 @@ export function createAuthenticator({
   tokenLifetime = 24 * 60 * 60,
   algorithms = ["HS256"],
 }: AuthenticatorOptions) {
-  type Payload = {
-    id: number;
-    access: UserAccessLevel;
+  const sign: AuthenticatorSigner = (payload) => {
+    return jwt.sign(payload, secret, { expiresIn: tokenLifetime });
   };
   return {
-    sign(payload: Payload) {
-      return jwt.sign(payload, secret, { expiresIn: tokenLifetime });
-    },
+    sign,
     middleware: expressjwt({
       secret,
       algorithms,
       credentialsRequired: false,
     }),
     validatorFor(requiredAccess: UserAccessLevel) {
-      return (req: JWTRequest<Payload>) =>
+      return (req: JWTRequest<AuthenticatorPayload>) =>
         (req.auth?.access ?? 0) >= requiredAccess;
     },
   };
 }
 
+export type AuthenticatorSigner = (payload: AuthenticatorPayload) => string;
+
 export type Authenticator = ReturnType<typeof createAuthenticator>;
+
+export interface AuthenticatorPayload {
+  id: number;
+  access: UserAccessLevel;
+}
 
 export interface AuthenticatorOptions {
   readonly secret: string;

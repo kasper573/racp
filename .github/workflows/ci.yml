@@ -1,24 +1,68 @@
 name: CI
-on:
-  push:
-  pull_request:
-  workflow_dispatch:
+on: ["push"]
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
-      - uses: actions/cache@v2
+      - uses: actions/setup-node@v3
         with:
-          path: "**/node_modules"
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+          node-version: "16"
+          cache: "yarn"
+      - run: yarn install --frozen-lockfile
+      - run: yarn lint
 
-      - name: Install packages
-        run: yarn install
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "yarn"
+      - run: yarn install --frozen-lockfile
+      - run: yarn test
 
-      - name: Test
-        run: yarn test
+  e2e-test:
+    runs-on: ubuntu-latest
+    container: cypress/included:10.7.0
+    services:
+      db:
+        image: mariadb:latest
+        ports: [3306]
+        env:
+          MYSQL_USER: ragnarok
+          MYSQL_PASSWORD: ragnarok
+          MYSQL_DATABASE: ragnarok
+          MYSQL_ROOT_PASSWORD: racp
+          MYSQL_ROOT_HOST: "%"
+    steps:
+      - uses: actions/checkout@v3
 
-      - name: Lint
-        run: yarn lint
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "yarn"
+
+      - run: yarn install --frozen-lockfile
+
+      - name: Allow access to rathena and cypress directories
+        run: |
+          chmod -R a+rwX ./node_modules/rathena
+          chmod -R a+rwX ./cypress
+
+      - run: yarn e2e:ci:run
+        env:
+          MYSQL_PORT: 3306
+          MYSQL_HOST: db
+          MYSQL_USER: ragnarok
+          MYSQL_PASSWORD: ragnarok
+          MYSQL_DATABASE: ragnarok
+          NODE_ENV: production
+          apiPort: 8081
+          appPort: 8080
+          apiBaseUrl: http://localhost:8081
+          rAthenaPath: ./node_modules/rathena
+          CYPRESS_BASE_URL: http://localhost:8080
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}

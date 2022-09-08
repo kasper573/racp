@@ -13,7 +13,7 @@ import { resolveToggles } from "../../api/util/matcher";
 import { DataGridQueryFn } from "../components/DataGrid";
 import { Monster, MonsterFilter } from "../../api/services/monster/types";
 import { Link } from "../components/Link";
-import { dropChanceString } from "../grids/MonsterDropGrid";
+import { dropChanceString, itemNameString } from "../grids/MonsterDropGrid";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ItemSearchPage(): ReactElement {
@@ -56,10 +56,10 @@ export default function ItemSearchPage(): ReactElement {
   return (
     <>
       <Header back={router.item}>
-        {item.Name}&nbsp;
+        {itemNameString(item.Name, item.Slots)}&nbsp;
         {hasDifferentDisplayName && (
           <TooltipText tooltip="Client display name" color="text.disabled">
-            ({displayName})
+            (itemNameString(displayName, item.Slots))
           </TooltipText>
         )}
       </Header>

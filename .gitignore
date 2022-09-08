@@ -3,6 +3,9 @@ assets
 dist
 data
 node_modules
+cypress/downloads
+cypress/videos
+docker-volumes
 .env.local
 .idea
 .DS_Store

@@ -1,19 +1,13 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "strict": true,
-    "resolveJsonModule": true,
-    "moduleResolution": "node",
-    "experimentalDecorators": true,
-    "useDefineForClassFields": true,
-    "downlevelIteration": true,
-    "target": "es5",
-    "lib": ["ESNext", "dom"]
+    "types": ["node", "jest"]
   },
   "ts-node": {
     "compilerOptions": {
       "target": "es6",
-      "module": "CommonJS"
+      "module": "CommonJS",
+      "types": ["node", "jest"]
     }
   },
   "include": ["*.ts", "src"]
