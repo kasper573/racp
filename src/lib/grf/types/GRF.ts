@@ -1,8 +1,8 @@
 // Based on https://github.com/vthibault/grf-loader
 
 import { inflate } from "pako";
-import { decodeFull, decodeHeader } from "./des";
-import { Loader } from "./Loader";
+import { decodeFull, decodeHeader } from "../des";
+import { Loader } from "../Loader";
 
 export interface TFileEntry {
   type: number;
@@ -20,7 +20,7 @@ const HEADER_SIGNATURE = "Master of Magic";
 const HEADER_SIZE = 46;
 const FILE_TABLE_SIZE = Uint32Array.BYTES_PER_ELEMENT * 2;
 
-export class GrfObject<Stream> extends Loader<Stream> {
+export class GRF<Stream> extends Loader<Stream> {
   public version = 0x200;
   public fileCount = 0;
   public files = new Map<string, TFileEntry>();
