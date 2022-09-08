@@ -41,14 +41,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Restore yarn workspaces
+        id: yarn-cache
+        uses: actions/cache@master
         with:
-          node-version: "16"
-          cache: "yarn"
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
 
-      - name: Install project dependencies
-        run: yarn --prefer-offline
+      - name: Install dependencies
+        if: steps.yarn-cache.outputs.cache-hit != 'true'
+        run: yarn install --no-progress --non-interactive
 
       - name: Set up MariaDB
         uses: getong/mariadb-action@v1.1
