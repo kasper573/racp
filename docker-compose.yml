@@ -3,12 +3,6 @@ x-mysql-conf: &mysql-conf
   MYSQL_PASSWORD: racp
   MYSQL_DATABASE: racp
 
-x-user-conf: &user-conf
-  ADMIN_USER: racp
-  ADMIN_PASSWORD: racp
-  MEMBER_USER: s1
-  MEMBER_PASSWORD: p1
-
 x-racp-build: &racp-build
   context: .
   dockerfile: racp.dockerfile
@@ -37,7 +31,8 @@ services:
       - "8081:8081"
     environment:
       <<: *mysql-conf
-      <<: *user-conf
+      ADMIN_USER: racp
+      ADMIN_PASSWORD: racp
       MYSQL_PORT: 3306
       MYSQL_HOST: "db"
       apiPort: 8081
@@ -59,7 +54,10 @@ services:
       context: .
       dockerfile: cypress.dockerfile
     environment:
-      <<: *user-conf
+      CYPRESS_ADMIN_USER: racp
+      CYPRESS_ADMIN_PASSWORD: racp
+      CYPRESS_MEMBER_USER: s1
+      CYPRESS_MEMBER_PASSWORD: p1
       CYPRESS_BASE_URL: http://app:8080
     entrypoint: [""]
     command: sh -c "npx wait-on http://app:8080 --log && npx cypress run"

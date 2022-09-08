@@ -45,7 +45,7 @@
     "cors": "2.8.5",
     "cross-env": "7.0.3",
     "css-loader": "6.7.1",
-    "cypress": "^10.7.0",
+    "cypress": "9.7.0",
     "cypress-dotenv-flow": "^1.2.2",
     "dotenv-flow": "3.2.0",
     "eslint": "8.22.0",
