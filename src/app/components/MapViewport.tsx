@@ -53,7 +53,9 @@ export function MapViewport({
   );
 }
 
-const Viewport = styled(Box)<{ imageUrl?: string }>`
+const Viewport = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "imageUrl",
+})<{ imageUrl?: string }>`
   position: relative;
   background-color: ${(props) => props.theme.palette.divider};
   background-image: ${({ imageUrl }) =>

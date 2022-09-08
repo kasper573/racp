@@ -1,4 +1,4 @@
-import { ReactElement } from "react";
+import { Fragment, ReactElement } from "react";
 import { Stack } from "@mui/material";
 import { pick } from "lodash";
 import { useRouteParams } from "../../lib/useRouteParams";
@@ -16,7 +16,7 @@ import { Link } from "../components/Link";
 import { dropChanceString, itemNameString } from "../grids/MonsterDropGrid";
 import { LoadingPage } from "./LoadingPage";
 
-export default function ItemSearchPage(): ReactElement {
+export default function ItemViewPage(): ReactElement {
   const { id } = useRouteParams(router.item().view);
   const { data: item, isLoading } = useGetItemQuery(id);
   const { data: { entities: droppedBy = [] } = {} } = (
@@ -104,7 +104,7 @@ export default function ItemSearchPage(): ReactElement {
                 content: (
                   <>
                     {droppers.map(({ monster, drop }, index) => (
-                      <>
+                      <Fragment key={index}>
                         <span>
                           <Link
                             to={router.monster().view({ id: monster.Id })}
@@ -115,7 +115,7 @@ export default function ItemSearchPage(): ReactElement {
                           {drop ? `(${dropChanceString(drop.Rate)})` : ""}
                         </span>
                         {index !== droppedBy.length - 1 && ", "}
-                      </>
+                      </Fragment>
                     ))}
                     {droppers.length === 0 && "None"}
                   </>
