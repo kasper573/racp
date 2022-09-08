@@ -45,7 +45,7 @@ services:
       - "8080:8080"
     environment:
       appPort: 8080
-      apiBaseUrl: http://localhost:8081 # localhost due to value being used directly in the app and used from browser
+      apiBaseUrl: http://api:8081
     command: yarn app:prod -l tcp://0.0.0.0:8080
   cypress:
     build:
