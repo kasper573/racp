@@ -13,6 +13,7 @@
     "app:prod": "cross-env NODE_ENV=production webpack && serve dist -s",
     "api:dev": "ts-node-dev src/api/server --apiPort 8081",
     "api:prod": "ts-node src/api/server",
+    "e2e:dev": "cross-env CYPRESS_BASE_URL=http://localhost:8080 cypress open",
     "codegen": "ts-node src/api/rathena/DatabaseDriver.codegen",
     "configure-rathena": "ts-node configureRAthena.ts"
   },

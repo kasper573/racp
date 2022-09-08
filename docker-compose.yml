@@ -31,8 +31,6 @@ services:
       - "8081:8081"
     environment:
       <<: *mysql-conf
-      ADMIN_USER: racp
-      ADMIN_PASSWORD: racp
       MYSQL_PORT: 3306
       MYSQL_HOST: "db"
       apiPort: 8081
@@ -48,16 +46,12 @@ services:
     environment:
       appPort: 8080
       apiBaseUrl: http://localhost:8081 # localhost due to value being used directly in the app and used from browser
-    command: yarn app:prod -l tcp://app:8080
+    command: yarn app:prod -l tcp://0.0.0.0:8080
   cypress:
     build:
       context: .
       dockerfile: cypress.dockerfile
     environment:
-      CYPRESS_ADMIN_USER: racp
-      CYPRESS_ADMIN_PASSWORD: racp
-      CYPRESS_MEMBER_USER: s1
-      CYPRESS_MEMBER_PASSWORD: p1
       CYPRESS_BASE_URL: http://app:8080
     entrypoint: [""]
     command: sh -c "npx wait-on http://app:8080 --log && npx cypress run"
