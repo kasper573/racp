@@ -25,12 +25,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      #      - run: docker-compose pull
-      #      - uses: satackey/action-docker-layer-caching@v0.0.11
-      #        continue-on-error: true
+      - run: docker-compose pull
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
       - run: |
           echo "CYPRESS_PROJECT_ID=${{ secrets.CYPRESS_PROJECT_ID }}"  > ./.env.local
           echo "CYPRESS_RECORD_KEY=${{ secrets.CYPRESS_RECORD_KEY }}" >> ./.env.local
-          cat ./.env.local
-
-#          docker-compose up --build --exit-code-from cypress
+          docker-compose up --build --exit-code-from cypress
