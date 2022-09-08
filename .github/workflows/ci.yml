@@ -73,7 +73,7 @@ jobs:
           apiPort: 8081
           appPort: 8080
           apiBaseUrl: http://localhost:8081
-          rAthenaPath: "${{ env.GITHUB_WORKSPACE }}/node_modules/rathena"
+          rAthenaPath: ${{ env.GITHUB_WORKSPACE }}/node_modules/rathena
           CYPRESS_BASE_URL: http://localhost:8080
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
