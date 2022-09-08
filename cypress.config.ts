@@ -7,7 +7,7 @@ export default defineConfig({
   e2e: {
     specPattern: "cypress/**/*.spec.ts",
     setupNodeEvents(on, config) {
-      return dotenvFlowPlugin(config);
+      return dotenvFlowPlugin(config, undefined, true);
     },
   },
   fixturesFolder: false,

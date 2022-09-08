@@ -23,9 +23,13 @@ jobs:
       - run: yarn test
   e2e-test:
     runs-on: ubuntu-latest
+    container: cypress/included:10.7.0
     steps:
       - uses: actions/checkout@v3
+      - uses: falti/dotenv-action@v0.2.8
       - run: docker-compose pull
       - uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true
-      - run: docker-compose up --build --exit-code-from cypress
+      - run: docker-compose up --build
+      - run: npx wait-on ${{ steps.dotenv.outputs.BASE_URL }} --log && npx cypress run
+      - run: docker-compose down
