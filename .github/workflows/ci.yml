@@ -23,20 +23,21 @@ jobs:
       - run: yarn install
       - run: yarn test
 
-#  e2e-test-docker:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#      - run: docker-compose pull
-#      - uses: satackey/action-docker-layer-caching@v0.0.11
-#        continue-on-error: true
-#      - run: docker-compose up --build --exit-code-from cypress
-#        env:
-#          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-#          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+  #  e2e-test-docker:
+  #    runs-on: ubuntu-latest
+  #    steps:
+  #      - uses: actions/checkout@v3
+  #      - run: docker-compose pull
+  #      - uses: satackey/action-docker-layer-caching@v0.0.11
+  #        continue-on-error: true
+  #      - run: docker-compose up --build --exit-code-from cypress
+  #        env:
+  #          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+  #          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
 
   e2e-test-ci:
     runs-on: ubuntu-latest
+    container: cypress/included:9.7.0
     steps:
       - uses: actions/checkout@v3
 
@@ -46,9 +47,6 @@ jobs:
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
 
       - run: yarn install
-
-      - name: Shutdown Ubuntu MySQL (SUDO)
-        run: sudo service mysql stop
 
       - name: Set up MariaDB
         uses: getong/mariadb-action@v1.1
