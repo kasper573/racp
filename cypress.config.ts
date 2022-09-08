@@ -6,6 +6,7 @@ export default defineConfig({
   projectId: "ic5gz7",
   e2e: {
     specPattern: "cypress/**/*.spec.ts",
+    video: false,
     setupNodeEvents(on, config) {
       return dotenvFlowPlugin(config, undefined, true);
     },

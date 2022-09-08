@@ -9,9 +9,9 @@
     "lint": "eslint . & prettier . --check",
     "lint:fix": "eslint . --fix & prettier . --write",
     "build:app": "webpack build",
-    "app:dev": "cross-env reactRefresh=true webpack serve",
+    "app:dev": "cross-env reactRefresh=true apiBaseUrl=http://localhost:8081 appPort=8080 webpack serve",
     "app:prod": "cross-env NODE_ENV=production webpack && serve dist -s",
-    "api:dev": "ts-node-dev src/api/server",
+    "api:dev": "ts-node-dev src/api/server --apiPort 8081",
     "api:prod": "ts-node src/api/server",
     "codegen": "ts-node src/api/rathena/DatabaseDriver.codegen",
     "configure-rathena": "ts-node configureRAthena.ts"

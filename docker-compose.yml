@@ -3,6 +3,12 @@ x-mysql-conf: &mysql-conf
   MYSQL_PASSWORD: racp
   MYSQL_DATABASE: racp
 
+x-user-conf: &user-conf
+  ADMIN_USER: racp
+  ADMIN_PASSWORD: racp
+  MEMBER_USER: s1
+  MEMBER_PASSWORD: p1
+
 x-racp-build: &racp-build
   context: .
   dockerfile: racp.dockerfile
@@ -31,12 +37,11 @@ services:
       - "8081:8081"
     environment:
       <<: *mysql-conf
+      <<: *user-conf
       MYSQL_PORT: 3306
       MYSQL_HOST: "db"
       apiPort: 8081
       hostname: 0.0.0.0
-      jwtSecret: secret
-      adminPermissionName: channel_admin
     command: sh -c "yarn configure-rathena && yarn api:prod"
   app:
     build: *racp-build
@@ -49,11 +54,12 @@ services:
       appPort: 8080
       apiBaseUrl: http://localhost:8081 # localhost due to value being used directly in the app and used from browser
     command: yarn app:prod -l tcp://app:8080
-#  cypress:
-#    build:
-#      context: .
-#      dockerfile: cypress.dockerfile
-#    environment:
-#      CYPRESS_BASE_URL: http://app:8080
-#    entrypoint: [""]
-#    command: sh -c "npx wait-on http://app:8080 --log && npx cypress run"
+  cypress:
+    build:
+      context: .
+      dockerfile: cypress.dockerfile
+    environment:
+      <<: *user-conf
+      CYPRESS_BASE_URL: http://app:8080
+    entrypoint: [""]
+    command: sh -c "npx wait-on http://app:8080 --log && npx cypress run"
