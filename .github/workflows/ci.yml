@@ -58,8 +58,10 @@ jobs:
 
       - run: yarn install --frozen-lockfile
 
-      - name: Allow access to rathena files
-        run: chmod -R a+rwX ./node_modules/rathena
+      - name: Allow access to rathena and cypress directories
+        run: |
+          chmod -R a+rwX ./node_modules/rathena
+          chmod -R a+rwX ./cypress
 
       - run: yarn e2e:ci:run
         env:
