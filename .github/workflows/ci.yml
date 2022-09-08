@@ -25,9 +25,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: docker-compose pull
-      - uses: satackey/action-docker-layer-caching@v0.0.11
-        continue-on-error: true
+      - uses: whoan/docker-build-with-cache-action@v5
+        with:
+          username: "ksandin"
+          password: "${{ secrets.GITHUB_TOKEN }}"
+          registry: "ghcr.io"
+          compose_file: docker-compose.yml
       - run: >
           CYPRESS_PROJECT_ID=${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY=${{ secrets.CYPRESS_RECORD_KEY }}
