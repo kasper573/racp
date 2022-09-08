@@ -55,5 +55,8 @@ services:
       dockerfile: cypress.dockerfile
     environment:
       CYPRESS_BASE_URL: http://app:8080
+      # These are passed in via the CI workflow
+      CYPRESS_PROJECT_ID: $CYPRESS_PROJECT_ID
+      CYPRESS_RECORD_KEY: $CYPRESS_RECORD_KEY
     entrypoint: [""]
     command: sh -c "npx wait-on http://app:8080 --log && npx cypress run --record"

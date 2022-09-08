@@ -28,8 +28,7 @@ jobs:
       - run: docker-compose pull
       - uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true
-      - name: "Add cypress secrets to environment variables"
-        run: |
-          echo "CYPRESS_PROJECT_ID=${{ secrets.CYPRESS_PROJECT_ID }}"  > ./.env.local
-          echo "CYPRESS_RECORD_KEY=${{ secrets.CYPRESS_RECORD_KEY }}" >> ./.env.local
       - run: docker-compose up --build --exit-code-from cypress
+      - env:
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
