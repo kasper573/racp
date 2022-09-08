@@ -41,12 +41,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/cache@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          path: "**/node_modules"
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+          node-version: "16"
+          cache: "yarn"
 
-      - run: yarn install
+      - name: Install project dependencies
+        run: yarn --prefer-offline
 
       - name: Set up MariaDB
         uses: getong/mariadb-action@v1.1
