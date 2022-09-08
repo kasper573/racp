@@ -57,7 +57,7 @@ jobs:
           mysql password: ragnarok
 
       - name: Allow access to rathena files
-        run: sudo chown -R 1000:1000 ./node_modules/rathena
+        run: chown -R 1000:1000 ./node_modules/rathena
 
       - run: yarn e2e:ci:run
         env:
