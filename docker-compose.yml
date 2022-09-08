@@ -40,7 +40,6 @@ services:
     command: sh -c "yarn configure-rathena && yarn api:prod"
   app:
     build: *racp-build
-    depends_on: ["api"]
     expose:
       - "8080"
     ports:
