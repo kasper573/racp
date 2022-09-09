@@ -1,5 +1,5 @@
 import { LinearProgress, Typography } from "@mui/material";
-import { ImgHTMLAttributes, useEffect, useMemo, useState } from "react";
+import { ImgHTMLAttributes, useEffect, useState } from "react";
 import { flatten } from "lodash";
 import { Header } from "../layout/Header";
 
@@ -90,10 +90,11 @@ function frameToImage(frame: RGBABitmap) {
 }
 
 function SPRView({
-  spr,
+  spr: {
+    frames: [frame],
+  },
   ...props
 }: { spr: SPR } & Omit<ImgHTMLAttributes<HTMLImageElement>, "src">) {
-  const frame = useMemo(() => spr.compileFrame(0), [spr]);
   const [src, setSrc] = useState<string>();
 
   useEffect(() => {
@@ -102,7 +103,7 @@ function SPRView({
       setSrc(url);
       return () => URL.revokeObjectURL(url);
     });
-  }, [spr]);
+  }, [frame]);
 
   return <img src={src} width={frame.width} height={frame.height} {...props} />;
 }

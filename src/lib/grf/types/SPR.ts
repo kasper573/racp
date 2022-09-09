@@ -6,13 +6,7 @@ import { Loader } from "../Loader";
 export class SPR<Stream = any> extends Loader<Stream> {
   header = "";
   version = 0;
-  indexedBitmaps: IndexedBitmap[] = [];
-  rgbaBitmaps: RGBABitmap[] = [];
-  palette: RGBAPalette = [];
-
-  get frameCount() {
-    return this.indexedBitmaps.length + this.rgbaBitmaps.length;
-  }
+  frames: RGBABitmap[] = [];
 
   protected async loadImpl() {
     const view = await this.getDataView();
@@ -20,11 +14,15 @@ export class SPR<Stream = any> extends Loader<Stream> {
     this.header = view.getString(2);
     this.version = parseFloat(view.getBytes(2).reverse().join("."));
 
+    let indexedBitmaps: IndexedBitmap[] = [];
+    let rgbaBitmaps: RGBABitmap[] = [];
+    let palette: RGBAPalette = [];
+
     switch (this.version) {
       case 1.0:
       case 1.1: {
         const frameCount = view.getUint16();
-        this.indexedBitmaps = readIndexedBitmaps(view, frameCount);
+        indexedBitmaps = readIndexedBitmaps(view, frameCount);
         break;
       }
       case 2.0:
@@ -35,8 +33,8 @@ export class SPR<Stream = any> extends Loader<Stream> {
           : readIndexedBitmaps;
         const indexedFrameCount = view.getUint16();
         const rgbaFrameCount = view.getUint16();
-        this.indexedBitmaps = readIndexed(view, indexedFrameCount);
-        this.rgbaBitmaps = readRGBABitmaps(view, rgbaFrameCount);
+        indexedBitmaps = readIndexed(view, indexedFrameCount);
+        rgbaBitmaps = readRGBABitmaps(view, rgbaFrameCount);
         break;
       }
       default:
@@ -45,22 +43,14 @@ export class SPR<Stream = any> extends Loader<Stream> {
 
     const remaining = view.byteLength - view.tell();
     if (remaining === paletteSize) {
-      this.palette = view.getBytes(paletteSize);
+      palette = view.getBytes(paletteSize);
     }
+
+    this.frames = [
+      ...indexedBitmaps.map((bitmap) => applyPalette(bitmap, palette)),
+      ...rgbaBitmaps,
+    ];
   }
-
-  compileFrame = (frameIndex: number): RGBABitmap => {
-    if (frameIndex < 0 || frameIndex >= this.frameCount) {
-      throw new Error("Out of bounds");
-    }
-
-    if (frameIndex < this.indexedBitmaps.length) {
-      return applyPalette(this.indexedBitmaps[frameIndex], this.palette);
-    }
-    return this.rgbaBitmaps[frameIndex - this.indexedBitmaps.length];
-  };
-
-  compileFrames = () => range(this.frameCount).map(this.compileFrame);
 }
 
 function applyPalette(
