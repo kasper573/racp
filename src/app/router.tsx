@@ -10,6 +10,7 @@ import {
   AdminPanelSettings,
   Article,
   Home,
+  Image,
   Inventory,
   Login,
   Map,
@@ -114,6 +115,10 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
       mapInfo: route("maps", {
         component: lazy(() => import("./pages/AdminMapsPage")),
         options: { title: "Maps", icon: <Map /> },
+      }),
+      sprite: route("sprite", {
+        component: lazy(() => import("./pages/AdminSpritesPage")),
+        options: { title: "Sprites", icon: <Image /> },
       }),
     })
   ),

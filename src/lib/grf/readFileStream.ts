@@ -1,7 +1,7 @@
 export async function readFileStream(
   buffer: File | Blob,
-  offset: number,
-  length: number
+  offset = 0,
+  length: number = buffer.size - offset
 ): Promise<Uint8Array> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

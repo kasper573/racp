@@ -35,14 +35,14 @@ export function useMapFileUploader({
 
     const files = _files.slice();
     const grfFiles = files.filter((file) => file.name.endsWith(".grf"));
-    const grfBrowsers = await tracker.trackAll(
+    const grfObjects = await tracker.trackAll(
       grfFiles.map((file) => new GRF(readFileStream, file).load()),
       "Initializing GRF loaders"
     );
 
     const filesFromGRF = flatten(
       await tracker.trackAll(
-        flatten(grfBrowsers.map(unpackGATAndImageFiles)),
+        flatten(grfObjects.map(unpackGATAndImageFiles)),
         "Unpacking GRF files"
       )
     );
