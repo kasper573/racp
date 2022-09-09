@@ -50,27 +50,27 @@ export class SPR<Stream = any> extends Loader<Stream> {
   }
 }
 
-function applyPalette(bitmap: IndexedBitmap, palette: ABGRPalette): RGBABitmap {
-  const data = new Uint8Array(bitmap.width * bitmap.height * 4);
-  let offset = 0;
-  for (const index of bitmap.indexes) {
-    const [a, b, g, r] = palette.slice(index * 4);
-    data.set(omitMagenta([r, g, b, a]), offset);
-    offset += 4;
+function applyPalette(
+  { indexes, width, height }: IndexedBitmap,
+  palette: ABGRPalette
+): RGBABitmap {
+  const data = new Uint8Array(width * height * 4);
+  for (let y = 0; y < height; ++y) {
+    for (let x = 0; x < width; ++x) {
+      const index = indexes[x + y * width] * 4;
+      const offset = (x + y * width) * 4;
+      data[offset] = palette[index];
+      data[offset + 1] = palette[index + 1];
+      data[offset + 2] = palette[index + 2];
+      data[offset + 3] = index ? 255 : 0;
+    }
   }
 
   return {
     data,
-    width: bitmap.width,
-    height: bitmap.height,
+    width,
+    height,
   };
-}
-
-function omitMagenta([r, g, b, a]: number[]) {
-  if (r === 255 && g === 0 && b === 255) {
-    return [0, 0, 0, 0];
-  }
-  return [r, g, b, a];
 }
 
 function readRGBABitmaps(view: JDataView, frameCount: number) {
