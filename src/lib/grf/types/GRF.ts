@@ -4,14 +4,6 @@ import { inflate } from "pako";
 import { decodeFull, decodeHeader } from "../des";
 import { Loader } from "../Loader";
 
-export interface TFileEntry {
-  type: number;
-  offset: number;
-  realSize: number;
-  compressedSize: number;
-  lengthAligned: number;
-}
-
 const FILELIST_TYPE_FILE = 0x01;
 const FILELIST_TYPE_ENCRYPT_MIXED = 0x02; // encryption mode 0 (header DES + periodic DES/shuffle)
 const FILELIST_TYPE_ENCRYPT_HEADER = 0x04; // encryption mode 1 (header DES only)
@@ -20,10 +12,11 @@ const HEADER_SIGNATURE = "Master of Magic";
 const HEADER_SIZE = 46;
 const FILE_TABLE_SIZE = Uint32Array.BYTES_PER_ELEMENT * 2;
 
-export class GRF<Stream> extends Loader<Stream> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export class GRF<Stream = any> extends Loader<Stream> {
   public version = 0x200;
   public fileCount = 0;
-  public files = new Map<string, TFileEntry>();
+  public files = new Map<string, GRFFileEntry>();
   private fileTableOffset = 0;
 
   public async loadImpl(): Promise<void> {
@@ -73,7 +66,7 @@ export class GRF<Stream> extends Loader<Stream> {
 
       p++;
 
-      const entry: TFileEntry = {
+      const entry: GRFFileEntry = {
         compressedSize:
           data[p++] | (data[p++] << 8) | (data[p++] << 16) | (data[p++] << 24),
         lengthAligned:
@@ -96,7 +89,7 @@ export class GRF<Stream> extends Loader<Stream> {
     }
   }
 
-  private decodeEntry(data: Uint8Array, entry: TFileEntry): Uint8Array {
+  private decodeEntry(data: Uint8Array, entry: GRFFileEntry): Uint8Array {
     if (entry.type & FILELIST_TYPE_ENCRYPT_MIXED) {
       decodeFull(data, entry.lengthAligned, entry.compressedSize);
     } else if (entry.type & FILELIST_TYPE_ENCRYPT_HEADER) {
@@ -110,18 +103,19 @@ export class GRF<Stream> extends Loader<Stream> {
     return inflate(data);
   }
 
-  public async getFile(
-    filename: string
-  ): Promise<{ data: Uint8Array | null; error: unknown | null }> {
+  public async getFile(name: string): Promise<GRFFile> {
     if (!this.loaded) {
-      return Promise.resolve({ data: null, error: "GRF not loaded yet" });
+      return Promise.resolve({ name, error: "GRF not loaded yet" });
     }
 
-    const path = filename.toLowerCase();
+    const path = name.toLowerCase();
     const entry = this.files.get(path);
 
     if (!entry) {
-      return Promise.resolve({ data: null, error: `File "${path}" not found` });
+      return Promise.resolve({
+        name,
+        error: `File "${path}" not found`,
+      });
     }
 
     const buffer = await this.getBuffer(
@@ -131,9 +125,23 @@ export class GRF<Stream> extends Loader<Stream> {
 
     try {
       const data = this.decodeEntry(buffer, entry);
-      return Promise.resolve({ data, error: null });
+      return Promise.resolve({ data, name });
     } catch (error) {
-      return Promise.resolve({ data: null, error });
+      return Promise.resolve({ name, error });
     }
   }
+}
+
+export interface GRFFileEntry {
+  type: number;
+  offset: number;
+  realSize: number;
+  compressedSize: number;
+  lengthAligned: number;
+}
+
+export interface GRFFile {
+  name: string;
+  data?: Uint8Array;
+  error?: unknown;
 }

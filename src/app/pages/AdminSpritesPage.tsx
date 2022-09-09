@@ -1,18 +1,18 @@
 import { LinearProgress, Typography } from "@mui/material";
-import { ImgHTMLAttributes, useEffect, useState } from "react";
-import { flatten } from "lodash";
+import { useState } from "react";
+import Bottleneck from "bottleneck";
 import { Header } from "../layout/Header";
 
 import { FileUploader } from "../components/FileUploader";
 import { GRF } from "../../lib/grf/types/GRF";
-import { defined } from "../../lib/defined";
 import { readFileStream } from "../../lib/grf/readFileStream";
 import { usePromiseTracker } from "../hooks/usePromiseTracker";
-import { RGBABitmap, SPR } from "../../lib/grf/types/SPR";
+import { SPR } from "../../lib/grf/types/SPR";
 import { canvasToBlob, imageDataToCanvas } from "../../lib/imageUtils";
+import { BlobImage } from "../components/BlobImage";
 
 export default function AdminSpritesPage() {
-  const [sprObjects, setSprObjects] = useState<SPR[]>([]);
+  const [sprites, setSprites] = useState<Blob[]>([]);
   const tracker = usePromiseTracker();
   return (
     <>
@@ -23,7 +23,7 @@ export default function AdminSpritesPage() {
         isLoading={tracker.isPending}
         accept={[".grf", ".spr"]}
         onChange={async (files) => {
-          setSprObjects([]);
+          setSprites([]);
 
           const grfFiles = files.filter((file) => file.name.endsWith(".grf"));
           const sprFiles = files.filter((file) => file.name.endsWith(".spr"));
@@ -33,21 +33,12 @@ export default function AdminSpritesPage() {
             "Initializing GRF loaders"
           );
 
-          sprFiles.push(
-            ...flatten(
-              await tracker.trackAll(
-                flatten(grfObjects.map(unpackSPRFiles)),
-                "Unpacking SPR files"
-              )
-            )
+          sprites.push(
+            ...(await tracker.trackOne(
+              loadSpritesFromGRFs(grfObjects),
+              "Loading sprites"
+            ))
           );
-
-          const sprObjects = await tracker.trackAll(
-            sprFiles.map((file) => new SPR(readFileStream, file).load()),
-            "Parsing SPR objects"
-          );
-
-          setSprObjects(sprObjects);
         }}
         maxFiles={1}
         title={
@@ -69,15 +60,40 @@ export default function AdminSpritesPage() {
       )}
 
       <div>
-        {sprObjects.map((spr, index) => (
-          <SPRView key={index} spr={spr} />
+        {sprites.map((sprite, index) => (
+          <BlobImage key={index} src={sprite} />
         ))}
       </div>
     </>
   );
 }
 
-function frameToImage(frame: RGBABitmap) {
+async function loadSpritesFromGRFs(grfs: GRF[]) {
+  const sprites: Blob[] = [];
+  const limiter = new Bottleneck({ maxConcurrent: 200 });
+  grfs.forEach((grf) =>
+    Array.from(grf.files.keys())
+      .filter((path) => path.endsWith(".spr"))
+      .forEach((path) =>
+        limiter.schedule(async () => {
+          console.log("Loading", path);
+          const grfFile = await grf.getFile(path);
+          if (grfFile.data !== undefined) {
+            const sprFile = new File([grfFile.data], grfFile.name);
+            sprites.push(await loadSprite(sprFile));
+          }
+        })
+      )
+  );
+  await new Promise<void>((resolve) => limiter.on("empty", () => resolve()));
+  console.log("limiter done");
+  return sprites;
+}
+
+async function loadSprite(sprFile: File) {
+  const {
+    frames: [frame],
+  } = await new SPR(readFileStream, sprFile).load();
   return canvasToBlob(
     imageDataToCanvas(
       new ImageData(
@@ -87,40 +103,4 @@ function frameToImage(frame: RGBABitmap) {
       )
     )
   );
-}
-
-function SPRView({
-  spr: {
-    frames: [frame],
-  },
-  ...props
-}: { spr: SPR } & Omit<ImgHTMLAttributes<HTMLImageElement>, "src">) {
-  const [src, setSrc] = useState<string>();
-
-  useEffect(() => {
-    frameToImage(frame).then((blob) => {
-      const url = URL.createObjectURL(blob);
-      setSrc(url);
-      return () => URL.revokeObjectURL(url);
-    });
-  }, [frame]);
-
-  return <img src={src} width={frame.width} height={frame.height} {...props} />;
-}
-
-async function unpackSPRFiles<Stream>(grf: GRF<Stream>) {
-  const files = await Promise.all(
-    Array.from(grf.files.keys())
-      .filter((file) => file.endsWith(".spr"))
-      .slice(0, 2000)
-      .map(async (sprFilePath) => {
-        const sprFile = await grf.getFile(sprFilePath);
-        if (sprFile.data) {
-          return new File([sprFile.data], sprFilePath, {
-            type: "application/spr",
-          });
-        }
-      })
-  );
-  return defined(files);
 }
