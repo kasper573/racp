@@ -6,7 +6,13 @@ import { Loader } from "../Loader";
 export class SPR<Stream = any> extends Loader<Stream> {
   header = "";
   version = 0;
-  frames: RGBABitmap[] = [];
+  indexedBitmaps: IndexedBitmap[] = [];
+  rgbaBitmaps: RGBABitmap[] = [];
+  palette: RGBAPalette = [];
+
+  get frameCount() {
+    return this.indexedBitmaps.length + this.rgbaBitmaps.length;
+  }
 
   protected async loadImpl() {
     const view = await this.getDataView();
@@ -14,14 +20,11 @@ export class SPR<Stream = any> extends Loader<Stream> {
     this.header = view.getString(2);
     this.version = parseFloat(view.getBytes(2).reverse().join("."));
 
-    let indexedBitmaps: IndexedBitmap[] = [];
-    let rgbaBitmaps: RGBABitmap[] = [];
-
     switch (this.version) {
       case 1.0:
       case 1.1: {
         const frameCount = view.getUint16();
-        indexedBitmaps = readIndexedBitmaps(view, frameCount);
+        this.indexedBitmaps = readIndexedBitmaps(view, frameCount);
         break;
       }
       case 2.0:
@@ -32,37 +35,46 @@ export class SPR<Stream = any> extends Loader<Stream> {
           : readIndexedBitmaps;
         const indexedFrameCount = view.getUint16();
         const rgbaFrameCount = view.getUint16();
-        indexedBitmaps = readIndexed(view, indexedFrameCount);
-        rgbaBitmaps = readRGBABitmaps(view, rgbaFrameCount);
+        this.indexedBitmaps = readIndexed(view, indexedFrameCount);
+        this.rgbaBitmaps = readRGBABitmaps(view, rgbaFrameCount);
         break;
       }
       default:
         throw new Error(`Unsupported version "${this.version}"`);
     }
 
-    const palette = view.getBytes(1024);
-
-    // Normalize all frames
-    this.frames = [
-      ...indexedBitmaps.map((bitmap) => applyPalette(bitmap, palette)),
-      ...rgbaBitmaps,
-    ];
+    const remaining = view.byteLength - view.tell();
+    if (remaining === paletteSize) {
+      this.palette = view.getBytes(paletteSize);
+    }
   }
+
+  compileFrame = (frameIndex: number): RGBABitmap => {
+    if (frameIndex < 0 || frameIndex >= this.frameCount) {
+      throw new Error("Out of bounds");
+    }
+
+    if (frameIndex < this.indexedBitmaps.length) {
+      return applyPalette(this.indexedBitmaps[frameIndex], this.palette);
+    }
+    return this.rgbaBitmaps[frameIndex - this.indexedBitmaps.length];
+  };
+
+  compileFrames = () => range(this.frameCount).map(this.compileFrame);
 }
 
 function applyPalette(
   { indexes, width, height }: IndexedBitmap,
-  palette: ABGRPalette
+  palette: RGBAPalette
 ): RGBABitmap {
   const data = new Uint8Array(width * height * 4);
-  for (let y = 0; y < height; ++y) {
-    for (let x = 0; x < width; ++x) {
+  for (let x = 0; x < width; x++) {
+    for (let y = 0; y < height; y++) {
       const index = indexes[x + y * width] * 4;
       const offset = (x + y * width) * 4;
-      data[offset] = palette[index];
-      data[offset + 1] = palette[index + 1];
-      data[offset + 2] = palette[index + 2];
-      data[offset + 3] = index ? 255 : 0;
+      const [r, g, b] = palette.slice(index, index + 4);
+      const a = index ? 255 : 0;
+      data.set([r, g, b, a], offset);
     }
   }
 
@@ -118,16 +130,18 @@ function readIndexedBitmapsRLE(view: JDataView, frameCount: number) {
   });
 }
 
-type ABGRPalette = number[];
+export type RGBAPalette = number[];
 
-interface IndexedBitmap {
+export interface IndexedBitmap {
   width: number;
   height: number;
   indexes: Uint8Array;
 }
 
-interface RGBABitmap {
+export interface RGBABitmap {
   width: number;
   height: number;
   data: Uint8Array;
 }
+
+const paletteSize = 1024;

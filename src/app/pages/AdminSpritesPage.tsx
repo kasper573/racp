@@ -1,5 +1,5 @@
-import { LinearProgress, Stack, Typography } from "@mui/material";
-import { ImgHTMLAttributes, useMemo, useState } from "react";
+import { LinearProgress, Typography } from "@mui/material";
+import { ImgHTMLAttributes, useEffect, useMemo, useState } from "react";
 import { flatten } from "lodash";
 import { Header } from "../layout/Header";
 
@@ -8,11 +8,11 @@ import { GRF } from "../../lib/grf/types/GRF";
 import { defined } from "../../lib/defined";
 import { readFileStream } from "../../lib/grf/readFileStream";
 import { usePromiseTracker } from "../hooks/usePromiseTracker";
-import { SPR } from "../../lib/grf/types/SPR";
+import { RGBABitmap, SPR } from "../../lib/grf/types/SPR";
 import { canvasToBlob, imageDataToCanvas } from "../../lib/imageUtils";
 
 export default function AdminSpritesPage() {
-  const [sprBlobs, setSprBlobs] = useState<Blob[]>([]);
+  const [sprObjects, setSprObjects] = useState<SPR[]>([]);
   const tracker = usePromiseTracker();
   return (
     <>
@@ -23,7 +23,7 @@ export default function AdminSpritesPage() {
         isLoading={tracker.isPending}
         accept={[".grf", ".spr"]}
         onChange={async (files) => {
-          setSprBlobs([]);
+          setSprObjects([]);
 
           const grfFiles = files.filter((file) => file.name.endsWith(".grf"));
           const sprFiles = files.filter((file) => file.name.endsWith(".spr"));
@@ -47,14 +47,7 @@ export default function AdminSpritesPage() {
             "Parsing SPR objects"
           );
 
-          const sprBlobs = flatten(
-            await tracker.trackAll(
-              sprObjects.map(spriteToImages),
-              "Creating SPR images"
-            )
-          );
-
-          setSprBlobs(sprBlobs);
+          setSprObjects(sprObjects);
         }}
         maxFiles={1}
         title={
@@ -76,48 +69,49 @@ export default function AdminSpritesPage() {
       )}
 
       <div>
-        {sprBlobs.map((blob, index) => (
-          <Stack key={index} direction="row">
-            <div>{index}</div>
-            <div>
-              <FileImage key={index} file={blob} />
-            </div>
-          </Stack>
+        {sprObjects.map((spr, index) => (
+          <SPRView key={index} spr={spr} />
         ))}
       </div>
     </>
   );
 }
 
-function spriteToImages({ frames }: SPR) {
-  return Promise.all(
-    frames.map((frame) =>
-      canvasToBlob(
-        imageDataToCanvas(
-          new ImageData(
-            new Uint8ClampedArray(frame.data),
-            frame.width,
-            frame.height
-          )
-        )
+function frameToImage(frame: RGBABitmap) {
+  return canvasToBlob(
+    imageDataToCanvas(
+      new ImageData(
+        new Uint8ClampedArray(frame.data),
+        frame.width,
+        frame.height
       )
     )
   );
 }
 
-function FileImage({
-  file,
+function SPRView({
+  spr,
   ...props
-}: { file: Blob } & Omit<ImgHTMLAttributes<HTMLImageElement>, "src">) {
-  const src = useMemo(() => URL.createObjectURL(file), [file]);
-  return <img src={src} {...props} />;
+}: { spr: SPR } & Omit<ImgHTMLAttributes<HTMLImageElement>, "src">) {
+  const frame = useMemo(() => spr.compileFrame(0), [spr]);
+  const [src, setSrc] = useState<string>();
+
+  useEffect(() => {
+    frameToImage(frame).then((blob) => {
+      const url = URL.createObjectURL(blob);
+      setSrc(url);
+      return () => URL.revokeObjectURL(url);
+    });
+  }, [spr]);
+
+  return <img src={src} width={frame.width} height={frame.height} {...props} />;
 }
 
 async function unpackSPRFiles<Stream>(grf: GRF<Stream>) {
   const files = await Promise.all(
     Array.from(grf.files.keys())
       .filter((file) => file.endsWith(".spr"))
-      .slice(0, 200)
+      .slice(0, 2000)
       .map(async (sprFilePath) => {
         const sprFile = await grf.getFile(sprFilePath);
         if (sprFile.data) {
