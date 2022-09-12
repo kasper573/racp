@@ -29,8 +29,8 @@ export const monsterPostProcessType = zod.object({
   Hit: zod.number(),
   Atk: zod.number(),
   MAtk: zod.number(),
-  imageUrl: zod.string(),
-  displayName: zod.string(),
+  ImageUrl: zod.string(),
+  DisplayName: zod.string(),
 });
 
 export type Monster = zod.infer<typeof monsterType>;

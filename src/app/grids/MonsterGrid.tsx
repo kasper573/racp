@@ -21,9 +21,9 @@ export const MonsterGrid = DataGrid.define<
       renderCell({ row: monster }) {
         return (
           <Stack direction="row" spacing={1} alignItems="center">
-            <img src={monster.imageUrl} alt="" width={32} />
+            <img src={monster.ImageUrl} alt="" width={32} />
             <Link to={router.monster().view({ id: monster.Id })}>
-              {monster.displayName}
+              {monster.DisplayName}
             </Link>
           </Stack>
         );

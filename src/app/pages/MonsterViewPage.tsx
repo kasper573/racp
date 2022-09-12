@@ -33,8 +33,8 @@ export default function MonsterViewPage(): ReactElement {
   return (
     <>
       <Header back={router.monster}>
-        {monster.displayName}
-        <MonsterImage src={monster.imageUrl} />
+        {monster.DisplayName}
+        <MonsterImage src={monster.ImageUrl} />
       </Header>
 
       <Stack spacing={2} direction="row" sx={{ flex: 1 }}>

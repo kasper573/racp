@@ -13,10 +13,10 @@ export function createMonsterResolver(
   function extract(monster: Monster): MonsterPostProcess {
     const { Level, Agi, Luk, Dex, Attack, Attack2 } = monster;
     return {
-      displayName: monsterDisplayName(monster),
+      DisplayName: monsterDisplayName(monster),
       Flee: monster.Flee ?? 100 + (Level + Agi + Luk / 5),
       Hit: monster.Hit ?? 175 + Level + Dex + Math.floor(Luk / 3),
-      imageUrl: imageLinker.url(imageName(monster, imageFileExtension)),
+      ImageUrl: imageLinker.url(imageName(monster, imageFileExtension)),
       ...{
         Prerenewal: { Atk: Attack, MAtk: 0 },
         Renewal: { Atk: Attack, MAtk: Attack2 },

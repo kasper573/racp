@@ -38,8 +38,8 @@ export function createMonsterRepository({
       const missing = await Promise.all(
         Array.from(map.values()).map(async (monster) => {
           if (
-            monster.imageUrl &&
-            !(await exists(imageLinker.urlToPath(monster.imageUrl)))
+            monster.ImageUrl &&
+            !(await exists(imageLinker.urlToPath(monster.ImageUrl)))
           ) {
             return monster.Id;
           }
