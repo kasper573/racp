@@ -103,12 +103,21 @@ export class GRF<Stream = any> extends Loader<Stream> {
     return inflate(data);
   }
 
-  public async getFile(name: string): Promise<GRFFile> {
+  public async getFile(name: string) {
+    const entry = await this.getEntry(name);
+    if (entry.data !== undefined) {
+      return new File([entry.data], name);
+    }
+    throw new Error(`${entry.error}`);
+  }
+
+  public async getEntry(path: string): Promise<GRFFile> {
+    path = path.toLowerCase();
+    const name = path.split(/[\\/]/).pop() || path;
     if (!this.loaded) {
       return Promise.resolve({ name, error: "GRF not loaded yet" });
     }
 
-    const path = name.toLowerCase();
     const entry = this.files.get(path);
 
     if (!entry) {

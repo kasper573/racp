@@ -11,6 +11,7 @@ import { SPR } from "../../lib/grf/types/SPR";
 import { canvasToBlob, imageDataToCanvas } from "../../lib/imageUtils";
 import { BlobImage } from "../components/BlobImage";
 import { defined } from "../../lib/defined";
+import { allResolved } from "../../lib/allResolved";
 
 export default function AdminSpritesPage() {
   const [sprites, setSprites] = useState<Blob[]>([]);
@@ -35,26 +36,15 @@ export default function AdminSpritesPage() {
           );
 
           const sprFilesFromGRFs = flatten(
-            await Promise.all(
-              grfObjects.map((grf) => {
-                const sprFilePaths = Array.from(grf.files.keys()).filter(
-                  (name) => name.endsWith(".spr")
-                  //(name) => /^data\\sprite\\npc\\.*\.spr$/.test(name)
-                );
-                return tracker.track(
+            await allResolved(
+              grfObjects.map((grf) =>
+                tracker.track(
                   "Unpacking SPR files",
-                  sprFilePaths.map(
-                    (path) => () =>
-                      grf
-                        .getFile(path)
-                        .then((file) =>
-                          file.data !== undefined
-                            ? new File([file.data], file.name)
-                            : undefined
-                        )
-                  )
-                );
-              })
+                  Array.from(grf.files.keys())
+                    .filter(isSpriteFile)
+                    .map((path) => () => grf.getFile(path))
+                )
+              )
             )
           );
 
@@ -111,3 +101,6 @@ async function sprToImage({ frames: [frame] }: SPR) {
     )
   );
 }
+
+const isSpriteFile = (path: string) =>
+  /^data\\sprite\\npc\\.*\.spr$/.test(path);

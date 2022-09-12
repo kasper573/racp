@@ -123,8 +123,8 @@ function unpackGATAndImageFiles<Stream>(grf: GRF<Stream>) {
       const imageFilePath = `data\\texture\\à¯àúàîåíæäàì½º\\map\\${mapName}.bmp`;
 
       const [grfImageFile, grfGatFile] = await Promise.all([
-        grf.getFile(imageFilePath),
-        grf.getFile(gatFilePath),
+        grf.getEntry(imageFilePath),
+        grf.getEntry(gatFilePath),
       ]);
 
       if (grfGatFile.data) {
