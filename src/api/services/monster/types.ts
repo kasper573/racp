@@ -71,6 +71,7 @@ export const monsterType = zod.object({
   Atk: zod.number().optional(),
   MAtk: zod.number().optional(),
   imageUrl: zod.string().optional(),
+  displayName: zod.string().optional(),
 });
 
 export type MonsterFilter = zod.infer<typeof monsterFilter.type>;

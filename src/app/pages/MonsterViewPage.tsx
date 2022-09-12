@@ -33,7 +33,7 @@ export default function MonsterViewPage(): ReactElement {
   return (
     <>
       <Header back={router.monster}>
-        {monster.Name}&nbsp;
+        {monster.displayName}
         <MonsterImage src={monster.imageUrl} />
       </Header>
 
@@ -118,6 +118,6 @@ export default function MonsterViewPage(): ReactElement {
 
 const MonsterImage = styled("img")`
   position: absolute;
-  margin-left: 8px;
+  margin-left: 12px;
   max-height: 75px;
 `;
