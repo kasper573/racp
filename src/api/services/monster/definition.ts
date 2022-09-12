@@ -28,7 +28,10 @@ export const monsterDefinition = createRpcDefinition({
       .fileUpload(
         "uploadMonsterImages",
         zod.object({ success: zod.number(), failed: zod.number() }),
-        { auth: UserAccessLevel.Admin, tags: monsterImageTag.many() }
+        {
+          auth: UserAccessLevel.Admin,
+          tags: [...monsterImageTag.many(), ...monsterTag.many()],
+        }
       )
       .query(
         "getMonstersMissingImages",

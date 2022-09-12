@@ -40,7 +40,7 @@ export default function MonsterViewPage(): ReactElement {
             ({monster.AegisName})
           </TooltipText>
         )}
-        <MonsterImage src={monster.ImageUrl} />
+        {monster.ImageUrl && <MonsterImage src={monster.ImageUrl} />}
       </Header>
 
       <Stack spacing={2} direction="row" sx={{ flex: 1 }}>

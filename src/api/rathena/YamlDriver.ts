@@ -59,9 +59,11 @@ export function createYamlDriver({
       }
     }
 
-    for (const entity of Array.from(entities.values())) {
-      postProcess(entity, entities);
-    }
+    await Promise.all(
+      Array.from(entities.values()).map((entity) =>
+        postProcess(entity, entities)
+      )
+    );
 
     return entities;
   });
@@ -77,7 +79,7 @@ export interface YamlResolver<ET extends ZodType, Key> {
   postProcess?: (
     entity: zod.infer<ET>,
     registry: Map<Key, zod.infer<ET>>
-  ) => void;
+  ) => Promise<void> | void;
 }
 
 export function createYamlResolver<ET extends ZodType, Key>(
