@@ -1,7 +1,7 @@
 import { capitalize } from "lodash";
 import { createYamlResolver } from "../../../rathena/YamlDriver";
 import { RAthenaMode } from "../../../options";
-import { Monster, monsterType } from "../types";
+import { Monster, MonsterPostProcess, monsterType } from "../types";
 import { typedAssign } from "../../../../lib/typedAssign";
 import { Linker } from "../../../../lib/createPublicFileLinker";
 
@@ -10,23 +10,24 @@ export function createMonsterResolver(
   imageLinker: Linker,
   imageFileExtension: string
 ) {
+  function extract(monster: Monster): MonsterPostProcess {
+    const { Level, Agi, Luk, Dex, Attack, Attack2 } = monster;
+    return {
+      displayName: monsterDisplayName(monster),
+      Flee: monster.Flee ?? 100 + (Level + Agi + Luk / 5),
+      Hit: monster.Hit ?? 175 + Level + Dex + Math.floor(Luk / 3),
+      imageUrl: imageLinker.url(imageName(monster, imageFileExtension)),
+      ...{
+        Prerenewal: { Atk: Attack, MAtk: 0 },
+        Renewal: { Atk: Attack, MAtk: Attack2 },
+      }[rAthenaMode],
+    };
+  }
+
   return createYamlResolver(monsterType, {
     getKey: (monster) => monster.Id,
     postProcess(monster) {
-      const { Level, Agi, Luk, Dex, Attack, Attack2 } = monster;
-      monster.displayName = monsterDisplayName(monster);
-      monster.Flee = monster.Flee ?? 100 + (Level + Agi + Luk / 5);
-      monster.Hit = monster.Hit ?? 175 + Level + Dex + Math.floor(Luk / 3);
-      monster.imageUrl = imageLinker.url(
-        imageName(monster, imageFileExtension)
-      );
-      typedAssign(
-        monster,
-        {
-          Prerenewal: { Atk: Attack, MAtk: 0 },
-          Renewal: { Atk: Attack, MAtk: Attack2 },
-        }[rAthenaMode]
-      );
+      typedAssign(monster, extract(monster));
     },
   });
 }
