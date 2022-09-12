@@ -11,6 +11,7 @@ import { TabSwitch } from "../components/TabSwitch";
 import { TabbedPaper } from "../components/TabbedPaper";
 import { KVTable } from "../components/KVTable";
 import { MonsterDropGrid } from "../grids/MonsterDropGrid";
+import { TooltipText } from "../components/TooltipText";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MonsterViewPage(): ReactElement {
@@ -33,7 +34,12 @@ export default function MonsterViewPage(): ReactElement {
   return (
     <>
       <Header back={router.monster}>
-        {monster.Name} ({monster.AegisName})
+        {monster.Name}&nbsp;
+        {monster.AegisName !== monster.Name && (
+          <TooltipText tooltip="Aegis name" color="text.disabled">
+            ({monster.AegisName})
+          </TooltipText>
+        )}
         <MonsterImage src={monster.ImageUrl} />
       </Header>
 
