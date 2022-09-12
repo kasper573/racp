@@ -7,7 +7,7 @@ import {
 } from "../state/client";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { FileUploader } from "../components/FileUploader";
-import { fromBrowserFile } from "../../lib/rpc/RpcFile";
+import { toRpcFile } from "../../lib/rpc/RpcFile";
 
 export default function AdminItemsPage() {
   const { data: itemCount = 0 } = useCountItemInfoQuery();
@@ -30,7 +30,7 @@ export default function AdminItemsPage() {
         accept=".lub"
         onChange={async (files) => {
           setUploadResult(undefined);
-          const rpcFiles = await Promise.all(files.map(fromBrowserFile));
+          const rpcFiles = await Promise.all(files.map(toRpcFile));
           const res = await update(rpcFiles);
           setUploadResult("data" in res && res.data);
         }}

@@ -7,6 +7,7 @@ export class SPR<Stream = any> extends Loader<Stream> {
   header = "";
   version = 0;
   frames: RGBABitmap[] = [];
+  name = "";
 
   protected async loadImpl() {
     const view = await this.getDataView();

@@ -1,6 +1,8 @@
+import * as zod from "zod";
 import { createTagFactory } from "../../../lib/createTagFactory";
 import { createRpcDefinition } from "../../util/rpc";
 import { createSearchTypes } from "../../common/search";
+import { UserAccessLevel } from "../auth/types";
 import {
   monsterFilter,
   monsterSpawnFilter,
@@ -21,5 +23,10 @@ export const monsterDefinition = createRpcDefinition({
       .query(
         "searchMonsterSpawns",
         ...createSearchTypes(monsterSpawnType, monsterSpawnFilter.type)
+      )
+      .fileUpload(
+        "uploadMonsterImages",
+        zod.object({ success: zod.number(), failed: zod.number() }),
+        { auth: UserAccessLevel.Admin }
       ),
 });

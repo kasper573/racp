@@ -66,8 +66,14 @@ const linker = createPublicFileLinker({
 
 const auth = createAuthRepository({ yaml, ...args });
 const items = createItemRepository({ yaml, files, ...args });
-const monsters = createMonsterRepository({ ...args, yaml, npc });
 const maps = createMapRepository({ files, linker, formatter, npc });
+const monsters = createMonsterRepository({
+  ...args,
+  yaml,
+  npc,
+  formatter,
+  linker,
+});
 
 linkDropsWithItems(items, monsters);
 

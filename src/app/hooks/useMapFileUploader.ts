@@ -5,7 +5,7 @@ import {
   useUploadMapImagesMutation,
   useUploadMapInfoMutation,
 } from "../state/client";
-import { fromBrowserFile } from "../../lib/rpc/RpcFile";
+import { toRpcFile } from "../../lib/rpc/RpcFile";
 import { GRF } from "../../lib/grf/types/GRF";
 import { MapBounds, MapBoundsRegistry } from "../../api/services/map/types";
 import { GAT } from "../../lib/grf/types/GAT";
@@ -59,7 +59,7 @@ export function useMapFileUploader({
       tracker
         .track(
           "Loading lub file",
-          lubFiles.map((file) => () => fromBrowserFile(file))
+          lubFiles.map((file) => () => toRpcFile(file))
         )
         .then((files) =>
           tracker.track(`Uploading lub files`, [() => uploadMapInfo(files)])
@@ -83,7 +83,7 @@ export function useMapFileUploader({
       );
       const rpcFiles = await tracker.track(
         `Preparing map images for upload`,
-        cropped.map((file) => () => fromBrowserFile(file))
+        cropped.map((file) => () => toRpcFile(file))
       );
 
       tracker.track(

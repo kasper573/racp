@@ -8,7 +8,7 @@ export const rpcFile = zod.object({
 // A normalized file type since node and browser have different types for files
 export type RpcFile = zod.infer<typeof rpcFile>;
 
-export async function fromBrowserFile(file: File): Promise<RpcFile> {
+export async function toRpcFile(file: File): Promise<RpcFile> {
   return {
     name: file.name,
     data: Array.from(new Uint8Array(await file.arrayBuffer())),

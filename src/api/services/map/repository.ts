@@ -1,4 +1,3 @@
-import * as path from "path";
 import * as fs from "fs";
 import { FileStore } from "../../../lib/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
@@ -6,6 +5,7 @@ import { Linker } from "../../../lib/createPublicFileLinker";
 import { ImageFormatter } from "../../../lib/createImageFormatter";
 import { NpcDriver } from "../../rathena/NpcDriver";
 import { typedAssign } from "../../../lib/typedAssign";
+import { createImageUpdater } from "../../common/createImageUpdater";
 import {
   MapBoundsRegistry,
   mapBoundsRegistryType,
@@ -65,19 +65,7 @@ export function createMapRepository({
         .then(() => true)
         .catch(() => false);
     },
-    updateImages: async (files: Array<{ name: string; data: Uint8Array }>) => {
-      const all = await Promise.allSettled(
-        files.map((file) =>
-          formatter.write(
-            mapLinker.path(path.basename(file.name)),
-            Buffer.from(file.data)
-          )
-        )
-      );
-      const success = all.filter((r) => r.status === "fulfilled").length;
-      const failed = all.length - success;
-      return { success, failed };
-    },
+    updateImages: createImageUpdater(formatter, mapLinker),
     get mapBounds() {
       return boundsFile.data ?? {};
     },

@@ -1,5 +1,4 @@
 import { LinearProgress, Typography } from "@mui/material";
-import { useState } from "react";
 import { flatten } from "lodash";
 import { Header } from "../layout/Header";
 
@@ -8,13 +7,14 @@ import { GRF } from "../../lib/grf/types/GRF";
 import { readFileStream } from "../../lib/grf/readFileStream";
 import { usePromiseTracker } from "../hooks/usePromiseTracker";
 import { SPR } from "../../lib/grf/types/SPR";
-import { canvasToBlob, imageDataToCanvas } from "../../lib/imageUtils";
-import { BlobImage } from "../components/BlobImage";
 import { defined } from "../../lib/defined";
 import { allResolved } from "../../lib/allResolved";
+import { useUploadMonsterImagesMutation } from "../state/client";
+import { toRpcFile } from "../../lib/rpc/RpcFile";
+import { canvasToBlob, imageDataToCanvas } from "../../lib/imageUtils";
 
 export default function AdminSpritesPage() {
-  const [sprites, setSprites] = useState<Blob[]>([]);
+  const [uploadMonsterImages] = useUploadMonsterImagesMutation();
   const tracker = usePromiseTracker();
   return (
     <>
@@ -25,8 +25,6 @@ export default function AdminSpritesPage() {
         isLoading={tracker.isPending}
         accept={[".grf", ".spr"]}
         onChange={async (files) => {
-          setSprites([]);
-
           const grfFiles = files.filter((file) => file.name.endsWith(".grf"));
           const sprFiles = files.filter((file) => file.name.endsWith(".spr"));
 
@@ -42,6 +40,7 @@ export default function AdminSpritesPage() {
                   "Unpacking SPR files",
                   Array.from(grf.files.keys())
                     .filter(isSpriteFile)
+                    .filter((name) => /frog/i.test(name))
                     .map((path) => () => grf.getFile(path))
                 )
               )
@@ -57,10 +56,10 @@ export default function AdminSpritesPage() {
 
           const sprites = await tracker.track(
             "Converting SPR objects to images",
-            sprObjects.map((file) => () => sprToImage(file))
+            sprObjects.map((file) => () => spriteToFile(file).then(toRpcFile))
           );
 
-          setSprites(sprites);
+          uploadMonsterImages(sprites);
         }}
         maxFiles={1}
         title={
@@ -80,18 +79,12 @@ export default function AdminSpritesPage() {
           {tracker.tasks.map((task) => task.name).join(", ")}
         </Typography>
       )}
-
-      <div>
-        {sprites.map((sprite, index) => (
-          <BlobImage key={index} src={sprite} />
-        ))}
-      </div>
     </>
   );
 }
 
-async function sprToImage({ frames: [frame] }: SPR) {
-  return canvasToBlob(
+async function spriteToFile({ frames: [frame], name }: SPR) {
+  const blob = await canvasToBlob(
     imageDataToCanvas(
       new ImageData(
         new Uint8ClampedArray(frame.data),
@@ -100,6 +93,7 @@ async function sprToImage({ frames: [frame] }: SPR) {
       )
     )
   );
+  return new File([blob], name);
 }
 
 const isSpriteFile = (path: string) =>
