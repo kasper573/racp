@@ -10,10 +10,11 @@ import {
   monsterType,
 } from "./types";
 
-const tag = createTagFactory("Monster");
+const monsterTag = createTagFactory("Monster");
+const monsterImageTag = createTagFactory("MonsterImage");
 
 export const monsterDefinition = createRpcDefinition({
-  tagTypes: [tag.type],
+  tagTypes: [monsterTag.type, monsterImageTag.type],
   entries: (builder) =>
     builder
       .query(
@@ -27,6 +28,9 @@ export const monsterDefinition = createRpcDefinition({
       .fileUpload(
         "uploadMonsterImages",
         zod.object({ success: zod.number(), failed: zod.number() }),
-        { auth: UserAccessLevel.Admin }
-      ),
+        { auth: UserAccessLevel.Admin, tags: monsterImageTag.many() }
+      )
+      .query("getMonstersMissingImages", zod.void(), zod.array(zod.number()), {
+        tags: monsterImageTag.many(),
+      }),
 });

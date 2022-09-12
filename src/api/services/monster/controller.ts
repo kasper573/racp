@@ -19,5 +19,6 @@ export async function monsterController(monsters: MonsterRepository) {
         files.map(({ name, data }) => ({ name, data: new Uint8Array(data) }))
       );
     },
+    getMonstersMissingImages: monsters.missingImages,
   });
 }

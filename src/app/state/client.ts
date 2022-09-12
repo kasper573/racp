@@ -49,6 +49,7 @@ export const {
   useUploadItemInfoMutation,
   useUploadMapImagesMutation,
   useUploadMonsterImagesMutation,
+  useGetMonstersMissingImagesQuery,
   useSearchMapsQuery,
   useSearchMonsterSpawnsQuery,
   useGetMapQuery,

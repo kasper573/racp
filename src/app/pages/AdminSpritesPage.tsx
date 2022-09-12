@@ -9,11 +9,15 @@ import { usePromiseTracker } from "../hooks/usePromiseTracker";
 import { SPR } from "../../lib/grf/types/SPR";
 import { defined } from "../../lib/defined";
 import { allResolved } from "../../lib/allResolved";
-import { useUploadMonsterImagesMutation } from "../state/client";
+import {
+  useGetMonstersMissingImagesQuery,
+  useUploadMonsterImagesMutation,
+} from "../state/client";
 import { toRpcFile } from "../../lib/rpc/RpcFile";
 import { canvasToBlob, imageDataToCanvas } from "../../lib/imageUtils";
 
 export default function AdminSpritesPage() {
+  const { data: missingImages } = useGetMonstersMissingImagesQuery();
   const [uploadMonsterImages] = useUploadMonsterImagesMutation();
   const tracker = usePromiseTracker();
   return (
@@ -83,6 +87,10 @@ export default function AdminSpritesPage() {
           {tracker.tasks.map((task) => task.name).join(", ")}
         </Typography>
       )}
+
+      <Typography>
+        {missingImages?.length ?? 0} missing monster images
+      </Typography>
     </>
   );
 }
