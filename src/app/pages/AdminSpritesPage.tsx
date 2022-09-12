@@ -40,7 +40,6 @@ export default function AdminSpritesPage() {
                   "Unpacking SPR files",
                   Array.from(grf.files.keys())
                     .filter(isSpriteFile)
-                    .filter((name) => /frog/i.test(name))
                     .map((path) => () => grf.getFile(path))
                 )
               )
@@ -51,7 +50,9 @@ export default function AdminSpritesPage() {
 
           const sprObjects = await tracker.track(
             "Parsing SPR objects",
-            sprFiles.map((file) => () => new SPR(readFileStream, file).load())
+            sprFiles.map(
+              (file) => () => new SPR(readFileStream, file, file.name).load()
+            )
           );
 
           const sprites = await tracker.track(
@@ -59,7 +60,10 @@ export default function AdminSpritesPage() {
             sprObjects.map((file) => () => spriteToFile(file).then(toRpcFile))
           );
 
-          uploadMonsterImages(sprites);
+          tracker.track(
+            "Uploading images",
+            sprites.map((file) => () => uploadMonsterImages([file]))
+          );
         }}
         maxFiles={1}
         title={
@@ -97,4 +101,5 @@ async function spriteToFile({ frames: [frame], name }: SPR) {
 }
 
 const isSpriteFile = (path: string) =>
-  /^data\\sprite\\npc\\.*\.spr$/.test(path);
+  /^data\\sprite\\npc\\.*\.spr$/.test(path) ||
+  /^data\\sprite\\¸ó½ºÅÍ\\.*\.spr$/.test(path);

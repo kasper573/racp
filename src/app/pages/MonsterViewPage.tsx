@@ -1,5 +1,5 @@
 import { ReactElement } from "react";
-import { Box, Stack } from "@mui/material";
+import { Box, Stack, styled } from "@mui/material";
 import { pick } from "lodash";
 import { useHistory } from "react-router";
 import { useRouteParams } from "../../lib/useRouteParams";
@@ -32,8 +32,11 @@ export default function MonsterViewPage(): ReactElement {
 
   return (
     <>
-      <Header back={router.monster}>{monster.Name}&nbsp;</Header>
-      {monster.imageUrl && <img src={monster.imageUrl} alt={monster.Name} />}
+      <Header back={router.monster}>
+        {monster.Name}&nbsp;
+        <MonsterImage src={monster.imageUrl} />
+      </Header>
+
       <Stack spacing={2} direction="row" sx={{ flex: 1 }}>
         <Box sx={{ flex: 1 }}>
           <TabbedPaper
@@ -112,3 +115,9 @@ export default function MonsterViewPage(): ReactElement {
     </>
   );
 }
+
+const MonsterImage = styled("img")`
+  position: absolute;
+  margin-left: 8px;
+  max-height: 75px;
+`;

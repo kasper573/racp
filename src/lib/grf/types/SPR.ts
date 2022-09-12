@@ -1,13 +1,21 @@
 import { range } from "lodash";
 import * as JDataView from "jdataview";
 import { Loader } from "../Loader";
+import { StreamReader } from "../Reader";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class SPR<Stream = any> extends Loader<Stream> {
   header = "";
   version = 0;
   frames: RGBABitmap[] = [];
-  name = "";
+
+  constructor(
+    readFromStream: StreamReader<Stream>,
+    stream: Stream,
+    public name = ""
+  ) {
+    super(readFromStream, stream);
+  }
 
   protected async loadImpl() {
     const view = await this.getDataView();
