@@ -33,7 +33,7 @@ export default function MonsterViewPage(): ReactElement {
   return (
     <>
       <Header back={router.monster}>
-        {monster.DisplayName}
+        {monster.Name} ({monster.AegisName})
         <MonsterImage src={monster.ImageUrl} />
       </Header>
 

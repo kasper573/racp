@@ -1,4 +1,3 @@
-import { capitalize } from "lodash";
 import { createYamlResolver } from "../../../rathena/YamlDriver";
 import { RAthenaMode } from "../../../options";
 import { Monster, MonsterPostProcess, monsterType } from "../types";
@@ -13,7 +12,6 @@ export function createMonsterResolver(
   function extract(monster: Monster): MonsterPostProcess {
     const { Level, Agi, Luk, Dex, Attack, Attack2 } = monster;
     return {
-      DisplayName: monsterDisplayName(monster),
       Flee: monster.Flee ?? 100 + (Level + Agi + Luk / 5),
       Hit: monster.Hit ?? 175 + Level + Dex + Math.floor(Luk / 3),
       ImageUrl: imageLinker.url(imageName(monster, imageFileExtension)),
@@ -35,13 +33,3 @@ export function createMonsterResolver(
 
 const imageName = (m: Monster, ext: string) => m.AegisName.toLowerCase() + ext;
 const spriteName = (m: Monster) => m.AegisName.toLowerCase() + ".spr";
-
-const monsterDisplayName = (monster: Monster) =>
-  monster.AegisName.toLowerCase()
-    .replace(/(\w+)_(\w+)/, "$1 $2")
-    .split(" ")
-    .map(capitalize)
-    .join(" ")
-    .split("_")
-    .map(capitalize)
-    .join("_");

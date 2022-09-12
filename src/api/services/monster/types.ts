@@ -31,7 +31,6 @@ export const monsterPostProcessType = zod.object({
   MAtk: zod.number(),
   ImageUrl: zod.string(),
   SpriteName: zod.string(),
-  DisplayName: zod.string(),
 });
 
 export type Monster = zod.infer<typeof monsterType>;
