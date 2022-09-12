@@ -1,6 +1,6 @@
 import { LinearProgress, Typography } from "@mui/material";
 import { useState } from "react";
-import Bottleneck from "bottleneck";
+import { flatten } from "lodash";
 import { Header } from "../layout/Header";
 
 import { FileUploader } from "../components/FileUploader";
@@ -10,6 +10,7 @@ import { usePromiseTracker } from "../hooks/usePromiseTracker";
 import { SPR } from "../../lib/grf/types/SPR";
 import { canvasToBlob, imageDataToCanvas } from "../../lib/imageUtils";
 import { BlobImage } from "../components/BlobImage";
+import { defined } from "../../lib/defined";
 
 export default function AdminSpritesPage() {
   const [sprites, setSprites] = useState<Blob[]>([]);
@@ -28,17 +29,48 @@ export default function AdminSpritesPage() {
           const grfFiles = files.filter((file) => file.name.endsWith(".grf"));
           const sprFiles = files.filter((file) => file.name.endsWith(".spr"));
 
-          const grfObjects = await tracker.trackAll(
-            grfFiles.map((file) => new GRF(readFileStream, file).load()),
-            "Initializing GRF loaders"
+          const grfObjects = await tracker.track(
+            "Initializing GRF loaders",
+            grfFiles.map((file) => () => new GRF(readFileStream, file).load())
           );
 
-          sprites.push(
-            ...(await tracker.trackOne(
-              loadSpritesFromGRFs(grfObjects),
-              "Loading sprites"
-            ))
+          const sprFilesFromGRFs = flatten(
+            await Promise.all(
+              grfObjects.map((grf) => {
+                const sprFilePaths = Array.from(grf.files.keys()).filter(
+                  (name) => name.endsWith(".spr")
+                  //(name) => /^data\\sprite\\npc\\.*\.spr$/.test(name)
+                );
+                return tracker.track(
+                  "Unpacking SPR files",
+                  sprFilePaths.map(
+                    (path) => () =>
+                      grf
+                        .getFile(path)
+                        .then((file) =>
+                          file.data !== undefined
+                            ? new File([file.data], file.name)
+                            : undefined
+                        )
+                  )
+                );
+              })
+            )
           );
+
+          sprFiles.push(...defined(sprFilesFromGRFs));
+
+          const sprObjects = await tracker.track(
+            "Parsing SPR objects",
+            sprFiles.map((file) => () => new SPR(readFileStream, file).load())
+          );
+
+          const sprites = await tracker.track(
+            "Converting SPR objects to images",
+            sprObjects.map((file) => () => sprToImage(file))
+          );
+
+          setSprites(sprites);
         }}
         maxFiles={1}
         title={
@@ -55,7 +87,7 @@ export default function AdminSpritesPage() {
 
       {tracker.tasks.length > 0 && (
         <Typography sx={{ margin: "0 auto", marginBottom: 2 }}>
-          {tracker.tasks.join(", ")}
+          {tracker.tasks.map((task) => task.name).join(", ")}
         </Typography>
       )}
 
@@ -68,32 +100,7 @@ export default function AdminSpritesPage() {
   );
 }
 
-async function loadSpritesFromGRFs(grfs: GRF[]) {
-  const sprites: Blob[] = [];
-  const limiter = new Bottleneck({ maxConcurrent: 200 });
-  grfs.forEach((grf) =>
-    Array.from(grf.files.keys())
-      .filter((path) => path.endsWith(".spr"))
-      .forEach((path) =>
-        limiter.schedule(async () => {
-          console.log("Loading", path);
-          const grfFile = await grf.getFile(path);
-          if (grfFile.data !== undefined) {
-            const sprFile = new File([grfFile.data], grfFile.name);
-            sprites.push(await loadSprite(sprFile));
-          }
-        })
-      )
-  );
-  await new Promise<void>((resolve) => limiter.on("empty", () => resolve()));
-  console.log("limiter done");
-  return sprites;
-}
-
-async function loadSprite(sprFile: File) {
-  const {
-    frames: [frame],
-  } = await new SPR(readFileStream, sprFile).load();
+async function sprToImage({ frames: [frame] }: SPR) {
   return canvasToBlob(
     imageDataToCanvas(
       new ImageData(

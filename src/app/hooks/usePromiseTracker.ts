@@ -1,11 +1,16 @@
-import { useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import Bottleneck from "bottleneck";
+import { useBottleneck } from "./useBottleneck";
 
 interface Task {
   name: string;
-  pending: AnyPromise[];
-  settled: AnyPromise[];
+  pending: TaskFn[];
+  settled: TaskFn[];
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type TaskFn<T = any> = () => Promise<T>;
 
 const slice = createSlice({
   name: "promiseTracker",
@@ -13,18 +18,21 @@ const slice = createSlice({
   reducers: {
     addTask: (
       tasks,
-      {
-        payload: { name, promises },
-      }: PayloadAction<{ name: string; promises: AnyPromise[] }>
+      { payload: { name, fns } }: PayloadAction<{ name: string; fns: TaskFn[] }>
     ) => {
-      tasks.push({ name, pending: promises, settled: [] });
+      const existing = tasks.find((task) => task.name === name);
+      if (existing) {
+        existing.pending.push(...fns);
+      } else {
+        tasks.push({ name, pending: fns, settled: [] });
+      }
     },
-    settle: (tasks, { payload: promise }: PayloadAction<AnyPromise>) => {
+    settle: (tasks, { payload: fn }: PayloadAction<TaskFn>) => {
       for (const task of tasks) {
-        const index = task.pending.indexOf(promise);
+        const index = task.pending.indexOf(fn);
         if (index !== -1) {
           task.pending.splice(index, 1);
-          task.settled.push(promise);
+          task.settled.push(fn);
         }
       }
     },
@@ -39,32 +47,29 @@ const taskProgress = (task: Task) => task.settled.length / taskTotal(task);
 
 const { settle, addTask, removeAllTasks } = slice.actions;
 
-export function usePromiseTracker() {
+export function usePromiseTracker(
+  options: Bottleneck.ConstructorOptions = { maxConcurrent: 200 }
+) {
   const [tasks, dispatch] = useReducer(slice.reducer, slice.getInitialState());
+  const bottleneck = useBottleneck(options);
+  useEffect(() => () => dispatch(removeAllTasks()), []);
 
-  function track<P extends AnyPromise | AnyPromise[]>(name: string, p: P): P {
-    const promises: AnyPromise[] = Array.isArray(p) ? p : [p];
-    dispatch(addTask({ name, promises }));
-    promises.forEach((promise) => {
+  function track<T>(name: string, fns: TaskFn<T>[]): Promise<T[]> {
+    dispatch(addTask({ name, fns }));
+
+    const promises = fns.map((fn) => {
       const onSettle = <T>(arg: T) => {
-        dispatch(settle(promise));
+        dispatch(settle(fn));
         return arg;
       };
-      promise.then(onSettle).catch(onSettle);
+      return bottleneck.schedule(() => fn().then(onSettle).catch(onSettle));
     });
-    return p;
+    return Promise.all(promises);
   }
 
   const reset = () => dispatch(removeAllTasks());
 
-  const trackAll = <T>(promises: Promise<T>[], name: string) =>
-    Promise.all(track(name, promises));
-
-  const trackOne = <T>(promise: Promise<T>, task: string) =>
-    track(task, promise);
-
-  const pendingTasks = tasks.filter((task) => task.pending.length > 0);
-  const pendingTaskNames = pendingTasks.map((task) => task.name);
+  const pendingTasks: Task[] = tasks.filter((task) => task.pending.length > 0);
 
   const progress =
     pendingTasks.length > 0
@@ -77,14 +82,10 @@ export function usePromiseTracker() {
 
   return {
     progress,
-    tasks: pendingTaskNames,
+    tasks: pendingTasks,
     isPending,
     isSettled,
-    trackAll,
-    trackOne,
+    track,
     reset,
   };
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyPromise = Promise<any>;

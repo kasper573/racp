@@ -65,7 +65,7 @@ export default function AdminMapsPage() {
 
       {uploader.tasks.length > 0 && (
         <Typography sx={{ margin: "0 auto", marginBottom: 2 }}>
-          {uploader.tasks.join(", ")}
+          {uploader.tasks.map((task) => task.name).join(", ")}
         </Typography>
       )}
 

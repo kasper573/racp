@@ -35,15 +35,15 @@ export function useMapFileUploader({
 
     const files = _files.slice();
     const grfFiles = files.filter((file) => file.name.endsWith(".grf"));
-    const grfObjects = await tracker.trackAll(
-      grfFiles.map((file) => new GRF(readFileStream, file).load()),
-      "Initializing GRF loaders"
+    const grfObjects = await tracker.track(
+      "Initializing GRF loaders",
+      grfFiles.map((file) => () => new GRF(readFileStream, file).load())
     );
 
     const filesFromGRF = flatten(
-      await tracker.trackAll(
-        flatten(grfObjects.map(unpackGATAndImageFiles)),
-        "Unpacking GRF files"
+      await tracker.track(
+        "Unpacking GRF files",
+        flatten(grfObjects.map(unpackGATAndImageFiles))
       )
     );
 
@@ -56,41 +56,38 @@ export function useMapFileUploader({
 
     if (lubFiles.length) {
       tracker
-        .trackAll(lubFiles.map(fromBrowserFile), "Loading lub file")
+        .track(
+          "Loading lub file",
+          lubFiles.map((file) => () => fromBrowserFile(file))
+        )
         .then((files) =>
-          tracker.trackOne(
-            uploadMapInfo(files),
-            `Uploading ${files.length} lub files`
-          )
+          tracker.track(`Uploading lub files`, [() => uploadMapInfo(files)])
         );
     }
 
     if (gatFiles.length) {
-      const gatObjects = await tracker.trackAll(
-        gatFiles.map((file) => new GAT(readFileStream, file).load()),
-        "Reading map bounds from GAT files"
+      const gatObjects = await tracker.track(
+        "Reading map bounds from GAT files",
+        gatFiles.map((file) => () => new GAT(readFileStream, file).load())
       );
 
       const registry = createMapBoundsRegistry(gatFiles, gatObjects);
-      tracker.trackOne(
-        updateMapBounds(registry),
-        `Uploading ${gatObjects.length} map bounds`
-      );
+      tracker.track(`Uploading map bounds`, [() => updateMapBounds(registry)]);
     }
 
     if (imageFiles.length) {
-      const cropped = await tracker.trackAll(
-        imageFiles.map(cropMapImage),
-        `Cropping ${imageFiles.length} map images`
+      const cropped = await tracker.track(
+        `Cropping map images`,
+        imageFiles.map((file) => () => cropMapImage(file))
       );
-      const rpcFiles = await tracker.trackAll(
-        cropped.map(fromBrowserFile),
-        `Preparing ${cropped.length} map images for upload`
+      const rpcFiles = await tracker.track(
+        `Preparing map images for upload`,
+        cropped.map((file) => () => fromBrowserFile(file))
       );
 
-      tracker.trackAll(
-        rpcFiles.map((file) => uploadMapImages([file])),
-        `Uploading ${rpcFiles.length} map images`
+      tracker.track(
+        `Uploading map images`,
+        rpcFiles.map((file) => () => uploadMapImages([file]))
       );
     }
   }
@@ -113,12 +110,12 @@ export function useMapFileUploader({
 const fileNameToMapName = (filename: string) =>
   /([^/\\]+)\.\w+$/.exec(filename)?.[1] ?? "";
 
-function unpackGATAndImageFiles<Stream>(grf: GRF<Stream>): Promise<File[]>[] {
+function unpackGATAndImageFiles<Stream>(grf: GRF<Stream>) {
   const gatFilePathRegex = /^data\\(.*)\.gat$/;
 
   return Array.from(grf.files.keys())
     .filter((file) => gatFilePathRegex.test(file))
-    .map(async (gatFilePath) => {
+    .map((gatFilePath) => async () => {
       const out: File[] = [];
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
