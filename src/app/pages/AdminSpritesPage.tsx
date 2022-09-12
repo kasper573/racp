@@ -1,5 +1,12 @@
-import { LinearProgress, Typography } from "@mui/material";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  LinearProgress,
+  Typography,
+} from "@mui/material";
 import { flatten } from "lodash";
+import { ExpandMore } from "@mui/icons-material";
 import { Header } from "../layout/Header";
 
 import { FileUploader } from "../components/FileUploader";
@@ -15,9 +22,11 @@ import {
 } from "../state/client";
 import { toRpcFile } from "../../lib/rpc/RpcFile";
 import { canvasToBlob, imageDataToCanvas } from "../../lib/imageUtils";
+import { MonsterGrid } from "../grids/MonsterGrid";
 
 export default function AdminSpritesPage() {
-  const { data: missingImages } = useGetMonstersMissingImagesQuery();
+  const { data: idsOfMonstersMissingImages = [] } =
+    useGetMonstersMissingImagesQuery();
   const [uploadMonsterImages] = useUploadMonsterImagesMutation();
   const tracker = usePromiseTracker();
   return (
@@ -64,10 +73,9 @@ export default function AdminSpritesPage() {
             sprObjects.map((file) => () => spriteToFile(file).then(toRpcFile))
           );
 
-          tracker.track(
-            "Uploading images",
-            sprites.map((file) => () => uploadMonsterImages([file]))
-          );
+          tracker.track("Uploading images", [
+            () => uploadMonsterImages(sprites),
+          ]);
         }}
         maxFiles={1}
         title={
@@ -88,9 +96,23 @@ export default function AdminSpritesPage() {
         </Typography>
       )}
 
-      <Typography>
-        {missingImages?.length ?? 0} missing monster images
-      </Typography>
+      {idsOfMonstersMissingImages.length > 0 && (
+        <Accordion sx={{ [`&&`]: { marginTop: 0 } }}>
+          <AccordionSummary expandIcon={<ExpandMore />}>
+            <Typography>
+              {idsOfMonstersMissingImages.length} missing monster images:
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <MonsterGrid
+              sx={{ height: "50vh" }}
+              filter={{
+                Id: { value: idsOfMonstersMissingImages, matcher: "oneOfN" },
+              }}
+            />
+          </AccordionDetails>
+        </Accordion>
+      )}
     </>
   );
 }

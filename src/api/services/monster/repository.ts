@@ -35,17 +35,17 @@ export function createMonsterRepository({
     updateImages: createImageUpdater(formatter, imageLinker),
     missingImages: async () => {
       const map = await monsters;
-      const monsterIds = await Promise.all(
+      const missing = await Promise.all(
         Array.from(map.values()).map(async (monster) => {
           if (
             monster.imageUrl &&
-            (await exists(imageLinker.urlToPath(monster.imageUrl)))
+            !(await exists(imageLinker.urlToPath(monster.imageUrl)))
           ) {
             return monster.Id;
           }
         })
       );
-      return defined(monsterIds);
+      return defined(missing);
     },
   };
 }
