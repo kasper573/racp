@@ -10,6 +10,7 @@ import { GRF } from "../../lib/grf/types/GRF";
 import { MapBounds, MapBoundsRegistry } from "../../api/services/map/types";
 import { GAT } from "../../lib/grf/types/GAT";
 import { readFileStream } from "../../lib/grf/readFileStream";
+import { allResolved } from "../../lib/allResolved";
 import { usePromiseTracker } from "./usePromiseTracker";
 
 export function useMapFileUploader({
@@ -116,34 +117,13 @@ function unpackGATAndImageFiles<Stream>(grf: GRF<Stream>) {
   return Array.from(grf.files.keys())
     .filter((file) => gatFilePathRegex.test(file))
     .map((gatFilePath) => async () => {
-      const out: File[] = [];
-
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const mapName = fileNameToMapName(gatFilePath)!;
+      const mapName = fileNameToMapName(gatFilePath);
       const imageFilePath = `data\\texture\\à¯àúàîåíæäàì½º\\map\\${mapName}.bmp`;
 
-      const [grfImageFile, grfGatFile] = await Promise.all([
-        grf.getEntry(imageFilePath),
-        grf.getEntry(gatFilePath),
+      return allResolved([
+        grf.getFile(imageFilePath),
+        grf.getFile(gatFilePath),
       ]);
-
-      if (grfGatFile.data) {
-        out.push(
-          new File([grfGatFile.data], `${mapName}.gat`, {
-            type: "application/gat",
-          })
-        );
-      }
-
-      if (grfImageFile.data) {
-        out.push(
-          new File([grfImageFile.data], `${mapName}.bmp`, {
-            type: "image/bmp",
-          })
-        );
-      }
-
-      return out;
     });
 }
 
