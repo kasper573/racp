@@ -9,6 +9,7 @@ import {
   QueryDefinition,
 } from "@reduxjs/toolkit/dist/query/endpointDefinitions";
 import { ResponseHandler } from "@reduxjs/toolkit/dist/query/fetchBaseQuery";
+import { ZodType } from "zod";
 import { typedKeys } from "../typedKeys";
 import {
   RpcDefinitionEntry,
@@ -53,14 +54,14 @@ export function createRpcEndpoints<
   const endpoints = {} as Record<keyof Entries, RPCEndpoint<any>>;
 
   for (const endpointName of typedKeys(entries)) {
-    const { intent, tags } = entries[endpointName];
+    const { intent, tags, argument } = entries[endpointName];
 
     const options: EndpointDefinitionBase = {
       query: (arg) => {
         const args: FetchArgs = {
           url: createEndpointUrl(endpointName),
           method: "post",
-          body: argumentTransformers[intent](arg),
+          body: argumentTransformers[intent](arg, argument),
           responseHandler,
         };
         return args;
@@ -88,10 +89,15 @@ export function createRpcEndpoints<
 
 export const createEndpointUrl = String;
 
-const argumentTransformers = {
-  mutation: JSON.stringify,
-  query: JSON.stringify,
-  fileUpload: filesToFormData,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ArgumentTransformer = (arg: any, type: ZodType) => any;
+
+const argumentTransformers: Record<string, ArgumentTransformer> = {
+  // Zod parse clears out any excessive data.
+  // Necessary some times since the type safety is only structural.
+  mutation: (arg, type) => JSON.stringify(type.parse(arg)),
+  query: (arg, type) => JSON.stringify(type.parse(arg)),
+  fileUpload: (arg) => filesToFormData(arg),
 };
 
 function filesToFormData(files: RpcFile[]) {
