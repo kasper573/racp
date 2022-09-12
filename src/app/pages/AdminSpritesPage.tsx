@@ -25,8 +25,11 @@ import { canvasToBlob, imageDataToCanvas } from "../../lib/imageUtils";
 import { MonsterGrid } from "../grids/MonsterGrid";
 
 export default function AdminSpritesPage() {
-  const { data: idsOfMonstersMissingImages = [] } =
+  const { data: monstersMissingImages = [] } =
     useGetMonstersMissingImagesQuery();
+  const missingSpriteNames = defined(
+    monstersMissingImages.map((m) => m.SpriteName)
+  );
   const [uploadMonsterImages] = useUploadMonsterImagesMutation();
   const tracker = usePromiseTracker();
   return (
@@ -38,6 +41,7 @@ export default function AdminSpritesPage() {
         isLoading={tracker.isPending}
         accept={[".grf", ".spr"]}
         onChange={async (files) => {
+          tracker.reset();
           const grfFiles = files.filter((file) => file.name.endsWith(".grf"));
           const sprFiles = files.filter((file) => file.name.endsWith(".spr"));
 
@@ -51,9 +55,9 @@ export default function AdminSpritesPage() {
               grfObjects.map((grf) =>
                 tracker.track(
                   "Unpacking SPR files",
-                  Array.from(grf.files.keys())
-                    .filter(isSpriteFile)
-                    .map((path) => () => grf.getFile(path))
+                  selectSpritePaths(grf, missingSpriteNames).map(
+                    (path) => () => grf.getFile(path)
+                  )
                 )
               )
             )
@@ -73,9 +77,10 @@ export default function AdminSpritesPage() {
             sprObjects.map((file) => () => spriteToFile(file).then(toRpcFile))
           );
 
-          tracker.track("Uploading images", [
-            () => uploadMonsterImages(sprites),
-          ]);
+          tracker.track(
+            "Uploading images",
+            sprites.map((sprite) => () => uploadMonsterImages([sprite]))
+          );
         }}
         maxFiles={1}
         title={
@@ -92,22 +97,32 @@ export default function AdminSpritesPage() {
 
       {tracker.tasks.length > 0 && (
         <Typography sx={{ margin: "0 auto", marginBottom: 2 }}>
-          {tracker.tasks.map((task) => task.name).join(", ")}
+          {tracker.tasks
+            .map(
+              (task) =>
+                `${task.name} (${task.settled.length} / ${
+                  task.pending.length + task.settled.length
+                })`
+            )
+            .join(", ")}
         </Typography>
       )}
 
-      {idsOfMonstersMissingImages.length > 0 && (
+      {monstersMissingImages.length > 0 && (
         <Accordion sx={{ [`&&`]: { marginTop: 0 } }}>
           <AccordionSummary expandIcon={<ExpandMore />}>
             <Typography>
-              {idsOfMonstersMissingImages.length} missing monster images:
+              {monstersMissingImages.length} missing monster images:
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
             <MonsterGrid
               sx={{ height: "50vh" }}
               filter={{
-                Id: { value: idsOfMonstersMissingImages, matcher: "oneOfN" },
+                Id: {
+                  value: monstersMissingImages.map((m) => m.Id),
+                  matcher: "oneOfN",
+                },
               }}
             />
           </AccordionDetails>
@@ -115,6 +130,14 @@ export default function AdminSpritesPage() {
       )}
     </>
   );
+}
+
+function selectSpritePaths(grf: GRF, spriteNames: string[]) {
+  const all = Array.from(grf.files.keys());
+  return spriteNames.reduce((selected: string[], name) => {
+    const file = all.find((path) => path.endsWith(`\\${name}`));
+    return file ? [...selected, file] : selected;
+  }, []);
 }
 
 async function spriteToFile({ frames: [frame], name }: SPR) {

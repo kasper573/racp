@@ -41,7 +41,7 @@ export function createMonsterRepository({
             monster.ImageUrl &&
             !(await exists(imageLinker.urlToPath(monster.ImageUrl)))
           ) {
-            return monster.Id;
+            return monster;
           }
         })
       );

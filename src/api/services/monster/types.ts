@@ -30,6 +30,7 @@ export const monsterPostProcessType = zod.object({
   Atk: zod.number(),
   MAtk: zod.number(),
   ImageUrl: zod.string(),
+  SpriteName: zod.string(),
   DisplayName: zod.string(),
 });
 

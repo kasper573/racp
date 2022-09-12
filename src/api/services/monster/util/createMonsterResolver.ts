@@ -17,6 +17,7 @@ export function createMonsterResolver(
       Flee: monster.Flee ?? 100 + (Level + Agi + Luk / 5),
       Hit: monster.Hit ?? 175 + Level + Dex + Math.floor(Luk / 3),
       ImageUrl: imageLinker.url(imageName(monster, imageFileExtension)),
+      SpriteName: spriteName(monster),
       ...{
         Prerenewal: { Atk: Attack, MAtk: 0 },
         Renewal: { Atk: Attack, MAtk: Attack2 },
@@ -33,10 +34,14 @@ export function createMonsterResolver(
 }
 
 const imageName = (m: Monster, ext: string) => m.AegisName.toLowerCase() + ext;
+const spriteName = (m: Monster) => m.AegisName.toLowerCase() + ".spr";
 
 const monsterDisplayName = (monster: Monster) =>
   monster.AegisName.toLowerCase()
     .replace(/(\w+)_(\w+)/, "$1 $2")
-    .split(/\s+/)
+    .split(" ")
     .map(capitalize)
-    .join(" ");
+    .join(" ")
+    .split("_")
+    .map(capitalize)
+    .join("_");

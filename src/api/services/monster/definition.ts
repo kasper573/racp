@@ -30,7 +30,14 @@ export const monsterDefinition = createRpcDefinition({
         zod.object({ success: zod.number(), failed: zod.number() }),
         { auth: UserAccessLevel.Admin, tags: monsterImageTag.many() }
       )
-      .query("getMonstersMissingImages", zod.void(), zod.array(zod.number()), {
-        tags: monsterImageTag.many(),
-      }),
+      .query(
+        "getMonstersMissingImages",
+        zod.void(),
+        zod.array(
+          monsterType.pick({ Id: true, AegisName: true, SpriteName: true })
+        ),
+        {
+          tags: monsterImageTag.many(),
+        }
+      ),
 });
