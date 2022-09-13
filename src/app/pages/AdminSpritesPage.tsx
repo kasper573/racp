@@ -6,7 +6,6 @@ import {
   LinearProgress,
   Typography,
 } from "@mui/material";
-import { flatten } from "lodash";
 import { ExpandMore } from "@mui/icons-material";
 import { Header } from "../layout/Header";
 
@@ -20,7 +19,6 @@ import {
 } from "../hooks/usePromiseTracker";
 import { SPR } from "../../lib/grf/types/SPR";
 import { defined } from "../../lib/defined";
-import { allResolved } from "../../lib/allResolved";
 import {
   useDecompileLuaTableFilesMutation,
   useGetMonstersMissingImagesQuery,
@@ -30,6 +28,8 @@ import { RpcFile, toRpcFile } from "../../lib/rpc/RpcFile";
 import { canvasToBlob, imageDataToCanvas } from "../../lib/imageUtils";
 import { MonsterGrid } from "../grids/MonsterGrid";
 import { ErrorMessage } from "../components/ErrorMessage";
+import { Monster } from "../../api/services/monster/types";
+import { ReducedLuaTables } from "../../api/services/util/types";
 
 export default function AdminSpritesPage() {
   const { data: monstersMissingImages = [] } =
@@ -47,56 +47,42 @@ export default function AdminSpritesPage() {
         value={[]}
         sx={{ maxWidth: 380, margin: "0 auto" }}
         isLoading={tracker.isPending}
-        accept={[".grf", ".spr"]}
+        accept={[".grf"]}
         onChange={async (files) => {
           tracker.reset();
-          const grfFiles = files.filter((file) => file.name.endsWith(".grf"));
-          const sprFiles = files.filter((file) => file.name.endsWith(".spr"));
 
-          const grfObjects = await tracker.track(
-            "Initializing GRF loaders",
-            grfFiles.map((file) => () => new GRF(readFileStream, file).load())
-          );
+          const grfFile = files.find((file) => file.name.endsWith(".grf"));
+          if (!grfFile) {
+            return;
+          }
 
-          const [spriteNames] = await tracker.track(
-            "Running lua scripts to determine sprite names",
+          const [grfObject] = await tracker.track("Initializing GRF loader", [
+            () => new GRF(readFileStream, grfFile).load(),
+          ]);
+
+          const [monsterSpriteInfo = []] = await tracker.track(
+            "Running lua scripts to determine monster sprite names",
             [
               () =>
-                determineSpriteNames(grfObjects, (files) =>
+                determineMonsterSpriteInfo(grfObject, (files) =>
                   decompileLuaTables(files).unwrap()
                 ),
             ]
           );
 
-          const sprFilesFromGRFs = flatten(
-            await allResolved(
-              grfObjects.map((grf) =>
-                tracker.track(
-                  "Unpacking SPR files",
-                  findSprites(grf, spriteNames).map(
-                    (path) => () => grf.getFile(path)
-                  )
-                )
-              )
-            )
+          console.log(monsterSpriteInfo);
+
+          const monsterImages = await tracker.track(
+            "Unpacking monster images from GRFs",
+            monsterSpriteInfo.map(({ id, spritePath }) => async () => {
+              const file = await grfObject.getFile(spritePath);
+              const spr = await new SPR(readFileStream, file, `${id}`).load();
+              return toRpcFile(await spriteToTextureFile(spr));
+            })
           );
 
-          sprFiles.push(...defined(sprFilesFromGRFs));
-
-          const sprObjects = await tracker.track(
-            "Parsing SPR objects",
-            sprFiles.map(
-              (file) => () => new SPR(readFileStream, file, file.name).load()
-            )
-          );
-
-          const sprites = await tracker.track(
-            "Converting SPR objects to images",
-            sprObjects.map((file) => () => spriteToFile(file).then(toRpcFile))
-          );
-
-          tracker.track("Uploading images", [
-            () => uploadMonsterImages(sprites),
+          tracker.track("Uploading monster images", [
+            () => uploadMonsterImages(monsterImages),
           ]);
         }}
         maxFiles={1}
@@ -151,47 +137,44 @@ export default function AdminSpritesPage() {
   );
 }
 
-async function determineSpriteNames(
-  grfObjects: GRF[],
-  decompileLuaTables: (files: RpcFile[]) => Promise<Record<string, unknown>>
-) {
-  const spriteNameTables = await Promise.all(
-    grfObjects.map(async (grf) => {
-      const npcIdentityTableFile = await grf
-        .getFile("data\\lua files\\datainfo\\npcidentity.lub")
-        .then(toRpcFile);
+interface MonsterSpriteInfoEntry {
+  id: Monster["Id"];
+  spritePath: string;
+}
 
-      const spriteNameTableFile = await grf
-        .getFile("data\\lua files\\datainfo\\jobname.lub")
-        .then(toRpcFile);
+async function determineMonsterSpriteInfo(
+  grf: GRF,
+  decompileLuaTables: (files: RpcFile[]) => Promise<ReducedLuaTables>
+): Promise<MonsterSpriteInfoEntry[]> {
+  const identityFile = await grf
+    .getFile("data\\lua files\\datainfo\\npcidentity.lub")
+    .then(toRpcFile);
 
-      return await decompileLuaTables([
-        npcIdentityTableFile,
-        spriteNameTableFile,
-      ]);
+  const nameFile = await grf
+    .getFile("data\\lua files\\datainfo\\jobname.lub")
+    .then(toRpcFile);
+
+  const table = await decompileLuaTables([identityFile, nameFile]);
+
+  const monsterIdToSpriteName = zod.record(zod.string()).parse(table);
+
+  const allFilePaths = Array.from(grf.files.keys());
+
+  const infoEntries = Object.entries(monsterIdToSpriteName).map(
+    ([monsterId, spriteName]) => ({
+      id: parseInt(monsterId, 10),
+      spritePath: allFilePaths.find((path) =>
+        path.endsWith(`\\${spriteName.toLowerCase()}.spr`)
+      ),
     })
   );
 
-  const mergedTables = spriteNameTables.reduce(
-    (acc, table) => ({ ...acc, ...table }),
-    {}
+  return infoEntries.filter(
+    (entry): entry is MonsterSpriteInfoEntry => entry.spritePath !== undefined
   );
-
-  const tableValues = Object.values(mergedTables);
-  return zod.array(zod.string()).parse(tableValues);
 }
 
-function findSprites(grf: GRF, spriteNames: string[]) {
-  const all = Array.from(grf.files.keys());
-  return spriteNames.reduce((selected: string[], name) => {
-    const file = all.find((path) =>
-      path.endsWith(`\\${name.toLowerCase()}.spr`)
-    );
-    return file ? [...selected, file] : selected;
-  }, []);
-}
-
-async function spriteToFile({ frames: [frame], name }: SPR) {
+async function spriteToTextureFile({ frames: [frame], name }: SPR) {
   const blob = await canvasToBlob(
     imageDataToCanvas(
       new ImageData(
