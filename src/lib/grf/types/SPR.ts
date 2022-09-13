@@ -7,7 +7,13 @@ import { StreamReader } from "../Reader";
 export class SPR<Stream = any> extends Loader<Stream> {
   header = "";
   version = 0;
-  frames: RGBABitmap[] = [];
+  indexedBitmaps: IndexedBitmap[] = [];
+  rgbaBitmaps: RGBABitmap[] = [];
+  palette: RGBAPalette = [];
+
+  get frameCount(): number {
+    return this.indexedBitmaps.length + this.rgbaBitmaps.length;
+  }
 
   constructor(
     readFromStream: StreamReader<Stream>,
@@ -23,15 +29,11 @@ export class SPR<Stream = any> extends Loader<Stream> {
     this.header = view.getString(2);
     this.version = parseFloat(view.getBytes(2).reverse().join("."));
 
-    let indexedBitmaps: IndexedBitmap[] = [];
-    let rgbaBitmaps: RGBABitmap[] = [];
-    let palette: RGBAPalette = [];
-
     switch (this.version) {
       case 1.0:
       case 1.1: {
         const frameCount = view.getUint16();
-        indexedBitmaps = readIndexedBitmaps(view, frameCount);
+        this.indexedBitmaps = readIndexedBitmaps(view, frameCount);
         break;
       }
       case 2.0:
@@ -42,8 +44,8 @@ export class SPR<Stream = any> extends Loader<Stream> {
           : readIndexedBitmaps;
         const indexedFrameCount = view.getUint16();
         const rgbaFrameCount = view.getUint16();
-        indexedBitmaps = readIndexed(view, indexedFrameCount);
-        rgbaBitmaps = readRGBABitmaps(view, rgbaFrameCount);
+        this.indexedBitmaps = readIndexed(view, indexedFrameCount);
+        this.rgbaBitmaps = readRGBABitmaps(view, rgbaFrameCount);
         break;
       }
       default:
@@ -52,13 +54,19 @@ export class SPR<Stream = any> extends Loader<Stream> {
 
     const remaining = view.byteLength - view.tell();
     if (remaining === paletteSize) {
-      palette = view.getBytes(paletteSize);
+      this.palette = view.getBytes(paletteSize);
     }
+  }
 
-    this.frames = [
-      ...indexedBitmaps.map((bitmap) => applyPalette(bitmap, palette)),
-      ...rgbaBitmaps,
-    ];
+  compileFrame(frame: number): RGBABitmap {
+    if (frame < this.indexedBitmaps.length) {
+      return applyPalette(this.indexedBitmaps[frame], this.palette);
+    }
+    return this.rgbaBitmaps[frame - this.indexedBitmaps.length];
+  }
+
+  compileFrames(): RGBABitmap[] {
+    return range(this.frameCount).map((frame) => this.compileFrame(frame));
   }
 }
 
@@ -66,14 +74,16 @@ function applyPalette(
   { indexes, width, height }: IndexedBitmap,
   palette: RGBAPalette
 ): RGBABitmap {
+  let index: number, offset: number;
   const data = new Uint8Array(width * height * 4);
   for (let x = 0; x < width; x++) {
     for (let y = 0; y < height; y++) {
-      const index = indexes[x + y * width] * 4;
-      const offset = (x + y * width) * 4;
-      const [r, g, b] = palette.slice(index, index + 4);
-      const a = index ? 255 : 0;
-      data.set([r, g, b, a], offset);
+      index = indexes[x + y * width] * 4;
+      offset = (x + y * width) * 4;
+      data[offset] = palette[index];
+      data[offset + 1] = palette[index + 1];
+      data[offset + 2] = palette[index + 2];
+      data[offset + 3] = index ? 255 : 0;
     }
   }
 
@@ -85,25 +95,30 @@ function applyPalette(
 }
 
 function readRGBABitmaps(view: JDataView, frameCount: number) {
-  return range(frameCount).map((): RGBABitmap => {
+  const bitmaps: RGBABitmap[] = new Array(frameCount);
+  for (let i = 0; i < frameCount; i++) {
     const width = view.getUint16();
     const height = view.getUint16();
     const data = new Uint8Array(view.getBytes(width * height * 4));
-    return { data, width, height };
-  });
+    bitmaps[i] = { data, width, height };
+  }
+  return bitmaps;
 }
 
 function readIndexedBitmaps(view: JDataView, frameCount: number) {
-  return range(frameCount).map((): IndexedBitmap => {
+  const bitmaps: IndexedBitmap[] = new Array(frameCount);
+  for (let i = 0; i < frameCount; i++) {
     const width = view.getUint16();
     const height = view.getUint16();
     const indexes = new Uint8Array(view.getBytes(width * height));
-    return { indexes, width, height };
-  });
+    bitmaps[i] = { indexes, width, height };
+  }
+  return bitmaps;
 }
 
 function readIndexedBitmapsRLE(view: JDataView, frameCount: number) {
-  return range(frameCount).map((): IndexedBitmap => {
+  const bitmaps: IndexedBitmap[] = new Array(frameCount);
+  for (let i = 0; i < frameCount; i++) {
     const width = view.getUint16();
     const height = view.getUint16();
     const indexes = new Uint8Array(width * height);
@@ -125,8 +140,9 @@ function readIndexedBitmapsRLE(view: JDataView, frameCount: number) {
       }
     }
 
-    return { indexes, width, height };
-  });
+    bitmaps[i] = { indexes, width, height };
+  }
+  return bitmaps;
 }
 
 export type RGBAPalette = number[];

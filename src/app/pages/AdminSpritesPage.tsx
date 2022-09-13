@@ -62,8 +62,6 @@ export default function AdminSpritesPage() {
             ]
           );
 
-          console.log(monsterSpriteInfo);
-
           const monsterImages = await tracker.track(
             "Unpacking monster images from GRFs",
             monsterSpriteInfo.map(({ id, spritePath }) => async () => {
@@ -172,7 +170,8 @@ async function determineMonsterSpriteInfo(
   );
 }
 
-async function spriteToTextureFile({ frames: [frame], name }: SPR) {
+async function spriteToTextureFile(sprite: SPR) {
+  const frame = sprite.compileFrame(0);
   const blob = await canvasToBlob(
     imageDataToCanvas(
       new ImageData(
@@ -182,5 +181,5 @@ async function spriteToTextureFile({ frames: [frame], name }: SPR) {
       )
     )
   );
-  return new File([blob], name);
+  return new File([blob], sprite.name);
 }
