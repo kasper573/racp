@@ -71,7 +71,7 @@ export const taskProgress = (task: Task) => taskSettled(task) / taskTotal(task);
 const { resolve, reject, addTask, removeAllTasks } = slice.actions;
 
 export function usePromiseTracker(
-  options: Bottleneck.ConstructorOptions = { maxConcurrent: 200 }
+  options: Bottleneck.ConstructorOptions = { maxConcurrent: 10 }
 ) {
   const [tasks, dispatch] = useReducer(slice.reducer, slice.getInitialState());
   const bottleneck = useBottleneck(options);
