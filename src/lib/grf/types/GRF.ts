@@ -103,10 +103,10 @@ export class GRF<Stream = any> extends Loader<Stream> {
     return inflate(data);
   }
 
-  public async getFile(name: string) {
-    const entry = await this.getEntry(name);
+  public async getFile(path: string) {
+    const entry = await this.getEntry(path);
     if (entry.data !== undefined) {
-      return new File([entry.data], name);
+      return new File([entry.data], entry.name);
     }
     throw new Error(`${entry.error}`);
   }
