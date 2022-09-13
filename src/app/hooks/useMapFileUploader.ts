@@ -86,10 +86,7 @@ export function useMapFileUploader({
         cropped.map((file) => () => toRpcFile(file))
       );
 
-      tracker.track(
-        `Uploading map images`,
-        rpcFiles.map((file) => () => uploadMapImages([file]))
-      );
+      tracker.track(`Uploading map images`, [() => uploadMapImages(rpcFiles)]);
     }
   }
 
