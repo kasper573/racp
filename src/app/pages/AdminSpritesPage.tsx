@@ -12,11 +12,7 @@ import { Header } from "../layout/Header";
 import { FileUploader } from "../components/FileUploader";
 import { GRF } from "../../lib/grf/types/GRF";
 import { readFileStream } from "../../lib/grf/readFileStream";
-import {
-  taskSettled,
-  taskTotal,
-  usePromiseTracker,
-} from "../hooks/usePromiseTracker";
+import { usePromiseTracker } from "../hooks/usePromiseTracker";
 import { SPR } from "../../lib/grf/types/SPR";
 import {
   useDecompileLuaTableFilesMutation,
@@ -96,18 +92,24 @@ export default function AdminSpritesPage() {
 
       {tracker.tasks.length > 0 && (
         <Typography sx={{ margin: "0 auto", marginBottom: 2 }}>
-          {tracker.tasks
-            .map(
-              (task) =>
-                `${task.name} (${taskSettled(task)} / ${taskTotal(task)})`
-            )
-            .join(", ")}
+          {tracker.tasks.map((task) => `${task.name}`).join(", ")}
         </Typography>
       )}
 
-      {tracker.errors.map((error, index) => (
-        <ErrorMessage key={`error${index}`} error={`${error}`} />
-      ))}
+      {tracker.errors.length > 0 && (
+        <Accordion sx={{ [`&&`]: { marginTop: 0 } }}>
+          <AccordionSummary expandIcon={<ExpandMore />}>
+            <Typography>
+              {tracker.errors.length} errors during upload:
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            {tracker.errors.map((error, index) => (
+              <ErrorMessage key={`error${index}`} error={error} />
+            ))}
+          </AccordionDetails>
+        </Accordion>
+      )}
 
       {idsOfMonstersMissingImages.length > 0 && (
         <Accordion sx={{ [`&&`]: { marginTop: 0 } }}>
