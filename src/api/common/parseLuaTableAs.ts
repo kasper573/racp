@@ -1,6 +1,7 @@
 import * as lua from "luaparse";
 import * as zod from "zod";
 import { ZodType } from "zod";
+import { MemberExpression } from "luaparse";
 import { parseLuaTable } from "../../lib/parseLuaTable";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -8,8 +9,9 @@ const legacy = require("legacy-encoding");
 
 export function parseLuaTableAs<ValueType extends ZodType>(
   luaCode: string,
-  valueType: ValueType
-): LuaParseResult<Record<string, zod.infer<ValueType>>> {
+  valueType: ValueType,
+  references?: Record<string, unknown>
+): LuaParseResult<Record<string | number, zod.infer<ValueType>>> {
   let root: lua.Chunk;
   try {
     // RO lub files are encoded with IBM code page 949.
@@ -31,10 +33,17 @@ export function parseLuaTableAs<ValueType extends ZodType>(
     return { success: false, error: "Lua script did not contain a table" };
   }
 
+  const ref = references
+    ? (ref: MemberExpression) => {
+        if (Object.hasOwn(references, ref.identifier.name)) {
+          return references[ref.identifier.name];
+        }
+        throw new Error(`Reference not found: ${ref.identifier.name}`);
+      }
+    : undefined;
+
   try {
-    return zod
-      .record(zod.string(), valueType)
-      .safeParse(parseLuaTable(rootTable));
+    return zod.record(valueType).safeParse(parseLuaTable(rootTable, ref));
   } catch (error) {
     return { success: false, error };
   }

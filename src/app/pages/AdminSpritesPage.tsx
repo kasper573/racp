@@ -58,22 +58,33 @@ export default function AdminSpritesPage() {
             grfFiles.map((file) => () => new GRF(readFileStream, file).load())
           );
 
-          const spriteNameTableFiles = flatten(
+          const lubFiles = flatten(
             await allResolved(
               grfObjects.map((grf) =>
                 tracker.track("Unpacking sprite name table files", [
-                  () =>
-                    grf
+                  async () => {
+                    const npcIdentityTable = await grf
+                      .getFile("data\\lua files\\datainfo\\npcidentity.lub")
+                      .then(toRpcFile);
+
+                    const spriteNameTable = await grf
                       .getFile("data\\lua files\\datainfo\\jobname.lub")
-                      .then(toRpcFile),
+                      .then(toRpcFile);
+
+                    return [npcIdentityTable, spriteNameTable];
+                  },
                 ])
               )
             )
           );
 
-          const spriteNameTable = await decompileLuaFile(
-            spriteNameTableFiles
-          ).unwrap();
+          const spriteNameTables = await Promise.all(
+            lubFiles.map((files) => decompileLuaFile(files).unwrap())
+          );
+          const spriteNameTable = spriteNameTables.reduce(
+            (acc, table) => ({ ...acc, ...table }),
+            {}
+          );
 
           const spriteNames = zod
             .array(zod.string())
@@ -84,7 +95,7 @@ export default function AdminSpritesPage() {
               grfObjects.map((grf) =>
                 tracker.track(
                   "Unpacking SPR files",
-                  selectSpritePaths(grf, spriteNames).map(
+                  findSprites(grf, spriteNames).map(
                     (path) => () => grf.getFile(path)
                   )
                 )
@@ -106,10 +117,9 @@ export default function AdminSpritesPage() {
             sprObjects.map((file) => () => spriteToFile(file).then(toRpcFile))
           );
 
-          tracker.track(
-            "Uploading images",
-            sprites.map((sprite) => () => uploadMonsterImages([sprite]))
-          );
+          tracker.track("Uploading images", [
+            () => uploadMonsterImages(sprites),
+          ]);
         }}
         maxFiles={1}
         title={
@@ -163,10 +173,12 @@ export default function AdminSpritesPage() {
   );
 }
 
-function selectSpritePaths(grf: GRF, spriteNames: string[]) {
+function findSprites(grf: GRF, spriteNames: string[]) {
   const all = Array.from(grf.files.keys());
   return spriteNames.reduce((selected: string[], name) => {
-    const file = all.find((path) => path.endsWith(`\\${name}`));
+    const file = all.find((path) =>
+      path.endsWith(`\\${name.toLowerCase()}.spr`)
+    );
     return file ? [...selected, file] : selected;
   }, []);
 }
@@ -183,7 +195,3 @@ async function spriteToFile({ frames: [frame], name }: SPR) {
   );
   return new File([blob], name);
 }
-
-const isSpriteFile = (path: string) =>
-  /^data\\sprite\\npc\\.*\.spr$/.test(path) ||
-  /^data\\sprite\\¸ó½ºÅÍ\\.*\.spr$/.test(path);

@@ -7,15 +7,15 @@ import { utilDefinition } from "./definition";
 export function utilController() {
   return createRpcController(utilDefinition.entries, {
     async decompileLuaTableFiles(files) {
-      const tablePromises = files.map(async (file) => {
-        const compiledLuaCode = Buffer.from(new Uint8Array(file.data));
-        const luaCode = (await unluac(compiledLuaCode)).toString("utf8");
-        const res = parseLuaTableAs(luaCode, zod.string());
-        return res.success ? res.data : {};
-      });
-
-      const tables = await Promise.all(tablePromises);
-      return tables.reduce((acc, table) => ({ ...acc, ...table }), {});
+      const compiled = files.map((file) =>
+        Buffer.from(new Uint8Array(file.data))
+      );
+      const decompiled = await Promise.all(compiled.map(unluac));
+      const luaCodes = decompiled.map((buffer) => buffer.toString("utf8"));
+      return luaCodes.reduce((table, luaCode) => {
+        const res = parseLuaTableAs(luaCode, zod.unknown(), table);
+        return res.success ? res.data : table;
+      }, {});
     },
   });
 }
