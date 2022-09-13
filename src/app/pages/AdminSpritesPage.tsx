@@ -1,3 +1,4 @@
+import * as zod from "zod";
 import {
   Accordion,
   AccordionDetails,
@@ -74,12 +75,16 @@ export default function AdminSpritesPage() {
             spriteNameTableFiles
           ).unwrap();
 
+          const spriteNames = zod
+            .array(zod.string())
+            .parse(Object.values(spriteNameTable));
+
           const sprFilesFromGRFs = flatten(
             await allResolved(
               grfObjects.map((grf) =>
                 tracker.track(
                   "Unpacking SPR files",
-                  selectSpritePaths(grf, Object.values(spriteNameTable)).map(
+                  selectSpritePaths(grf, spriteNames).map(
                     (path) => () => grf.getFile(path)
                   )
                 )
