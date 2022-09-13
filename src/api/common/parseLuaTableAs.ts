@@ -31,8 +31,13 @@ export function parseLuaTableAs<ValueType extends ZodType>(
     return { success: false, error: "Lua script did not contain a table" };
   }
 
-  const tableData = parseLuaTable(rootTable);
-  return zod.record(zod.string(), valueType).safeParse(tableData);
+  try {
+    return zod
+      .record(zod.string(), valueType)
+      .safeParse(parseLuaTable(rootTable));
+  } catch (error) {
+    return { success: false, error };
+  }
 }
 
 function find<T, V>(list: T[], select: (item: T) => V | undefined) {
