@@ -26,7 +26,7 @@ import {
   useGetMonstersMissingImagesQuery,
   useUploadMonsterImagesMutation,
 } from "../state/client";
-import { toRpcFile } from "../../lib/rpc/RpcFile";
+import { RpcFile, toRpcFile } from "../../lib/rpc/RpcFile";
 import { canvasToBlob, imageDataToCanvas } from "../../lib/imageUtils";
 import { MonsterGrid } from "../grids/MonsterGrid";
 import { ErrorMessage } from "../components/ErrorMessage";
@@ -38,7 +38,7 @@ export default function AdminSpritesPage() {
     monstersMissingImages.map((m) => m.SpriteName)
   );
   const [uploadMonsterImages] = useUploadMonsterImagesMutation();
-  const [decompileLuaFile] = useDecompileLuaTableFilesMutation();
+  const [decompileLuaTables] = useDecompileLuaTableFilesMutation();
   const tracker = usePromiseTracker();
   return (
     <>
@@ -58,37 +58,15 @@ export default function AdminSpritesPage() {
             grfFiles.map((file) => () => new GRF(readFileStream, file).load())
           );
 
-          const lubFiles = flatten(
-            await allResolved(
-              grfObjects.map((grf) =>
-                tracker.track("Unpacking sprite name table files", [
-                  async () => {
-                    const npcIdentityTable = await grf
-                      .getFile("data\\lua files\\datainfo\\npcidentity.lub")
-                      .then(toRpcFile);
-
-                    const spriteNameTable = await grf
-                      .getFile("data\\lua files\\datainfo\\jobname.lub")
-                      .then(toRpcFile);
-
-                    return [npcIdentityTable, spriteNameTable];
-                  },
-                ])
-              )
-            )
+          const [spriteNames] = await tracker.track(
+            "Running lua scripts to determine sprite names",
+            [
+              () =>
+                determineSpriteNames(grfObjects, (files) =>
+                  decompileLuaTables(files).unwrap()
+                ),
+            ]
           );
-
-          const spriteNameTables = await Promise.all(
-            lubFiles.map((files) => decompileLuaFile(files).unwrap())
-          );
-          const spriteNameTable = spriteNameTables.reduce(
-            (acc, table) => ({ ...acc, ...table }),
-            {}
-          );
-
-          const spriteNames = zod
-            .array(zod.string())
-            .parse(Object.values(spriteNameTable));
 
           const sprFilesFromGRFs = flatten(
             await allResolved(
@@ -171,6 +149,36 @@ export default function AdminSpritesPage() {
       )}
     </>
   );
+}
+
+async function determineSpriteNames(
+  grfObjects: GRF[],
+  decompileLuaTables: (files: RpcFile[]) => Promise<Record<string, unknown>>
+) {
+  const spriteNameTables = await Promise.all(
+    grfObjects.map(async (grf) => {
+      const npcIdentityTableFile = await grf
+        .getFile("data\\lua files\\datainfo\\npcidentity.lub")
+        .then(toRpcFile);
+
+      const spriteNameTableFile = await grf
+        .getFile("data\\lua files\\datainfo\\jobname.lub")
+        .then(toRpcFile);
+
+      return await decompileLuaTables([
+        npcIdentityTableFile,
+        spriteNameTableFile,
+      ]);
+    })
+  );
+
+  const mergedTables = spriteNameTables.reduce(
+    (acc, table) => ({ ...acc, ...table }),
+    {}
+  );
+
+  const tableValues = Object.values(mergedTables);
+  return zod.array(zod.string()).parse(tableValues);
 }
 
 function findSprites(grf: GRF, spriteNames: string[]) {
