@@ -36,9 +36,7 @@ export const monsterDefinition = createRpcDefinition({
       .query(
         "getMonstersMissingImages",
         zod.void(),
-        zod.array(
-          monsterType.pick({ Id: true, AegisName: true, SpriteName: true })
-        ),
+        zod.array(monsterType.shape["Id"]),
         {
           tags: monsterImageTag.many(),
         }

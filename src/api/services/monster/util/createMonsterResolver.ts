@@ -20,7 +20,6 @@ export function createMonsterResolver(
       Flee: monster.Flee ?? 100 + (Level + Agi + Luk / 5),
       Hit: monster.Hit ?? 175 + Level + Dex + Math.floor(Luk / 3),
       ImageUrl,
-      SpriteName: createSpriteName(monster),
       ...{
         Prerenewal: { Atk: Attack, MAtk: 0 },
         Renewal: { Atk: Attack, MAtk: Attack2 },
@@ -36,10 +35,7 @@ export function createMonsterResolver(
   });
 }
 
-const createImageName = (m: Monster, ext: string) =>
-  m.AegisName.toLowerCase() + ext;
-
-const createSpriteName = (m: Monster) => m.AegisName.toLowerCase() + ".spr";
+const createImageName = (m: Monster, ext: string) => `${m.Id}${ext}`;
 
 const exists = async (path: string) => {
   try {

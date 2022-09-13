@@ -19,6 +19,9 @@ export async function monsterController(monsters: MonsterRepository) {
         files.map(({ name, data }) => ({ name, data: new Uint8Array(data) }))
       );
     },
-    getMonstersMissingImages: monsters.missingImages,
+    async getMonstersMissingImages() {
+      const monstersWithMissingImages = await monsters.missingImages();
+      return monstersWithMissingImages.map((m) => m.Id);
+    },
   });
 }

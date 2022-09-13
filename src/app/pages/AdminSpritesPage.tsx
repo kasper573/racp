@@ -18,7 +18,6 @@ import {
   usePromiseTracker,
 } from "../hooks/usePromiseTracker";
 import { SPR } from "../../lib/grf/types/SPR";
-import { defined } from "../../lib/defined";
 import {
   useDecompileLuaTableFilesMutation,
   useGetMonstersMissingImagesQuery,
@@ -32,11 +31,8 @@ import { Monster } from "../../api/services/monster/types";
 import { ReducedLuaTables } from "../../api/services/util/types";
 
 export default function AdminSpritesPage() {
-  const { data: monstersMissingImages = [] } =
+  const { data: idsOfMonstersMissingImages = [] } =
     useGetMonstersMissingImagesQuery();
-  const missingSpriteNames = defined(
-    monstersMissingImages.map((m) => m.SpriteName)
-  );
   const [uploadMonsterImages] = useUploadMonsterImagesMutation();
   const [decompileLuaTables] = useDecompileLuaTableFilesMutation();
   const tracker = usePromiseTracker();
@@ -113,11 +109,11 @@ export default function AdminSpritesPage() {
         <ErrorMessage key={`error${index}`} error={`${error}`} />
       ))}
 
-      {monstersMissingImages.length > 0 && (
+      {idsOfMonstersMissingImages.length > 0 && (
         <Accordion sx={{ [`&&`]: { marginTop: 0 } }}>
           <AccordionSummary expandIcon={<ExpandMore />}>
             <Typography>
-              {monstersMissingImages.length} missing monster images:
+              {idsOfMonstersMissingImages.length} missing monster images:
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
@@ -125,7 +121,7 @@ export default function AdminSpritesPage() {
               sx={{ height: "50vh" }}
               filter={{
                 Id: {
-                  value: monstersMissingImages.map((m) => m.Id),
+                  value: idsOfMonstersMissingImages,
                   matcher: "oneOfN",
                 },
               }}
