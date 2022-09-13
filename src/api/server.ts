@@ -5,9 +5,9 @@ import cors = require("cors");
 import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
 import { createFileStore } from "../lib/createFileStore";
 import { createLogger } from "../lib/logger";
-import { createEllipsisLogFn } from "../lib/createEllipsisLogFn";
 import { createPublicFileLinker } from "../lib/createPublicFileLinker";
 import { createImageFormatter } from "../lib/createImageFormatter";
+import { createEllipsisLogFn } from "../lib/createEllipsisLogFn";
 import { createYamlDriver } from "./rathena/YamlDriver";
 import { createConfigDriver } from "./rathena/ConfigDriver";
 import { createDatabaseDriver } from "./rathena/DatabaseDriver";
@@ -32,6 +32,8 @@ import { mapController } from "./services/map/controller";
 import { createMapRepository } from "./services/map/repository";
 import { linkDropsWithItems } from "./services/item/util/linkDropsWithItems";
 import { createAuthRepository } from "./services/auth/repository";
+import { utilDefinition } from "./services/util/definition";
+import { utilController } from "./services/util/controller";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -86,6 +88,7 @@ app.use(rpc(authDefinition, authController({ db, auth, sign, ...args })));
 app.use(rpc(monsterDefinition, monsterController(monsters)));
 app.use(rpc(mapDefinition, mapController(maps)));
 app.use(rpc(metaDefinition, metaController({ items, monsters })));
+app.use(rpc(utilDefinition, utilController()));
 
 http.createServer(app).listen(args.apiPort, args.hostname, () => {
   console.log(`API is running on port ${args.port}`);

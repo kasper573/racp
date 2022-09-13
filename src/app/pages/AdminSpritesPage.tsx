@@ -12,17 +12,23 @@ import { Header } from "../layout/Header";
 import { FileUploader } from "../components/FileUploader";
 import { GRF } from "../../lib/grf/types/GRF";
 import { readFileStream } from "../../lib/grf/readFileStream";
-import { usePromiseTracker } from "../hooks/usePromiseTracker";
+import {
+  taskSettled,
+  taskTotal,
+  usePromiseTracker,
+} from "../hooks/usePromiseTracker";
 import { SPR } from "../../lib/grf/types/SPR";
 import { defined } from "../../lib/defined";
 import { allResolved } from "../../lib/allResolved";
 import {
+  useDecompileLuaTableFilesMutation,
   useGetMonstersMissingImagesQuery,
   useUploadMonsterImagesMutation,
 } from "../state/client";
 import { toRpcFile } from "../../lib/rpc/RpcFile";
 import { canvasToBlob, imageDataToCanvas } from "../../lib/imageUtils";
 import { MonsterGrid } from "../grids/MonsterGrid";
+import { ErrorMessage } from "../components/ErrorMessage";
 
 export default function AdminSpritesPage() {
   const { data: monstersMissingImages = [] } =
@@ -31,6 +37,7 @@ export default function AdminSpritesPage() {
     monstersMissingImages.map((m) => m.SpriteName)
   );
   const [uploadMonsterImages] = useUploadMonsterImagesMutation();
+  const [decompileLuaFile] = useDecompileLuaTableFilesMutation();
   const tracker = usePromiseTracker();
   return (
     <>
@@ -50,12 +57,29 @@ export default function AdminSpritesPage() {
             grfFiles.map((file) => () => new GRF(readFileStream, file).load())
           );
 
+          const spriteNameTableFiles = flatten(
+            await allResolved(
+              grfObjects.map((grf) =>
+                tracker.track("Unpacking sprite name table files", [
+                  () =>
+                    grf
+                      .getFile("data\\lua files\\datainfo\\jobname.lub")
+                      .then(toRpcFile),
+                ])
+              )
+            )
+          );
+
+          const spriteNameTable = await decompileLuaFile(
+            spriteNameTableFiles
+          ).unwrap();
+
           const sprFilesFromGRFs = flatten(
             await allResolved(
               grfObjects.map((grf) =>
                 tracker.track(
                   "Unpacking SPR files",
-                  selectSpritePaths(grf, missingSpriteNames).map(
+                  selectSpritePaths(grf, Object.values(spriteNameTable)).map(
                     (path) => () => grf.getFile(path)
                   )
                 )
@@ -100,13 +124,15 @@ export default function AdminSpritesPage() {
           {tracker.tasks
             .map(
               (task) =>
-                `${task.name} (${task.settled.length} / ${
-                  task.pending.length + task.settled.length
-                })`
+                `${task.name} (${taskSettled(task)} / ${taskTotal(task)})`
             )
             .join(", ")}
         </Typography>
       )}
+
+      {tracker.errors.map((error, index) => (
+        <ErrorMessage key={`error${index}`} error={`${error}`} />
+      ))}
 
       {monstersMissingImages.length > 0 && (
         <Accordion sx={{ [`&&`]: { marginTop: 0 } }}>

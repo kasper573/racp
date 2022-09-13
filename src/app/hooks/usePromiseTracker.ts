@@ -1,12 +1,21 @@
 import { useEffect, useReducer } from "react";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import Bottleneck from "bottleneck";
+import { allResolved } from "../../lib/allResolved";
 import { useBottleneck } from "./useBottleneck";
+
+export type TaskError = unknown;
+
+export interface TaskRejection {
+  fn: TaskFn;
+  error: TaskError;
+}
 
 interface Task {
   name: string;
   pending: TaskFn[];
-  settled: TaskFn[];
+  resolved: TaskFn[];
+  rejected: TaskRejection[];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -24,15 +33,24 @@ const slice = createSlice({
       if (existing) {
         existing.pending.push(...fns);
       } else {
-        tasks.push({ name, pending: fns, settled: [] });
+        tasks.push({ name, pending: fns, resolved: [], rejected: [] });
       }
     },
-    settle: (tasks, { payload: fn }: PayloadAction<TaskFn>) => {
+    resolve: (tasks, { payload: fn }: PayloadAction<TaskFn>) => {
       for (const task of tasks) {
         const index = task.pending.indexOf(fn);
         if (index !== -1) {
           task.pending.splice(index, 1);
-          task.settled.push(fn);
+          task.resolved.push(fn);
+        }
+      }
+    },
+    reject: (tasks, { payload: rejection }: PayloadAction<TaskRejection>) => {
+      for (const task of tasks) {
+        const index = task.pending.indexOf(rejection.fn);
+        if (index !== -1) {
+          task.pending.splice(index, 1);
+          task.rejected.push(rejection);
         }
       }
     },
@@ -42,10 +60,15 @@ const slice = createSlice({
   },
 });
 
-const taskTotal = (task: Task) => task.pending.length + task.settled.length;
-const taskProgress = (task: Task) => task.settled.length / taskTotal(task);
+export const taskSettled = (task: Task) =>
+  task.rejected.length + task.resolved.length;
 
-const { settle, addTask, removeAllTasks } = slice.actions;
+export const taskTotal = (task: Task) =>
+  task.pending.length + task.rejected.length + task.resolved.length;
+
+export const taskProgress = (task: Task) => taskSettled(task) / taskTotal(task);
+
+const { resolve, reject, addTask, removeAllTasks } = slice.actions;
 
 export function usePromiseTracker(
   options: Bottleneck.ConstructorOptions = { maxConcurrent: 200 }
@@ -57,19 +80,32 @@ export function usePromiseTracker(
   function track<T>(name: string, fns: TaskFn<T>[]): Promise<T[]> {
     dispatch(addTask({ name, fns }));
 
-    const promises = fns.map((fn) => {
-      const onSettle = <T>(arg: T) => {
-        dispatch(settle(fn));
-        return arg;
-      };
-      return bottleneck.schedule(() => fn().then(onSettle).catch(onSettle));
-    });
-    return Promise.all(promises);
+    const promises = fns.map((fn) =>
+      bottleneck.schedule(async () => {
+        try {
+          const res = await fn();
+          dispatch(resolve(fn));
+          return res;
+        } catch (error) {
+          dispatch(reject({ fn, error }));
+          throw error;
+        }
+      })
+    );
+    return allResolved(promises);
   }
 
   const reset = () => dispatch(removeAllTasks());
 
   const pendingTasks: Task[] = tasks.filter((task) => task.pending.length > 0);
+
+  const errors = tasks.reduce(
+    (list: TaskError[], task) => [
+      ...list,
+      ...task.rejected.map((r) => r.error),
+    ],
+    []
+  );
 
   const progress =
     pendingTasks.length > 0
@@ -83,6 +119,7 @@ export function usePromiseTracker(
   return {
     progress,
     tasks: pendingTasks,
+    errors,
     isPending,
     isSettled,
     track,
