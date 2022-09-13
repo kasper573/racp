@@ -51,5 +51,5 @@ function resolve(exp: Expression) {
     case "TableConstructorExpression":
       return parseLuaTable(exp);
   }
-  return new Error(`Cannot resolve ${exp.type}`);
+  throw new Error(`Cannot resolve ${exp.type}`);
 }
