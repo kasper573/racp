@@ -17,7 +17,7 @@ export function createImageFormatter({
           new Promise<void>((resolve, reject) => {
             image
               .quality(quality)
-              .write(changeExtension(targetPath, extension), (err) => {
+              .write(setExtension(targetPath, extension), (err) => {
                 if (err) {
                   reject(err);
                 } else {
@@ -30,5 +30,11 @@ export function createImageFormatter({
   };
 }
 
-const changeExtension = (path: string, ext: string) =>
-  path.replace(/\.[^/.]+$/, ext);
+const setExtension = (path: string, ext: string) =>
+  hasExtension(path) ? path.replace(/\.[^/.]+$/, ext) : path + ext;
+
+const hasExtension = (path: string): boolean => {
+  const lastDot = path.lastIndexOf(".");
+  const lastSlash = path.lastIndexOf("/");
+  return lastDot > lastSlash;
+};
