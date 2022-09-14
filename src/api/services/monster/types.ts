@@ -23,6 +23,15 @@ const monsterDropType = zod.object({
   ...monsterDropPostProcessType.shape,
 });
 
+export type MonsterPostProcess = zod.infer<typeof monsterPostProcessType>;
+export const monsterPostProcessType = zod.object({
+  Flee: zod.number(),
+  Hit: zod.number(),
+  Atk: zod.number(),
+  MAtk: zod.number(),
+  ImageUrl: zod.string().optional(), // Undefined means image is not present on the server
+});
+
 export type Monster = zod.infer<typeof monsterType>;
 export const monsterType = zod.object({
   Id: zod.number(),
@@ -65,11 +74,7 @@ export const monsterType = zod.object({
   Modes: toggleRecordType,
   MvpDrops: zod.array(monsterDropType).default([]),
   Drops: zod.array(monsterDropType).default([]),
-  // Post processed
-  Flee: zod.number().optional(),
-  Hit: zod.number().optional(),
-  Atk: zod.number().optional(),
-  MAtk: zod.number().optional(),
+  ...monsterPostProcessType.partial().shape,
 });
 
 export type MonsterFilter = zod.infer<typeof monsterFilter.type>;

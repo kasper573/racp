@@ -17,7 +17,7 @@ export const itemDefinition = createRpcDefinition({
         tags: ["ITEM_INFO"],
         auth: UserAccessLevel.Admin,
       })
-      .fileUpload("uploadItemInfo", zod.boolean(), {
+      .fileUpload("uploadItemInfo", zod.void(), {
         tags: ["ITEM_INFO"],
         auth: UserAccessLevel.Admin,
       }),

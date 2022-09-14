@@ -56,11 +56,15 @@ export function createFileStore(directory: string, logger: Logger) {
 
 export interface FileStoreEntry<Data> {
   get data(): Data | undefined;
-  update(fileContent: string): ParseResult<Data>;
+  update(fileContent: string): FileParseResult<Data>;
   reload(): void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ContentParser<T = any> = (fileContent: string) => ParseResult<T>;
+export type ContentParser<T = any> = (
+  fileContent: string
+) => FileParseResult<T>;
 
-export type ParseResult<T> = { success: true; data: T } | { success: false };
+export type FileParseResult<T> =
+  | { success: true; data: T }
+  | { success: false };

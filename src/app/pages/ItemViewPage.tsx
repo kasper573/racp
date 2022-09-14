@@ -59,7 +59,7 @@ export default function ItemViewPage(): ReactElement {
         {itemNameString(item.Name, item.Slots)}&nbsp;
         {hasDifferentDisplayName && (
           <TooltipText tooltip="Client display name" color="text.disabled">
-            (itemNameString(displayName, item.Slots))
+            ({itemNameString(displayName, item.Slots)})
           </TooltipText>
         )}
       </Header>

@@ -130,7 +130,7 @@ export function createRpcMiddlewareFactory<Auth>(
               .status(httpStatus.internalServerError)
               .send(e.message);
           }
-          routeLogger.log(`Unexpected error while executing handler`, e);
+          routeLogger.log(`Unexpected error while executing handler:`, e);
           return response.sendStatus(httpStatus.internalServerError);
         }
 

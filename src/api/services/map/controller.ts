@@ -36,11 +36,11 @@ export async function mapController(maps: MapRepository) {
     },
     async uploadMapInfo([file]) {
       if (!file) {
-        return [];
+        throw new RpcException("A file must be uploaded");
       }
       const res = maps.updateInfo(Buffer.from(file.data).toString("utf8"));
       if (!res.success) {
-        return [];
+        throw new Error("File could not be parsed as map info.");
       }
       return Object.values(res.data).map((map) => map.id);
     },

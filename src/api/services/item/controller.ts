@@ -26,10 +26,13 @@ export function itemController(items: ItemRepository) {
     },
     async uploadItemInfo([luaFile]) {
       if (!luaFile) {
-        return false;
+        throw new RpcException("A file must be uploaded");
       }
       const itemInfoAsLuaCode = Buffer.from(luaFile.data).toString("utf8");
-      return items.updateInfo(itemInfoAsLuaCode).success;
+      const { success } = items.updateInfo(itemInfoAsLuaCode);
+      if (!success) {
+        throw new RpcException("File could not be parsed as item info.");
+      }
     },
   });
 }

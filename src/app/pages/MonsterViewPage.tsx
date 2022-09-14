@@ -1,5 +1,5 @@
 import { ReactElement } from "react";
-import { Box, Stack } from "@mui/material";
+import { Box, Stack, styled } from "@mui/material";
 import { pick } from "lodash";
 import { useHistory } from "react-router";
 import { useRouteParams } from "../../lib/useRouteParams";
@@ -11,6 +11,7 @@ import { TabSwitch } from "../components/TabSwitch";
 import { TabbedPaper } from "../components/TabbedPaper";
 import { KVTable } from "../components/KVTable";
 import { MonsterDropGrid } from "../grids/MonsterDropGrid";
+import { TooltipText } from "../components/TooltipText";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MonsterViewPage(): ReactElement {
@@ -32,7 +33,16 @@ export default function MonsterViewPage(): ReactElement {
 
   return (
     <>
-      <Header back={router.monster}>{monster.Name}&nbsp;</Header>
+      <Header back={router.monster}>
+        {monster.Name}&nbsp;
+        {monster.AegisName !== monster.Name && (
+          <TooltipText tooltip="Aegis name" color="text.disabled">
+            ({monster.AegisName})
+          </TooltipText>
+        )}
+        {monster.ImageUrl && <MonsterImage src={monster.ImageUrl} />}
+      </Header>
+
       <Stack spacing={2} direction="row" sx={{ flex: 1 }}>
         <Box sx={{ flex: 1 }}>
           <TabbedPaper
@@ -111,3 +121,9 @@ export default function MonsterViewPage(): ReactElement {
     </>
   );
 }
+
+const MonsterImage = styled("img")`
+  position: absolute;
+  margin-left: 12px;
+  max-height: 75px;
+`;

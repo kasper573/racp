@@ -3,7 +3,8 @@ import { ComponentProps } from "react";
 
 export interface ErrorMessageProps
   extends Omit<ComponentProps<typeof Typography>, "children"> {
-  error?: ErrorLike;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error?: any;
 }
 
 export function ErrorMessage({ error, ...props }: ErrorMessageProps) {
@@ -18,14 +19,18 @@ export function ErrorMessage({ error, ...props }: ErrorMessageProps) {
   );
 }
 
-export function getErrorMessage<T extends ErrorLike>(
-  error?: T
+export function getErrorMessage(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error?: any
 ): string | undefined {
   if (!error) {
     return;
   }
   if (typeof error === "string") {
     return error;
+  }
+  if (typeof error !== "object") {
+    return;
   }
   if ("error" in error) {
     return `${error.error}`;
@@ -39,9 +44,3 @@ export function getErrorMessage<T extends ErrorLike>(
       : `${error.data}`;
   }
 }
-
-type ErrorLike =
-  | string
-  | { error?: string }
-  | { message?: string }
-  | { data?: Record<string, unknown> | unknown };

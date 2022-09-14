@@ -1,6 +1,8 @@
+import * as zod from "zod";
 import { createTagFactory } from "../../../lib/createTagFactory";
 import { createRpcDefinition } from "../../util/rpc";
 import { createSearchTypes } from "../../common/search";
+import { UserAccessLevel } from "../auth/types";
 import {
   monsterFilter,
   monsterSpawnFilter,
@@ -8,10 +10,11 @@ import {
   monsterType,
 } from "./types";
 
-const tag = createTagFactory("Monster");
+const monsterTag = createTagFactory("Monster");
+const monsterImageTag = createTagFactory("MonsterImage");
 
 export const monsterDefinition = createRpcDefinition({
-  tagTypes: [tag.type],
+  tagTypes: [monsterTag.type, monsterImageTag.type],
   entries: (builder) =>
     builder
       .query(
@@ -21,5 +24,21 @@ export const monsterDefinition = createRpcDefinition({
       .query(
         "searchMonsterSpawns",
         ...createSearchTypes(monsterSpawnType, monsterSpawnFilter.type)
+      )
+      .fileUpload(
+        "uploadMonsterImages",
+        zod.object({ success: zod.number(), failed: zod.number() }),
+        {
+          auth: UserAccessLevel.Admin,
+          tags: [...monsterImageTag.many(), ...monsterTag.many()],
+        }
+      )
+      .query(
+        "getMonstersMissingImages",
+        zod.void(),
+        zod.array(monsterType.shape["Id"]),
+        {
+          tags: monsterImageTag.many(),
+        }
       ),
 });

@@ -38,6 +38,7 @@ To run RACP you will need the following software installed on your machine:
 
 - [Node.js](https://nodejs.org/en/)
 - [Mysql](https://www.mysql.com/)
+- [Java](https://www.java.com/)
 - [rAthena](https://github.com/rathena/) (Or a fork)
 
 ## Development

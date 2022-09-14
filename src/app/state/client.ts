@@ -6,6 +6,7 @@ import { itemDefinition } from "../../api/services/item/definition";
 import { monsterDefinition } from "../../api/services/monster/definition";
 import { metaDefinition } from "../../api/services/meta/definition";
 import { mapDefinition } from "../../api/services/map/definition";
+import { utilDefinition } from "../../api/services/util/definition";
 import { AppState } from "./store";
 
 export const client = createApi({
@@ -26,6 +27,7 @@ export const client = createApi({
     ...itemDefinition.tagTypes,
     ...monsterDefinition.tagTypes,
     ...mapDefinition.tagTypes,
+    ...utilDefinition.tagTypes,
   ],
   endpoints: (builder) => ({
     ...createRpcEndpoints(builder, metaDefinition.entries),
@@ -34,6 +36,7 @@ export const client = createApi({
     ...createRpcEndpoints(builder, itemDefinition.entries),
     ...createRpcEndpoints(builder, monsterDefinition.entries),
     ...createRpcEndpoints(builder, mapDefinition.entries),
+    ...createRpcEndpoints(builder, utilDefinition.entries),
   }),
 });
 
@@ -48,8 +51,11 @@ export const {
   useUpdateConfigMutation,
   useUploadItemInfoMutation,
   useUploadMapImagesMutation,
+  useUploadMonsterImagesMutation,
+  useGetMonstersMissingImagesQuery,
   useSearchMapsQuery,
   useSearchMonsterSpawnsQuery,
+  useDecompileLuaTableFilesMutation,
   useGetMapQuery,
   useCountMapBoundsQuery,
   useSearchWarpsQuery,

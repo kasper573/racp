@@ -11,8 +11,8 @@
     "build:app": "webpack build",
     "app:dev": "cross-env reactRefresh=true apiBaseUrl=http://localhost:8081 appPort=8080 webpack serve",
     "app:prod": "cross-var webpack && serve dist -s -p $appPort",
-    "api:dev": "ts-node-dev src/api/server --apiPort 8081",
-    "api:prod": "ts-node src/api/server",
+    "api:dev": "ts-node-dev --files src/api/server --apiPort 8081",
+    "api:prod": "ts-node --files src/api/server",
     "e2e:dev": "cross-env CYPRESS_BASE_URL=http://localhost:8080 cypress open",
     "e2e:ci:dependencies": "yarn configure-rathena && concurrently \"yarn api:prod\" \"yarn app:prod\"",
     "e2e:ci:run": "cross-var npx start-server-and-test e2e:ci:dependencies $CYPRESS_BASE_URL 'cypress run --record'",
@@ -41,6 +41,7 @@
     "@types/react-dom": "18.0.5",
     "@types/react-router-dom": "5.3.3",
     "@types/recursive-readdir": "2.2.1",
+    "@types/uuid": "^8.3.4",
     "@types/webpack": "5.28.0",
     "@typescript-eslint/eslint-plugin": "5.26.0",
     "@typescript-eslint/parser": "5.26.0",
@@ -113,6 +114,7 @@
     "redux": "4.2.0",
     "trim-image-data": "1.0.2",
     "use-debounce": "8.0.1",
+    "uuid": "^9.0.0",
     "zod": "3.17.3"
   }
 }

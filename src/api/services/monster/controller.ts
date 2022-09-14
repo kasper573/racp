@@ -14,5 +14,14 @@ export async function monsterController(monsters: MonsterRepository) {
       async () => monsters.spawns,
       (entity, payload) => monsterSpawnFilter.for(payload)(entity)
     ),
+    async uploadMonsterImages(files) {
+      return monsters.updateImages(
+        files.map(({ name, data }) => ({ name, data: new Uint8Array(data) }))
+      );
+    },
+    async getMonstersMissingImages() {
+      const monstersWithMissingImages = await monsters.missingImages();
+      return monstersWithMissingImages.map((m) => m.Id);
+    },
   });
 }

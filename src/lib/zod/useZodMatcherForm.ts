@@ -1,6 +1,6 @@
 import * as zod from "zod";
 import { ZodType } from "zod";
-import { UseElevatedStateProps } from "../../app/hooks/useElevatedState";
+import { UseElevatedStateProps } from "../useElevatedState";
 import { OmitNever, Values, ZodMatcher, ZodMatcherPayload } from "./ZodMatcher";
 import { useZodForm, ZodFormRegistration } from "./useZodForm";
 
