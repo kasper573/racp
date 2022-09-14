@@ -41,6 +41,7 @@ export function useAssetUploader() {
   ]);
 
   const errors = [...serverErrors, ...tracker.errors, ...customErrors];
+
   async function uploadMapDataFromGRF(grf: GRF) {
     const mapData = await tracker.track(
       "Unpacking map data",

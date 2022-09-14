@@ -109,7 +109,7 @@ export function usePromiseTracker() {
   const errors = tasks.reduce(
     (list: TaskError[], task) => [
       ...list,
-      ...task.rejected.map((r) => r.error),
+      ...task.rejected.map((r) => `${task.name}: ${r.error}`),
     ],
     []
   );
