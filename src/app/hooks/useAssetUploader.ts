@@ -1,4 +1,4 @@
-import { flatten, memoize, pick } from "lodash";
+import { memoize, pick } from "lodash";
 import * as zod from "zod";
 import { useState } from "react";
 import { cropSurroundingColors, RGB } from "../../lib/cropSurroundingColors";
@@ -12,16 +12,15 @@ import {
 } from "../state/client";
 import { RpcFile, toRpcFile } from "../../lib/rpc/RpcFile";
 import { GRF } from "../../lib/grf/types/GRF";
-import { MapBounds, MapBoundsRegistry } from "../../api/services/map/types";
 import { GAT } from "../../lib/grf/types/GAT";
 import { readFileStream } from "../../lib/grf/readFileStream";
-import { allResolved } from "../../lib/allResolved";
 import { Monster } from "../../api/services/monster/types";
 import { ReducedLuaTables } from "../../api/services/util/types";
 import { SPR } from "../../lib/grf/types/SPR";
 import { canvasToBlob, imageDataToCanvas } from "../../lib/imageUtils";
 import { defined } from "../../lib/defined";
 import { usePromiseTracker } from "../../lib/usePromiseTracker";
+import { MapBoundsRegistry } from "../../api/services/map/types";
 
 export function useAssetUploader() {
   const [uploadMapImages, mapImageUpload] = useUploadMapImagesMutation();
@@ -42,31 +41,22 @@ export function useAssetUploader() {
   ]);
 
   const errors = [...serverErrors, ...tracker.errors, ...customErrors];
-
-  async function uploadMapImageFiles(imageFiles: File[]) {
-    const cropped = await tracker.track(
-      `Cropping map images`,
-      imageFiles.map((file) => () => cropMapImage(file))
-    );
-    const rpcFiles = await tracker.track(
-      `Preparing map images for upload`,
-      cropped.map((file) => () => toRpcFile(file))
+  async function uploadMapDataFromGRF(grf: GRF) {
+    const mapData = await tracker.track(
+      "Unpacking map data",
+      createMapDataUnpackJobs(grf)
     );
 
-    await tracker.track(`Uploading map images`, [
-      () => uploadMapImages(rpcFiles),
-    ]);
-  }
-
-  async function uploadMapBoundsFromGAT(gatFiles: File[]) {
-    const gatObjects = await tracker.track(
-      "Unpacking map bounds",
-      gatFiles.map((file) => () => new GAT(readFileStream, file).load())
+    const images = defined(mapData.map(({ image }) => image));
+    const bounds = mapData.reduce(
+      (bounds: MapBoundsRegistry, { gat }) =>
+        gat ? { ...bounds, [fileNameToMapName(gat.name)]: gat } : bounds,
+      {}
     );
 
-    const registry = createMapBoundsRegistry(gatFiles, gatObjects);
-    await tracker.track(`Uploading map bounds`, [
-      () => updateMapBounds(registry),
+    await Promise.allSettled([
+      tracker.track(`Uploading map images`, [() => uploadMapImages(images)]),
+      tracker.track(`Uploading map bounds`, [() => updateMapBounds(bounds)]),
     ]);
   }
 
@@ -83,7 +73,7 @@ export function useAssetUploader() {
 
   async function uploadMonsterImagesFromGRF(grf: GRF) {
     const [monsterSpriteInfo = []] = await tracker.track(
-      "Running lua scripts to determine monster sprite names",
+      "Locating monster images",
       [
         () =>
           determineMonsterSpriteInfo(grf, (files) =>
@@ -107,22 +97,9 @@ export function useAssetUploader() {
   }
 
   async function uploadGRF(grf: GRF) {
-    const monsterImagePromise = uploadMonsterImagesFromGRF(grf);
-
-    const filesFromGRF = flatten(
-      await tracker.track(
-        "Unpacking map bounds and map images",
-        unpackGATAndMapImageFiles(grf)
-      )
-    );
-
-    const gatFiles = filesFromGRF.filter((file) => file.name.endsWith(".gat"));
-    const imageFiles = filesFromGRF.filter((file) => isImage(file.name));
-
-    await Promise.all([
-      uploadMapImageFiles(imageFiles),
-      uploadMapBoundsFromGAT(gatFiles),
-      monsterImagePromise,
+    await Promise.allSettled([
+      uploadMapDataFromGRF(grf),
+      uploadMonsterImagesFromGRF(grf),
     ]);
   }
 
@@ -149,14 +126,6 @@ export function useAssetUploader() {
     );
   }
 
-  function isImage(fileName: string) {
-    return imageExtensions.some((ext) => fileName.endsWith(ext));
-  }
-
-  async function cropMapImage(file: File) {
-    return cropSurroundingColors(file, [mapImageCropColor]);
-  }
-
   return {
     ...pick(tracker, "isPending", "tasks", "progress"),
     upload,
@@ -168,7 +137,7 @@ export function useAssetUploader() {
 const fileNameToMapName = (filename: string) =>
   /([^/\\]+)\.\w+$/.exec(filename)?.[1] ?? "";
 
-function unpackGATAndMapImageFiles<Stream>(grf: GRF<Stream>) {
+function createMapDataUnpackJobs<Stream>(grf: GRF<Stream>) {
   const gatFilePathRegex = /^data\\(.*)\.gat$/;
 
   return Array.from(grf.files.keys())
@@ -177,21 +146,19 @@ function unpackGATAndMapImageFiles<Stream>(grf: GRF<Stream>) {
       const mapName = fileNameToMapName(gatFilePath);
       const imageFilePath = `data\\texture\\à¯àúàîåíæäàì½º\\map\\${mapName}.bmp`;
 
-      return allResolved([
-        grf.getFile(imageFilePath),
-        grf.getFile(gatFilePath),
+      const [gatResult, imageResult] = await Promise.allSettled([
+        grf
+          .getFile(gatFilePath)
+          .then((file) => new GAT(readFileStream, file, file.name).load()),
+        grf.getFile(imageFilePath).then(cropMapImage).then(toRpcFile),
       ]);
-    });
-}
 
-function createMapBoundsRegistry(files: File[], bounds: MapBounds[]) {
-  return bounds.reduce(
-    (registry: MapBoundsRegistry, bounds, index) => ({
-      ...registry,
-      [fileNameToMapName(files[index].name)]: bounds,
-    }),
-    {}
-  );
+      const gat =
+        gatResult.status === "fulfilled" ? gatResult.value : undefined;
+      const image =
+        imageResult.status === "fulfilled" ? imageResult.value : undefined;
+      return { gat, image };
+    });
 }
 
 async function determineMonsterSpriteInfo(
@@ -244,10 +211,13 @@ async function spriteToTextureFile(sprite: SPR) {
   return new File([blob], sprite.name);
 }
 
+async function cropMapImage(file: File) {
+  return cropSurroundingColors(file, [mapImageCropColor]);
+}
+
 interface MonsterSpriteInfoEntry {
   id: Monster["Id"];
   spritePath: string;
 }
 
-const imageExtensions = [".png", ".jpg", ".jpeg", ".bmp", ".tga"];
 const mapImageCropColor: RGB = [255, 0, 255]; // Magenta
