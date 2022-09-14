@@ -43,7 +43,7 @@ export function useAssetUploader() {
 
   const errors = [...serverErrors, ...tracker.errors, ...customErrors];
 
-  async function uploadImageFiles(imageFiles: File[]) {
+  async function uploadMapImageFiles(imageFiles: File[]) {
     const cropped = await tracker.track(
       `Cropping map images`,
       imageFiles.map((file) => () => cropMapImage(file))
@@ -112,7 +112,7 @@ export function useAssetUploader() {
     const filesFromGRF = flatten(
       await tracker.track(
         "Unpacking GAT files and map images",
-        unpackGATAndImageFiles(grf)
+        unpackGATAndMapImageFiles(grf)
       )
     );
 
@@ -120,7 +120,7 @@ export function useAssetUploader() {
     const imageFiles = filesFromGRF.filter((file) => isImage(file.name));
 
     await Promise.all([
-      uploadImageFiles(imageFiles),
+      uploadMapImageFiles(imageFiles),
       uploadMapBoundsFromGAT(gatFiles),
       monsterImagePromise,
     ]);
@@ -168,7 +168,7 @@ export function useAssetUploader() {
 const fileNameToMapName = (filename: string) =>
   /([^/\\]+)\.\w+$/.exec(filename)?.[1] ?? "";
 
-function unpackGATAndImageFiles<Stream>(grf: GRF<Stream>) {
+function unpackGATAndMapImageFiles<Stream>(grf: GRF<Stream>) {
   const gatFilePathRegex = /^data\\(.*)\.gat$/;
 
   return Array.from(grf.files.keys())
