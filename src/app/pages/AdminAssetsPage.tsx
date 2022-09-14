@@ -21,7 +21,6 @@ import { FileUploader } from "../components/FileUploader";
 import { useAssetUploader } from "../hooks/useAssetUploader";
 import { useBlockNavigation } from "../../lib/useBlockNavigation";
 import { MonsterGrid } from "../grids/MonsterGrid";
-import { taskSettled, taskTotal } from "../../lib/usePromiseTracker";
 
 export default function AdminAssetsPage() {
   const { data: mapImageCount = 0 } = useCountMapImagesQuery();
@@ -77,7 +76,7 @@ export default function AdminAssetsPage() {
         />
       )}
 
-      {uploader.tasks.length > 0 && (
+      {uploader.isPending && (
         <Typography
           sx={{
             margin: "0 auto",
@@ -86,11 +85,7 @@ export default function AdminAssetsPage() {
             textAlign: "center",
           }}
         >
-          {uploader.tasks
-            .map(
-              (task) => `${task.name} (${taskSettled(task)}/${taskTotal(task)})`
-            )
-            .join("\n")}
+          {uploader.currentActivities.join("\n")}
         </Typography>
       )}
 

@@ -1,6 +1,18 @@
 import { useRef } from "react";
 
-export function useScheduler(maxConcurrent = 20) {
+export interface SchedulerHookOptions {
+  maxConcurrent?: number;
+  defaultPriority?: () => number;
+}
+
+export interface SchedulerCallOptions {
+  priority?: number;
+}
+
+export function useScheduler({
+  maxConcurrent = 20,
+  defaultPriority = () => 0,
+}: SchedulerHookOptions = {}) {
   const jobs = useRef<Job[]>([]);
   const active = useRef(0);
 
@@ -11,8 +23,7 @@ export function useScheduler(maxConcurrent = 20) {
 
   function trySpawn() {
     if (active.current < maxConcurrent) {
-      const randomIndex = Math.floor(Math.random() * jobs.current.length);
-      const job = jobs.current.splice(randomIndex, 1)[0];
+      const job = jobs.current.shift();
       if (job) {
         spawn(job);
       }
@@ -34,9 +45,13 @@ export function useScheduler(maxConcurrent = 20) {
     job.resolve(result);
   }
 
-  function schedule<T>(fn: () => Promise<T>): Promise<T> {
+  function schedule<T>(
+    fn: () => Promise<T>,
+    { priority = defaultPriority() }: SchedulerCallOptions = {}
+  ): Promise<T> {
     return new Promise<T>((resolve, reject) => {
-      jobs.current.push({ run: fn, resolve, reject });
+      jobs.current.push({ run: fn, resolve, reject, priority });
+      jobs.current.sort((a, b) => a.priority - b.priority);
       trySpawn();
     });
   }
@@ -49,4 +64,5 @@ interface Job<T = any> {
   run: () => Promise<T>;
   resolve: (value: T) => void;
   reject: (reason: unknown) => void;
+  priority: number;
 }

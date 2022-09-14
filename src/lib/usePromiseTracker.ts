@@ -1,135 +1,157 @@
-import { useEffect, useReducer } from "react";
+import { v4 as uuid } from "uuid";
+import { useEffect, useMemo, useReducer } from "react";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { groupBy } from "lodash";
 import { allResolved } from "./allResolved";
-import { useScheduler } from "./useScheduler";
+import {
+  SchedulerCallOptions,
+  SchedulerHookOptions,
+  useScheduler,
+} from "./useScheduler";
 
-export type TaskError = unknown;
+export type TaskRejectionReason = unknown;
 
-export interface TaskRejection {
-  fn: TaskFn;
-  error: TaskError;
+export type TaskId = string;
+
+export type TaskState = "pending" | "resolved" | "rejected";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export interface Task<T = any> {
+  id: TaskId;
+  fn: TaskFn<T>;
+  group: string;
+  state: "pending" | "resolved" | "rejected";
+  rejectionReason?: TaskRejectionReason;
 }
 
-interface Task {
+export interface TaskGroup extends Record<TaskState, Task[]> {
   name: string;
-  pending: TaskFn[];
-  resolved: TaskFn[];
-  rejected: TaskRejection[];
+  all: Task[];
+  settled: Task[];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type TaskFn<T = any> = () => Promise<T>;
+export type TaskFn<T = any> = () => Promise<T>;
 
 const slice = createSlice({
   name: "promiseTracker",
   initialState: [] as Task[],
   reducers: {
-    addTask: (
-      tasks,
-      { payload: { name, fns } }: PayloadAction<{ name: string; fns: TaskFn[] }>
-    ) => {
-      const existing = tasks.find((task) => task.name === name);
-      if (existing) {
-        existing.pending.push(...fns);
+    add(all, { payload: tasks }: PayloadAction<Task[]>) {
+      all.push(...tasks);
+    },
+    resolve(tasks, { payload: resolveId }: PayloadAction<TaskId>) {
+      const task = tasks.find(({ id }) => id === resolveId);
+      if (task) {
+        task.state = "resolved";
       } else {
-        tasks.push({ name, pending: fns, resolved: [], rejected: [] });
+        throw new Error("Should never happen");
       }
     },
-    resolve: (tasks, { payload: fn }: PayloadAction<TaskFn>) => {
-      for (const task of tasks) {
-        const index = task.pending.indexOf(fn);
-        if (index !== -1) {
-          task.pending.splice(index, 1);
-          task.resolved.push(fn);
-        }
+    reject(
+      tasks,
+      {
+        payload: rejection,
+      }: PayloadAction<{ id: TaskId; reason: TaskRejectionReason }>
+    ) {
+      const task = tasks.find(({ id }) => id === rejection.id);
+      if (task) {
+        task.state = "rejected";
+        task.rejectionReason = rejection.reason;
+      } else {
+        throw new Error("Should never happen");
       }
     },
-    reject: (tasks, { payload: rejection }: PayloadAction<TaskRejection>) => {
-      for (const task of tasks) {
-        const index = task.pending.indexOf(rejection.fn);
-        if (index !== -1) {
-          task.pending.splice(index, 1);
-          task.rejected.push(rejection);
-        }
-      }
-    },
-    removeAllTasks: (tasks) => {
+    clear(tasks) {
       tasks.splice(0, tasks.length);
     },
   },
 });
 
-export const taskSettled = (task: Task) =>
-  task.rejected.length + task.resolved.length;
-
-export const taskTotal = (task: Task) =>
-  task.pending.length + task.rejected.length + task.resolved.length;
-
-export const taskProgress = (task: Task) => taskSettled(task) / taskTotal(task);
-
-const { resolve, reject, addTask, removeAllTasks } = slice.actions;
-
-export function usePromiseTracker() {
+export function usePromiseTracker(options?: SchedulerHookOptions) {
   const [tasks, dispatch] = useReducer(slice.reducer, slice.getInitialState());
-  const [schedule, resetScheduler] = useScheduler();
+  const [schedule, resetScheduler] = useScheduler(options);
+  const groups = useMemo(() => groupTasks(tasks), [tasks]);
+  const progress = useMemo(() => groupSumProgress(groups), [groups]);
+  const isPending = progress > 0 && progress < 1;
+  const isSettled = !isPending;
 
-  useEffect(
-    () => () => {
-      resetScheduler();
-      dispatch(removeAllTasks());
-    },
-    []
-  );
+  useEffect(() => reset, []);
 
-  function track<T>(name: string, fns: TaskFn<T>[]): Promise<T[]> {
-    dispatch(addTask({ name, fns }));
+  function reset() {
+    resetScheduler();
+    dispatch(slice.actions.clear());
+  }
 
-    const promises = fns.map((fn) =>
+  function track<T>(
+    group: string,
+    fns: TaskFn<T>[],
+    scheduleOptions?: SchedulerCallOptions
+  ): Promise<T[]> {
+    const tasks = fns.map((fn) => ({
+      group,
+      fn,
+      state: "pending" as const,
+      id: uuid(),
+    }));
+
+    dispatch(slice.actions.add(tasks));
+
+    const promises = tasks.map((task) =>
       schedule(async () => {
         try {
-          const res = await fn();
-          dispatch(resolve(fn));
+          const res = await task.fn();
+          dispatch(slice.actions.resolve(task.id));
           return res;
-        } catch (error) {
-          dispatch(reject({ fn, error }));
-          throw error;
+        } catch (reason) {
+          dispatch(slice.actions.reject({ id: task.id, reason }));
+          throw reason;
         }
-      })
+      }, scheduleOptions)
     );
+
     return allResolved(promises);
   }
 
-  const reset = () => {
-    resetScheduler();
-    dispatch(removeAllTasks());
-  };
-
-  const pendingTasks: Task[] = tasks.filter((task) => task.pending.length > 0);
-
-  const errors = tasks.reduce(
-    (list: TaskError[], task) => [
-      ...list,
-      ...task.rejected.map((r) => `${task.name}: ${r.error}`),
-    ],
-    []
-  );
-
-  const progress =
-    pendingTasks.length > 0
-      ? pendingTasks.reduce((n, t) => n + taskProgress(t), 0) /
-        pendingTasks.length
-      : 1;
-
-  const isPending = pendingTasks.length > 0;
-  const isSettled = !isPending;
-
   return {
+    groups,
+    tasks,
     progress,
-    tasks: pendingTasks,
-    errors,
     isPending,
     isSettled,
     track,
     reset,
   };
+}
+
+export function describeTaskGroup(group: TaskGroup) {
+  return `${group.name} (${group.settled.length}/${group.all.length})`;
+}
+
+export function describeTask(task: Task) {
+  return `${task.group}${task.id !== undefined ? `(${task.id})` : ""}`;
+}
+
+function groupTasks(tasks: Task[]): TaskGroup[] {
+  return Object.entries(groupBy(tasks, "group")).map(([name, tasks]) => {
+    const resolved = tasks.filter((task) => task.state === "resolved");
+    const rejected = tasks.filter((task) => task.state === "rejected");
+    return {
+      name,
+      all: tasks,
+      pending: tasks.filter((task) => task.state === "pending"),
+      resolved,
+      rejected,
+      settled: [...resolved, ...rejected],
+    };
+  });
+}
+
+function groupSumProgress(groups: TaskGroup[]) {
+  const sum = groups.reduce((n, group) => n + groupProgress(group), 0);
+  return sum / groups.length;
+}
+
+function groupProgress(group: TaskGroup) {
+  return group.all.length === 0 ? 1 : group.settled.length / group.all.length;
 }

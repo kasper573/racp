@@ -1,6 +1,6 @@
 import { memoize, pick } from "lodash";
 import * as zod from "zod";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { cropSurroundingColors, RGB } from "../../lib/cropSurroundingColors";
 import {
   useDecompileLuaTableFilesMutation,
@@ -19,7 +19,12 @@ import { ReducedLuaTables } from "../../api/services/util/types";
 import { SPR } from "../../lib/grf/types/SPR";
 import { canvasToBlob, imageDataToCanvas } from "../../lib/imageUtils";
 import { defined } from "../../lib/defined";
-import { usePromiseTracker } from "../../lib/usePromiseTracker";
+import {
+  describeTask,
+  describeTaskGroup,
+  TaskRejectionReason,
+  usePromiseTracker,
+} from "../../lib/usePromiseTracker";
 import { MapBoundsRegistry } from "../../api/services/map/types";
 
 export function useAssetUploader() {
@@ -31,7 +36,29 @@ export function useAssetUploader() {
   const [decompileLuaTables] = useDecompileLuaTableFilesMutation();
   const [customErrors, setCustomErrors] = useState<string[]>([]);
 
-  const tracker = usePromiseTracker();
+  const tracker = usePromiseTracker({ defaultPriority: Math.random });
+
+  const trackerErrors = useMemo(
+    () =>
+      tracker.tasks
+        .filter((task) => task.state === "rejected")
+        .reduce(
+          (list: TaskRejectionReason[], task) => [
+            ...list,
+            `${describeTask(task)}: ${task.rejectionReason}`,
+          ],
+          []
+        ),
+    [tracker.tasks]
+  );
+
+  const currentActivities = useMemo(
+    () =>
+      tracker.groups
+        .filter((group) => group.pending.length > 0)
+        .map(describeTaskGroup),
+    [tracker.groups]
+  );
 
   const serverErrors = defined([
     mapImageUpload.error,
@@ -40,7 +67,7 @@ export function useAssetUploader() {
     itemInfoUpload.error,
   ]);
 
-  const errors = [...serverErrors, ...tracker.errors, ...customErrors];
+  const errors = [...serverErrors, ...trackerErrors, ...customErrors];
 
   async function uploadMapDataFromGRF(grf: GRF) {
     const mapData = await tracker.track(
@@ -80,7 +107,8 @@ export function useAssetUploader() {
           determineMonsterSpriteInfo(grf, (files) =>
             decompileLuaTables(files).unwrap()
           ),
-      ]
+      ],
+      { priority: 0 }
     );
 
     const monsterImages = await tracker.track(
@@ -128,7 +156,8 @@ export function useAssetUploader() {
   }
 
   return {
-    ...pick(tracker, "isPending", "tasks", "progress"),
+    ...pick(tracker, "isPending", "progress"),
+    currentActivities,
     upload,
     errors,
     fileExtensions: [".lub", ".grf"],

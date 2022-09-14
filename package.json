@@ -41,6 +41,7 @@
     "@types/react-dom": "18.0.5",
     "@types/react-router-dom": "5.3.3",
     "@types/recursive-readdir": "2.2.1",
+    "@types/uuid": "^8.3.4",
     "@types/webpack": "5.28.0",
     "@typescript-eslint/eslint-plugin": "5.26.0",
     "@typescript-eslint/parser": "5.26.0",
@@ -113,6 +114,7 @@
     "redux": "4.2.0",
     "trim-image-data": "1.0.2",
     "use-debounce": "8.0.1",
+    "uuid": "^9.0.0",
     "zod": "3.17.3"
   }
 }
