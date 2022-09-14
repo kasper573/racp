@@ -62,7 +62,11 @@ export default function AdminAssetsPage() {
         accept={uploader.fileExtensions}
         isLoading={uploader.isPending}
         onChange={uploader.upload}
-        title={`Select your mapInfo.lub, itemInfo.lub and data.grf files`}
+        title={`
+          Select your mapInfo.lub, itemInfo.lub and data.grf files. 
+          GRF files will be extracted locally and cherry pick and upload the
+          necessary data to reduce network load.
+          `}
       />
 
       {uploader.isPending && (
@@ -160,8 +164,8 @@ export default function AdminAssetsPage() {
 
       <Typography variant="caption">
         <br />
-        Missing data is common as rAthena and most RO clients have at least some
-        degree of data mismatch.
+        Missing data is possible since rAthena and your RO client could have
+        mismatching data.
         <br />
         If it's missing here, it's likely missing in the game too (Not always.
         Some data is missing due to RACP not having a perfect GRF importer)
