@@ -23,11 +23,7 @@ import { canvasToBlob, imageDataToCanvas } from "../../lib/imageUtils";
 import { defined } from "../../lib/defined";
 import { usePromiseTracker } from "./usePromiseTracker";
 
-export function useMapFileUploader({
-  cropColor = [255, 0, 255], // Magenta
-}: {
-  cropColor?: RGB;
-} = {}) {
+export function useAssetUploader() {
   const [uploadMapImages, mapImageUpload] = useUploadMapImagesMutation();
   const [uploadMapInfo, mapInfoUpload] = useUploadMapInfoMutation();
   const [updateMapBounds, mapBoundsUpdate] = useUpdateMapBoundsMutation();
@@ -158,7 +154,7 @@ export function useMapFileUploader({
   }
 
   async function cropMapImage(file: File) {
-    return cropSurroundingColors(file, [cropColor]);
+    return cropSurroundingColors(file, [mapImageCropColor]);
   }
 
   return {
@@ -168,8 +164,6 @@ export function useMapFileUploader({
     fileExtensions: [".lub", ".grf"],
   };
 }
-
-const imageExtensions = [".png", ".jpg", ".jpeg", ".bmp", ".tga"];
 
 const fileNameToMapName = (filename: string) =>
   /([^/\\]+)\.\w+$/.exec(filename)?.[1] ?? "";
@@ -250,3 +244,6 @@ interface MonsterSpriteInfoEntry {
   id: Monster["Id"];
   spritePath: string;
 }
+
+const imageExtensions = [".png", ".jpg", ".jpeg", ".bmp", ".tga"];
+const mapImageCropColor: RGB = [255, 0, 255]; // Magenta

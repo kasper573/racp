@@ -18,7 +18,7 @@ import {
   useGetMonstersMissingImagesQuery,
 } from "../state/client";
 import { FileUploader } from "../components/FileUploader";
-import { useMapFileUploader } from "../hooks/useMapFileUploader";
+import { useAssetUploader } from "../hooks/useAssetUploader";
 import { useBlockNavigation } from "../hooks/useBlockNavigation";
 import { MonsterGrid } from "../grids/MonsterGrid";
 import { taskSettled, taskTotal } from "../hooks/usePromiseTracker";
@@ -32,7 +32,7 @@ export default function AdminAssetsPage() {
   const { data: idsOfMonstersMissingImages = [] } =
     useGetMonstersMissingImagesQuery();
 
-  const uploader = useMapFileUploader();
+  const uploader = useAssetUploader();
 
   useBlockNavigation(
     uploader.isPending,
