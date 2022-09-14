@@ -61,6 +61,10 @@ export interface FileStoreEntry<Data> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ContentParser<T = any> = (fileContent: string) => FileParseResult<T>;
+export type ContentParser<T = any> = (
+  fileContent: string
+) => FileParseResult<T>;
 
-export type FileParseResult<T> = { success: true; data: T } | { success: false };
+export type FileParseResult<T> =
+  | { success: true; data: T }
+  | { success: false };
