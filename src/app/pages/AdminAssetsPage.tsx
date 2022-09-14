@@ -19,9 +19,9 @@ import {
 } from "../state/client";
 import { FileUploader } from "../components/FileUploader";
 import { useAssetUploader } from "../hooks/useAssetUploader";
-import { useBlockNavigation } from "../hooks/useBlockNavigation";
+import { useBlockNavigation } from "../../lib/useBlockNavigation";
 import { MonsterGrid } from "../grids/MonsterGrid";
-import { taskSettled, taskTotal } from "../hooks/usePromiseTracker";
+import { taskSettled, taskTotal } from "../../lib/usePromiseTracker";
 
 export default function AdminAssetsPage() {
   const { data: mapImageCount = 0 } = useCountMapImagesQuery();

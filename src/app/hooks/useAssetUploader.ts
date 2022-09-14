@@ -21,7 +21,7 @@ import { ReducedLuaTables } from "../../api/services/util/types";
 import { SPR } from "../../lib/grf/types/SPR";
 import { canvasToBlob, imageDataToCanvas } from "../../lib/imageUtils";
 import { defined } from "../../lib/defined";
-import { usePromiseTracker } from "./usePromiseTracker";
+import { usePromiseTracker } from "../../lib/usePromiseTracker";
 
 export function useAssetUploader() {
   const [uploadMapImages, mapImageUpload] = useUploadMapImagesMutation();

@@ -1,6 +1,6 @@
 import { useEffect, useReducer } from "react";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { allResolved } from "../../lib/allResolved";
+import { allResolved } from "./allResolved";
 import { useScheduler } from "./useScheduler";
 
 export type TaskError = unknown;
