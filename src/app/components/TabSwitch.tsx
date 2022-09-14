@@ -1,5 +1,5 @@
 import { ComponentProps, ReactElement, ReactNode, useState } from "react";
-import { Box, Tab, Tabs } from "@mui/material";
+import { Tab, Tabs } from "@mui/material";
 
 export interface TabItem {
   id?: string;
@@ -18,9 +18,6 @@ export function TabSwitch({
   tabs: inputTabs,
   activeTabId: inputId,
   renderContent = (content) => content,
-  sx,
-  style,
-  className,
   ...tabsProps
 }: TabSwitchProps) {
   const tabs = inputTabs.map((tab, index) => ({ ...tab, id: tab.id ?? index }));
@@ -29,7 +26,7 @@ export function TabSwitch({
   const activeTab = tabs.find(({ id }) => id === activeId);
 
   return (
-    <Box {...{ sx, style, className }}>
+    <>
       <Tabs
         value={activeId}
         onChange={(e, newId) => setLocalId(newId)}
@@ -40,6 +37,6 @@ export function TabSwitch({
         ))}
       </Tabs>
       {activeTab ? renderContent(activeTab.content) : undefined}
-    </Box>
+    </>
   );
 }

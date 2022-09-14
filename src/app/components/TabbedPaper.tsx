@@ -1,8 +1,8 @@
-import { Paper } from "@mui/material";
+import { Box, Paper } from "@mui/material";
 import { ComponentProps } from "react";
 import { TabItem, TabSwitch } from "./TabSwitch";
 
-export interface TabbedPaperProps extends ComponentProps<typeof TabSwitch> {
+export interface TabbedPaperProps extends ComponentProps<typeof Box> {
   tabs: TabItem[];
   paperProps?: ComponentProps<typeof Paper>;
 }
@@ -10,24 +10,24 @@ export interface TabbedPaperProps extends ComponentProps<typeof TabSwitch> {
 export function TabbedPaper({
   tabs,
   paperProps,
-  sx,
   children,
   ...props
 }: TabbedPaperProps) {
   return (
-    <TabSwitch
-      tabs={tabs}
-      sx={{ borderBottom: 1, borderColor: "divider", ...sx }}
-      renderContent={(content) => (
-        <Paper
-          sx={{ position: "relative", p: 2, ...paperProps?.sx }}
-          {...paperProps}
-        >
-          {content}
-          {children}
-        </Paper>
-      )}
-      {...props}
-    />
+    <Box {...props}>
+      <TabSwitch
+        tabs={tabs}
+        sx={{ borderBottom: 1, borderColor: "divider" }}
+        renderContent={(content) => (
+          <Paper
+            sx={{ position: "relative", p: 2, ...paperProps?.sx }}
+            {...paperProps}
+          >
+            {content}
+            {children}
+          </Paper>
+        )}
+      />
+    </Box>
   );
 }
