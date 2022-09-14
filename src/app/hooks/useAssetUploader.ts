@@ -1,4 +1,4 @@
-import { flatten, pick } from "lodash";
+import { flatten, memoize, pick } from "lodash";
 import * as zod from "zod";
 import { useState } from "react";
 import { cropSurroundingColors, RGB } from "../../lib/cropSurroundingColors";
@@ -60,7 +60,7 @@ export function useAssetUploader() {
 
   async function uploadMapBoundsFromGAT(gatFiles: File[]) {
     const gatObjects = await tracker.track(
-      "Reading map bounds from GAT files",
+      "Unpacking map bounds",
       gatFiles.map((file) => () => new GAT(readFileStream, file).load())
     );
 
@@ -73,11 +73,11 @@ export function useAssetUploader() {
   async function uploadMapInfoLubFiles(lubFiles: File[]) {
     await tracker
       .track(
-        "Loading lub file",
+        "Unpacking map info file",
         lubFiles.map((file) => () => toRpcFile(file))
       )
       .then((files) =>
-        tracker.track(`Uploading lub files`, [() => uploadMapInfo(files)])
+        tracker.track(`Uploading map info file`, [() => uploadMapInfo(files)])
       );
   }
 
@@ -93,7 +93,7 @@ export function useAssetUploader() {
     );
 
     const monsterImages = await tracker.track(
-      "Unpacking monster images from GRFs",
+      "Unpacking monster images",
       monsterSpriteInfo.map(({ id, spritePath }) => async () => {
         const file = await grf.getFile(spritePath);
         const spr = await new SPR(readFileStream, file, `${id}`).load();
@@ -111,7 +111,7 @@ export function useAssetUploader() {
 
     const filesFromGRF = flatten(
       await tracker.track(
-        "Unpacking GAT files and map images",
+        "Unpacking map bounds and map images",
         unpackGATAndMapImageFiles(grf)
       )
     );
@@ -210,12 +210,16 @@ async function determineMonsterSpriteInfo(
 
   const monsterIdToSpriteName = zod.record(zod.string()).parse(table);
 
-  const allFilePaths = Array.from(grf.files.keys());
+  const allSpritePaths = Array.from(grf.files.keys()).filter((path) =>
+    path.endsWith(".spr")
+  );
+
+  const findSpritePath = memoize(allSpritePaths.find.bind(allSpritePaths));
 
   const infoEntries = Object.entries(monsterIdToSpriteName).map(
     ([monsterId, spriteName]) => ({
       id: parseInt(monsterId, 10),
-      spritePath: allFilePaths.find((path) =>
+      spritePath: findSpritePath((path) =>
         path.endsWith(`\\${spriteName.toLowerCase()}.spr`)
       ),
     })

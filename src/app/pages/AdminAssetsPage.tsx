@@ -95,7 +95,7 @@ export default function AdminAssetsPage() {
       )}
 
       {uploader.errors.length > 0 && (
-        <Accordion sx={{ [`&&`]: { marginTop: 0 } }}>
+        <Accordion sx={{ [`&&`]: { marginTop: 0, marginBottom: 2 } }}>
           <AccordionSummary expandIcon={<ExpandMore />}>
             <Typography>
               {uploader.errors.length} errors during upload:

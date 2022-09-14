@@ -1,8 +1,7 @@
 import { useEffect, useReducer } from "react";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import Bottleneck from "bottleneck";
 import { allResolved } from "../../lib/allResolved";
-import { useBottleneck } from "./useBottleneck";
+import { useScheduler } from "./useScheduler";
 
 export type TaskError = unknown;
 
@@ -70,18 +69,23 @@ export const taskProgress = (task: Task) => taskSettled(task) / taskTotal(task);
 
 const { resolve, reject, addTask, removeAllTasks } = slice.actions;
 
-export function usePromiseTracker(
-  options: Bottleneck.ConstructorOptions = { maxConcurrent: 10 }
-) {
+export function usePromiseTracker() {
   const [tasks, dispatch] = useReducer(slice.reducer, slice.getInitialState());
-  const bottleneck = useBottleneck(options);
-  useEffect(() => () => dispatch(removeAllTasks()), []);
+  const [schedule, resetScheduler] = useScheduler();
+
+  useEffect(
+    () => () => {
+      resetScheduler();
+      dispatch(removeAllTasks());
+    },
+    []
+  );
 
   function track<T>(name: string, fns: TaskFn<T>[]): Promise<T[]> {
     dispatch(addTask({ name, fns }));
 
     const promises = fns.map((fn) =>
-      bottleneck.schedule(async () => {
+      schedule(async () => {
         try {
           const res = await fn();
           dispatch(resolve(fn));
@@ -96,7 +100,7 @@ export function usePromiseTracker(
   }
 
   const reset = () => {
-    bottleneck.disconnect();
+    resetScheduler();
     dispatch(removeAllTasks());
   };
 
