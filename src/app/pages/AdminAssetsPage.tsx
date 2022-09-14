@@ -163,7 +163,8 @@ export default function AdminAssetsPage() {
         Missing data is common as rAthena and most RO clients have at least some
         degree of data mismatch.
         <br />
-        If it's missing here, it's likely missing in the game too.
+        If it's missing here, it's likely missing in the game too (Not always.
+        Some data is missing due to RACP not having a perfect GRF importer)
         <br />
         You can resolve this issue by updating your client files and then
         re-uploading them to RACP.
