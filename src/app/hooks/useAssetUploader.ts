@@ -23,8 +23,8 @@ import {
   describeTask,
   describeTaskGroup,
   TaskRejectionReason,
-  usePromiseTracker,
-} from "../../lib/usePromiseTracker";
+  useTaskScheduler,
+} from "../../lib/useTaskScheduler";
 import { MapBoundsRegistry } from "../../api/services/map/types";
 
 export function useAssetUploader() {
@@ -36,7 +36,7 @@ export function useAssetUploader() {
   const [decompileLuaTables] = useDecompileLuaTableFilesMutation();
   const [customErrors, setCustomErrors] = useState<string[]>([]);
 
-  const tracker = usePromiseTracker({ defaultPriority: Math.random });
+  const tracker = useTaskScheduler({ defaultPriority: Math.random });
 
   const trackerErrors = useMemo(
     () =>
@@ -71,8 +71,10 @@ export function useAssetUploader() {
 
   async function uploadMapDataFromGRF(grf: GRF) {
     const mapData = await tracker.track(
-      "Unpacking map data",
-      createMapDataUnpackJobs(grf)
+      createMapDataUnpackJobs(grf).map((fn) => ({
+        group: "Unpacking map data",
+        fn,
+      }))
     );
 
     const images = defined(mapData.map(({ image }) => image));
@@ -83,45 +85,63 @@ export function useAssetUploader() {
     );
 
     await Promise.allSettled([
-      tracker.track(`Uploading map images`, [() => uploadMapImages(images)]),
-      tracker.track(`Uploading map bounds`, [() => updateMapBounds(bounds)]),
+      tracker.track([
+        {
+          group: "Uploading map images",
+          fn: () => uploadMapImages(images),
+        },
+      ]),
+      tracker.track([
+        { group: `Uploading map bounds`, fn: () => updateMapBounds(bounds) },
+      ]),
     ]);
   }
 
   async function uploadMapInfoLubFiles(lubFiles: File[]) {
     await tracker
       .track(
-        "Unpacking map info file",
-        lubFiles.map((file) => () => toRpcFile(file))
+        lubFiles.map((file) => ({
+          group: "Unpacking map info file",
+          id: file.name,
+          fn: () => toRpcFile(file),
+        }))
       )
       .then((files) =>
-        tracker.track(`Uploading map info file`, [() => uploadMapInfo(files)])
+        tracker.track([
+          { group: `Uploading map info file`, fn: () => uploadMapInfo(files) },
+        ])
       );
   }
 
   async function uploadMonsterImagesFromGRF(grf: GRF) {
-    const [monsterSpriteInfo = []] = await tracker.track(
-      "Locating monster images",
-      [
-        () =>
+    const [monsterSpriteInfo = []] = await tracker.track([
+      {
+        schedule: { priority: 0 },
+        group: "Locating monster images",
+        fn: () =>
           determineMonsterSpriteInfo(grf, (files) =>
             decompileLuaTables(files).unwrap()
           ),
-      ],
-      { priority: 0 }
-    );
+      },
+    ]);
 
     const monsterImages = await tracker.track(
-      "Unpacking monster images",
-      monsterSpriteInfo.map(({ id, spritePath }) => async () => {
-        const file = await grf.getFile(spritePath);
-        const spr = await new SPR(readFileStream, file, `${id}`).load();
-        return toRpcFile(await spriteToTextureFile(spr));
-      })
+      monsterSpriteInfo.map(({ id, spritePath }) => ({
+        group: "Unpacking monster images",
+        id: spritePath,
+        fn: async () => {
+          const file = await grf.getFile(spritePath);
+          const spr = await new SPR(readFileStream, file, `${id}`).load();
+          return toRpcFile(await spriteToTextureFile(spr));
+        },
+      }))
     );
 
-    tracker.track("Uploading monster images", [
-      () => uploadMonsterImages(monsterImages),
+    tracker.track([
+      {
+        group: "Uploading monster images",
+        fn: () => uploadMonsterImages(monsterImages),
+      },
     ]);
   }
 

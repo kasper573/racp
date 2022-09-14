@@ -30,6 +30,12 @@ export interface TaskGroup extends Record<TaskState, Task[]> {
   settled: Task[];
 }
 
+export type InputTask<T> = { schedule?: SchedulerCallOptions } & Pick<
+  Task<T>,
+  "fn" | "group"
+> &
+  Partial<Pick<Task<T>, "id">>;
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TaskFn<T = any> = () => Promise<T>;
 
@@ -44,8 +50,7 @@ const slice = createSlice({
       const task = tasks.find(({ id }) => id === resolveId);
       if (task) {
         task.state = "resolved";
-      } else {
-        throw new Error("Should never happen");
+        task.rejectionReason = undefined;
       }
     },
     reject(
@@ -58,8 +63,6 @@ const slice = createSlice({
       if (task) {
         task.state = "rejected";
         task.rejectionReason = rejection.reason;
-      } else {
-        throw new Error("Should never happen");
       }
     },
     clear(tasks) {
@@ -68,7 +71,7 @@ const slice = createSlice({
   },
 });
 
-export function usePromiseTracker(options?: SchedulerHookOptions) {
+export function useTaskScheduler(options?: SchedulerHookOptions) {
   const [tasks, dispatch] = useReducer(slice.reducer, slice.getInitialState());
   const [schedule, resetScheduler] = useScheduler(options);
   const groups = useMemo(() => groupTasks(tasks), [tasks]);
@@ -83,21 +86,12 @@ export function usePromiseTracker(options?: SchedulerHookOptions) {
     dispatch(slice.actions.clear());
   }
 
-  function track<T>(
-    group: string,
-    fns: TaskFn<T>[],
-    scheduleOptions?: SchedulerCallOptions
-  ): Promise<T[]> {
-    const tasks = fns.map((fn) => ({
-      group,
-      fn,
-      state: "pending" as const,
-      id: uuid(),
-    }));
+  function track<T>(inputTasks: InputTask<T>[]): Promise<T[]> {
+    const tasks = inputTasks.map(normalizeInputTask);
 
     dispatch(slice.actions.add(tasks));
 
-    const promises = tasks.map((task) =>
+    const promises = tasks.map((task, index) =>
       schedule(async () => {
         try {
           const res = await task.fn();
@@ -107,7 +101,7 @@ export function usePromiseTracker(options?: SchedulerHookOptions) {
           dispatch(slice.actions.reject({ id: task.id, reason }));
           throw reason;
         }
-      }, scheduleOptions)
+      }, inputTasks[index].schedule)
     );
 
     return allResolved(promises);
@@ -154,4 +148,12 @@ function groupSumProgress(groups: TaskGroup[]) {
 
 function groupProgress(group: TaskGroup) {
   return group.all.length === 0 ? 1 : group.settled.length / group.all.length;
+}
+
+function normalizeInputTask<T>({ id, ...props }: InputTask<T>): Task<T> {
+  return {
+    state: "pending" as const,
+    id: id ?? uuid(),
+    ...props,
+  };
 }

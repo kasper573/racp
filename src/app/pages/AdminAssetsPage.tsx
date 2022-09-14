@@ -93,7 +93,7 @@ export default function AdminAssetsPage() {
         <Accordion sx={{ [`&&`]: { marginTop: 0, marginBottom: 2 } }}>
           <AccordionSummary expandIcon={<ExpandMore />}>
             <Typography>
-              {uploader.errors.length} errors during upload:
+              Errors during upload ({uploader.errors.length})
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
@@ -110,12 +110,12 @@ export default function AdminAssetsPage() {
         <Accordion sx={{ [`&&`]: { marginTop: 0 } }}>
           <AccordionSummary expandIcon={<ExpandMore />}>
             <Typography>
-              {idsOfMonstersMissingImages.length} missing monster images:
+              Missing monster images ({idsOfMonstersMissingImages.length})
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
             <MonsterGrid
-              sx={{ height: "50vh" }}
+              sx={{ height: "383px" }}
               filter={{
                 Id: {
                   value: idsOfMonstersMissingImages,
@@ -131,7 +131,7 @@ export default function AdminAssetsPage() {
         <Accordion sx={{ [`&&`]: { marginTop: 0 } }}>
           <AccordionSummary expandIcon={<ExpandMore />}>
             <Typography>
-              {missingMapData.images.length} missing map images:
+              Missing map images ({missingMapData.images.length})
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
@@ -146,7 +146,7 @@ export default function AdminAssetsPage() {
         <Accordion sx={{ [`&&`]: { marginTop: 0 } }}>
           <AccordionSummary expandIcon={<ExpandMore />}>
             <Typography>
-              {missingMapData.bounds.length} missing map bounds:
+              Missing map bounds ({missingMapData.bounds.length})
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
