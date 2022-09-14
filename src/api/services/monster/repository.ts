@@ -23,24 +23,25 @@ export function createMonsterRepository({
   npc: NpcDriver;
 }) {
   const imageLinker = linker.chain("monsters");
-  let monsters = resolveMonsters();
 
-  function resolveMonsters() {
-    return yaml.resolve(
-      "db/mob_db.yml",
-      createMonsterResolver(rAthenaMode, imageLinker, formatter.fileExtension)
-    );
-  }
+  const monsterResolver = createMonsterResolver(
+    rAthenaMode,
+    imageLinker,
+    formatter.fileExtension
+  );
 
-  function updateMonsters() {
-    monsters = resolveMonsters();
+  const monsters = yaml.resolve("db/mob_db.yml", monsterResolver);
+
+  async function updateMonsters() {
+    const registry = await monsters;
+    for (const [, monster] of registry) {
+      monsterResolver.postProcess?.(monster, registry);
+    }
   }
 
   return {
     spawns: npc.resolve("scripts_monsters.conf", monsterSpawnType),
-    get map() {
-      return monsters;
-    },
+    map: monsters,
     updateImages: createImageUpdater(formatter, imageLinker, updateMonsters),
     missingImages: () =>
       monsters.then((map) =>
