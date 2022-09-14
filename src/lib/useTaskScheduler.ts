@@ -123,7 +123,7 @@ export function describeTaskGroup(group: TaskGroup) {
 }
 
 export function describeTask(task: Task) {
-  return `${task.group}${task.id !== undefined ? `(${task.id})` : ""}`;
+  return `${task.group}${task.id !== undefined ? ` (${task.id})` : ""}`;
 }
 
 function groupTasks(tasks: Task[]): TaskGroup[] {
