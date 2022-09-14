@@ -1,13 +1,14 @@
 import { v4 as uuid } from "uuid";
 import { useEffect, useMemo, useReducer } from "react";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { groupBy } from "lodash";
+import { groupBy, uniq } from "lodash";
 import { allResolved } from "./allResolved";
 import {
   SchedulerCallOptions,
   SchedulerHookOptions,
   useScheduler,
 } from "./useScheduler";
+import { useLatest } from "./useLatest";
 
 export type TaskRejectionReason = unknown;
 
@@ -28,6 +29,7 @@ export interface TaskGroup extends Record<TaskState, Task[]> {
   name: string;
   all: Task[];
   settled: Task[];
+  progress: number;
 }
 
 export type InputTask<T> = { schedule?: SchedulerCallOptions } & Pick<
@@ -43,8 +45,17 @@ const slice = createSlice({
   name: "promiseTracker",
   initialState: [] as Task[],
   reducers: {
-    add(all, { payload: tasks }: PayloadAction<Task[]>) {
-      all.push(...tasks);
+    add(tasks, { payload: newTasks }: PayloadAction<Task[]>) {
+      const newIds = newTasks.map((t) => t.id);
+      const existing = tasks.find((task) => newIds.includes(task.id));
+      if (existing) {
+        throw new Error(`A task by id "${existing.id}" already exists`);
+      }
+      const uniqueNewIds = uniq(newIds);
+      if (uniqueNewIds.length !== newIds.length) {
+        throw new Error("Multiple tasks with the same id were provided");
+      }
+      tasks.push(...newTasks);
     },
     resolve(tasks, { payload: resolveId }: PayloadAction<TaskId>) {
       const task = tasks.find(({ id }) => id === resolveId);
@@ -75,11 +86,12 @@ export function useTaskScheduler(options?: SchedulerHookOptions) {
   const [tasks, dispatch] = useReducer(slice.reducer, slice.getInitialState());
   const [schedule, resetScheduler] = useScheduler(options);
   const groups = useMemo(() => groupTasks(tasks), [tasks]);
-  const progress = useMemo(() => groupSumProgress(groups), [groups]);
-  const isPending = progress > 0 && progress < 1;
+  const progress = useMemo(() => schedulerProgress(groups), [groups]);
+  const isPending = progress < 1;
   const isSettled = !isPending;
 
-  useEffect(() => reset, []);
+  const latest = useLatest({ reset });
+  useEffect(() => latest.current.reset, [latest]);
 
   function reset() {
     resetScheduler();
@@ -127,27 +139,36 @@ export function describeTask(task: Task) {
 }
 
 function groupTasks(tasks: Task[]): TaskGroup[] {
-  return Object.entries(groupBy(tasks, "group")).map(([name, tasks]) => {
-    const resolved = tasks.filter((task) => task.state === "resolved");
-    const rejected = tasks.filter((task) => task.state === "rejected");
+  return Object.entries(groupBy(tasks, "group")).map(([name, all]) => {
+    const pending: Task[] = [];
+    const resolved: Task[] = [];
+    const rejected: Task[] = [];
+    const settled: Task[] = [];
+    for (const task of all) {
+      switch (task.state) {
+        case "pending":
+          pending.push(task);
+          break;
+        case "resolved":
+          settled.push(task);
+          resolved.push(task);
+          break;
+        case "rejected":
+          settled.push(task);
+          rejected.push(task);
+          break;
+      }
+    }
     return {
       name,
-      all: tasks,
-      pending: tasks.filter((task) => task.state === "pending"),
+      all,
+      pending,
       resolved,
       rejected,
-      settled: [...resolved, ...rejected],
+      settled,
+      progress: all.length > 0 ? settled.length / all.length : 1,
     };
   });
-}
-
-function groupSumProgress(groups: TaskGroup[]) {
-  const sum = groups.reduce((n, group) => n + groupProgress(group), 0);
-  return sum / groups.length;
-}
-
-function groupProgress(group: TaskGroup) {
-  return group.all.length === 0 ? 1 : group.settled.length / group.all.length;
 }
 
 function normalizeInputTask<T>({ id, ...props }: InputTask<T>): Task<T> {
@@ -156,4 +177,14 @@ function normalizeInputTask<T>({ id, ...props }: InputTask<T>): Task<T> {
     id: id ?? uuid(),
     ...props,
   };
+}
+
+function schedulerProgress(groups: TaskGroup[]) {
+  const pendingGroups = groups.filter((group) => group.progress < 1);
+  if (pendingGroups.length === 0) {
+    return 1;
+  }
+  return (
+    pendingGroups.reduce((sum, g) => sum + g.progress, 0) / pendingGroups.length
+  );
 }

@@ -36,7 +36,10 @@ export function useAssetUploader() {
   const [decompileLuaTables] = useDecompileLuaTableFilesMutation();
   const [customErrors, setCustomErrors] = useState<string[]>([]);
 
-  const tracker = useTaskScheduler({ defaultPriority: Math.random });
+  const tracker = useTaskScheduler({
+    maxConcurrent: 50,
+    defaultPriority: Math.random,
+  });
 
   const trackerErrors = useMemo(
     () =>
@@ -87,7 +90,7 @@ export function useAssetUploader() {
     await Promise.allSettled([
       tracker.track([
         {
-          group: "Uploading map images",
+          group: "Uploading map image packs",
           fn: () => uploadMapImages(images),
         },
       ]),
@@ -128,7 +131,7 @@ export function useAssetUploader() {
     const monsterImages = await tracker.track(
       monsterSpriteInfo.map(({ id, spritePath }) => ({
         group: "Unpacking monster images",
-        id: spritePath,
+        id: `Monster ID: ${id}, Sprite: "${spritePath}"`,
         fn: async () => {
           const file = await grf.getFile(spritePath);
           const spr = await new SPR(readFileStream, file, `${id}`).load();
