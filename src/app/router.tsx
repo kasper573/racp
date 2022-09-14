@@ -11,7 +11,6 @@ import {
   Article,
   Home,
   Image,
-  Inventory,
   Login,
   Map,
   ModeEdit,
@@ -108,17 +107,9 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
           }),
         })
       ),
-      itemInfo: route("items", {
-        component: lazy(() => import("./pages/AdminItemsPage")),
-        options: { title: "Items", icon: <Inventory /> },
-      }),
-      mapInfo: route("maps", {
-        component: lazy(() => import("./pages/AdminMapsPage")),
-        options: { title: "Maps", icon: <Map /> },
-      }),
-      sprite: route("sprite", {
-        component: lazy(() => import("./pages/AdminSpritesPage")),
-        options: { title: "Sprites", icon: <Image /> },
+      assets: route("assets", {
+        component: lazy(() => import("./pages/AdminAssetsPage")),
+        options: { title: "Assets", icon: <Image /> },
       }),
     })
   ),

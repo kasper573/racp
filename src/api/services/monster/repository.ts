@@ -22,7 +22,7 @@ export function createMonsterRepository({
   yaml: YamlDriver;
   npc: NpcDriver;
 }) {
-  const imageLinker = linker.chain("monsterImages");
+  const imageLinker = linker.chain("monsters");
   let monsters = resolveMonsters();
 
   function resolveMonsters() {

@@ -95,7 +95,10 @@ export function usePromiseTracker(
     return allResolved(promises);
   }
 
-  const reset = () => dispatch(removeAllTasks());
+  const reset = () => {
+    bottleneck.disconnect();
+    dispatch(removeAllTasks());
+  };
 
   const pendingTasks: Task[] = tasks.filter((task) => task.pending.length > 0);
 

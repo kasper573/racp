@@ -29,7 +29,7 @@ export function createMapRepository({
 }) {
   const info: Record<string, MapInfo> = {};
 
-  const mapLinker = linker.chain("mapImages");
+  const mapLinker = linker.chain("maps");
   const mapImageName = (mapId: string) => `${mapId}${formatter.fileExtension}`;
   const mapImageUrl = (mapId: string) => mapLinker.url(mapImageName(mapId));
   const mapImagePath = (mapId: string) => mapLinker.path(mapImageName(mapId));
