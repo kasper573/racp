@@ -1,6 +1,7 @@
 import { createRpcController } from "../../util/rpc";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { DatabaseDriver } from "../../rathena/DatabaseDriver";
+import { some } from "../../util/knex";
 import { AuthenticatorSigner } from "./util/Authenticator";
 import { authDefinition } from "./definition";
 import { UserAccessLevel } from "./types";
@@ -17,15 +18,21 @@ export async function authController({
 }) {
   return createRpcController(authDefinition.entries, {
     async register({ username, password, email }) {
-      const usernameExists = await db.login
-        .table("login")
-        .where("userid", "=", username)
-        .count();
-      if (usernameExists) {
+      if (await some(db.login.table("login").where("userid", "=", username))) {
         throw new RpcException("Username already taken");
       }
 
-      return false;
+      if (await some(db.login.table("login").where("email", "=", email))) {
+        throw new RpcException("Email already taken");
+      }
+
+      const newAccountIds = await db.login.table("login").insert({
+        email,
+        userid: username,
+        user_pass: password,
+      });
+
+      return newAccountIds.length > 0;
     },
     async login({ username, password }) {
       const user = await db.login
@@ -66,16 +73,26 @@ export async function authController({
         access: auth.access,
       };
     },
-    async updateMyProfile(mutation, { auth }) {
+    async updateMyProfile({ email, password }, { auth }) {
       if (!auth) {
         throw new RpcException("Must be signed in");
+      }
+
+      const emailOwner = await db.login
+        .table("login")
+        .select("account_id")
+        .where("email", "=", email)
+        .first();
+
+      if (emailOwner?.account_id !== auth.id) {
+        throw new RpcException("Email already taken");
       }
 
       const affected = await db.login
         .table("login")
         .update({
-          email: mutation.email,
-          user_pass: mutation.password,
+          email,
+          user_pass: password,
         })
         .where("account_id", "=", auth.id);
 
