@@ -16,7 +16,9 @@ export type TextFieldProps =
   | MakePartial<TFVariant<"text", string, false>, "type">
   | MakePartial<TFVariant<"text", string, true>, "type">
   | MakePartial<TFVariant<"password", string, false>, "type">
-  | MakePartial<TFVariant<"password", string, true>, "type">;
+  | MakePartial<TFVariant<"password", string, true>, "type">
+  | MakePartial<TFVariant<"email", string, false>, "type">
+  | MakePartial<TFVariant<"email", string, true>, "type">;
 
 export function TextField({
   value,

@@ -19,6 +19,9 @@ export async function authController({
   sign: AuthenticatorSigner;
 }) {
   return createRpcController(authDefinition.entries, {
+    async register({ username, password }) {
+      return false;
+    },
     async login({ username, password }) {
       const user = await db.login
         .table("login")

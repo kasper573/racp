@@ -15,6 +15,7 @@ import {
   Login,
   Map,
   ModeEdit,
+  PersonAdd,
   PestControlRodent,
   Redeem,
 } from "@mui/icons-material";
@@ -48,6 +49,10 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
         component: lazy(() => import("./pages/LoginPage")),
         options: { title: "Sign in", icon: <Login /> },
         params: { destination: stringParser },
+      }),
+      register: route("register", {
+        component: lazy(() => import("./pages/RegisterPage")),
+        options: { title: "Register", icon: <PersonAdd /> },
       }),
     })
   ),
@@ -129,6 +134,7 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
 }));
 
 export const logoutRedirect = router.home().$;
+export const loginRedirect = router.user().$;
 
 function requireAuth(requiredAccess = UserAccessLevel.User): RouteMiddleware {
   return (next) => {

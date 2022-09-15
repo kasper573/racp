@@ -64,6 +64,7 @@ export function Toolbar() {
         </Auth>
         <Auth exact={UserAccessLevel.Guest}>
           <LinkMenuItem to={router.user().login({})}>Sign in</LinkMenuItem>
+          <LinkMenuItem to={router.user().register()}>Register</LinkMenuItem>
         </Auth>
       </MenuOn>
     </Box>

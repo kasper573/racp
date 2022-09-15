@@ -1,10 +1,10 @@
-import { Center } from "../components/Center";
 import { LoadingSpinner } from "../components/LoadingSpinner";
+import { CenteredContent } from "../components/CenteredContent";
 
 export function LoadingPage() {
   return (
-    <Center>
+    <CenteredContent>
       <LoadingSpinner size={80} />
-    </Center>
+    </CenteredContent>
   );
 }
