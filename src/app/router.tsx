@@ -20,7 +20,7 @@ import {
   Redeem,
 } from "@mui/icons-material";
 import { useLocation } from "react-router-dom";
-import { UserAccessLevel } from "../api/services/auth/types";
+import { UserAccessLevel } from "../api/services/user/types";
 import { RestrictedPage } from "./pages/RestrictedPage";
 import { useGetMyProfileQuery } from "./state/client";
 import { LoadingPage } from "./pages/LoadingPage";

@@ -3,7 +3,7 @@ import { useHistory } from "react-router";
 import { loginRedirect } from "../router";
 import { useLoginMutation, useRegisterMutation } from "../state/client";
 import { UserRegisterForm } from "../forms/UserRegisterForm";
-import { UserRegisterPayload } from "../../api/services/auth/types";
+import { UserRegisterPayload } from "../../api/services/user/types";
 import { CenteredContent } from "../components/CenteredContent";
 import { Header } from "../layout/Header";
 

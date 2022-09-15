@@ -5,7 +5,7 @@ import {
   useGetMyProfileQuery,
   useUpdateMyProfileMutation,
 } from "../state/client";
-import { UserProfileMutation } from "../../api/services/auth/types";
+import { UserProfileMutation } from "../../api/services/user/types";
 import { UserProfileForm } from "../forms/UserProfileForm";
 import { CenteredContent } from "../components/CenteredContent";
 import { LoadingPage } from "./LoadingPage";

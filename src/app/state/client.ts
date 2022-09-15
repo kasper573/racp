@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/dist/query/react";
 import { configDefinition } from "../../api/services/config/definition";
 import { createRpcEndpoints } from "../../lib/rpc/createRpcEndpoints";
-import { authDefinition } from "../../api/services/auth/definition";
+import { userDefinition } from "../../api/services/user/definition";
 import { itemDefinition } from "../../api/services/item/definition";
 import { monsterDefinition } from "../../api/services/monster/definition";
 import { metaDefinition } from "../../api/services/meta/definition";
@@ -23,7 +23,7 @@ export const client = createApi({
   tagTypes: [
     ...metaDefinition.tagTypes,
     ...configDefinition.tagTypes,
-    ...authDefinition.tagTypes,
+    ...userDefinition.tagTypes,
     ...itemDefinition.tagTypes,
     ...monsterDefinition.tagTypes,
     ...mapDefinition.tagTypes,
@@ -32,7 +32,7 @@ export const client = createApi({
   endpoints: (builder) => ({
     ...createRpcEndpoints(builder, metaDefinition.entries),
     ...createRpcEndpoints(builder, configDefinition.entries),
-    ...createRpcEndpoints(builder, authDefinition.entries),
+    ...createRpcEndpoints(builder, userDefinition.entries),
     ...createRpcEndpoints(builder, itemDefinition.entries),
     ...createRpcEndpoints(builder, monsterDefinition.entries),
     ...createRpcEndpoints(builder, mapDefinition.entries),

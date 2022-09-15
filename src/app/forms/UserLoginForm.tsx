@@ -1,4 +1,4 @@
-import { LoginPayload, loginPayloadType } from "../../api/services/auth/types";
+import { LoginPayload, loginPayloadType } from "../../api/services/user/types";
 import { useZodForm } from "../../lib/zod/useZodForm";
 import { TextField } from "../controls/TextField";
 import { CommonForm, CommonFormProps } from "../components/CommonForm";

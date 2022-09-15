@@ -1,9 +1,9 @@
 import { YamlDriver } from "../../rathena/YamlDriver";
 import { UserGroupResolver } from "./util/UserGroupResolver";
 
-export type AuthRepository = ReturnType<typeof createAuthRepository>;
+export type UserRepository = ReturnType<typeof createUserRepository>;
 
-export function createAuthRepository({
+export function createUserRepository({
   yaml,
   adminPermissionName = "",
 }: {

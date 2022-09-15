@@ -3,20 +3,20 @@ import { RpcException } from "../../../lib/rpc/RpcException";
 import { DatabaseDriver } from "../../rathena/DatabaseDriver";
 import { some } from "../../util/knex";
 import { AuthenticatorSigner } from "./util/Authenticator";
-import { authDefinition } from "./definition";
+import { userDefinition } from "./definition";
 import { UserAccessLevel } from "./types";
-import { AuthRepository } from "./repository";
+import { UserRepository } from "./repository";
 
-export async function authController({
+export async function userController({
   db,
-  auth,
+  user: repo,
   sign,
 }: {
   db: DatabaseDriver;
-  auth: AuthRepository;
+  user: UserRepository;
   sign: AuthenticatorSigner;
 }) {
-  return createRpcController(authDefinition.entries, {
+  return createRpcController(userDefinition.entries, {
     async register({ username, password, email }) {
       if (await some(db.login.table("login").where("userid", "=", username))) {
         throw new RpcException("Username already taken");
@@ -47,7 +47,7 @@ export async function authController({
       }
 
       const id = user.account_id;
-      const ids = await auth.adminGroupIds;
+      const ids = await repo.adminGroupIds;
       const access = ids.includes(user.group_id)
         ? UserAccessLevel.Admin
         : UserAccessLevel.User;

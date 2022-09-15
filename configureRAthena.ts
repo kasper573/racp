@@ -6,10 +6,10 @@ import { createLogger, Logger } from "./src/lib/logger";
 import { readCliArgs } from "./src/api/util/cli";
 import { options } from "./src/api/options";
 import { createConfigDriver } from "./src/api/rathena/ConfigDriver";
-import { createUser } from "./src/api/services/auth/controller";
+import { createUser } from "./src/api/services/user/controller";
 import { createDatabaseDriver } from "./src/api/rathena/DatabaseDriver";
 import { createYamlDriver } from "./src/api/rathena/YamlDriver";
-import { createAuthRepository } from "./src/api/services/auth/repository";
+import { createUserRepository } from "./src/api/services/user/repository";
 
 /**
  * Updates a clean rathena build with the settings we need to run racp + rathena in docker.
@@ -29,7 +29,7 @@ async function configureRAthena() {
 
   const yaml = createYamlDriver({ ...args, logger });
   const cfg = createConfigDriver({ ...args, logger });
-  const auth = createAuthRepository({ ...args, yaml });
+  const user = createUserRepository({ ...args, yaml });
 
   console.log(`Updating ${cfg.presets.dbInfoConfigName}...`);
   const dbInfo = await cfg.load(cfg.presets.dbInfoConfigName);
@@ -75,7 +75,7 @@ async function configureRAthena() {
     username: args.ADMIN_USER,
     password: args.ADMIN_PASSWORD,
     email: "admin@localhost",
-    group: (await auth.adminGroupIds)[0],
+    group: (await user.adminGroupIds)[0],
   });
 
   conn.destroy();

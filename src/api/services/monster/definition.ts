@@ -2,7 +2,7 @@ import * as zod from "zod";
 import { createTagFactory } from "../../../lib/createTagFactory";
 import { createRpcDefinition } from "../../util/rpc";
 import { createSearchTypes } from "../../common/search";
-import { UserAccessLevel } from "../auth/types";
+import { UserAccessLevel } from "../user/types";
 import {
   monsterFilter,
   monsterSpawnFilter,

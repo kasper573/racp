@@ -17,9 +17,9 @@ import { configController } from "./services/config/controller";
 import {
   AuthenticatorPayload,
   createAuthenticator,
-} from "./services/auth/util/Authenticator";
-import { authDefinition } from "./services/auth/definition";
-import { authController } from "./services/auth/controller";
+} from "./services/user/util/Authenticator";
+import { userDefinition } from "./services/user/definition";
+import { userController } from "./services/user/controller";
 import { itemDefinition } from "./services/item/definition";
 import { itemController } from "./services/item/controller";
 import { readCliArgs } from "./util/cli";
@@ -35,10 +35,10 @@ import { mapDefinition } from "./services/map/definition";
 import { mapController } from "./services/map/controller";
 import { createMapRepository } from "./services/map/repository";
 import { linkDropsWithItems } from "./services/item/util/linkDropsWithItems";
-import { createAuthRepository } from "./services/auth/repository";
+import { createUserRepository } from "./services/user/repository";
 import { utilDefinition } from "./services/util/definition";
 import { utilController } from "./services/util/controller";
-import { UserAccessLevel } from "./services/auth/types";
+import { UserAccessLevel } from "./services/user/types";
 import { RpcContext } from "./util/rpc";
 
 const args = readCliArgs(options);
@@ -74,7 +74,7 @@ const linker = createPublicFileLinker({
   port: args.apiPort,
 });
 
-const auth = createAuthRepository({ yaml, ...args });
+const user = createUserRepository({ yaml, ...args });
 const items = createItemRepository({ yaml, files, ...args });
 const maps = createMapRepository({ files, linker, formatter, npc });
 const monsters = createMonsterRepository({
@@ -92,7 +92,7 @@ app.use(cors());
 app.use(express.static(linker.directory));
 app.use(rpc(configDefinition, configController(config)));
 app.use(rpc(itemDefinition, itemController(items)));
-app.use(rpc(authDefinition, authController({ db, auth, sign, ...args })));
+app.use(rpc(userDefinition, userController({ db, user, sign, ...args })));
 app.use(rpc(monsterDefinition, monsterController(monsters)));
 app.use(rpc(mapDefinition, mapController(maps)));
 app.use(rpc(metaDefinition, metaController({ items, monsters })));

@@ -1,7 +1,7 @@
 import { createRpcDefinitionFactory } from "../../lib/rpc/createRpcDefinition";
-import { UserAccessLevel } from "../services/auth/types";
+import { UserAccessLevel } from "../services/user/types";
 import { createRpcControllerFactory } from "../../lib/rpc/createRpcController";
-import { AuthenticatorPayload } from "../services/auth/util/Authenticator";
+import { AuthenticatorPayload } from "../services/user/util/Authenticator";
 
 export const createRpcDefinition = createRpcDefinitionFactory({
   auth: UserAccessLevel.Guest,

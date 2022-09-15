@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { UserAccessLevel, UserProfile } from "../../api/services/auth/types";
+import { UserAccessLevel, UserProfile } from "../../api/services/user/types";
 import { useGetMyProfileQuery } from "../state/client";
 
 type AuthPropsBase = {

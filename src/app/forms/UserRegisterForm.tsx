@@ -1,7 +1,7 @@
 import {
   UserRegisterPayload,
   userRegisterPayloadType,
-} from "../../api/services/auth/types";
+} from "../../api/services/user/types";
 import { useZodForm } from "../../lib/zod/useZodForm";
 import { TextField } from "../controls/TextField";
 import { CommonForm, CommonFormProps } from "../components/CommonForm";

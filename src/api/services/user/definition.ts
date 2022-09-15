@@ -9,7 +9,7 @@ import {
 
 const myProfileTag = "MY_PROFILE";
 
-export const authDefinition = createRpcDefinition({
+export const userDefinition = createRpcDefinition({
   tagTypes: [myProfileTag],
   entries: (builder) =>
     builder

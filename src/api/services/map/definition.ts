@@ -1,7 +1,7 @@
 import * as zod from "zod";
 import { createTagFactory } from "../../../lib/createTagFactory";
 import { createRpcDefinition } from "../../util/rpc";
-import { UserAccessLevel } from "../auth/types";
+import { UserAccessLevel } from "../user/types";
 import { createSearchTypes } from "../../common/search";
 import {
   mapBoundsRegistryType,
