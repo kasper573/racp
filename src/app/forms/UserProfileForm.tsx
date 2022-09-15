@@ -21,6 +21,7 @@ export function UserProfileForm({
   profile,
   value,
   onChange,
+  children,
   ...props
 }: UserProfileFormProps) {
   const field = useZodForm({
@@ -52,11 +53,10 @@ export function UserProfileForm({
           type="password"
           {...field("passwordConfirm")}
         />
-        <Box sx={{ display: "flex", flexDirection: "column" }}>
-          <Button type="submit" sx={{ alignSelf: "flex-end" }}>
-            Save
-          </Button>
-        </Box>
+        <Stack direction="row">
+          <Box sx={{ flex: 1 }}>{children}</Box>
+          <Button type="submit">Save</Button>
+        </Stack>
       </Stack>
     </Form>
   );

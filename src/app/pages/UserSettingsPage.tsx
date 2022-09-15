@@ -52,8 +52,9 @@ export default function UserSettingsPage() {
           e.preventDefault();
           updateMyProfile(profileMutation);
         }}
-      />
-      <ErrorMessage error={error} sx={{ marginBottom: 2 }} />
+      >
+        <ErrorMessage error={error} sx={{ marginBottom: 2 }} />
+      </UserProfileForm>
     </>
   );
 }
