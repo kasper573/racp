@@ -1,8 +1,6 @@
 import { createRpcController } from "../../util/rpc";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { DatabaseDriver } from "../../rathena/DatabaseDriver";
-import { isEmail } from "../../validators/isEmail";
-import { isPassword } from "../../validators/isPassword";
 import { LoginEntity } from "../../rathena/DatabaseDriver.types";
 import { AuthenticatorSigner } from "./util/Authenticator";
 import { authDefinition } from "./definition";
@@ -68,23 +66,12 @@ export async function authController({
 
       const changes: Partial<LoginEntity> = {
         email: mutation.email,
-        user_pass: mutation.password,
       };
 
-      if (mutation.password || mutation.passwordConfirm) {
-        const passwordError = isPassword(
-          mutation.password,
-          mutation.passwordConfirm
-        );
-        if (passwordError) {
-          throw new RpcException(passwordError);
-        }
-      } else {
-        delete changes.user_pass;
-      }
-
-      if (!isEmail(mutation.email)) {
-        throw new RpcException("Invalid email");
+      if (mutation.password !== mutation.passwordConfirm) {
+        throw new RpcException("Passwords must match");
+      } else if (mutation.password) {
+        changes.user_pass = mutation.password;
       }
 
       const affected = await db.login

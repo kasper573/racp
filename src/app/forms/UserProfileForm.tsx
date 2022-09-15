@@ -42,12 +42,14 @@ export function UserProfileForm({
         />
         <TextField size="small" label="Email" {...field("email")} />
         <TextField
+          optional
           size="small"
           label="New password"
           type="password"
           {...field("password")}
         />
         <TextField
+          optional
           size="small"
           label="New password (confirm)"
           type="password"

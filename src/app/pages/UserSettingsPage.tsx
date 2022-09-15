@@ -13,8 +13,6 @@ import { LoadingPage } from "./LoadingPage";
 
 const defaultProfileMutation = {
   email: "",
-  password: "",
-  passwordConfirm: "",
 };
 
 export default function UserSettingsPage() {

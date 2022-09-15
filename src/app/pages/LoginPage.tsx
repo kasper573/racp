@@ -41,7 +41,7 @@ export default function LoginPage() {
           <ErrorMessage error={error} />
         </UserLoginForm>
 
-        <Typography>
+        <Typography sx={{ textAlign: "right" }}>
           Not a member?{" "}
           <Link to={router.user().register()}>Create a new account</Link>.
         </Typography>

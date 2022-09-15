@@ -10,6 +10,9 @@ export enum UserAccessLevel {
 }
 
 export const userAccessLevelType = zod.nativeEnum(UserAccessLevel);
+export const usernameType = zod.string().min(4).max(12);
+export const emailType = zod.string().email();
+export const passwordType = zod.string().min(5);
 
 export type LoginPayload = zod.infer<typeof loginPayloadType>;
 export const loginPayloadType = zod.object({
@@ -27,17 +30,17 @@ export const userProfileType = zod.object({
 
 export type UserProfileMutation = zod.infer<typeof userProfileMutationType>;
 export const userProfileMutationType = zod.object({
-  email: getZodType(LoginEntityType, "email"),
-  password: getZodType(LoginEntityType, "user_pass"),
-  passwordConfirm: getZodType(LoginEntityType, "user_pass"),
+  email: emailType,
+  password: passwordType.optional(),
+  passwordConfirm: passwordType.optional(),
 });
 
 export type UserRegisterPayload = zod.infer<typeof userRegisterPayloadType>;
 export const userRegisterPayloadType = zod.object({
-  username: getZodType(LoginEntityType, "userid"),
-  email: getZodType(LoginEntityType, "email"),
-  password: getZodType(LoginEntityType, "user_pass"),
-  passwordConfirm: getZodType(LoginEntityType, "user_pass"),
+  username: usernameType,
+  email: emailType,
+  password: passwordType,
+  passwordConfirm: passwordType,
 });
 
 export const userGroupType = zod.object({
