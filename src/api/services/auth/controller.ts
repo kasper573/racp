@@ -1,7 +1,6 @@
 import { createRpcController } from "../../util/rpc";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { DatabaseDriver } from "../../rathena/DatabaseDriver";
-import { LoginEntity } from "../../rathena/DatabaseDriver.types";
 import { AuthenticatorSigner } from "./util/Authenticator";
 import { authDefinition } from "./definition";
 import { UserAccessLevel } from "./types";
