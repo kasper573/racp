@@ -1,4 +1,4 @@
-import { createRpcController } from "../../../lib/rpc/createRpcController";
+import { createRpcController } from "../../util/rpc";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { DatabaseDriver } from "../../rathena/DatabaseDriver";
 import { AuthenticatorSigner } from "./util/Authenticator";
@@ -39,9 +39,24 @@ export async function authController({
         access,
       };
     },
-    async getMyProfile() {
-      // none
-      return undefined;
+    async getMyProfile(_, { auth }) {
+      if (!auth) {
+        return undefined;
+      }
+      const user = await db.login
+        .table("login")
+        .select("userid", "group_id", "email")
+        .where("account_id", "=", auth.id)
+        .first();
+      if (!user) {
+        return undefined;
+      }
+      return {
+        id: auth.id,
+        username: user.userid,
+        email: user.email,
+        access: auth.access,
+      };
     },
   });
 }

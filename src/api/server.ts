@@ -2,6 +2,7 @@ import * as http from "http";
 import * as path from "path";
 import * as express from "express";
 import cors = require("cors");
+import { Request as JWTRequest } from "express-jwt";
 import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
 import { createFileStore } from "../lib/createFileStore";
 import { createLogger } from "../lib/logger";
@@ -13,7 +14,10 @@ import { createConfigDriver } from "./rathena/ConfigDriver";
 import { createDatabaseDriver } from "./rathena/DatabaseDriver";
 import { configDefinition } from "./services/config/definition";
 import { configController } from "./services/config/controller";
-import { createAuthenticator } from "./services/auth/util/Authenticator";
+import {
+  AuthenticatorPayload,
+  createAuthenticator,
+} from "./services/auth/util/Authenticator";
 import { authDefinition } from "./services/auth/definition";
 import { authController } from "./services/auth/controller";
 import { itemDefinition } from "./services/item/definition";
@@ -34,6 +38,8 @@ import { linkDropsWithItems } from "./services/item/util/linkDropsWithItems";
 import { createAuthRepository } from "./services/auth/repository";
 import { utilDefinition } from "./services/util/definition";
 import { utilController } from "./services/util/controller";
+import { UserAccessLevel } from "./services/auth/types";
+import { RpcContext } from "./util/rpc";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -54,8 +60,10 @@ const files = createFileStore(
   logger.chain("fs")
 );
 const npc = createNpcDriver({ ...args, logger: logger.chain("npc") });
-const rpc = createRpcMiddlewareFactory(authenticator.validatorFor, {
+const rpc = createRpcMiddlewareFactory<UserAccessLevel, RpcContext>({
+  validatorFor: authenticator.validatorFor,
   logger: logger.chain("rpc"),
+  getContext: ({ auth }: JWTRequest<AuthenticatorPayload>) => ({ auth }),
 });
 
 const formatter = createImageFormatter({ extension: ".png", quality: 70 });

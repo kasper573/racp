@@ -1,4 +1,4 @@
-import { createRpcController } from "../../../lib/rpc/createRpcController";
+import { createRpcController } from "../../util/rpc";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { defined } from "../../../lib/defined";
 import { createSearchController } from "../../common/search";
