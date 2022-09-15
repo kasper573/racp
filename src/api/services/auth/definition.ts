@@ -1,6 +1,10 @@
 import * as zod from "zod";
 import { createRpcDefinition } from "../../util/rpc";
-import { userAccessLevelType, userProfileType } from "./types";
+import {
+  userAccessLevelType,
+  userProfileMutationType,
+  userProfileType,
+} from "./types";
 
 const myProfileTag = "MY_PROFILE";
 
@@ -19,5 +23,8 @@ export const authDefinition = createRpcDefinition({
       )
       .query("getMyProfile", zod.void(), userProfileType.optional(), {
         tags: [myProfileTag],
+      })
+      .mutation("updateMyProfile", userProfileMutationType, zod.boolean(), {
+        tags: (success) => (success ? [myProfileTag] : []),
       }),
 });

@@ -59,7 +59,7 @@ export function Toolbar() {
             />
           </ListItem>
           <Divider sx={{ mb: 1 }} />
-          <LinkMenuItem to={router.user().profile()}>My Profile</LinkMenuItem>
+          <LinkMenuItem to={router.user().settings()}>Settings</LinkMenuItem>
           <MenuItem onClick={() => dispatch(logout())}>Sign out</MenuItem>
         </Auth>
         <Auth exact={UserAccessLevel.Guest}>

@@ -37,11 +37,11 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
   }),
   user: route(
     "user",
-    { component: () => <Redirect to={router.user().profile()} /> },
+    { component: () => <Redirect to={router.user().settings()} /> },
     (route) => ({
-      profile: route("profile", {
-        component: lazy(() => import("./pages/UserProfilePage")),
-        options: { title: "User profile", icon: <AccountCircle /> },
+      settings: route("settings", {
+        component: lazy(() => import("./pages/UserSettingsPage")),
+        options: { title: "Settings", icon: <AccountCircle /> },
         middleware: requireAuth(UserAccessLevel.User),
       }),
       login: route("login/&:destination?", {

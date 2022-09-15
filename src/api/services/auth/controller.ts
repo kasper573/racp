@@ -1,6 +1,9 @@
 import { createRpcController } from "../../util/rpc";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { DatabaseDriver } from "../../rathena/DatabaseDriver";
+import { isEmail } from "../../validators/isEmail";
+import { isPassword } from "../../validators/isPassword";
+import { LoginEntity } from "../../rathena/DatabaseDriver.types";
 import { AuthenticatorSigner } from "./util/Authenticator";
 import { authDefinition } from "./definition";
 import { UserAccessLevel } from "./types";
@@ -57,6 +60,39 @@ export async function authController({
         email: user.email,
         access: auth.access,
       };
+    },
+    async updateMyProfile(mutation, { auth }) {
+      if (!auth) {
+        throw new RpcException("Must be signed in");
+      }
+
+      const changes: Partial<LoginEntity> = {
+        email: mutation.email,
+        user_pass: mutation.password,
+      };
+
+      if (mutation.password || mutation.passwordConfirm) {
+        const passwordError = isPassword(
+          mutation.password,
+          mutation.passwordConfirm
+        );
+        if (passwordError) {
+          throw new RpcException(passwordError);
+        }
+      } else {
+        delete changes.user_pass;
+      }
+
+      if (!isEmail(mutation.email)) {
+        throw new RpcException("Invalid email");
+      }
+
+      const affected = await db.login
+        .table("login")
+        .update(changes)
+        .where("account_id", "=", auth.id);
+
+      return affected > 0;
     },
   });
 }

@@ -41,6 +41,7 @@ export const client = createApi({
 });
 
 export const {
+  useUpdateMyProfileMutation,
   useGetMyProfileQuery,
   useGetMetaQuery,
   useGetItemQuery,
