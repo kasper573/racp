@@ -40,7 +40,7 @@ export default function RegisterPage() {
           onSubmit={submit}
           isLoading={isLoading}
         >
-          <ErrorMessage error={error} sx={{ textAlign: "center" }} />
+          <ErrorMessage error={error} />
         </UserRegisterForm>
       </CenteredContent>
     </>

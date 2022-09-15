@@ -31,7 +31,7 @@ export default function LoginPage() {
   return (
     <>
       <Header>Sign in</Header>
-      <CenteredContent sx={{ textAlign: "start" }}>
+      <CenteredContent>
         <UserLoginForm
           value={loginPayload}
           onChange={setLoginPayload}
