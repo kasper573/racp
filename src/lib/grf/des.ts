@@ -4,7 +4,6 @@
  * Ragnarok Online DES decoder implementation
  * It's a custom one with some alterations
  */
-export { decodeFull, decodeHeader };
 
 const mask = new Uint8Array([0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01]);
 const tmp = new Uint8Array(8);
@@ -184,7 +183,7 @@ function decryptBlock(src: Uint8Array, index: number): void {
 /**
  * Decode the whole file
  */
-function decodeFull(
+export function decodeFull(
   src: Uint8Array,
   length: number,
   entryLength: number
@@ -228,7 +227,7 @@ function decodeFull(
 /**
  * Decode only the header
  */
-function decodeHeader(src: Uint8Array, length: number): void {
+export function decodeHeader(src: Uint8Array, length: number): void {
   const count = length >> 3;
 
   // first 20 blocks are all des-encrypted

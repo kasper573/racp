@@ -1,8 +1,8 @@
 {
   "root": true,
-  "plugins": ["@typescript-eslint", "import", "unused-imports"],
+  "plugins": ["import", "unused-imports"],
   "parser": "@typescript-eslint/parser",
-  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "extends": ["eslint:recommended", "react-app"],
   "rules": {
     "import/order": ["error"],
     "@typescript-eslint/no-unused-vars": "off",

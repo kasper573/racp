@@ -12,5 +12,6 @@ export function BlobImage({
     return () => URL.revokeObjectURL(src);
   }, [blob]);
 
+  // eslint-disable-next-line jsx-a11y/alt-text
   return <img src={src} {...props} />;
 }
