@@ -1,5 +1,5 @@
-import { Box, Button, Stack, styled } from "@mui/material";
-import { ComponentProps } from "react";
+import { Box, Button, Stack } from "@mui/material";
+import { HTMLAttributes } from "react";
 import {
   UserAccessLevel,
   UserProfile,
@@ -11,7 +11,7 @@ import { TextField } from "../controls/TextField";
 import { getEnumName } from "../../lib/getEnumValue";
 
 export interface UserProfileFormProps
-  extends Omit<ComponentProps<typeof Form>, "onChange"> {
+  extends Omit<HTMLAttributes<HTMLFormElement>, "onChange"> {
   profile: UserProfile;
   value: UserProfileMutation;
   onChange: (changed: UserProfileMutation) => void;
@@ -32,7 +32,7 @@ export function UserProfileForm({
   });
 
   return (
-    <Form {...props}>
+    <form {...props}>
       <Stack direction="column" spacing={2} sx={{ marginBottom: 2 }}>
         <TextField size="small" label="Username" value={profile.username} />
         <TextField
@@ -58,14 +58,6 @@ export function UserProfileForm({
           <Button type="submit">Save</Button>
         </Stack>
       </Stack>
-    </Form>
+    </form>
   );
 }
-
-const Form = styled("form")`
-  display: flex;
-  flex-direction: column;
-  ${({ theme }) => theme.breakpoints.up("lg")} {
-    width: 50%;
-  }
-`;

@@ -32,7 +32,7 @@ export const auth = createSlice({
   extraReducers: (builder) =>
     builder.addMatcher(
       client.endpoints.login.matchFulfilled,
-      (state, { payload: { token } }) => {
+      (state, { payload: token }) => {
         state.token = token;
       }
     ),

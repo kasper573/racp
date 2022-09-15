@@ -40,10 +40,7 @@ export async function authController({
         ? UserAccessLevel.Admin
         : UserAccessLevel.User;
 
-      return {
-        token: sign({ id, access }),
-        access,
-      };
+      return sign({ id, access });
     },
     async getMyProfile(_, { auth }) {
       if (!auth) {

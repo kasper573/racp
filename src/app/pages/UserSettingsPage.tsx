@@ -8,6 +8,7 @@ import {
 import { UserProfileMutation } from "../../api/services/auth/types";
 import { UserProfileForm } from "../forms/UserProfileForm";
 import { ErrorMessage } from "../components/ErrorMessage";
+import { CenteredContent } from "../components/CenteredContent";
 import { LoadingPage } from "./LoadingPage";
 
 const defaultProfileMutation = {
@@ -44,17 +45,19 @@ export default function UserSettingsPage() {
   return (
     <>
       <Header>Settings</Header>
-      <UserProfileForm
-        profile={profile}
-        value={profileMutation}
-        onChange={setProfileMutation}
-        onSubmit={(e) => {
-          e.preventDefault();
-          updateMyProfile(profileMutation);
-        }}
-      >
-        <ErrorMessage error={error} sx={{ marginBottom: 2 }} />
-      </UserProfileForm>
+      <CenteredContent>
+        <UserProfileForm
+          profile={profile}
+          value={profileMutation}
+          onChange={setProfileMutation}
+          onSubmit={(e) => {
+            e.preventDefault();
+            updateMyProfile(profileMutation);
+          }}
+        >
+          <ErrorMessage error={error} sx={{ marginBottom: 2 }} />
+        </UserProfileForm>
+      </CenteredContent>
     </>
   );
 }
