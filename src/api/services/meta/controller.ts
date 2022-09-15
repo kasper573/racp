@@ -1,4 +1,4 @@
-import { createRpcController } from "../../../lib/rpc/createRpcController";
+import { createRpcController } from "../../util/rpc";
 import { Item } from "../item/types";
 import { dedupe, dedupeRecordInsert } from "../../util/dedupe";
 import { select, Selector } from "../../util/select";

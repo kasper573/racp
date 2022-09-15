@@ -1,6 +1,6 @@
-import { createRpcController } from "../../../lib/rpc/createRpcController";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { createSearchController } from "../../common/search";
+import { createRpcController } from "../../util/rpc";
 import { itemDefinition } from "./definition";
 import { itemFilter } from "./types";
 import { ItemRepository } from "./repository";

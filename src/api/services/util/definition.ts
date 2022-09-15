@@ -1,6 +1,6 @@
 import { createTagFactory } from "../../../lib/createTagFactory";
 import { createRpcDefinition } from "../../util/rpc";
-import { UserAccessLevel } from "../auth/types";
+import { UserAccessLevel } from "../user/types";
 import { reducedLuaTables } from "./types";
 
 const tag = createTagFactory("Util");

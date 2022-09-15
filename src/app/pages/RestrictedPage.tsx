@@ -1,10 +1,10 @@
 import { Typography } from "@mui/material";
-import { Center } from "../components/Center";
+import { CenteredContent } from "../components/CenteredContent";
 
 export function RestrictedPage() {
   return (
-    <Center>
+    <CenteredContent>
       <Typography>You do not have permissions to access this page</Typography>
-    </Center>
+    </CenteredContent>
   );
 }

@@ -14,17 +14,20 @@ import { RpcHandler, RpcController } from "./createRpcController";
 import { createEndpointUrl } from "./createRpcEndpoints";
 import { RpcException } from "./RpcException";
 
-export interface RpcMiddlewareOptions {
+export interface RpcMiddlewareOptions<Auth, Context> {
+  validatorFor: (requiredAuth: Auth) => (req: Request) => boolean;
   logger: Logger;
+  getContext: (request: Request) => Context;
 }
 
-export function createRpcMiddlewareFactory<Auth>(
-  validatorFor: (requiredAuth: Auth) => (req: Request) => boolean,
-  { logger }: RpcMiddlewareOptions
-) {
+export function createRpcMiddlewareFactory<Auth, Context>({
+  validatorFor,
+  logger,
+  getContext,
+}: RpcMiddlewareOptions<Auth, Context>) {
   function factory<
     Entries extends RpcDefinitionEntries,
-    Controller extends RpcController<Entries>
+    Controller extends RpcController<Entries, Context>
   >(
     entriesOrDefinition: Entries | RpcDefinitionFor<Entries>,
     controller: Controller | Promise<Controller>
@@ -42,7 +45,8 @@ export function createRpcMiddlewareFactory<Auth>(
     for (const endpointName of typedKeys(entries)) {
       const entry = entries[endpointName];
       const handlerPromise = controllerPromise.then(
-        (controller) => controller[endpointName] as RpcHandler<typeof entry>
+        (controller) =>
+          controller[endpointName] as RpcHandler<typeof entry, Context>
       );
       registerRoute(String(endpointName), entry, handlerPromise);
     }
@@ -52,7 +56,7 @@ export function createRpcMiddlewareFactory<Auth>(
     function registerRoute<Entry extends RpcDefinitionEntry>(
       endpointName: string,
       entry: Entry,
-      handlerPromise: Promise<RpcHandler<Entry>>
+      handlerPromise: Promise<RpcHandler<Entry, Context>>
     ) {
       const routeLogger = logger.chain(endpointName);
       const isAuthorized = validatorFor(entry.auth);
@@ -74,6 +78,7 @@ export function createRpcMiddlewareFactory<Auth>(
           (request, response) =>
             handleArgument(
               request.files ? flattenFiles(request.files) : [],
+              request,
               response
             )
         );
@@ -104,7 +109,7 @@ export function createRpcMiddlewareFactory<Auth>(
               return response.sendStatus(httpStatus.badRequest);
             }
 
-            await handleArgument(argument.data, response);
+            await handleArgument(argument.data, request, response);
           }
         );
       }
@@ -113,6 +118,7 @@ export function createRpcMiddlewareFactory<Auth>(
 
       async function handleArgument(
         argument: zod.infer<Entry["argument"]>,
+        request: Request,
         response: Response
       ) {
         const handler = await handlerPromise;
@@ -120,7 +126,7 @@ export function createRpcMiddlewareFactory<Auth>(
 
         let rpcResult: PromiseResult<ReturnType<typeof handler>>;
         try {
-          rpcResult = await handlerWithLogging(argument);
+          rpcResult = await handlerWithLogging(argument, getContext(request));
         } catch (e) {
           if (e instanceof RpcException) {
             routeLogger.log(

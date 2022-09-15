@@ -13,15 +13,16 @@ import { logout } from "../slices/auth";
 import { MenuOn } from "../components/MenuOn";
 import { theme } from "../slices/theme";
 import { Auth } from "../components/Auth";
-import { UserAccessLevel } from "../../api/services/auth/types";
+import { UserAccessLevel } from "../../api/services/user/types";
 import { LinkMenuItem } from "../components/Link";
 import { router } from "../router";
 import { OnlineBadge } from "../components/OnlineBadge";
+import { useGetMyProfileQuery } from "../state/client";
 
 export function Toolbar() {
   const dispatch = useAppDispatch();
   const mode = useAppSelector(({ theme }) => theme.mode);
-  const username = useAppSelector(({ auth }) => auth.user?.username);
+  const { data: profile } = useGetMyProfileQuery();
   const inverseMode = mode === "dark" ? "light" : "dark";
   const modeSwitch = modeSwitches[inverseMode];
   return (
@@ -36,7 +37,7 @@ export function Toolbar() {
       <MenuOn
         trigger={(open) => (
           <IconButton sx={{ ml: 1 }} onClick={open}>
-            {username ? (
+            {profile ? (
               <OnlineBadge>
                 <AccountCircle />
               </OnlineBadge>
@@ -52,16 +53,18 @@ export function Toolbar() {
               primaryTypographyProps={{ noWrap: true }}
               primary={
                 <>
-                  Signed in as <strong>{username}</strong>
+                  Signed in as <strong>{profile?.username}</strong>
                 </>
               }
             />
           </ListItem>
           <Divider sx={{ mb: 1 }} />
+          <LinkMenuItem to={router.user().settings()}>Settings</LinkMenuItem>
           <MenuItem onClick={() => dispatch(logout())}>Sign out</MenuItem>
         </Auth>
         <Auth exact={UserAccessLevel.Guest}>
-          <LinkMenuItem to={router.login({})}>Sign in</LinkMenuItem>
+          <LinkMenuItem to={router.user().login({})}>Sign in</LinkMenuItem>
+          <LinkMenuItem to={router.user().register()}>Register</LinkMenuItem>
         </Auth>
       </MenuOn>
     </Box>

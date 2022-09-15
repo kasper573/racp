@@ -1,9 +1,9 @@
 import { ReactNode } from "react";
-import { useAppSelector } from "../state/store";
-import { PublicUser, UserAccessLevel } from "../../api/services/auth/types";
+import { UserAccessLevel, UserProfile } from "../../api/services/user/types";
+import { useGetMyProfileQuery } from "../state/client";
 
 type AuthPropsBase = {
-  children: ReactNode | ((user?: PublicUser) => ReactNode);
+  children: ReactNode | ((user?: UserProfile) => ReactNode);
   fallback?: ReactNode;
 };
 
@@ -16,8 +16,8 @@ export type AuthProps =
  * Renders children only when the user has the required access level
  */
 export function Auth({ children, fallback, ...props }: AuthProps) {
-  const user = useAppSelector(({ auth }) => auth.user);
-  const accessLevel = user?.access ?? UserAccessLevel.Guest;
+  const { data: profile } = useGetMyProfileQuery();
+  const accessLevel = profile?.access ?? UserAccessLevel.Guest;
 
   let allowAccess = false;
   if ("exact" in props) {
@@ -29,5 +29,5 @@ export function Auth({ children, fallback, ...props }: AuthProps) {
   }
 
   const childrenFn = typeof children === "function" ? children : () => children;
-  return <>{allowAccess ? childrenFn(user) : fallback}</>;
+  return <>{allowAccess ? childrenFn(profile) : fallback}</>;
 }

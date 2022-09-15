@@ -2,6 +2,7 @@ import * as http from "http";
 import * as path from "path";
 import * as express from "express";
 import cors = require("cors");
+import { Request as JWTRequest } from "express-jwt";
 import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
 import { createFileStore } from "../lib/createFileStore";
 import { createLogger } from "../lib/logger";
@@ -13,9 +14,12 @@ import { createConfigDriver } from "./rathena/ConfigDriver";
 import { createDatabaseDriver } from "./rathena/DatabaseDriver";
 import { configDefinition } from "./services/config/definition";
 import { configController } from "./services/config/controller";
-import { createAuthenticator } from "./services/auth/util/Authenticator";
-import { authDefinition } from "./services/auth/definition";
-import { authController } from "./services/auth/controller";
+import {
+  AuthenticatorPayload,
+  createAuthenticator,
+} from "./services/user/util/Authenticator";
+import { userDefinition } from "./services/user/definition";
+import { userController } from "./services/user/controller";
 import { itemDefinition } from "./services/item/definition";
 import { itemController } from "./services/item/controller";
 import { readCliArgs } from "./util/cli";
@@ -31,9 +35,11 @@ import { mapDefinition } from "./services/map/definition";
 import { mapController } from "./services/map/controller";
 import { createMapRepository } from "./services/map/repository";
 import { linkDropsWithItems } from "./services/item/util/linkDropsWithItems";
-import { createAuthRepository } from "./services/auth/repository";
+import { createUserRepository } from "./services/user/repository";
 import { utilDefinition } from "./services/util/definition";
 import { utilController } from "./services/util/controller";
+import { UserAccessLevel } from "./services/user/types";
+import { RpcContext } from "./util/rpc";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -54,8 +60,10 @@ const files = createFileStore(
   logger.chain("fs")
 );
 const npc = createNpcDriver({ ...args, logger: logger.chain("npc") });
-const rpc = createRpcMiddlewareFactory(authenticator.validatorFor, {
+const rpc = createRpcMiddlewareFactory<UserAccessLevel, RpcContext>({
+  validatorFor: authenticator.validatorFor,
   logger: logger.chain("rpc"),
+  getContext: ({ auth }: JWTRequest<AuthenticatorPayload>) => ({ auth }),
 });
 
 const formatter = createImageFormatter({ extension: ".png", quality: 70 });
@@ -66,7 +74,7 @@ const linker = createPublicFileLinker({
   port: args.apiPort,
 });
 
-const auth = createAuthRepository({ yaml, ...args });
+const user = createUserRepository({ yaml, ...args });
 const items = createItemRepository({ yaml, files, ...args });
 const maps = createMapRepository({ files, linker, formatter, npc });
 const monsters = createMonsterRepository({
@@ -84,7 +92,7 @@ app.use(cors());
 app.use(express.static(linker.directory));
 app.use(rpc(configDefinition, configController(config)));
 app.use(rpc(itemDefinition, itemController(items)));
-app.use(rpc(authDefinition, authController({ db, auth, sign, ...args })));
+app.use(rpc(userDefinition, userController({ db, user, sign, ...args })));
 app.use(rpc(monsterDefinition, monsterController(monsters)));
 app.use(rpc(mapDefinition, mapController(maps)));
 app.use(rpc(metaDefinition, metaController({ items, monsters })));

@@ -57,14 +57,18 @@ export function createRpcEndpoints<
     const { intent, tags, argument } = entries[endpointName];
 
     const options: EndpointDefinitionBase = {
-      query: (arg) => {
-        const args: FetchArgs = {
+      queryFn: (arg, api, extraOptions, baseQuery) => {
+        try {
+          arg = argumentTransformers[intent](arg, argument);
+        } catch (error) {
+          return { error };
+        }
+        return baseQuery({
           url: createEndpointUrl(endpointName),
           method: "post",
-          body: argumentTransformers[intent](arg, argument),
+          body: arg,
           responseHandler,
-        };
-        return args;
+        });
       },
     };
 
@@ -119,5 +123,5 @@ const responseHandler: ResponseHandler = async (res) => {
 type EndpointDefinitionBase = Omit<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   EndpointDefinition<any, any, any, any>,
-  "queryFn" | "type"
+  "type"
 >;

@@ -7,6 +7,7 @@ import {
 } from "react-typesafe-routes";
 import { lazy } from "react";
 import {
+  AccountCircle,
   AdminPanelSettings,
   Article,
   Home,
@@ -14,13 +15,15 @@ import {
   Login,
   Map,
   ModeEdit,
+  PersonAdd,
   PestControlRodent,
   Redeem,
 } from "@mui/icons-material";
 import { useLocation } from "react-router-dom";
-import { UserAccessLevel } from "../api/services/auth/types";
-import { useAppSelector } from "./state/store";
+import { UserAccessLevel } from "../api/services/user/types";
 import { RestrictedPage } from "./pages/RestrictedPage";
+import { useGetMyProfileQuery } from "./state/client";
+import { LoadingPage } from "./pages/LoadingPage";
 
 const defaultOptions = {
   title: "",
@@ -33,11 +36,26 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
     options: { title: "Home", icon: <Home /> },
     exact: true,
   }),
-  login: route("login/&:destination?", {
-    component: lazy(() => import("./pages/LoginPage")),
-    options: { title: "Sign in", icon: <Login /> },
-    params: { destination: stringParser },
-  }),
+  user: route(
+    "user",
+    { component: () => <Redirect to={router.user().settings()} /> },
+    (route) => ({
+      settings: route("settings", {
+        component: lazy(() => import("./pages/UserSettingsPage")),
+        options: { title: "Settings", icon: <AccountCircle /> },
+        middleware: requireAuth(UserAccessLevel.User),
+      }),
+      login: route("login/&:destination?", {
+        component: lazy(() => import("./pages/LoginPage")),
+        options: { title: "Sign in", icon: <Login /> },
+        params: { destination: stringParser },
+      }),
+      register: route("register", {
+        component: lazy(() => import("./pages/RegisterPage")),
+        options: { title: "Register", icon: <PersonAdd /> },
+      }),
+    })
+  ),
   item: route(
     "item",
     {
@@ -116,15 +134,20 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
 }));
 
 export const logoutRedirect = router.home().$;
+export const loginRedirect = router.user().$;
 
 function requireAuth(requiredAccess = UserAccessLevel.User): RouteMiddleware {
   return (next) => {
     const location = useLocation();
-    const access = useAppSelector(({ auth }) => auth.user?.access);
+    const { data: profile, isFetching } = useGetMyProfileQuery();
+    if (isFetching) {
+      return () => <LoadingPage />;
+    }
+    const access = profile?.access;
     if (access === undefined) {
       return () => (
         <Redirect
-          to={router.login({
+          to={router.user().login({
             destination: `${location.pathname}${location.search}`,
           })}
         />

@@ -1,5 +1,6 @@
 import { Typography } from "@mui/material";
 import { ComponentProps } from "react";
+import { ZodError } from "zod";
 
 export interface ErrorMessageProps
   extends Omit<ComponentProps<typeof Typography>, "children"> {
@@ -31,6 +32,11 @@ export function getErrorMessage(
   }
   if (typeof error !== "object") {
     return;
+  }
+  if (error instanceof ZodError) {
+    return error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join(", ");
   }
   if ("error" in error) {
     return `${error.error}`;

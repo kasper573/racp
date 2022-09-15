@@ -1,5 +1,5 @@
 import * as zod from "zod";
-import { createRpcController } from "../../../lib/rpc/createRpcController";
+import { createRpcController } from "../../util/rpc";
 import { unluac } from "../../../lib/unluac/unluac";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { utilDefinition } from "./definition";
