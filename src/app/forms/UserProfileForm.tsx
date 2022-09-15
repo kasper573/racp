@@ -65,4 +65,7 @@ export function UserProfileForm({
 const Form = styled("form")`
   display: flex;
   flex-direction: column;
+  ${({ theme }) => theme.breakpoints.up("lg")} {
+    width: 50%;
+  }
 `;
