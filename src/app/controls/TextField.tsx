@@ -6,7 +6,7 @@ import MakePartial = util.MakePartial;
 type TFVariant<Type extends string, Value, Optional extends boolean> = Omit<
   ComponentProps<typeof MuiTextField>,
   "onChange" | "type"
-> & { type: Type } & (Optional extends true
+> & { type: Type; issues?: string[] } & (Optional extends true
     ? { optional: true; value?: Value; onChange?: (newValue?: Value) => void }
     : { optional?: false; value: Value; onChange?: (newValue: Value) => void });
 
@@ -25,12 +25,15 @@ export function TextField({
   type,
   onChange,
   optional,
+  issues,
   ...props
 }: TextFieldProps) {
   const readOnly = onChange === undefined;
   return (
     <MuiTextField
       type={type}
+      error={(issues?.length ?? 0) > 0}
+      helperText={issues?.join(", ")}
       value={value ?? ""}
       disabled={readOnly}
       InputProps={{ readOnly }}

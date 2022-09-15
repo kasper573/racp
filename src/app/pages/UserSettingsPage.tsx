@@ -7,7 +7,6 @@ import {
 } from "../state/client";
 import { UserProfileMutation } from "../../api/services/auth/types";
 import { UserProfileForm } from "../forms/UserProfileForm";
-import { ErrorMessage } from "../components/ErrorMessage";
 import { CenteredContent } from "../components/CenteredContent";
 import { LoadingPage } from "./LoadingPage";
 
@@ -45,6 +44,7 @@ export default function UserSettingsPage() {
       <Header>Settings</Header>
       <CenteredContent>
         <UserProfileForm
+          error={error}
           profile={profile}
           value={profileMutation}
           onChange={setProfileMutation}
@@ -52,9 +52,7 @@ export default function UserSettingsPage() {
             e.preventDefault();
             updateMyProfile(profileMutation);
           }}
-        >
-          <ErrorMessage error={error} sx={{ marginBottom: 2 }} />
-        </UserProfileForm>
+        />
       </CenteredContent>
     </>
   );

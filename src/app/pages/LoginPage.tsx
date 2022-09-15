@@ -3,7 +3,6 @@ import { Typography } from "@mui/material";
 import { useHistory } from "react-router";
 import { useRouteParams } from "../../lib/useRouteParams";
 import { useLoginMutation } from "../state/client";
-import { ErrorMessage } from "../components/ErrorMessage";
 import { loginRedirect, router } from "../router";
 import { Link } from "../components/Link";
 import { CenteredContent } from "../components/CenteredContent";
@@ -37,9 +36,8 @@ export default function LoginPage() {
           onChange={setLoginPayload}
           onSubmit={submit}
           isLoading={isLoading}
-        >
-          <ErrorMessage error={error} />
-        </UserLoginForm>
+          error={error}
+        />
 
         <Typography sx={{ textAlign: "right" }}>
           Not a member?{" "}

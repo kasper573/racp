@@ -1,7 +1,6 @@
 import { FormEvent, useState } from "react";
 import { useHistory } from "react-router";
 import { loginRedirect } from "../router";
-import { ErrorMessage } from "../components/ErrorMessage";
 import { useLoginMutation, useRegisterMutation } from "../state/client";
 import { UserRegisterForm } from "../forms/UserRegisterForm";
 import { UserRegisterPayload } from "../../api/services/auth/types";
@@ -35,13 +34,12 @@ export default function RegisterPage() {
       <Header>Register</Header>
       <CenteredContent>
         <UserRegisterForm
+          error={error}
           value={registerPayload}
           onChange={setRegisterPayload}
           onSubmit={submit}
           isLoading={isLoading}
-        >
-          <ErrorMessage error={error} />
-        </UserRegisterForm>
+        />
       </CenteredContent>
     </>
   );

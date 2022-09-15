@@ -18,6 +18,13 @@ export async function authController({
 }) {
   return createRpcController(authDefinition.entries, {
     async register({ username, password }) {
+      const usernameExists = await db.login
+        .table("login")
+        .where("userid", "=", username)
+        .count();
+      if (usernameExists) {
+        throw new RpcException("Username already taken");
+      }
       return false;
     },
     async login({ username, password }) {

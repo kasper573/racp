@@ -1,25 +1,20 @@
-import { Box, Stack } from "@mui/material";
-import { HTMLAttributes } from "react";
 import {
   UserRegisterPayload,
   userRegisterPayloadType,
 } from "../../api/services/auth/types";
 import { useZodForm } from "../../lib/zod/useZodForm";
 import { TextField } from "../controls/TextField";
-import { ProgressButton } from "../components/ProgressButton";
+import { CommonForm, CommonFormProps } from "../components/CommonForm";
 
-export interface UserRegisterFormProps
-  extends Omit<HTMLAttributes<HTMLFormElement>, "onChange"> {
+export interface UserRegisterFormProps extends CommonFormProps {
   value: UserRegisterPayload;
   onChange: (changed: UserRegisterPayload) => void;
-  isLoading?: boolean;
 }
 
 export function UserRegisterForm({
   value,
   onChange,
   children,
-  isLoading,
   ...props
 }: UserRegisterFormProps) {
   const field = useZodForm({
@@ -27,37 +22,25 @@ export function UserRegisterForm({
     value,
     onChange,
     updateDelay: 0,
+    error: props.error,
   });
 
   return (
-    <form {...props}>
-      <Stack direction="column" spacing={2} sx={{ marginBottom: 2 }}>
-        <TextField size="small" label="Username" {...field("username")} />
-        <TextField
-          size="small"
-          label="Email"
-          type="email"
-          {...field("email")}
-        />
-        <TextField
-          size="small"
-          label="Password"
-          type="password"
-          {...field("password")}
-        />
-        <TextField
-          size="small"
-          label="Password (confirm)"
-          type="password"
-          {...field("passwordConfirm")}
-        />
-        <Stack direction="row">
-          <Box sx={{ flex: 1 }}>{children}</Box>
-          <ProgressButton isLoading={isLoading} type="submit">
-            Register
-          </ProgressButton>
-        </Stack>
-      </Stack>
-    </form>
+    <CommonForm label="Register" {...props}>
+      <TextField size="small" label="Username" {...field("username")} />
+      <TextField size="small" label="Email" type="email" {...field("email")} />
+      <TextField
+        size="small"
+        label="Password"
+        type="password"
+        {...field("password")}
+      />
+      <TextField
+        size="small"
+        label="Password (confirm)"
+        type="password"
+        {...field("passwordConfirm")}
+      />
+    </CommonForm>
   );
 }
