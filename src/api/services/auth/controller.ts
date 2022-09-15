@@ -17,7 +17,7 @@ export async function authController({
   sign: AuthenticatorSigner;
 }) {
   return createRpcController(authDefinition.entries, {
-    async register({ username, password }) {
+    async register({ username, password, email }) {
       const usernameExists = await db.login
         .table("login")
         .where("userid", "=", username)
@@ -25,6 +25,7 @@ export async function authController({
       if (usernameExists) {
         throw new RpcException("Username already taken");
       }
+
       return false;
     },
     async login({ username, password }) {
@@ -71,19 +72,12 @@ export async function authController({
         throw new RpcException("Must be signed in");
       }
 
-      const changes: Partial<LoginEntity> = {
-        email: mutation.email,
-      };
-
-      if (mutation.password !== mutation.passwordConfirm) {
-        throw new RpcException("Passwords must match");
-      } else if (mutation.password) {
-        changes.user_pass = mutation.password;
-      }
-
       const affected = await db.login
         .table("login")
-        .update(changes)
+        .update({
+          email: mutation.email,
+          user_pass: mutation.password,
+        })
         .where("account_id", "=", auth.id);
 
       return affected > 0;

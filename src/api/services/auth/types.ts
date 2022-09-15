@@ -2,6 +2,7 @@ import * as zod from "zod";
 import { toggleRecordType } from "../../util/matcher";
 import { getZodType } from "../../../lib/zod/zodPath";
 import { LoginEntityType } from "../../rathena/DatabaseDriver.types";
+import { createPropertyMatchRefiner } from "../../../lib/zod/propertyMatchRefiner";
 
 export enum UserAccessLevel {
   Guest,
@@ -28,20 +29,30 @@ export const userProfileType = zod.object({
   access: userAccessLevelType,
 });
 
+const passwordMatcher = createPropertyMatchRefiner(
+  "password",
+  "passwordConfirm",
+  "Passwords do not match"
+);
+
 export type UserProfileMutation = zod.infer<typeof userProfileMutationType>;
-export const userProfileMutationType = zod.object({
-  email: emailType,
-  password: passwordType.optional(),
-  passwordConfirm: passwordType.optional(),
-});
+export const userProfileMutationType = zod
+  .object({
+    email: emailType,
+    password: passwordType.optional(),
+    passwordConfirm: passwordType.optional(),
+  })
+  .refine(...passwordMatcher);
 
 export type UserRegisterPayload = zod.infer<typeof userRegisterPayloadType>;
-export const userRegisterPayloadType = zod.object({
-  username: usernameType,
-  email: emailType,
-  password: passwordType,
-  passwordConfirm: passwordType,
-});
+export const userRegisterPayloadType = zod
+  .object({
+    username: usernameType,
+    email: emailType,
+    password: passwordType,
+    passwordConfirm: passwordType,
+  })
+  .refine(...passwordMatcher);
 
 export const userGroupType = zod.object({
   Id: zod.number(),
