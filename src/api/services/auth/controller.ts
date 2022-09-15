@@ -19,7 +19,7 @@ export async function authController({
     async login({ username, password }) {
       const user = await db.login
         .table("login")
-        .select("account_id", "userid", "group_id")
+        .select("account_id", "userid", "group_id", "email")
         .where("userid", "=", username)
         .where("user_pass", "=", password)
         .first();
@@ -36,8 +36,12 @@ export async function authController({
 
       return {
         token: sign({ id, access }),
-        user: { id, username: user.userid, access },
+        access,
       };
+    },
+    async getMyProfile() {
+      // none
+      return undefined;
     },
   });
 }

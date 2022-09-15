@@ -9,7 +9,7 @@ import { UserAccessLevel } from "../../api/services/auth/types";
 import { ProgressButton } from "../components/ProgressButton";
 
 export default function LoginPage() {
-  const { destination } = useRouteParams(router.login);
+  const { destination } = useRouteParams(router.user().login);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [login, { error, isLoading }] = useLoginMutation();
@@ -19,7 +19,7 @@ export default function LoginPage() {
     e.preventDefault();
     const result = await login({ username, password });
     if ("data" in result) {
-      history.push(destination ?? defaultDestinations[result.data.user.access]);
+      history.push(destination ?? defaultDestinations[result.data.access]);
     }
   }
 

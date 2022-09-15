@@ -1,12 +1,10 @@
 import { AnyAction, createSlice, Store } from "@reduxjs/toolkit";
 import * as zod from "zod";
-import { publicUserType } from "../../api/services/auth/types";
 import { client } from "../state/client";
 import { createAppAsyncThunk } from "../state/utils";
 
 export const authState = zod.object({
   token: zod.string().optional(),
-  user: publicUserType.optional(),
 });
 
 export type AuthState = zod.infer<typeof authState>;
@@ -29,17 +27,13 @@ export const auth = createSlice({
   reducers: {
     clear(state) {
       delete state.token;
-      delete state.user;
     },
   },
   extraReducers: (builder) =>
     builder.addMatcher(
       client.endpoints.login.matchFulfilled,
-      (state, { payload }) => {
-        if ("token" in payload) {
-          state.token = payload.token;
-          state.user = payload.user;
-        }
+      (state, { payload: { token } }) => {
+        state.token = token;
       }
     ),
 });

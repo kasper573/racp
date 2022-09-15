@@ -7,6 +7,7 @@ import {
 } from "react-typesafe-routes";
 import { lazy } from "react";
 import {
+  AccountCircle,
   AdminPanelSettings,
   Article,
   Home,
@@ -19,8 +20,9 @@ import {
 } from "@mui/icons-material";
 import { useLocation } from "react-router-dom";
 import { UserAccessLevel } from "../api/services/auth/types";
-import { useAppSelector } from "./state/store";
 import { RestrictedPage } from "./pages/RestrictedPage";
+import { useGetMyProfileQuery } from "./state/client";
+import { LoadingPage } from "./pages/LoadingPage";
 
 const defaultOptions = {
   title: "",
@@ -33,11 +35,22 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
     options: { title: "Home", icon: <Home /> },
     exact: true,
   }),
-  login: route("login/&:destination?", {
-    component: lazy(() => import("./pages/LoginPage")),
-    options: { title: "Sign in", icon: <Login /> },
-    params: { destination: stringParser },
-  }),
+  user: route(
+    "user",
+    { component: () => <Redirect to={router.user().profile()} /> },
+    (route) => ({
+      profile: route("profile", {
+        component: lazy(() => import("./pages/UserProfilePage")),
+        options: { title: "User profile", icon: <AccountCircle /> },
+        middleware: requireAuth(UserAccessLevel.User),
+      }),
+      login: route("login/&:destination?", {
+        component: lazy(() => import("./pages/LoginPage")),
+        options: { title: "Sign in", icon: <Login /> },
+        params: { destination: stringParser },
+      }),
+    })
+  ),
   item: route(
     "item",
     {
@@ -120,11 +133,15 @@ export const logoutRedirect = router.home().$;
 function requireAuth(requiredAccess = UserAccessLevel.User): RouteMiddleware {
   return (next) => {
     const location = useLocation();
-    const access = useAppSelector(({ auth }) => auth.user?.access);
+    const { data: profile, isFetching } = useGetMyProfileQuery();
+    if (isFetching) {
+      return () => <LoadingPage />;
+    }
+    const access = profile?.access;
     if (access === undefined) {
       return () => (
         <Redirect
-          to={router.login({
+          to={router.user().login({
             destination: `${location.pathname}${location.search}`,
           })}
         />

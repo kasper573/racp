@@ -11,13 +11,14 @@ export enum UserAccessLevel {
 
 export const userAccessLevelType = zod.nativeEnum(UserAccessLevel);
 
-export const publicUserType = zod.object({
+export const userProfileType = zod.object({
   id: getZodType(LoginEntityType, "account_id"),
   username: getZodType(LoginEntityType, "userid"),
+  email: getZodType(LoginEntityType, "email"),
   access: userAccessLevelType,
 });
 
-export type PublicUser = zod.infer<typeof publicUserType>;
+export type UserProfile = zod.infer<typeof userProfileType>;
 
 export const userGroupType = zod.object({
   Id: zod.number(),
