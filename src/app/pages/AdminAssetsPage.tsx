@@ -2,10 +2,14 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Box,
   LinearProgress,
+  Stack,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { ExpandMore } from "@mui/icons-material";
+import { useState } from "react";
 import { Header } from "../layout/Header";
 
 import { ErrorMessage } from "../components/ErrorMessage";
@@ -21,8 +25,11 @@ import { FileUploader } from "../components/FileUploader";
 import { useAssetUploader } from "../hooks/useAssetUploader";
 import { useBlockNavigation } from "../../lib/useBlockNavigation";
 import { MonsterGrid } from "../grids/MonsterGrid";
+import { ProgressButton } from "../components/ProgressButton";
+import { defined } from "../../lib/defined";
 
 export default function AdminAssetsPage() {
+  const [files, setFiles] = useState<Record<string, File>>({});
   const { data: mapImageCount = 0 } = useCountMapImagesQuery();
   const { data: mapInfoCount = 0 } = useCountMapInfoQuery();
   const { data: mapBoundsCount = 0 } = useCountMapBoundsQuery();
@@ -32,6 +39,16 @@ export default function AdminAssetsPage() {
     useGetMonstersMissingImagesQuery();
 
   const uploader = useAssetUploader();
+  const isReadyToUpload =
+    Object.keys(files).length === uploader.filesRequired.length;
+
+  async function uploadFiles() {
+    try {
+      await uploader.upload(Object.values(files));
+    } finally {
+      setFiles({});
+    }
+  }
 
   useBlockNavigation(
     uploader.isPending,
@@ -55,18 +72,39 @@ export default function AdminAssetsPage() {
         entries.
       </Typography>
 
-      <FileUploader
-        value={[]}
-        sx={{ maxWidth: 380, margin: "0 auto" }}
-        accept={uploader.fileExtensions}
-        isLoading={uploader.isPending}
-        onChange={uploader.upload}
-        title={`
-          Select your mapInfo.lub, itemInfo.lub and data.grf files. 
-          GRF files will be extracted locally and cherry pick and upload the
-          necessary data to reduce network load.
-          `}
-      />
+      <Stack direction="row" spacing={2} sx={{ margin: "0 auto" }}>
+        {uploader.filesRequired.map(({ name, ext }) => {
+          const id = `${name}${ext}`;
+          return (
+            <FileUploader
+              key={id}
+              value={defined([files[id]])}
+              accept={ext}
+              title=""
+              buttonText={`Select ${id}`}
+              isLoading={uploader.isPending}
+              onChange={([file]) =>
+                setFiles((current) =>
+                  file ? { ...current, [id]: file } : current
+                )
+              }
+            />
+          );
+        })}
+      </Stack>
+
+      <Tooltip title={isReadyToUpload ? "" : "Please select all files"}>
+        <Box sx={{ margin: "0 auto", marginBottom: 2 }}>
+          <ProgressButton
+            variant="contained"
+            disabled={!isReadyToUpload}
+            isLoading={uploader.isPending}
+            onClick={uploadFiles}
+          >
+            Upload
+          </ProgressButton>
+        </Box>
+      </Tooltip>
 
       {uploader.isPending && (
         <LinearProgress

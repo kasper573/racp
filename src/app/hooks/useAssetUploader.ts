@@ -183,7 +183,11 @@ export function useAssetUploader() {
     currentActivities,
     upload,
     errors,
-    fileExtensions: [".lub", ".grf"],
+    filesRequired: [
+      { name: "mapInfo", ext: ".lub" },
+      { name: "itemInfo", ext: ".lub" },
+      { name: "data", ext: ".grf" },
+    ],
   };
 }
 

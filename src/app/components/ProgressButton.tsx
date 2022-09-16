@@ -8,11 +8,12 @@ export interface ProgressButtonProps extends ComponentProps<typeof Button> {
 
 export function ProgressButton({
   children,
+  disabled,
   isLoading,
   ...props
 }: ProgressButtonProps) {
   return (
-    <Button {...props}>
+    <Button disabled={disabled || isLoading} {...props}>
       {isLoading ? <LoadingSpinner size={24} /> : children}
     </Button>
   );
