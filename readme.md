@@ -14,7 +14,7 @@ Not ready for public use. Use at your own risk.
 <details>
     <summary>Total abstraction</summary>
 
-> RACP contains no data. No fixtures, no enums, nothing. RACP will read all data from either the rAthena data files or mysql database.
+> RACP contains no data. No fixtures, no enums, nothing. RACP will read all data from either the rAthena data files or mysql database and the RO client files.
 
 </details>
 
