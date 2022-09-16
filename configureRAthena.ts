@@ -6,7 +6,6 @@ import { createLogger, Logger } from "./src/lib/logger";
 import { readCliArgs } from "./src/api/util/cli";
 import { options } from "./src/api/options";
 import { createConfigDriver } from "./src/api/rathena/ConfigDriver";
-import { createUser } from "./src/api/services/user/controller";
 import { createDatabaseDriver } from "./src/api/rathena/DatabaseDriver";
 import { createYamlDriver } from "./src/api/rathena/YamlDriver";
 import { createUserRepository } from "./src/api/services/user/repository";
@@ -71,11 +70,11 @@ async function configureRAthena() {
 
   const db = createDatabaseDriver(cfg);
 
-  await createUser(db, {
-    username: args.ADMIN_USER,
-    password: args.ADMIN_PASSWORD,
+  await db.login.table("login").insert({
+    userid: args.ADMIN_USER,
+    user_pass: args.ADMIN_PASSWORD,
     email: "admin@localhost",
-    group: (await user.adminGroupIds)[0],
+    group_id: (await user.adminGroupIds)[0],
   });
 
   conn.destroy();
