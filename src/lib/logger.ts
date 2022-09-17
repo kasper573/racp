@@ -4,7 +4,11 @@ export interface Logger {
   log: LogFn;
   warn: LogFn;
   error: LogFn;
-  wrap: <Fn extends AnyFn>(fn: Fn, functionName?: string) => Fn;
+  wrap: <Fn extends AnyFn>(
+    fn: Fn,
+    functionName?: string,
+    callback?: (...args: Parameters<Fn>) => void
+  ) => Fn;
   chain: (name: string) => Logger;
 }
 
@@ -24,17 +28,19 @@ export function createLogger(logFn: LogFn, name?: string): Logger {
     error,
     warn,
     chain,
-    wrap(fn, functionName = fn.name) {
+    wrap(fn, functionName = fn.name, callback) {
       function wrapped(...args: unknown[]) {
         const logFunction = createFunctionLogger(functionName, args, log);
+        (callback as any)?.(...args);
+        const startTime = Date.now();
         const result = fn(...args);
         if (result instanceof Promise) {
           return result.then((value) => {
-            logFunction(value);
+            logFunction(value, startTime);
             return value;
           });
         } else {
-          logFunction(result);
+          logFunction(result, startTime);
           return result;
         }
       }
@@ -53,11 +59,21 @@ function createFunctionLogger(
   args: unknown[],
   log: LogFn
 ) {
-  const functionCallId = `${functionName}(${stringifyArgs(args)})`;
-  const startTime = Date.now();
-  const delta = Date.now() - startTime;
-  return (result: unknown) =>
-    log(`(${delta}ms)`, functionCallId, stringifyResult(result));
+  return (result: unknown, startTime: number) =>
+    log(
+      createFunctionLogPrefix(functionName, args, startTime),
+      stringifyResult(result)
+    );
+}
+
+export function createFunctionLogPrefix(
+  functionName: string,
+  args: unknown[],
+  startTime: number
+) {
+  return `(${Date.now() - startTime}ms) ${functionName}(${stringifyArgs(
+    args
+  )})`;
 }
 
 function stringifyArgs(args: unknown[]) {

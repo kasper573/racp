@@ -4,7 +4,7 @@ import * as bodyParser from "body-parser";
 import fileUpload = require("express-fileupload");
 import { FileArray, UploadedFile } from "express-fileupload";
 import { typedKeys } from "../typedKeys";
-import { Logger } from "../logger";
+import { createFunctionLogPrefix, Logger } from "../logger";
 import {
   RpcDefinitionEntry,
   RpcDefinitionEntries,
@@ -121,8 +121,18 @@ export function createRpcMiddlewareFactory<Auth, Context>({
         request: Request,
         response: Response
       ) {
+        const startTime = Date.now();
+        let latestArgs: unknown[] = [];
         const handler = await handlerPromise;
-        const handlerWithLogging = routeLogger.wrap(handler, "handler");
+        const handlerLogName = "handler";
+        const handlerWithLogging = routeLogger.wrap(
+          handler,
+          handlerLogName,
+          (...args) => (latestArgs = args)
+        );
+
+        const emulateHandlerLogPrefix = () =>
+          createFunctionLogPrefix(handlerLogName, latestArgs, startTime);
 
         let rpcResult: PromiseResult<ReturnType<typeof handler>>;
         try {
@@ -130,19 +140,25 @@ export function createRpcMiddlewareFactory<Auth, Context>({
         } catch (e) {
           if (e instanceof RpcException) {
             routeLogger.warn(
+              emulateHandlerLogPrefix(),
               `Handler exited due to a known exception: ${e.message} `
             );
             return response
               .status(httpStatus.internalServerError)
               .send(e.message);
           }
-          routeLogger.error(`Unexpected error while executing handler:`, e);
+          routeLogger.error(
+            emulateHandlerLogPrefix(),
+            `Unexpected error while executing handler:`,
+            e
+          );
           return response.sendStatus(httpStatus.internalServerError);
         }
 
         const parsedRpcResult = entry.result.safeParse(rpcResult);
         if (!parsedRpcResult.success) {
           routeLogger.error(
+            emulateHandlerLogPrefix(),
             "Return value had wrong data type: ",
             parsedRpcResult.error
           );
