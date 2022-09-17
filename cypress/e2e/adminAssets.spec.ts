@@ -6,14 +6,14 @@ import {
   signIn,
 } from "../support/actions";
 
-describe("after uploading assets", () => {
-  before(() => {
-    cy.visit("/");
-    signIn(Cypress.env("ADMIN_USER"), Cypress.env("ADMIN_PASSWORD"));
-    removeUGC();
-    uploadAssets();
-  });
+before(() => {
+  cy.visit("/");
+  signIn(Cypress.env("ADMIN_USER"), Cypress.env("ADMIN_PASSWORD"));
+  removeUGC();
+  uploadAssets();
+});
 
+describe("after uploading assets", () => {
   describe("map", () => {
     before(() => gotoMap("prontera"));
 

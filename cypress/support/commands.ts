@@ -2,30 +2,43 @@
 import "@testing-library/cypress/add-commands";
 
 Cypress.Commands.add("selectFileByName", (name, files, options) => {
-  return (
-    cy
-      .get(`input[type="file"][name="${name}"]`)
-      // Assert due to cypress type definitions giving errors even though it works and following their docs
-      // Force due to some file uploader UIs choosing to hide their native input elements
-      .selectFile(files, { force: true, ...options }) as any
-  );
+  cy.get(`input[type="file"][name="${name}"]`).selectFile(files, {
+    force: true,
+    ...options,
+  });
+});
+
+Cypress.Commands.add("imageSrc", { prevSubject: true }, (subject: JQuery) => {
+  const tagName = subject.prop("tagName");
+  if (tagName === "IMG") {
+    cy.wrap(subject)
+      .should("not.have.attr", "src", "")
+      .then((element) => element.attr("src"));
+  } else {
+    cy.wrap(subject)
+      .should("not.have.css", "background-image", "none")
+      .then((element) => stripCssUrl(element.css("background-image")));
+  }
 });
 
 Cypress.Commands.add(
   "isFixtureImage",
   { prevSubject: true },
-  (subject: HTMLImageElement, fixtureImage) => {
-    cy.wrap(subject).each(async (el) => {
-      const src = el.attr("src")! || stripCssUrl(el.css("background-image"));
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      expect(src).not.to.be.empty;
-
-      const imageData = new Uint8Array(await (await fetch(src)).arrayBuffer());
-      cy.fixture(fixtureImage, null).then(async (buffer: Buffer) => {
-        const fixtureData = new Uint8Array(buffer);
-        expect(imageData).deep.equal(fixtureData, "Image data is equal");
+  (subject, fixtureSrc) => {
+    cy.wrap(subject)
+      .imageSrc()
+      .then(async (subjectSrc) => {
+        const subjectData = new Uint8Array(
+          await (await fetch(subjectSrc)).arrayBuffer()
+        );
+        cy.fixture(fixtureSrc, null).then(async (buffer: Buffer) => {
+          const fixtureData = new Uint8Array(buffer);
+          expect(subjectData).deep.equal(
+            fixtureData,
+            `Subject data in "${subjectSrc}" should equal fixture data in "${fixtureSrc}"`
+          );
+        });
       });
-    });
   }
 );
 
@@ -39,6 +52,8 @@ declare global {
       ): Chainable<Element>;
 
       isFixtureImage(fixtureImage: string): Chainable<Element>;
+
+      imageSrc(): Chainable<string>;
     }
   }
 }
