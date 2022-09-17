@@ -12,3 +12,7 @@ export function signIn(username: string, password: string) {
 export function assertSignedIn() {
   cy.findByTestId("online-badge").should("exist");
 }
+
+export function resetDB() {
+  cy.exec("yarn run e2e:reset-db");
+}

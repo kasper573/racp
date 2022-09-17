@@ -1,4 +1,4 @@
-import { assertSignedIn, signIn } from "./auth.commands";
+import { assertSignedIn, signIn } from "../support/actions";
 
 beforeEach(() => {
   cy.visit("/");
