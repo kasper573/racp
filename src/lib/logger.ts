@@ -7,7 +7,7 @@ export interface Logger {
   wrap: <Fn extends AnyFn>(
     fn: Fn,
     functionName?: string,
-    callback?: (...args: Parameters<Fn>) => void
+    emitArgs?: (...args: Parameters<Fn>) => void
   ) => Fn;
   chain: (name: string) => Logger;
 }
@@ -28,10 +28,11 @@ export function createLogger(logFn: LogFn, name?: string): Logger {
     error,
     warn,
     chain,
-    wrap(fn, functionName = fn.name, callback) {
+    wrap(fn, functionName = fn.name, emitArgs) {
       function wrapped(...args: unknown[]) {
         const logFunction = createFunctionLogger(functionName, args, log);
-        (callback as any)?.(...args);
+        (emitArgs as any)?.(...args);
+
         const startTime = Date.now();
         const result = fn(...args);
         if (result instanceof Promise) {
