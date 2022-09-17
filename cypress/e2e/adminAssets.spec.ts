@@ -63,5 +63,8 @@ function uploadAssets() {
   cy.selectFileByName("itemInfo", `${fixtures}/itemInfo_red-potion.lub`);
   cy.selectFileByName("data", `${fixtures}/prontera_poring_red-potion.grf`);
   cy.findByRole("button", { name: "Upload" }).click();
-  cy.contains("Upload complete");
+
+  // For some reason there is flakiness in how long the upload takes.
+  // Most of the time it's fast, but for the off chance that it's slow we raise the timeout.
+  cy.contains("Upload complete", { timeout: 60000 });
 }
