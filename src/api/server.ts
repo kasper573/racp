@@ -56,7 +56,7 @@ const yaml = createYamlDriver({ ...args, logger: logger.chain("yaml") });
 const config = createConfigDriver({ ...args, logger: logger.chain("config") });
 const db = createDatabaseDriver(config);
 const files = createFileStore(
-  path.join(process.cwd(), "data"),
+  path.join(process.cwd(), args.dataFolder),
   logger.chain("fs")
 );
 const npc = createNpcDriver({ ...args, logger: logger.chain("npc") });
@@ -69,7 +69,7 @@ const rpc = createRpcMiddlewareFactory<UserAccessLevel, RpcContext>({
 const formatter = createImageFormatter({ extension: ".png", quality: 70 });
 
 const linker = createPublicFileLinker({
-  directory: path.join(process.cwd(), "assets"),
+  directory: path.join(process.cwd(), args.publicFolder),
   hostname: args.hostname,
   port: args.apiPort,
 });

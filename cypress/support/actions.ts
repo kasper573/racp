@@ -14,5 +14,5 @@ export function assertSignedIn() {
 }
 
 export function removeUGC() {
-  cy.exec("yarn run e2e:reset-db");
+  cy.exec("yarn run remove-ugc");
 }
