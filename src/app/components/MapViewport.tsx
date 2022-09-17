@@ -25,6 +25,7 @@ export function MapViewport({
   return (
     <>
       <Viewport
+        data-testid="Map viewport"
         ref={setContainer}
         imageUrl={image?.src}
         style={{

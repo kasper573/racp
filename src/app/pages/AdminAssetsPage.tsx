@@ -72,17 +72,22 @@ export default function AdminAssetsPage() {
         entries.
       </Typography>
 
-      <Stack direction="row" spacing={2} sx={{ margin: "0 auto" }}>
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{ margin: "0 auto", marginBottom: 2 }}
+      >
         {uploader.filesRequired.map(({ name, ext }) => {
           const id = `${name}${ext}`;
           return (
             <FileUploader
+              name={name}
               key={id}
               value={defined([files[id]])}
               accept={ext}
               title=""
               buttonText={`Select ${id}`}
-              isLoading={uploader.isPending}
+              disabled={uploader.isPending}
               onChange={([file]) =>
                 setFiles((current) =>
                   file ? { ...current, [id]: file } : current

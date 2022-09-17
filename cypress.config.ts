@@ -9,5 +9,4 @@ export default defineConfig({
       return dotenvFlowPlugin(config, undefined, true);
     },
   },
-  fixturesFolder: false,
 });

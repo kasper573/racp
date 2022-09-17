@@ -1,0 +1,11 @@
+mapTbl = {
+	["prontera.rsw"] = {
+		displayName = "Prontera, Capital of Rune Midgard",
+		notifyEnter = true, 
+		signName = {
+			subTitle = "Capital of the Rune-Midgarts Kingdom",
+			mainTitle = "Prontera"
+		},
+		backgroundBmp = "village"
+	},
+}
