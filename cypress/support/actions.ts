@@ -13,6 +13,6 @@ export function assertSignedIn() {
   cy.findByTestId("online-badge").should("exist");
 }
 
-export function resetDB() {
+export function removeUGC() {
   cy.exec("yarn run e2e:reset-db");
 }

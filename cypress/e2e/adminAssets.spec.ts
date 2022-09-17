@@ -1,4 +1,4 @@
-import { resetDB, signIn } from "../support/actions";
+import { removeUGC, signIn } from "../support/actions";
 
 beforeEach(() => {
   cy.visit("/");
@@ -10,6 +10,6 @@ describe("admin", () => {
   );
 
   describe("assets", () => {
-    beforeEach(resetDB);
+    beforeEach(removeUGC);
   });
 });
