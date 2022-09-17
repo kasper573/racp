@@ -92,6 +92,15 @@ function stringifyArgs(args: unknown[]) {
   );
 }
 
+function stringifyResult(result: unknown) {
+  const quantity = quantify(result);
+  if (quantity !== undefined) {
+    return `${quantity}`;
+  } else {
+    return `${typeof result}`;
+  }
+}
+
 function simplifyComplexObjects(key: string, value: unknown) {
   if (Array.isArray(value)) {
     return value.slice(0, 3).concat("...");
@@ -100,15 +109,6 @@ function simplifyComplexObjects(key: string, value: unknown) {
     return value.constructor.name;
   }
   return value;
-}
-
-function stringifyResult(result: unknown) {
-  const quantity = quantify(result);
-  if (quantity !== undefined) {
-    return `${quantity}`;
-  } else {
-    return `${typeof result}`;
-  }
 }
 
 function quantify(value: unknown) {
