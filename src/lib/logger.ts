@@ -62,8 +62,8 @@ function createFunctionLogger(
 ) {
   return (result: unknown, startTime: number) =>
     log(
-      createFunctionLogPrefix(functionName, args, startTime),
-      stringifyResult(result)
+      createFunctionLogPrefix(functionName, args, startTime) +
+        stringifyResult(result)
     );
 }
 
@@ -74,7 +74,7 @@ export function createFunctionLogPrefix(
 ) {
   return `(${Date.now() - startTime}ms) ${functionName}(${stringifyArgs(
     args
-  )})`;
+  )}) -> `;
 }
 
 function stringifyArgs(args: unknown[]) {
@@ -103,9 +103,11 @@ function simplifyComplexObjects(key: string, value: unknown) {
 }
 
 function stringifyResult(result: unknown) {
-  const value = quantify(result);
-  if (value !== undefined) {
-    return `-> ${value}`;
+  const quantity = quantify(result);
+  if (quantity !== undefined) {
+    return `${quantity}`;
+  } else {
+    return `${typeof result}`;
   }
 }
 
