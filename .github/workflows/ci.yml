@@ -56,13 +56,17 @@ jobs:
           chmod -R a+rwX ./node_modules/rathena
           chmod -R a+rwX ./cypress
 
-      - run: yarn e2e:ci:run
+      - name: Configure rAthena
+        run: yarn configure-rathena
         env:
           MYSQL_PORT: 3306
           MYSQL_HOST: db
           MYSQL_USER: ragnarok
           MYSQL_PASSWORD: ragnarok
           MYSQL_DATABASE: ragnarok
+
+      - run: yarn e2e:ci:run
+        env:
           NODE_ENV: production
           apiPort: 8081
           appPort: 8080
