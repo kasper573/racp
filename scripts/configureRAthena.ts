@@ -89,7 +89,7 @@ async function configureRAthena() {
   conn.destroy();
   await db.destroy();
   logger.log("Finished configuring RAthena");
-  process.exit(exitCode);
+  return exitCode;
 }
 
 async function runSqlFile(
@@ -119,4 +119,4 @@ function runQuery(conn: mysql.Connection, query: string) {
   );
 }
 
-configureRAthena();
+configureRAthena().then(process.exit);
