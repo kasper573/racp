@@ -1,16 +1,10 @@
-import {
-  gotoItem,
-  gotoMap,
-  gotoMonster,
-  removeUGC,
-  signIn,
-} from "../support/actions";
+import { gotoItem, gotoMap, gotoMonster, signIn } from "../support/actions";
 
 describe("after uploading assets", () => {
   before(() => {
     cy.visit("/");
     signIn(Cypress.env("ADMIN_USER"), Cypress.env("ADMIN_PASSWORD"));
-    removeUGC();
+    //removeUGC();
     uploadAssets();
   });
 
@@ -24,7 +18,7 @@ describe("after uploading assets", () => {
     });
 
     it("has image", () => {
-      cy.findByTestId("Map viewport").should("have.css", "background-image");
+      cy.findByTestId("Map viewport").isFixtureImage("prontera.png");
     });
   });
 
@@ -34,7 +28,7 @@ describe("after uploading assets", () => {
     it("exists", () => cy.contains("Poring"));
 
     it("has image", () => {
-      cy.findByRole("img", { name: "Poring" });
+      cy.findByRole("img", { name: "Poring" }).isFixtureImage("poring.png");
     });
   });
 
@@ -49,7 +43,9 @@ describe("after uploading assets", () => {
     });
 
     it("has image", () => {
-      cy.findByRole("img", { name: "Red Potion" });
+      cy.findByRole("img", { name: "Red Potion" }).isFixtureImage(
+        "red_potion.png"
+      );
     });
   });
 });

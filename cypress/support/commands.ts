@@ -11,6 +11,24 @@ Cypress.Commands.add("selectFileByName", (name, files, options) => {
   );
 });
 
+Cypress.Commands.add(
+  "isFixtureImage",
+  { prevSubject: true },
+  (subject: HTMLImageElement, fixtureImage) => {
+    cy.wrap(subject).each(async (el) => {
+      const src = el.attr("src")! || stripCssUrl(el.css("background-image"));
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      expect(src).not.to.be.empty;
+
+      const imageData = new Uint8Array(await (await fetch(src)).arrayBuffer());
+      cy.fixture(fixtureImage, null).then(async (buffer: Buffer) => {
+        const fixtureData = new Uint8Array(buffer);
+        expect(imageData).deep.equal(fixtureData, "Image data is equal");
+      });
+    });
+  }
+);
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -19,6 +37,11 @@ declare global {
         files: FileReference | FileReference[],
         options?: Partial<SelectFileOptions>
       ): Chainable<Element>;
+
+      isFixtureImage(fixtureImage: string): Chainable<Element>;
     }
   }
 }
+
+const stripCssUrl = (url = "") =>
+  url.replace(/^url\(["']?/, "").replace(/["']?\)$/, "");
