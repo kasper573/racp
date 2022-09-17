@@ -64,7 +64,8 @@ export function createMapRepository({
   return {
     getMaps,
     updateInfo: infoFile.update,
-    countImages: () => fs.readdirSync(mapLinker.directory).length,
+    countImages: () =>
+      fs.promises.readdir(mapLinker.directory).then((dirs) => dirs.length),
     warps: npc.resolve("scripts_warps.conf", warpType),
     updateImages: createImageUpdater(formatter, mapLinker),
     async updateBounds(registryChanges: MapBoundsRegistry) {

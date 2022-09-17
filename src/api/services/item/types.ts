@@ -6,16 +6,17 @@ import { itemScriptType } from "./util/itemScriptType";
 
 export type Item = zod.infer<typeof itemType>;
 
+export type ItemId = zod.infer<typeof itemIdType>;
 export const itemIdType = zod.number();
 
 // ItemInfo is a separate type because it's loaded separately from client data
 export type ItemInfo = zod.infer<typeof itemInfoType>;
 export const itemInfoType = zod.object({
   unidentifiedDisplayName: clientTextType,
-  unidentifiedResourceName: clientTextType,
+  unidentifiedResourceName: zod.string(),
   unidentifiedDescriptionName: zod.array(clientTextType),
   identifiedDisplayName: clientTextType,
-  identifiedResourceName: clientTextType,
+  identifiedResourceName: zod.string(),
   identifiedDescriptionName: zod.array(clientTextType),
   slotCount: zod.number(),
   ClassNum: zod.number(),

@@ -24,14 +24,8 @@ export async function mapController(repo: MapRepository) {
       }
       return item;
     },
-    async countMapImages() {
-      return repo.countImages();
-    },
-    async uploadMapImages(files) {
-      return repo.updateImages(
-        files.map(({ name, data }) => ({ name, data: new Uint8Array(data) }))
-      );
-    },
+    countMapImages: repo.countImages,
+    uploadMapImages: repo.updateImages,
     async countMapInfo() {
       return Object.keys(await repo.getMaps()).length;
     },

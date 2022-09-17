@@ -14,6 +14,7 @@ import { Header } from "../layout/Header";
 
 import { ErrorMessage } from "../components/ErrorMessage";
 import {
+  useCountItemImagesQuery,
   useCountItemInfoQuery,
   useCountMapBoundsQuery,
   useCountMapImagesQuery,
@@ -22,29 +23,38 @@ import {
   useGetMonstersMissingImagesQuery,
 } from "../state/client";
 import { FileUploader } from "../components/FileUploader";
-import { useAssetUploader } from "../hooks/useAssetUploader";
+import {
+  UploaderFileName,
+  uploaderFilesRequired,
+  useAssetUploader,
+} from "../hooks/useAssetUploader";
 import { useBlockNavigation } from "../../lib/useBlockNavigation";
 import { MonsterGrid } from "../grids/MonsterGrid";
 import { ProgressButton } from "../components/ProgressButton";
 import { defined } from "../../lib/defined";
+import { typedKeys } from "../../lib/typedKeys";
 
 export default function AdminAssetsPage() {
-  const [files, setFiles] = useState<Record<string, File>>({});
+  const [files, setFiles] = useState<Partial<Record<UploaderFileName, File>>>(
+    {}
+  );
   const { data: mapImageCount = 0 } = useCountMapImagesQuery();
   const { data: mapInfoCount = 0 } = useCountMapInfoQuery();
   const { data: mapBoundsCount = 0 } = useCountMapBoundsQuery();
   const { data: missingMapData } = useGetMissingMapDataQuery();
   const { data: itemInfoCount = 0 } = useCountItemInfoQuery();
+  const { data: itemImageCount = 0 } = useCountItemImagesQuery();
   const { data: idsOfMonstersMissingImages = [] } =
     useGetMonstersMissingImagesQuery();
 
   const uploader = useAssetUploader();
-  const isReadyToUpload =
-    Object.keys(files).length === uploader.filesRequired.length;
+  const isReadyToUpload = !!(files.mapInfo && files.itemInfo && files.data);
 
   async function uploadFiles() {
     try {
-      await uploader.upload(Object.values(files));
+      if (isReadyToUpload) {
+        await uploader.upload(files.mapInfo!, files.itemInfo!, files.data!);
+      }
     } finally {
       setFiles({});
     }
@@ -69,7 +79,7 @@ export default function AdminAssetsPage() {
         - Map database currently contain {mapInfoCount} info entries,{" "}
         {mapImageCount} images and {mapBoundsCount} bounds.
         <br />- Item database currently contain {itemInfoCount} item info
-        entries.
+        entries and {itemImageCount} images.
       </Typography>
 
       <Stack
@@ -77,20 +87,19 @@ export default function AdminAssetsPage() {
         spacing={2}
         sx={{ margin: "0 auto", marginBottom: 2 }}
       >
-        {uploader.filesRequired.map(({ name, ext }) => {
-          const id = `${name}${ext}`;
+        {typedKeys(uploaderFilesRequired).map((name) => {
+          const ext = uploaderFilesRequired[name];
           return (
             <FileUploader
               name={name}
-              key={id}
-              value={defined([files[id]])}
+              key={name}
+              value={defined([files?.[name]])}
               accept={ext}
-              title=""
-              buttonText={`Select ${id}`}
+              buttonText={`Select ${name}${ext}`}
               disabled={uploader.isPending}
               onChange={([file]) =>
                 setFiles((current) =>
-                  file ? { ...current, [id]: file } : current
+                  file ? { ...current, [name]: file } : current
                 )
               }
             />

@@ -4,23 +4,19 @@ import { monsterFilter, monsterSpawnFilter } from "./types";
 import { monsterDefinition } from "./definition";
 import { MonsterRepository } from "./repository";
 
-export async function monsterController(monsters: MonsterRepository) {
+export async function monsterController(repo: MonsterRepository) {
   return createRpcController(monsterDefinition.entries, {
     searchMonsters: createSearchController(
-      async () => Array.from((await monsters.map).values()),
+      async () => Array.from((await repo.map).values()),
       (entity, payload) => monsterFilter.for(payload)(entity)
     ),
     searchMonsterSpawns: createSearchController(
-      async () => monsters.spawns,
+      async () => repo.spawns,
       (entity, payload) => monsterSpawnFilter.for(payload)(entity)
     ),
-    async uploadMonsterImages(files) {
-      return monsters.updateImages(
-        files.map(({ name, data }) => ({ name, data: new Uint8Array(data) }))
-      );
-    },
+    uploadMonsterImages: repo.updateImages,
     async getMonstersMissingImages() {
-      const monstersWithMissingImages = await monsters.missingImages();
+      const monstersWithMissingImages = await repo.missingImages();
       return monstersWithMissingImages.map((m) => m.Id);
     },
   });

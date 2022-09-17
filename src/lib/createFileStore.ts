@@ -21,31 +21,36 @@ export function createFileStore(directory: string, logger: Logger) {
       const watcher = watchFileInDirectory(directory, relativeFilename, reload);
       let currentData: Data | undefined;
 
+      function setData (data?: Data) {
+        currentData = data;
+        entryLogger.log(
+          "updated, new data:",
+          currentData === undefined ? "undefined" : JSON.stringify(currentData)
+        );
+        onChange?.(data);
+      }
+
       function reload() {
         try {
           const fileContent = fs.readFileSync(filename, "utf-8");
           const res = parseFileContent(fileContent);
           if (res.success) {
-            currentData = res.data;
+            setData(res.data)
           } else {
             entryLogger.log(
               `Could not load file, failed to parse its content. Received error: ${res}`
             );
           }
         } catch {
-          currentData = undefined;
+          setData(undefined);
         }
-        entryLogger.log(
-          "updated, new data:",
-          currentData === undefined ? "undefined" : JSON.stringify(currentData)
-        );
-        onChange?.(currentData);
       }
 
       function update(fileContent: string) {
         const res = parseFileContent(fileContent);
         if (res.success) {
           fs.writeFileSync(filename, fileContent, "utf-8");
+          setData(res.data);
         } else {
           entryLogger.log(
             `Could not update file. Failed to parse new content. Received error: ${res}`

@@ -143,10 +143,8 @@ export function createRpcMiddlewareFactory<Auth, Context>({
         const parsedRpcResult = entry.result.safeParse(rpcResult);
         if (!parsedRpcResult.success) {
           routeLogger.log(
-            "Return value had wrong data type",
-            parsedRpcResult,
-            "expected",
-            entry.result
+            "Return value had wrong data type: ",
+            parsedRpcResult.error
           );
           return response.sendStatus(httpStatus.internalServerError);
         }

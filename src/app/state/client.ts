@@ -41,6 +41,8 @@ export const client = createApi({
 });
 
 export const {
+  useCountItemImagesQuery,
+  useUploadItemImagesMutation,
   useRegisterMutation,
   useUpdateMyProfileMutation,
   useGetMyProfileQuery,
