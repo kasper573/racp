@@ -1,4 +1,4 @@
-import { gotoMap, signIn } from "../support/actions";
+import { gotoMap, gotoMonster, signIn } from "../support/actions";
 
 beforeEach(() => {
   cy.visit("/");
@@ -26,6 +26,15 @@ describe("admin", () => {
       it("has image", () => {
         gotoMap("prontera");
         cy.findByTestId("Map viewport").should("have.css", "background-image");
+      });
+    });
+
+    describe("monster", () => {
+      it("exists", () => gotoMonster(1002));
+
+      it("has image", () => {
+        gotoMonster(1002);
+        cy.findByRole("img", { name: "Poring" });
       });
     });
   });

@@ -14,13 +14,21 @@ export function assertSignedIn() {
 }
 
 export function findRowById(id: string) {
-  return cy.findAllByRole("row").filter(`[data-id="${id}"]`);
+  return cy.findByRole("row", {
+    name: (n, e) => e.getAttribute("data-id") === id,
+  });
 }
 
 export function gotoMap(id: string) {
   cy.findByRole("menu", { name: "Main menu" }).findByText("Maps").click();
   cy.findByLabelText("ID").type(id);
   findRowById(id).findByRole("link").click();
+}
+
+export function gotoMonster(id: number) {
+  cy.findByRole("menu", { name: "Main menu" }).findByText("Monsters").click();
+  cy.findByLabelText("ID").type(`${id}`);
+  findRowById(`${id}`).findByRole("link").click();
 }
 
 export function removeUGC() {
