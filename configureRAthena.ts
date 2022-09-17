@@ -11,7 +11,7 @@ import { createYamlDriver } from "./src/api/rathena/YamlDriver";
 import { createUserRepository } from "./src/api/services/user/repository";
 
 /**
- * Updates a clean rathena build with the settings we need to run racp + rathena in docker.
+ * Updates a clean rathena build with the settings we need to run racp + rathena in CI.
  */
 async function configureRAthena() {
   const logger = createLogger(console.log);
