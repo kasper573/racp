@@ -1,5 +1,5 @@
 import { Fragment, ReactElement } from "react";
-import { Stack } from "@mui/material";
+import { Stack, styled } from "@mui/material";
 import { pick } from "lodash";
 import { useRouteParams } from "../../lib/useRouteParams";
 import { Header } from "../layout/Header";
@@ -62,6 +62,7 @@ export default function ItemViewPage(): ReactElement {
             ({itemNameString(displayName, item.Slots)})
           </TooltipText>
         )}
+        {item.ImageUrl && <ItemImage src={item.ImageUrl} alt={item.Name} />}
       </Header>
 
       <Stack spacing={2} direction="column">
@@ -128,3 +129,9 @@ export default function ItemViewPage(): ReactElement {
     </>
   );
 }
+
+const ItemImage = styled("img")`
+  position: absolute;
+  margin-left: 12px;
+  max-height: 75px;
+`;

@@ -33,6 +33,7 @@ export const itemPostProcessType = zod.object({
   Statuses: zod.array(zod.string()),
   Races: zod.array(zod.string()),
   DroppedBy: zod.array(zod.number()), // Monster ids
+  ImageUrl: zod.string().optional(),
 });
 
 export const itemType = zod.object({

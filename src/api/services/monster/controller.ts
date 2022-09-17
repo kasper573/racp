@@ -7,11 +7,11 @@ import { MonsterRepository } from "./repository";
 export async function monsterController(repo: MonsterRepository) {
   return createRpcController(monsterDefinition.entries, {
     searchMonsters: createSearchController(
-      async () => Array.from((await repo.map).values()),
+      async () => Array.from((await repo.getMonsters()).values()),
       (entity, payload) => monsterFilter.for(payload)(entity)
     ),
     searchMonsterSpawns: createSearchController(
-      async () => repo.spawns,
+      repo.getSpawns,
       (entity, payload) => monsterSpawnFilter.for(payload)(entity)
     ),
     uploadMonsterImages: repo.updateImages,

@@ -8,21 +8,19 @@ import { ItemRepository } from "./repository";
 export function itemController(repo: ItemRepository) {
   return createRpcController(itemDefinition.entries, {
     searchItems: createSearchController(
-      async () => {
-        await repo.ready;
-        return Array.from(repo.map.values());
-      },
+      async () => Array.from((await repo.getItems()).values()),
       (entity, payload) => itemFilter.for(payload)(entity)
     ),
     async getItem(itemId) {
-      const item = repo.map.get(itemId);
+      const map = await repo.getItems();
+      const item = map.get(itemId);
       if (!item) {
         throw new RpcException("Invalid item id");
       }
       return item;
     },
     async countItemInfo() {
-      return Object.keys(repo.info).length;
+      return repo.countInfo();
     },
     async uploadItemInfo([luaFile]) {
       if (!luaFile) {

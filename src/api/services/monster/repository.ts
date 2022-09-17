@@ -32,6 +32,7 @@ export function createMonsterRepository({
     formatter.fileExtension
   );
 
+  const spawns = npc.resolve("scripts_monsters.conf", monsterSpawnType);
   const monsters = yaml.resolve("db/mob_db.yml", monsterResolver);
 
   const imageFileWatcher = fs.watch(
@@ -45,8 +46,8 @@ export function createMonsterRepository({
   );
 
   return {
-    spawns: npc.resolve("scripts_monsters.conf", monsterSpawnType),
-    map: monsters,
+    getSpawns: () => spawns,
+    getMonsters: () => monsters,
     updateImages: createImageUpdater(formatter, imageLinker),
     missingImages: () =>
       monsters.then((map) =>

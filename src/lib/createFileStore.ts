@@ -12,8 +12,7 @@ export function createFileStore(directory: string, logger: Logger) {
     directory,
     entry<Data>(
       relativeFilename: string,
-      parseFileContent: ContentParser<Data>,
-      onChange?: (data?: Data) => void
+      parseFileContent: ContentParser<Data>
     ): FileStoreEntry<Data> {
       const entryLogger = logger.chain(relativeFilename);
       const filename = path.resolve(directory, relativeFilename);
@@ -21,13 +20,12 @@ export function createFileStore(directory: string, logger: Logger) {
       const watcher = watchFileInDirectory(directory, relativeFilename, reload);
       let currentData: Data | undefined;
 
-      function setData (data?: Data) {
+      function setData(data?: Data) {
         currentData = data;
         entryLogger.log(
           "updated, new data:",
           currentData === undefined ? "undefined" : JSON.stringify(currentData)
         );
-        onChange?.(data);
       }
 
       function reload() {
@@ -35,7 +33,7 @@ export function createFileStore(directory: string, logger: Logger) {
           const fileContent = fs.readFileSync(filename, "utf-8");
           const res = parseFileContent(fileContent);
           if (res.success) {
-            setData(res.data)
+            setData(res.data);
           } else {
             entryLogger.log(
               `Could not load file, failed to parse its content. Received error: ${res}`

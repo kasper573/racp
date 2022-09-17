@@ -144,9 +144,9 @@ export function useAssetUploader() {
       }))
     );
 
-    tracker.track([
+    await tracker.track([
       {
-        group: "Uploading monster images",
+        group: "Uploading monster image packs",
         fn: () => uploadMonsterImages(monsterImages),
       },
     ]);
@@ -157,6 +157,7 @@ export function useAssetUploader() {
       {
         group: "Uploading item info",
         fn: async () => updateItemInfo([await toRpcFile(infoFile)]).unwrap(),
+        schedule: { priority: 0 },
       },
     ]);
 
@@ -175,14 +176,22 @@ export function useAssetUploader() {
         },
       }))
     );
-    await uploadItemImages(itemImages);
+
+    await tracker.track([
+      {
+        group: "Uploading item image packs",
+        fn: () => uploadItemImages(itemImages),
+      },
+    ]);
   }
 
   async function upload(mapInfoFile: File, itemInfoFile: File, grfFile: File) {
     setCustomErrors([]);
     tracker.reset();
 
-    uploadMapInfoLubFiles([mapInfoFile]);
+    const nonBlockingPromises: Promise<unknown>[] = [];
+
+    nonBlockingPromises.push(uploadMapInfoLubFiles([mapInfoFile]));
 
     const [grf] = await tracker.track([
       {
@@ -191,9 +200,13 @@ export function useAssetUploader() {
       },
     ]);
 
-    uploadMapDataFromGRF(grf);
-    uploadMonsterImagesFromGRF(grf);
-    uploadItemInfoAndImages(grf, itemInfoFile);
+    nonBlockingPromises.push(
+      uploadMapDataFromGRF(grf),
+      uploadMonsterImagesFromGRF(grf),
+      uploadItemInfoAndImages(grf, itemInfoFile)
+    );
+
+    await Promise.all(nonBlockingPromises);
   }
 
   return {
