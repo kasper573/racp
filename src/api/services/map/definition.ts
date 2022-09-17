@@ -41,11 +41,10 @@ export const mapDefinition = createRpcDefinition({
         auth: UserAccessLevel.Admin,
         tags: imageTag.many(),
       })
-      .fileUpload(
-        "uploadMapImages",
-        zod.object({ success: zod.number(), failed: zod.number() }),
-        { auth: UserAccessLevel.Admin, tags: imageTag.many() }
-      )
+      .fileUpload("uploadMapImages", zod.void(), {
+        auth: UserAccessLevel.Admin,
+        tags: imageTag.many(),
+      })
       .query("countMapBounds", zod.void(), zod.number(), {
         auth: UserAccessLevel.Admin,
         tags: boundsTag.many(),

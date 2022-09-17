@@ -2,7 +2,13 @@ import { isPlainObject } from "lodash";
 
 export interface Logger {
   log: LogFn;
-  wrap: <Fn extends AnyFn>(fn: Fn, functionName?: string) => Fn;
+  warn: LogFn;
+  error: LogFn;
+  wrap: <Fn extends AnyFn>(
+    fn: Fn,
+    functionName?: string,
+    emitArgs?: (...args: Parameters<Fn>) => void
+  ) => Fn;
   chain: (name: string) => Logger;
 }
 
@@ -14,21 +20,28 @@ export type AnyFn = (...args: any[]) => any;
 export function createLogger(logFn: LogFn, name?: string): Logger {
   const log = name ? createNamedLogFn(logFn, name) : logFn;
   const chain = (name: string) => createLogger(log, name);
+  const error: LogFn = (...args) => log("\x1b[31m", ...args, "\x1b[0m");
+  const warn: LogFn = (...args) => log("\x1b[33m", ...args, "\x1b[0m");
 
   return {
     log,
+    error,
+    warn,
     chain,
-    wrap(fn, functionName = fn.name) {
+    wrap(fn, functionName = fn.name, emitArgs) {
       function wrapped(...args: unknown[]) {
         const logFunction = createFunctionLogger(functionName, args, log);
+        (emitArgs as any)?.(...args);
+
+        const startTime = Date.now();
         const result = fn(...args);
         if (result instanceof Promise) {
           return result.then((value) => {
-            logFunction(value);
+            logFunction(value, startTime);
             return value;
           });
         } else {
-          logFunction(result);
+          logFunction(result, startTime);
           return result;
         }
       }
@@ -47,11 +60,21 @@ function createFunctionLogger(
   args: unknown[],
   log: LogFn
 ) {
-  const functionCallId = `${functionName}(${stringifyArgs(args)})`;
-  const startTime = Date.now();
-  const delta = Date.now() - startTime;
-  return (result: unknown) =>
-    log(`(${delta}ms)`, functionCallId, stringifyResult(result));
+  return (result: unknown, startTime: number) =>
+    log(
+      createFunctionLogPrefix(functionName, args, startTime) +
+        stringifyResult(result)
+    );
+}
+
+export function createFunctionLogPrefix(
+  functionName: string,
+  args: unknown[],
+  startTime: number
+) {
+  return `(${Date.now() - startTime}ms) ${functionName}(${stringifyArgs(
+    args
+  )}) -> `;
 }
 
 function stringifyArgs(args: unknown[]) {
@@ -69,6 +92,15 @@ function stringifyArgs(args: unknown[]) {
   );
 }
 
+function stringifyResult(result: unknown) {
+  const quantity = quantify(result);
+  if (quantity !== undefined) {
+    return `${quantity}`;
+  } else {
+    return `${typeof result}`;
+  }
+}
+
 function simplifyComplexObjects(key: string, value: unknown) {
   if (Array.isArray(value)) {
     return value.slice(0, 3).concat("...");
@@ -77,13 +109,6 @@ function simplifyComplexObjects(key: string, value: unknown) {
     return value.constructor.name;
   }
   return value;
-}
-
-function stringifyResult(result: unknown) {
-  const value = quantify(result);
-  if (value !== undefined) {
-    return `-> ${value}`;
-  }
 }
 
 function quantify(value: unknown) {

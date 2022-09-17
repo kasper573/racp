@@ -41,6 +41,8 @@ export const client = createApi({
 });
 
 export const {
+  useCountItemImagesQuery,
+  useUploadItemImagesMutation,
   useRegisterMutation,
   useUpdateMyProfileMutation,
   useGetMyProfileQuery,
@@ -56,6 +58,7 @@ export const {
   useUploadMapImagesMutation,
   useUploadMonsterImagesMutation,
   useGetMonstersMissingImagesQuery,
+  useGetItemsMissingImagesQuery,
   useSearchMapsQuery,
   useSearchMonsterSpawnsQuery,
   useDecompileLuaTableFilesMutation,

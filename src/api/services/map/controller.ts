@@ -6,64 +6,56 @@ import { MapRepository } from "./repository";
 import { mapDefinition } from "./definition";
 import { mapInfoFilter, warpFilter } from "./types";
 
-export async function mapController(maps: MapRepository) {
+export async function mapController(repo: MapRepository) {
   return createRpcController(mapDefinition.entries, {
     searchMaps: createSearchController(
-      async () => Array.from(Object.values(maps.info)),
+      async () => Array.from((await repo.getMaps()).values()),
       (entity, payload) => mapInfoFilter.for(payload)(entity)
     ),
     searchWarps: createSearchController(
-      () => maps.warps,
+      () => repo.warps,
       (entity, payload) => warpFilter.for(payload)(entity)
     ),
     async getMap(mapId) {
-      const item = maps.info[mapId];
+      const maps = await repo.getMaps();
+      const item = maps.get(mapId);
       if (!item) {
         throw new RpcException("Invalid map id");
       }
       return item;
     },
-    async countMapImages() {
-      return maps.countImages();
-    },
-    async uploadMapImages(files) {
-      return maps.updateImages(
-        files.map(({ name, data }) => ({ name, data: new Uint8Array(data) }))
-      );
-    },
+    countMapImages: repo.countImages,
+    uploadMapImages: repo.updateImages,
     async countMapInfo() {
-      return Object.keys(maps.info).length;
+      return Object.keys(await repo.getMaps()).length;
     },
     async uploadMapInfo([file]) {
       if (!file) {
         throw new RpcException("A file must be uploaded");
       }
-      const res = maps.updateInfo(Buffer.from(file.data).toString("utf8"));
+      const res = repo.updateInfo(Buffer.from(file.data).toString("utf8"));
       if (!res.success) {
         throw new Error("File could not be parsed as map info.");
       }
       return Object.values(res.data).map((map) => map.id);
     },
     async updateMapBounds(bounds) {
-      maps.updateBounds(bounds);
+      repo.updateBounds(bounds);
     },
     async countMapBounds() {
-      return Object.keys(maps.mapBounds).length;
+      return repo
+        .getMaps()
+        .then(
+          (record) => Object.values(record).filter((map) => !!map.bounds).length
+        );
     },
     async getMissingMapData() {
+      const maps = Object.values(await repo.getMaps());
       const images = defined(
-        await Promise.all(
-          Object.keys(maps.info).map((id) =>
-            maps.hasImage(id).then((has) => (!has ? id : undefined))
-          )
-        )
+        maps.map(({ id, imageUrl }) => (imageUrl ? id : undefined))
       );
       const bounds = defined(
-        await Promise.all(
-          Object.keys(maps.info).map((id) =>
-            !maps.mapBounds[id] ? id : undefined
-          )
-        )
+        maps.map(({ id, bounds }) => (bounds ? id : undefined))
       );
       return { images, bounds };
     },

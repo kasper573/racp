@@ -2,19 +2,21 @@ import * as fs from "fs";
 import * as path from "path";
 import { pick } from "lodash";
 import * as mysql from "mysql";
-import { createLogger, Logger } from "./src/lib/logger";
-import { readCliArgs } from "./src/api/util/cli";
-import { options } from "./src/api/options";
-import { createConfigDriver } from "./src/api/rathena/ConfigDriver";
-import { createDatabaseDriver } from "./src/api/rathena/DatabaseDriver";
-import { createYamlDriver } from "./src/api/rathena/YamlDriver";
-import { createUserRepository } from "./src/api/services/user/repository";
+import { createLogger, Logger } from "../src/lib/logger";
+import { readCliArgs } from "../src/api/util/cli";
+import { options } from "../src/api/options";
+import { createConfigDriver } from "../src/api/rathena/ConfigDriver";
+import { createDatabaseDriver } from "../src/api/rathena/DatabaseDriver";
+import { createYamlDriver } from "../src/api/rathena/YamlDriver";
+import { createUserRepository } from "../src/api/services/user/repository";
 
 /**
- * Updates a clean rathena build with the settings we need to run racp + rathena in docker.
+ * Updates a clean rathena build with the settings we need to run racp + rathena in CI.
  */
 async function configureRAthena() {
-  const logger = createLogger(console.log);
+  let exitCode = 0;
+
+  const logger = createLogger(console.log).chain("configureRAthena");
   const args = readCliArgs({
     ...pick(options, "rAthenaPath", "adminPermissionName", "rAthenaMode"),
     MYSQL_HOST: { type: "string", required: true },
@@ -26,11 +28,13 @@ async function configureRAthena() {
     ADMIN_PASSWORD: { type: "string", required: true },
   });
 
+  logger.log("args", JSON.stringify(args));
+
   const yaml = createYamlDriver({ ...args, logger });
   const cfg = createConfigDriver({ ...args, logger });
   const user = createUserRepository({ ...args, yaml });
 
-  console.log(`Updating ${cfg.presets.dbInfoConfigName}...`);
+  logger.log(`Updating ${cfg.presets.dbInfoConfigName}...`);
   const dbInfo = await cfg.load(cfg.presets.dbInfoConfigName);
   dbInfo.update(
     [
@@ -70,16 +74,22 @@ async function configureRAthena() {
 
   const db = createDatabaseDriver(cfg);
 
-  await db.login.table("login").insert({
+  const newAccountIds = await db.login.table("login").insert({
     userid: args.ADMIN_USER,
     user_pass: args.ADMIN_PASSWORD,
     email: "admin@localhost",
     group_id: (await user.adminGroupIds)[0],
   });
 
+  if (!newAccountIds.length) {
+    logger.error("Failed to create admin account");
+    exitCode = 1;
+  }
+
   conn.destroy();
   await db.destroy();
-  console.log("Finished configuring RAthena");
+  logger.log("Finished configuring RAthena");
+  return exitCode;
 }
 
 async function runSqlFile(
@@ -93,7 +103,7 @@ async function runSqlFile(
     logger.log(`Executing SQL: ${file}...`);
     await runQuery(conn, sql);
   } catch (e) {
-    logger.log(`Error while running sql file "${file}": ${e}`);
+    logger.error(`Error while running sql file "${file}": ${e}`);
   }
 }
 
@@ -109,4 +119,4 @@ function runQuery(conn: mysql.Connection, query: string) {
   );
 }
 
-configureRAthena();
+configureRAthena().then(process.exit);

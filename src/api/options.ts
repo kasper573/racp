@@ -44,4 +44,16 @@ export const options = {
     required: true,
     description: "Absolute path to your rAthena folder",
   },
+  dataFolder: {
+    type: "string",
+    default: "data",
+    description:
+      "Folder to store non-public file uploads in (relative to root)",
+  },
+  publicFolder: {
+    type: "string",
+    default: "assets",
+    description:
+      "Folder to mount public web server files in (relative to root)",
+  },
 } as const;

@@ -8,9 +8,12 @@ export async function linkDropsWithItems(
   items: ItemRepository,
   monsters: MonsterRepository
 ) {
-  const [, monsterMap] = await Promise.all([items.ready, monsters.map]);
+  const [itemsMap, monsterMap] = await Promise.all([
+    items.getItems(),
+    monsters.getMonsters(),
+  ]);
   const itemsByAegisName = groupBy(
-    Array.from(items.map.values()),
+    Array.from(itemsMap.values()),
     (item) => item.AegisName
   );
 

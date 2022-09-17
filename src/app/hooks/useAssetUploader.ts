@@ -5,6 +5,7 @@ import { cropSurroundingColors, RGB } from "../../lib/cropSurroundingColors";
 import {
   useDecompileLuaTableFilesMutation,
   useUpdateMapBoundsMutation,
+  useUploadItemImagesMutation,
   useUploadItemInfoMutation,
   useUploadMapImagesMutation,
   useUploadMapInfoMutation,
@@ -14,7 +15,6 @@ import { RpcFile, toRpcFile } from "../../lib/rpc/RpcFile";
 import { GRF } from "../../lib/grf/types/GRF";
 import { GAT } from "../../lib/grf/types/GAT";
 import { readFileStream } from "../../lib/grf/readFileStream";
-import { Monster } from "../../api/services/monster/types";
 import { ReducedLuaTables } from "../../api/services/util/types";
 import { SPR } from "../../lib/grf/types/SPR";
 import { canvasToBlob, imageDataToCanvas } from "../../lib/imageUtils";
@@ -26,6 +26,7 @@ import {
   useTaskScheduler,
 } from "../../lib/useTaskScheduler";
 import { MapBoundsRegistry } from "../../api/services/map/types";
+import { getErrorMessage } from "../components/ErrorMessage";
 
 export function useAssetUploader() {
   const [uploadMapImages, mapImageUpload] = useUploadMapImagesMutation();
@@ -33,7 +34,9 @@ export function useAssetUploader() {
   const [updateMapBounds, mapBoundsUpdate] = useUpdateMapBoundsMutation();
   const [updateItemInfo, itemInfoUpload] = useUploadItemInfoMutation();
   const [uploadMonsterImages] = useUploadMonsterImagesMutation();
+  const [uploadItemImages, itemImageUpload] = useUploadItemImagesMutation();
   const [decompileLuaTables] = useDecompileLuaTableFilesMutation();
+
   const [customErrors, setCustomErrors] = useState<string[]>([]);
 
   const tracker = useTaskScheduler({
@@ -48,7 +51,7 @@ export function useAssetUploader() {
         .reduce(
           (list: TaskRejectionReason[], task) => [
             ...list,
-            `${describeTask(task)}: ${task.rejectionReason}`,
+            `${describeTask(task)}: ${getErrorMessage(task.rejectionReason)}`,
           ],
           []
         ),
@@ -68,6 +71,7 @@ export function useAssetUploader() {
     mapInfoUpload.error,
     mapBoundsUpdate.error,
     itemInfoUpload.error,
+    itemImageUpload.error,
   ]);
 
   const errors = [...serverErrors, ...trackerErrors, ...customErrors];
@@ -122,9 +126,9 @@ export function useAssetUploader() {
         schedule: { priority: 0 },
         group: "Locating monster images",
         fn: () =>
-          determineMonsterSpriteInfo(grf, (files) =>
+          determineMonsterSpriteNames(grf, (files) =>
             decompileLuaTables(files).unwrap()
-          ),
+          ).then((names) => resolveSpriteInfo(grf, names)),
       },
     ]);
 
@@ -140,42 +144,69 @@ export function useAssetUploader() {
       }))
     );
 
-    tracker.track([
+    await tracker.track([
       {
-        group: "Uploading monster images",
+        group: "Uploading monster image packs",
         fn: () => uploadMonsterImages(monsterImages),
       },
     ]);
   }
 
-  async function uploadGRF(grf: GRF) {
-    await Promise.allSettled([
-      uploadMapDataFromGRF(grf),
-      uploadMonsterImagesFromGRF(grf),
+  async function uploadItemInfoAndImages(grf: GRF, infoFile: File) {
+    const [resourceNames] = await tracker.track([
+      {
+        group: "Uploading item info",
+        fn: async () => updateItemInfo([await toRpcFile(infoFile)]).unwrap(),
+        schedule: { priority: 0 },
+      },
+    ]);
+
+    if (!resourceNames) {
+      return;
+    }
+
+    const itemImages = await tracker.track(
+      resolveSpriteInfo(grf, resourceNames).map(({ id, spritePath }) => ({
+        group: "Unpacking item images",
+        id: `Item ID: ${id}, Sprite: "${spritePath}"`,
+        fn: async () => {
+          const file = await grf.getFile(spritePath);
+          const spr = await new SPR(readFileStream, file, `${id}`).load();
+          return toRpcFile(await spriteToTextureFile(spr));
+        },
+      }))
+    );
+
+    await tracker.track([
+      {
+        group: "Uploading item image packs",
+        fn: () => uploadItemImages(itemImages),
+      },
     ]);
   }
 
-  async function upload(files: File[]) {
+  async function upload(mapInfoFile: File, itemInfoFile: File, grfFile: File) {
     setCustomErrors([]);
     tracker.reset();
 
-    const results = await Promise.allSettled(
-      files.map(async (file) => {
-        if (/mapinfo.*\.lub/i.test(file.name)) {
-          await uploadMapInfoLubFiles([file]);
-        } else if (/iteminfo.*\.lub/i.test(file.name)) {
-          await updateItemInfo([await toRpcFile(file)]);
-        } else if (file.name.endsWith(".grf")) {
-          await uploadGRF(await new GRF(readFileStream, file).load());
-        } else {
-          throw new Error(`File name or type not recognized: ${file.name}`);
-        }
-      })
+    const nonBlockingPromises: Promise<unknown>[] = [];
+
+    nonBlockingPromises.push(uploadMapInfoLubFiles([mapInfoFile]));
+
+    const [grf] = await tracker.track([
+      {
+        group: "Loading GRF file",
+        fn: () => new GRF(readFileStream, grfFile).load(),
+      },
+    ]);
+
+    nonBlockingPromises.push(
+      uploadMapDataFromGRF(grf),
+      uploadMonsterImagesFromGRF(grf),
+      uploadItemInfoAndImages(grf, itemInfoFile)
     );
 
-    setCustomErrors(
-      defined(results.map((res) => res.status === "rejected" && res.reason))
-    );
+    await Promise.all(nonBlockingPromises);
   }
 
   return {
@@ -183,13 +214,15 @@ export function useAssetUploader() {
     currentActivities,
     upload,
     errors,
-    filesRequired: [
-      { name: "mapInfo", ext: ".lub" },
-      { name: "itemInfo", ext: ".lub" },
-      { name: "data", ext: ".grf" },
-    ],
   };
 }
+
+export type UploaderFileName = keyof typeof uploaderFilesRequired;
+export const uploaderFilesRequired = {
+  mapInfo: ".lub",
+  itemInfo: ".lub",
+  data: ".grf",
+} as const;
 
 const fileNameToMapName = (filename: string) =>
   /([^/\\]+)\.\w+$/.exec(filename)?.[1] ?? "";
@@ -218,10 +251,10 @@ function createMapDataUnpackJobs<Stream>(grf: GRF<Stream>) {
     });
 }
 
-async function determineMonsterSpriteInfo(
+async function determineMonsterSpriteNames(
   grf: GRF,
   decompileLuaTables: (files: RpcFile[]) => Promise<ReducedLuaTables>
-): Promise<MonsterSpriteInfoEntry[]> {
+): Promise<Record<number, string>> {
   const identityFile = await grf
     .getFile("data\\lua files\\datainfo\\npcidentity.lub")
     .then(toRpcFile);
@@ -232,17 +265,22 @@ async function determineMonsterSpriteInfo(
 
   const table = await decompileLuaTables([identityFile, nameFile]);
 
-  const monsterIdToSpriteName = zod.record(zod.string()).parse(table);
+  return zod.record(zod.string()).parse(table);
+}
 
+function resolveSpriteInfo(
+  grf: GRF,
+  idToSpriteName: Record<number, string>
+): SpriteInfo[] {
   const allSpritePaths = Array.from(grf.files.keys()).filter((path) =>
     path.endsWith(".spr")
   );
 
   const findSpritePath = memoize(allSpritePaths.find.bind(allSpritePaths));
 
-  const infoEntries = Object.entries(monsterIdToSpriteName).map(
-    ([monsterId, spriteName]) => ({
-      id: parseInt(monsterId, 10),
+  const infoEntries = Object.entries(idToSpriteName).map(
+    ([id, spriteName]) => ({
+      id: parseInt(id, 10),
       spritePath: findSpritePath((path) =>
         path.endsWith(`\\${spriteName.toLowerCase()}.spr`)
       ),
@@ -250,7 +288,7 @@ async function determineMonsterSpriteInfo(
   );
 
   return infoEntries.filter(
-    (entry): entry is MonsterSpriteInfoEntry => entry.spritePath !== undefined
+    (entry): entry is SpriteInfo => entry.spritePath !== undefined
   );
 }
 
@@ -272,8 +310,8 @@ async function cropMapImage(file: File) {
   return cropSurroundingColors(file, [mapImageCropColor]);
 }
 
-interface MonsterSpriteInfoEntry {
-  id: Monster["Id"];
+interface SpriteInfo {
+  id: number;
   spritePath: string;
 }
 

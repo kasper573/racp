@@ -94,6 +94,7 @@ export default function MapViewPage() {
             {showWarpPins &&
               warps.map((warp, index) => (
                 <MapPin
+                  data-testid="Map pin"
                   key={index}
                   x={warp.fromX}
                   y={warp.fromY}

@@ -14,10 +14,11 @@
     "api:dev": "ts-node-dev --files src/api/server --apiPort 8081",
     "api:prod": "ts-node --files src/api/server",
     "e2e:dev": "cross-env CYPRESS_BASE_URL=http://localhost:8080 cypress open",
-    "e2e:ci:dependencies": "yarn configure-rathena && concurrently \"yarn api:prod\" \"yarn app:prod\"",
+    "e2e:ci:dependencies": "concurrently \"yarn api:prod\" \"yarn app:prod\"",
     "e2e:ci:run": "cross-var npx start-server-and-test e2e:ci:dependencies $CYPRESS_BASE_URL 'cypress run --record'",
-    "codegen": "ts-node src/api/rathena/DatabaseDriver.codegen",
-    "configure-rathena": "ts-node configureRAthena.ts"
+    "remove-ugc": "ts-node --files scripts/removeUGC.ts",
+    "codegen": "ts-node --files scripts/generateRAthenaTypes.ts",
+    "configure-rathena": "ts-node --files scripts/configureRAthena.ts"
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "0.5.7",
@@ -106,7 +107,6 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-helmet-async": "1.3.0",
-    "react-material-file-upload": "0.0.4",
     "react-redux": "8.0.2",
     "react-router": "5.3.3",
     "react-router-dom": "5.3.3",

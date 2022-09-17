@@ -32,6 +32,7 @@ export function TextField({
   return (
     <MuiTextField
       type={type}
+      name={typeof props.label === "string" ? props.label : undefined}
       error={(issues?.length ?? 0) > 0}
       helperText={issues?.join(", ")}
       value={value ?? ""}

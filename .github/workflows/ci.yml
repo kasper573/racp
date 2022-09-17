@@ -39,6 +39,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: "17"
+
       - uses: actions/setup-node@v3
         with:
           node-version: "16"
@@ -51,18 +56,23 @@ jobs:
           chmod -R a+rwX ./node_modules/rathena
           chmod -R a+rwX ./cypress
 
-      - run: yarn e2e:ci:run
+      - name: Configure rAthena
+        run: yarn configure-rathena
         env:
           MYSQL_PORT: 3306
           MYSQL_HOST: db
           MYSQL_USER: ragnarok
           MYSQL_PASSWORD: ragnarok
           MYSQL_DATABASE: ragnarok
+
+      - run: yarn e2e:ci:run
+        env:
           NODE_ENV: production
           apiPort: 8081
           appPort: 8080
           apiBaseUrl: http://localhost:8081
           rAthenaPath: ./node_modules/rathena
+          log: verbose
           CYPRESS_BASE_URL: http://localhost:8080
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}

@@ -1,10 +1,9 @@
 import * as fs from "fs";
 import { FileStore } from "../../../lib/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
-import { Linker } from "../../../lib/createPublicFileLinker";
+import { autoMapLinkerUrls, Linker } from "../../../lib/createPublicFileLinker";
 import { ImageFormatter } from "../../../lib/createImageFormatter";
 import { NpcDriver } from "../../rathena/NpcDriver";
-import { typedAssign } from "../../../lib/typedAssign";
 import { createImageUpdater } from "../../common/createImageUpdater";
 import {
   MapBoundsRegistry,
@@ -27,54 +26,46 @@ export function createMapRepository({
   formatter: ImageFormatter;
   npc: NpcDriver;
 }) {
-  const info: Record<string, MapInfo> = {};
-
-  const mapLinker = linker.chain("maps");
+  const imageLinker = linker.chain("maps");
   const mapImageName = (mapId: string) => `${mapId}${formatter.fileExtension}`;
-  const mapImageUrl = (mapId: string) => mapLinker.url(mapImageName(mapId));
-  const mapImagePath = (mapId: string) => mapLinker.path(mapImageName(mapId));
+  const [imageUrlsPromise, imageWatcher] = autoMapLinkerUrls(imageLinker);
 
-  const infoFile = files.entry("mapInfo.lub", parseMapInfo, (newInfo = {}) => {
-    for (const [key, entry] of Object.entries(newInfo)) {
-      const id = trimExtension(key);
-      info[id] = { ...info[id], ...entry, id, imageUrl: mapImageUrl(id) };
-    }
-  });
-
-  const boundsFile = files.entry(
-    "mapBounds.json",
-    (str) => mapBoundsRegistryType.safeParse(JSON.parse(str)),
-    (newBoundsRegistry) => {
-      for (const [mapId, bounds] of Object.entries(newBoundsRegistry ?? {})) {
-        const entry = info[mapId];
-        if (entry) {
-          typedAssign(entry, { bounds });
-        }
-      }
-    }
+  const infoFile = files.entry("mapInfo.lub", parseMapInfo);
+  const boundsFile = files.entry("mapBounds.json", (str) =>
+    mapBoundsRegistryType.safeParse(JSON.parse(str))
   );
 
+  async function getMaps() {
+    const imageUrls = await imageUrlsPromise;
+    return Object.entries(infoFile.data ?? {}).reduce((all, [key, info]) => {
+      const id = trimExtension(key);
+      return all.set(id, {
+        ...info,
+        id,
+        bounds: boundsFile.data?.[id],
+        imageUrl: imageUrls.get(mapImageName(id)),
+      });
+    }, new Map<MapId, MapInfo>());
+  }
+
   return {
-    info,
+    getMaps,
     updateInfo: infoFile.update,
-    countImages: () => fs.readdirSync(mapLinker.directory).length,
+    countImages: () =>
+      fs.promises.readdir(imageLinker.directory).then((dirs) => dirs.length),
     warps: npc.resolve("scripts_warps.conf", warpType),
-    async hasImage(mapId: MapId) {
-      return fs.promises
-        .access(mapImagePath(mapId))
-        .then(() => true)
-        .catch(() => false);
-    },
-    updateImages: createImageUpdater(formatter, mapLinker),
-    get mapBounds() {
-      return boundsFile.data ?? {};
-    },
+    updateImages: createImageUpdater(formatter, imageLinker),
     async updateBounds(registryChanges: MapBoundsRegistry) {
       const updatedRegistry = {
         ...(boundsFile.data ?? {}),
         ...registryChanges,
       };
       boundsFile.update(JSON.stringify(updatedRegistry, null, 2));
+    },
+    destroy: () => {
+      infoFile.close();
+      boundsFile.close();
+      imageWatcher.close();
     },
   };
 }

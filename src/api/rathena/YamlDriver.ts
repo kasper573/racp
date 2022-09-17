@@ -26,7 +26,7 @@ export function createYamlDriver({
     } catch (e) {
       // "File not found" errors are permitted, so we don't log them.
       if ((e as NodeJS.ErrnoException)?.code !== "ENOENT") {
-        logger.log(`Error while loading node: "${filePath}"`, e);
+        logger.error(`Error while loading node: "${filePath}"`, e);
       }
       return;
     }

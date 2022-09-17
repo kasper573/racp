@@ -9,44 +9,60 @@ import {
   Typography,
 } from "@mui/material";
 import { ExpandMore } from "@mui/icons-material";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Header } from "../layout/Header";
 
 import { ErrorMessage } from "../components/ErrorMessage";
 import {
+  useCountItemImagesQuery,
   useCountItemInfoQuery,
   useCountMapBoundsQuery,
   useCountMapImagesQuery,
   useCountMapInfoQuery,
+  useGetItemsMissingImagesQuery,
   useGetMissingMapDataQuery,
   useGetMonstersMissingImagesQuery,
 } from "../state/client";
 import { FileUploader } from "../components/FileUploader";
-import { useAssetUploader } from "../hooks/useAssetUploader";
+import {
+  UploaderFileName,
+  uploaderFilesRequired,
+  useAssetUploader,
+} from "../hooks/useAssetUploader";
 import { useBlockNavigation } from "../../lib/useBlockNavigation";
-import { MonsterGrid } from "../grids/MonsterGrid";
 import { ProgressButton } from "../components/ProgressButton";
 import { defined } from "../../lib/defined";
+import { typedKeys } from "../../lib/typedKeys";
+import { Link, LinkTo } from "../components/Link";
+import { router } from "../router";
 
 export default function AdminAssetsPage() {
-  const [files, setFiles] = useState<Record<string, File>>({});
+  const [message, setMessage] = useState<string>();
+  const [files, setFiles] = useState<Partial<Record<UploaderFileName, File>>>(
+    {}
+  );
   const { data: mapImageCount = 0 } = useCountMapImagesQuery();
   const { data: mapInfoCount = 0 } = useCountMapInfoQuery();
   const { data: mapBoundsCount = 0 } = useCountMapBoundsQuery();
   const { data: missingMapData } = useGetMissingMapDataQuery();
   const { data: itemInfoCount = 0 } = useCountItemInfoQuery();
-  const { data: idsOfMonstersMissingImages = [] } =
+  const { data: itemImageCount = 0 } = useCountItemImagesQuery();
+  const { data: missingMonsterImages = [] } =
     useGetMonstersMissingImagesQuery();
+  const { data: missingItemImages = [] } = useGetItemsMissingImagesQuery();
 
   const uploader = useAssetUploader();
-  const isReadyToUpload =
-    Object.keys(files).length === uploader.filesRequired.length;
+  const isReadyToUpload = !!(files.mapInfo && files.itemInfo && files.data);
 
   async function uploadFiles() {
+    setMessage(undefined);
     try {
-      await uploader.upload(Object.values(files));
+      if (isReadyToUpload) {
+        await uploader.upload(files.mapInfo!, files.itemInfo!, files.data!);
+      }
     } finally {
       setFiles({});
+      setMessage("Upload complete");
     }
   }
 
@@ -69,23 +85,27 @@ export default function AdminAssetsPage() {
         - Map database currently contain {mapInfoCount} info entries,{" "}
         {mapImageCount} images and {mapBoundsCount} bounds.
         <br />- Item database currently contain {itemInfoCount} item info
-        entries.
+        entries and {itemImageCount} images.
       </Typography>
 
-      <Stack direction="row" spacing={2} sx={{ margin: "0 auto" }}>
-        {uploader.filesRequired.map(({ name, ext }) => {
-          const id = `${name}${ext}`;
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{ margin: "0 auto", marginBottom: 2 }}
+      >
+        {typedKeys(uploaderFilesRequired).map((name) => {
+          const ext = uploaderFilesRequired[name];
           return (
             <FileUploader
-              key={id}
-              value={defined([files[id]])}
+              name={name}
+              key={name}
+              value={defined([files?.[name]])}
               accept={ext}
-              title=""
-              buttonText={`Select ${id}`}
-              isLoading={uploader.isPending}
+              buttonText={`Select ${name}${ext}`}
+              disabled={uploader.isPending}
               onChange={([file]) =>
                 setFiles((current) =>
-                  file ? { ...current, [id]: file } : current
+                  file ? { ...current, [name]: file } : current
                 )
               }
             />
@@ -105,6 +125,12 @@ export default function AdminAssetsPage() {
           </ProgressButton>
         </Box>
       </Tooltip>
+
+      {message && (
+        <Typography color="green" sx={{ textAlign: "center", marginBottom: 2 }}>
+          {message}
+        </Typography>
+      )}
 
       {uploader.isPending && (
         <LinearProgress
@@ -144,22 +170,33 @@ export default function AdminAssetsPage() {
 
       <Typography paragraph>Any missing data will be listed below.</Typography>
 
-      {idsOfMonstersMissingImages.length > 0 && (
+      {missingMonsterImages.length > 0 && (
         <Accordion sx={{ [`&&`]: { marginTop: 0 } }}>
           <AccordionSummary expandIcon={<ExpandMore />}>
             <Typography>
-              Missing monster images ({idsOfMonstersMissingImages.length})
+              Missing monster images ({missingMonsterImages.length})
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <MonsterGrid
-              sx={{ height: "383px" }}
-              filter={{
-                Id: {
-                  value: idsOfMonstersMissingImages,
-                  matcher: "oneOfN",
-                },
-              }}
+            <LargeStringList
+              values={missingMonsterImages}
+              link={(id) => router.monster().view({ id })}
+            />
+          </AccordionDetails>
+        </Accordion>
+      )}
+
+      {missingItemImages.length > 0 && (
+        <Accordion sx={{ [`&&`]: { marginTop: 0 } }}>
+          <AccordionSummary expandIcon={<ExpandMore />}>
+            <Typography>
+              Missing item images ({missingItemImages.length})
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <LargeStringList
+              values={missingItemImages}
+              link={(id) => router.item().view({ id })}
             />
           </AccordionDetails>
         </Accordion>
@@ -173,9 +210,10 @@ export default function AdminAssetsPage() {
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography sx={{ maxHeight: 300, overflowY: "auto" }}>
-              {missingMapData.images.join(", ")}
-            </Typography>
+            <LargeStringList
+              values={missingMapData.images}
+              link={(id) => router.map().view({ id })}
+            />
           </AccordionDetails>
         </Accordion>
       )}
@@ -188,9 +226,10 @@ export default function AdminAssetsPage() {
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography sx={{ maxHeight: 300, overflowY: "auto" }}>
-              {missingMapData.bounds.join(", ")}
-            </Typography>
+            <LargeStringList
+              values={missingMapData.bounds}
+              link={(id) => router.map().view({ id })}
+            />
           </AccordionDetails>
         </Accordion>
       )}
@@ -207,5 +246,27 @@ export default function AdminAssetsPage() {
         re-uploading them to RACP.
       </Typography>
     </>
+  );
+}
+
+function LargeStringList<T>({
+  values,
+  max = 100,
+  link,
+}: {
+  values: T[];
+  link?: (value: T) => LinkTo;
+  max?: number;
+}) {
+  return (
+    <Typography sx={{ maxHeight: 300, overflowY: "auto" }}>
+      {values.slice(0, max).map((value, index) => (
+        <Fragment key={index}>
+          {index > 0 && ", "}
+          {link ? <Link to={link(value)}>{`${value}`}</Link> : `${value}`}
+        </Fragment>
+      ))}
+      {values.length > 100 && ` (and ${values.length - max} more)`}
+    </Typography>
   );
 }

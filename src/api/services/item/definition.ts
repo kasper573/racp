@@ -3,7 +3,7 @@ import { createTagFactory } from "../../../lib/createTagFactory";
 import { createRpcDefinition } from "../../util/rpc";
 import { UserAccessLevel } from "../user/types";
 import { createSearchTypes } from "../../common/search";
-import { itemIdType, itemFilter, itemType } from "./types";
+import { itemFilter, itemIdType, itemType } from "./types";
 
 const tag = createTagFactory("Item");
 
@@ -17,8 +17,22 @@ export const itemDefinition = createRpcDefinition({
         tags: ["ITEM_INFO"],
         auth: UserAccessLevel.Admin,
       })
-      .fileUpload("uploadItemInfo", zod.void(), {
+      .fileUpload("uploadItemInfo", zod.record(zod.string()), {
         tags: ["ITEM_INFO"],
         auth: UserAccessLevel.Admin,
-      }),
+      })
+      .query("countItemImages", zod.void(), zod.number(), {
+        tags: ["ITEM_IMAGES"],
+        auth: UserAccessLevel.Admin,
+      })
+      .fileUpload("uploadItemImages", zod.void(), {
+        tags: ["ITEM_IMAGES"],
+        auth: UserAccessLevel.Admin,
+      })
+      .query(
+        "getItemsMissingImages",
+        zod.void(),
+        zod.array(itemType.shape["Id"]),
+        { tags: ["ITEM_IMAGES"] }
+      ),
 });

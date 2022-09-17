@@ -37,9 +37,7 @@ function collect(
       item.AegisName,
       item.AliasName,
       clientTextContent(item.Info?.identifiedDisplayName),
-      clientTextContent(item.Info?.identifiedResourceName),
       clientTextContent(item.Info?.unidentifiedDisplayName),
-      clientTextContent(item.Info?.unidentifiedResourceName),
     ]),
 
     DescriptionList: defined([
