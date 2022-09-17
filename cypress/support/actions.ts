@@ -31,6 +31,12 @@ export function gotoMonster(id: number) {
   findRowById(`${id}`).findByRole("link").click();
 }
 
+export function gotoItem(id: number) {
+  cy.findByRole("menu", { name: "Main menu" }).findByText("Items").click();
+  cy.findByLabelText("ID").type(`${id}`);
+  findRowById(`${id}`).findByRole("link").click();
+}
+
 export function removeUGC() {
   cy.exec("yarn run remove-ugc");
 }

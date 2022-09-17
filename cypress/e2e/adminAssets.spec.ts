@@ -1,41 +1,50 @@
-import { gotoMap, gotoMonster, signIn } from "../support/actions";
+import {
+  gotoItem,
+  gotoMap,
+  gotoMonster,
+  removeUGC,
+  signIn,
+} from "../support/actions";
 
-beforeEach(() => {
-  cy.visit("/");
-});
+describe("after uploading assets", () => {
+  before(() => {
+    cy.visit("/");
+    signIn(Cypress.env("ADMIN_USER"), Cypress.env("ADMIN_PASSWORD"));
+    removeUGC();
+    uploadAssets();
+  });
 
-describe("admin", () => {
-  beforeEach(() =>
-    signIn(Cypress.env("ADMIN_USER"), Cypress.env("ADMIN_PASSWORD"))
-  );
+  describe("map", () => {
+    it("exists", () => gotoMap("prontera"));
 
-  describe("after uploading assets", () => {
-    beforeEach(() => {
-      //removeUGC();
-      uploadAssets();
+    it("has pins", () => {
+      gotoMap("prontera");
+      cy.findAllByTestId("Map pin").should("exist");
     });
 
-    describe("map", () => {
-      it("exists", () => gotoMap("prontera"));
-
-      it("has pins", () => {
-        gotoMap("prontera");
-        cy.findAllByTestId("Map pin").should("exist");
-      });
-
-      it("has image", () => {
-        gotoMap("prontera");
-        cy.findByTestId("Map viewport").should("have.css", "background-image");
-      });
+    it("has image", () => {
+      gotoMap("prontera");
+      cy.findByTestId("Map viewport").should("have.css", "background-image");
     });
+  });
 
-    describe("monster", () => {
-      it("exists", () => gotoMonster(1002));
+  describe("monster", () => {
+    it("exists", () => gotoMonster(1002));
 
-      it("has image", () => {
-        gotoMonster(1002);
-        cy.findByRole("img", { name: "Poring" });
-      });
+    it("has image", () => {
+      gotoMonster(1002);
+      cy.findByRole("img", { name: "Poring" });
+    });
+  });
+
+  describe("item", () => {
+    it("exists", () => gotoItem(501));
+
+    it("has client texts", () => {
+      gotoItem(501);
+
+      cy.contains("Red Potion Identified Display Name");
+      cy.contains("Red Potion Identified Description");
     });
   });
 });
