@@ -68,3 +68,5 @@ function uploadAssets() {
   // Most of the time it's fast, but for the off chance that it's slow we raise the timeout.
   cy.contains("Upload complete", { timeout: 60000 });
 }
+
+// foo
