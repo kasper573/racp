@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { ensureDir } from "./ensureDir";
 import { Logger } from "./logger";
+import { watchFileInDirectory } from "./watchFileInDirectory";
 
 export type FileStore = ReturnType<typeof createFileStore>;
 
@@ -13,43 +14,55 @@ export function createFileStore(directory: string, logger: Logger) {
       relativeFilename: string,
       parseFileContent: ContentParser<Data>,
       onChange?: (data?: Data) => void
-    ) {
+    ): FileStoreEntry<Data> {
       const entryLogger = logger.chain(relativeFilename);
       const filename = path.resolve(directory, relativeFilename);
 
+      const watcher = watchFileInDirectory(directory, relativeFilename, reload);
       let currentData: Data | undefined;
 
-      const file: FileStoreEntry<Data> = {
+      function reload() {
+        try {
+          const fileContent = fs.readFileSync(filename, "utf-8");
+          const res = parseFileContent(fileContent);
+          if (res.success) {
+            currentData = res.data;
+          } else {
+            entryLogger.log(
+              `Could not load file, failed to parse its content. Received error: ${res}`
+            );
+          }
+        } catch {
+          currentData = undefined;
+        }
+        entryLogger.log(
+          "updated, new data:",
+          currentData === undefined ? "undefined" : JSON.stringify(currentData)
+        );
+        onChange?.(currentData);
+      }
+
+      function update(fileContent: string) {
+        const res = parseFileContent(fileContent);
+        if (res.success) {
+          fs.writeFileSync(filename, fileContent, "utf-8");
+        } else {
+          entryLogger.log(
+            `Could not update file. Failed to parse new content. Received error: ${res}`
+          );
+        }
+        return res;
+      }
+
+      reload();
+
+      return {
         get data() {
           return currentData;
         },
-        update: (fileContent: string) => {
-          const res = parseFileContent(fileContent);
-          if (res.success) {
-            fs.writeFileSync(filename, fileContent, "utf-8");
-            entryLogger.log("updated, new size:", fileContent.length);
-            currentData = res.data;
-            onChange?.(res.data);
-          } else {
-            entryLogger.log(
-              `Could not update file. Failed to parse new content: ${res}`
-            );
-          }
-          return res;
-        },
-        reload: () => {
-          if (fs.existsSync(filename)) {
-            file.update(fs.readFileSync(filename, "utf-8"));
-          } else {
-            currentData = undefined;
-            onChange?.(undefined);
-          }
-        },
+        update,
+        close: () => watcher.close(),
       };
-
-      file.reload();
-
-      return file;
     },
   };
 }
@@ -57,7 +70,7 @@ export function createFileStore(directory: string, logger: Logger) {
 export interface FileStoreEntry<Data> {
   get data(): Data | undefined;
   update(fileContent: string): FileParseResult<Data>;
-  reload(): void;
+  close(): void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

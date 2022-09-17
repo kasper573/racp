@@ -1,3 +1,5 @@
+import * as fs from "fs";
+import { debounce } from "lodash";
 import { RAthenaMode } from "../../options";
 import { YamlDriver } from "../../rathena/YamlDriver";
 import { NpcDriver } from "../../rathena/NpcDriver";
@@ -32,22 +34,26 @@ export function createMonsterRepository({
 
   const monsters = yaml.resolve("db/mob_db.yml", monsterResolver);
 
-  async function updateMonsters() {
-    const registry = await monsters;
-    for (const [, monster] of registry) {
-      monsterResolver.postProcess?.(monster, registry);
-    }
-  }
+  const imageFileWatcher = fs.watch(
+    imageLinker.directory,
+    debounce(async () => {
+      const registry = await monsters;
+      for (const [, monster] of registry) {
+        monsterResolver.postProcess?.(monster, registry);
+      }
+    }, 1000)
+  );
 
   return {
     spawns: npc.resolve("scripts_monsters.conf", monsterSpawnType),
     map: monsters,
-    updateImages: createImageUpdater(formatter, imageLinker, updateMonsters),
+    updateImages: createImageUpdater(formatter, imageLinker),
     missingImages: () =>
       monsters.then((map) =>
         Array.from(map.values()).filter(
           (monster) => monster.ImageUrl === undefined
         )
       ),
+    destroy: () => imageFileWatcher.close(),
   };
 }

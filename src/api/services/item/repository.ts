@@ -44,6 +44,7 @@ export function createItemRepository({
         info,
         map,
         updateInfo: infoFile.update,
+        destroy: () => infoFile.close(),
       };
     }
   );

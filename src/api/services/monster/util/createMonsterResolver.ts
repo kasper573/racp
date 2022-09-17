@@ -1,9 +1,9 @@
-import * as fs from "fs";
 import { createYamlResolver } from "../../../rathena/YamlDriver";
 import { RAthenaMode } from "../../../options";
 import { Monster, MonsterPostProcess, monsterType } from "../types";
 import { typedAssign } from "../../../../lib/typedAssign";
 import { Linker } from "../../../../lib/createPublicFileLinker";
+import { fileExists } from "../../../../lib/fileExists";
 
 export function createMonsterResolver(
   rAthenaMode: RAthenaMode,
@@ -13,7 +13,7 @@ export function createMonsterResolver(
   async function extract(monster: Monster): Promise<MonsterPostProcess> {
     const { Level, Agi, Luk, Dex, Attack, Attack2 } = monster;
     const imageName = createImageName(monster, imageFileExtension);
-    const ImageUrl = (await exists(imageLinker.path(imageName)))
+    const ImageUrl = (await fileExists(imageLinker.path(imageName)))
       ? imageLinker.url(imageName)
       : undefined;
     return {
@@ -36,12 +36,3 @@ export function createMonsterResolver(
 }
 
 const createImageName = (m: Monster, ext: string) => `${m.Id}${ext}`;
-
-const exists = async (path: string) => {
-  try {
-    await fs.promises.stat(path);
-    return true;
-  } catch {
-    return false;
-  }
-};
