@@ -4,10 +4,13 @@ import { execSync } from "child_process";
 import sqlts from "@rmp135/sql-ts";
 import { pick } from "lodash";
 import * as zod from "zod";
-import { readCliArgs } from "../util/cli";
-import { options } from "../options";
-import { createLogger } from "../../lib/logger";
-import { createConfigDriver, dbInfoConfigName } from "./ConfigDriver";
+import { readCliArgs } from "../src/api/util/cli";
+import { options } from "../src/api/options";
+import { createLogger } from "../src/lib/logger";
+import {
+  createConfigDriver,
+  dbInfoConfigName,
+} from "../src/api/rathena/ConfigDriver";
 
 /**
  * Generates zod type & typescript definitions of the rAthena mysql database
@@ -38,9 +41,13 @@ async function generate() {
     typeMap,
   });
 
-  const filename = path.resolve(__dirname, "DatabaseDriver.types.ts");
-  fs.writeFileSync(filename, tsString, "utf-8");
-  execSync(`prettier --write ${filename}`);
+  const outputPath = path.resolve(
+    __dirname,
+    "../src/api/rathena/DatabaseDriver.types.ts"
+  );
+
+  fs.writeFileSync(outputPath, tsString, "utf-8");
+  execSync(`prettier --write ${outputPath}`);
 }
 
 type MysqlTypes = string[];

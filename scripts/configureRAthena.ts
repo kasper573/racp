@@ -2,13 +2,13 @@ import * as fs from "fs";
 import * as path from "path";
 import { pick } from "lodash";
 import * as mysql from "mysql";
-import { createLogger, Logger } from "./src/lib/logger";
-import { readCliArgs } from "./src/api/util/cli";
-import { options } from "./src/api/options";
-import { createConfigDriver } from "./src/api/rathena/ConfigDriver";
-import { createDatabaseDriver } from "./src/api/rathena/DatabaseDriver";
-import { createYamlDriver } from "./src/api/rathena/YamlDriver";
-import { createUserRepository } from "./src/api/services/user/repository";
+import { createLogger, Logger } from "../src/lib/logger";
+import { readCliArgs } from "../src/api/util/cli";
+import { options } from "../src/api/options";
+import { createConfigDriver } from "../src/api/rathena/ConfigDriver";
+import { createDatabaseDriver } from "../src/api/rathena/DatabaseDriver";
+import { createYamlDriver } from "../src/api/rathena/YamlDriver";
+import { createUserRepository } from "../src/api/services/user/repository";
 
 /**
  * Updates a clean rathena build with the settings we need to run racp + rathena in CI.
