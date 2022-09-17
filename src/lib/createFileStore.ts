@@ -35,7 +35,7 @@ export function createFileStore(directory: string, logger: Logger) {
           if (res.success) {
             setData(res.data);
           } else {
-            entryLogger.log(
+            entryLogger.error(
               `Could not load file, failed to parse its content. Received error: ${res}`
             );
           }
@@ -50,7 +50,7 @@ export function createFileStore(directory: string, logger: Logger) {
           fs.writeFileSync(filename, fileContent, "utf-8");
           setData(res.data);
         } else {
-          entryLogger.log(
+          entryLogger.error(
             `Could not update file. Failed to parse new content. Received error: ${res}`
           );
         }

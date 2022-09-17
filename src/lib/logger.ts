@@ -2,6 +2,8 @@ import { isPlainObject } from "lodash";
 
 export interface Logger {
   log: LogFn;
+  warn: LogFn;
+  error: LogFn;
   wrap: <Fn extends AnyFn>(fn: Fn, functionName?: string) => Fn;
   chain: (name: string) => Logger;
 }
@@ -14,9 +16,13 @@ export type AnyFn = (...args: any[]) => any;
 export function createLogger(logFn: LogFn, name?: string): Logger {
   const log = name ? createNamedLogFn(logFn, name) : logFn;
   const chain = (name: string) => createLogger(log, name);
+  const error: LogFn = (...args) => log("\x1b[31m", ...args, "\x1b[0m");
+  const warn: LogFn = (...args) => log("\x1b[33m", ...args, "\x1b[0m");
 
   return {
     log,
+    error,
+    warn,
     chain,
     wrap(fn, functionName = fn.name) {
       function wrapped(...args: unknown[]) {

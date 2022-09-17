@@ -93,7 +93,7 @@ async function runSqlFile(
     logger.log(`Executing SQL: ${file}...`);
     await runQuery(conn, sql);
   } catch (e) {
-    logger.log(`Error while running sql file "${file}": ${e}`);
+    logger.error(`Error while running sql file "${file}": ${e}`);
   }
 }
 

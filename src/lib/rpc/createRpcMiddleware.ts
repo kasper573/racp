@@ -66,7 +66,7 @@ export function createRpcMiddlewareFactory<Auth, Context>({
       // Authentication funnel
       handlers.push((req, res, next) => {
         if (!isAuthorized(req)) {
-          routeLogger.log("Permission denied");
+          routeLogger.warn("Permission denied");
           return res.sendStatus(401);
         }
         return next();
@@ -94,7 +94,7 @@ export function createRpcMiddlewareFactory<Auth, Context>({
               parsedBody =
                 request.body.length > 0 ? JSON.parse(request.body) : undefined;
             } catch {
-              routeLogger.log(
+              routeLogger.error(
                 `Could not parse request body as JSON. Received: `,
                 request.body
               );
@@ -103,7 +103,7 @@ export function createRpcMiddlewareFactory<Auth, Context>({
 
             const argument = entry.argument.safeParse(parsedBody);
             if (!argument.success) {
-              routeLogger.log(
+              routeLogger.error(
                 `Invalid argument type, ${argument.error.message}`
               );
               return response.sendStatus(httpStatus.badRequest);
@@ -129,20 +129,20 @@ export function createRpcMiddlewareFactory<Auth, Context>({
           rpcResult = await handlerWithLogging(argument, getContext(request));
         } catch (e) {
           if (e instanceof RpcException) {
-            routeLogger.log(
+            routeLogger.warn(
               `Handler exited due to a known exception: ${e.message} `
             );
             return response
               .status(httpStatus.internalServerError)
               .send(e.message);
           }
-          routeLogger.log(`Unexpected error while executing handler:`, e);
+          routeLogger.error(`Unexpected error while executing handler:`, e);
           return response.sendStatus(httpStatus.internalServerError);
         }
 
         const parsedRpcResult = entry.result.safeParse(rpcResult);
         if (!parsedRpcResult.success) {
-          routeLogger.log(
+          routeLogger.error(
             "Return value had wrong data type: ",
             parsedRpcResult.error
           );
