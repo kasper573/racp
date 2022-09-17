@@ -43,7 +43,7 @@ export async function userController({
         .first();
 
       if (!user) {
-        throw new RpcException("Invalid credentials");
+        throw new RpcException(`Invalid credentials ${username}:${password}`);
       }
 
       const id = user.account_id;
