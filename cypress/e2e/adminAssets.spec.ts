@@ -46,6 +46,11 @@ describe("after uploading assets", () => {
       cy.contains("Red Potion Identified Display Name");
       cy.contains("Red Potion Identified Description");
     });
+
+    it("has image", () => {
+      gotoItem(501);
+      cy.findByRole("img", { name: "Red Potion" });
+    });
   });
 });
 
