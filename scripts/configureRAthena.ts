@@ -14,7 +14,9 @@ import { createUserRepository } from "../src/api/services/user/repository";
  * Updates a clean rathena build with the settings we need to run racp + rathena in CI.
  */
 async function configureRAthena() {
-  const logger = createLogger(console.log);
+  let exitCode = 0;
+
+  const logger = createLogger(console.log).chain("configureRAthena");
   const args = readCliArgs({
     ...pick(options, "rAthenaPath", "adminPermissionName", "rAthenaMode"),
     MYSQL_HOST: { type: "string", required: true },
@@ -26,11 +28,13 @@ async function configureRAthena() {
     ADMIN_PASSWORD: { type: "string", required: true },
   });
 
+  logger.log("args", JSON.stringify(args));
+
   const yaml = createYamlDriver({ ...args, logger });
   const cfg = createConfigDriver({ ...args, logger });
   const user = createUserRepository({ ...args, yaml });
 
-  console.log(`Updating ${cfg.presets.dbInfoConfigName}...`);
+  logger.log(`Updating ${cfg.presets.dbInfoConfigName}...`);
   const dbInfo = await cfg.load(cfg.presets.dbInfoConfigName);
   dbInfo.update(
     [
@@ -70,16 +74,22 @@ async function configureRAthena() {
 
   const db = createDatabaseDriver(cfg);
 
-  await db.login.table("login").insert({
+  const newAccountIds = await db.login.table("login").insert({
     userid: args.ADMIN_USER,
     user_pass: args.ADMIN_PASSWORD,
     email: "admin@localhost",
     group_id: (await user.adminGroupIds)[0],
   });
 
+  if (!newAccountIds.length) {
+    logger.error("Failed to create admin account");
+    exitCode = 1;
+  }
+
   conn.destroy();
   await db.destroy();
-  console.log("Finished configuring RAthena");
+  logger.log("Finished configuring RAthena");
+  process.exit(1);
 }
 
 async function runSqlFile(
