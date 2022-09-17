@@ -3,9 +3,8 @@ import { YamlDriver } from "../../rathena/YamlDriver";
 import { FileStore } from "../../../lib/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { createImageUpdater } from "../../common/createImageUpdater";
-import { Linker } from "../../../lib/createPublicFileLinker";
+import { autoMapLinkerUrls, Linker } from "../../../lib/createPublicFileLinker";
 import { ImageFormatter } from "../../../lib/createImageFormatter";
-import { fileExists } from "../../../lib/fileExists";
 import { createItemResolver } from "./util/createItemResolver";
 import { Item, ItemId, itemInfoType } from "./types";
 
@@ -24,10 +23,9 @@ export function createItemRepository({
   linker: Linker;
   formatter: ImageFormatter;
 }) {
-  const itemLinker = linker.chain("items");
-  const itemImageName = (id: ItemId) => `${id}${formatter.fileExtension}`;
-  const itemImageUrl = (id: ItemId) => itemLinker.url(itemImageName(id));
-  const itemImagePath = (id: ItemId) => itemLinker.path(itemImageName(id));
+  const imageLinker = linker.chain("items");
+  const imageName = (id: ItemId) => `${id}${formatter.fileExtension}`;
+  const [imageUrlsPromise, imageWatcher] = autoMapLinkerUrls(imageLinker);
 
   const itemResolver = createItemResolver({ tradeScale });
   const itemsPromise = yaml.resolve("db/item_db.yml", itemResolver);
@@ -35,17 +33,14 @@ export function createItemRepository({
 
   async function getItems() {
     const plainItems = await itemsPromise;
-    const promises = Array.from(plainItems.values()).map(async (item) => ({
-      ...item,
-      Info: infoFile.data?.[item.Id],
-      ImageUrl: (await fileExists(itemImagePath(item.Id)))
-        ? itemImageUrl(item.Id)
-        : undefined,
-    }));
-
-    const enrichedItems = await Promise.all(promises);
-    return enrichedItems.reduce(
-      (map, item) => map.set(item.Id, item),
+    const imageUrls = await imageUrlsPromise;
+    return Array.from(plainItems.values()).reduce(
+      (map, item) =>
+        map.set(item.Id, {
+          ...item,
+          Info: infoFile.data?.[item.Id],
+          ImageUrl: imageUrls.get(imageName(item.Id)),
+        }),
       new Map<ItemId, Item>()
     );
   }
@@ -69,9 +64,12 @@ export function createItemRepository({
     getResourceNames,
     countInfo: () => Object.keys(infoFile.data ?? {}).length,
     countImages: () =>
-      fs.promises.readdir(itemLinker.directory).then((dirs) => dirs.length),
-    updateImages: createImageUpdater(formatter, itemLinker),
-    destroy: () => infoFile.close(),
+      fs.promises.readdir(imageLinker.directory).then((dirs) => dirs.length),
+    updateImages: createImageUpdater(formatter, imageLinker),
+    destroy: () => {
+      infoFile.close();
+      imageWatcher.close();
+    },
   };
 }
 

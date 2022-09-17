@@ -1,4 +1,5 @@
 import * as nodePath from "path";
+import * as fs from "fs";
 import { ensureDir } from "./ensureDir";
 import { defined } from "./defined";
 
@@ -59,6 +60,23 @@ export function createPublicFileLinker({
     chain: createChainedLinker,
     urlToPath,
   };
+}
+
+export function autoMapLinkerUrls(
+  linker: Linker,
+  map = new Map<string, string>()
+) {
+  async function update() {
+    map.clear();
+    const names = await fs.promises.readdir(linker.directory);
+    for (const name of names) {
+      map.set(name, linker.url(name));
+    }
+    return map;
+  }
+
+  const watcher = fs.watch(linker.directory, update);
+  return [update(), watcher] as const;
 }
 
 export interface Linker {
