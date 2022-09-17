@@ -1,12 +1,10 @@
-import * as fs from "fs";
-import { debounce } from "lodash";
 import { RAthenaMode } from "../../options";
 import { YamlDriver } from "../../rathena/YamlDriver";
 import { NpcDriver } from "../../rathena/NpcDriver";
 import { ImageFormatter } from "../../../lib/createImageFormatter";
-import { Linker } from "../../../lib/createPublicFileLinker";
+import { autoMapLinkerUrls, Linker } from "../../../lib/createPublicFileLinker";
 import { createImageUpdater } from "../../common/createImageUpdater";
-import { monsterSpawnType } from "./types";
+import { Monster, monsterSpawnType } from "./types";
 import { createMonsterResolver } from "./util/createMonsterResolver";
 
 export type MonsterRepository = ReturnType<typeof createMonsterRepository>;
@@ -25,36 +23,36 @@ export function createMonsterRepository({
   npc: NpcDriver;
 }) {
   const imageLinker = linker.chain("monsters");
+  const imageName = (m: Monster) => `${m.Id}${formatter.fileExtension}`;
+  const [imageUrlsPromise, imageWatcher] = autoMapLinkerUrls(imageLinker);
 
-  const monsterResolver = createMonsterResolver(
-    rAthenaMode,
-    imageLinker,
-    formatter.fileExtension
-  );
+  const monsterResolver = createMonsterResolver(rAthenaMode);
+  const spawnsPromise = npc.resolve("scripts_monsters.conf", monsterSpawnType);
+  const monstersPromise = yaml.resolve("db/mob_db.yml", monsterResolver);
 
-  const spawns = npc.resolve("scripts_monsters.conf", monsterSpawnType);
-  const monsters = yaml.resolve("db/mob_db.yml", monsterResolver);
-
-  const imageFileWatcher = fs.watch(
-    imageLinker.directory,
-    debounce(async () => {
-      const registry = await monsters;
-      for (const [, monster] of registry) {
-        monsterResolver.postProcess?.(monster, registry);
-      }
-    }, 1000)
-  );
+  async function getMonsters() {
+    const monsters = await monstersPromise;
+    const imageUrls = await imageUrlsPromise;
+    return Array.from(monsters.values()).reduce(
+      (monsters, monster) =>
+        monsters.set(monster.Id, {
+          ...monster,
+          ImageUrl: imageUrls.get(imageName(monster)),
+        }),
+      new Map<Monster["Id"], Monster>()
+    );
+  }
 
   return {
-    getSpawns: () => spawns,
-    getMonsters: () => monsters,
+    getSpawns: () => spawnsPromise,
+    getMonsters,
     updateImages: createImageUpdater(formatter, imageLinker),
     missingImages: () =>
-      monsters.then((map) =>
+      monstersPromise.then((map) =>
         Array.from(map.values()).filter(
           (monster) => monster.ImageUrl === undefined
         )
       ),
-    destroy: () => imageFileWatcher.close(),
+    destroy: () => imageWatcher.close(),
   };
 }
