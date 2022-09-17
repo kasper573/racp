@@ -9,7 +9,7 @@ import { mapInfoFilter, warpFilter } from "./types";
 export async function mapController(repo: MapRepository) {
   return createRpcController(mapDefinition.entries, {
     searchMaps: createSearchController(
-      async () => Array.from(Object.values(await repo.getMaps())),
+      async () => Array.from((await repo.getMaps()).values()),
       (entity, payload) => mapInfoFilter.for(payload)(entity)
     ),
     searchWarps: createSearchController(
@@ -18,7 +18,7 @@ export async function mapController(repo: MapRepository) {
     ),
     async getMap(mapId) {
       const maps = await repo.getMaps();
-      const item = maps[mapId];
+      const item = maps.get(mapId);
       if (!item) {
         throw new RpcException("Invalid map id");
       }

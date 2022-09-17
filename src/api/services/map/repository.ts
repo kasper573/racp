@@ -1,14 +1,14 @@
 import * as fs from "fs";
 import { FileStore } from "../../../lib/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
-import { Linker } from "../../../lib/createPublicFileLinker";
+import { autoMapLinkerUrls, Linker } from "../../../lib/createPublicFileLinker";
 import { ImageFormatter } from "../../../lib/createImageFormatter";
 import { NpcDriver } from "../../rathena/NpcDriver";
 import { createImageUpdater } from "../../common/createImageUpdater";
-import { fileExists } from "../../../lib/fileExists";
 import {
   MapBoundsRegistry,
   mapBoundsRegistryType,
+  MapId,
   MapInfo,
   mapInfoType,
   warpType,
@@ -26,10 +26,9 @@ export function createMapRepository({
   formatter: ImageFormatter;
   npc: NpcDriver;
 }) {
-  const mapLinker = linker.chain("maps");
+  const imageLinker = linker.chain("maps");
   const mapImageName = (mapId: string) => `${mapId}${formatter.fileExtension}`;
-  const mapImageUrl = (mapId: string) => mapLinker.url(mapImageName(mapId));
-  const mapImagePath = (mapId: string) => mapLinker.path(mapImageName(mapId));
+  const [imageUrlsPromise, imageWatcher] = autoMapLinkerUrls(imageLinker);
 
   const infoFile = files.entry("mapInfo.lub", parseMapInfo);
   const boundsFile = files.entry("mapBounds.json", (str) =>
@@ -37,37 +36,25 @@ export function createMapRepository({
   );
 
   async function getMaps() {
-    const promises = Object.entries(infoFile.data ?? {}).map(
-      async ([key, info]): Promise<MapInfo> => {
-        const id = trimExtension(key);
-        return {
-          ...info,
-          id,
-          bounds: boundsFile.data?.[id],
-          imageUrl: (await fileExists(mapImagePath(id)))
-            ? mapImageUrl(id)
-            : undefined,
-        };
-      }
-    );
-
-    const infoItems = await Promise.all(promises);
-    return infoItems.reduce(
-      (record: Record<string, MapInfo>, item) => ({
-        ...record,
-        [item.id]: item,
-      }),
-      {}
-    );
+    const imageUrls = await imageUrlsPromise;
+    return Object.entries(infoFile.data ?? {}).reduce((all, [key, info]) => {
+      const id = trimExtension(key);
+      return all.set(id, {
+        ...info,
+        id,
+        bounds: boundsFile.data?.[id],
+        imageUrl: imageUrls.get(mapImageName(id)),
+      });
+    }, new Map<MapId, MapInfo>());
   }
 
   return {
     getMaps,
     updateInfo: infoFile.update,
     countImages: () =>
-      fs.promises.readdir(mapLinker.directory).then((dirs) => dirs.length),
+      fs.promises.readdir(imageLinker.directory).then((dirs) => dirs.length),
     warps: npc.resolve("scripts_warps.conf", warpType),
-    updateImages: createImageUpdater(formatter, mapLinker),
+    updateImages: createImageUpdater(formatter, imageLinker),
     async updateBounds(registryChanges: MapBoundsRegistry) {
       const updatedRegistry = {
         ...(boundsFile.data ?? {}),
@@ -78,6 +65,7 @@ export function createMapRepository({
     destroy: () => {
       infoFile.close();
       boundsFile.close();
+      imageWatcher.close();
     },
   };
 }
