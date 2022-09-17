@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { ExpandMore } from "@mui/icons-material";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Header } from "../layout/Header";
 
 import { ErrorMessage } from "../components/ErrorMessage";
@@ -19,6 +19,7 @@ import {
   useCountMapBoundsQuery,
   useCountMapImagesQuery,
   useCountMapInfoQuery,
+  useGetItemsMissingImagesQuery,
   useGetMissingMapDataQuery,
   useGetMonstersMissingImagesQuery,
 } from "../state/client";
@@ -29,10 +30,11 @@ import {
   useAssetUploader,
 } from "../hooks/useAssetUploader";
 import { useBlockNavigation } from "../../lib/useBlockNavigation";
-import { MonsterGrid } from "../grids/MonsterGrid";
 import { ProgressButton } from "../components/ProgressButton";
 import { defined } from "../../lib/defined";
 import { typedKeys } from "../../lib/typedKeys";
+import { Link, LinkTo } from "../components/Link";
+import { router } from "../router";
 
 export default function AdminAssetsPage() {
   const [files, setFiles] = useState<Partial<Record<UploaderFileName, File>>>(
@@ -44,8 +46,9 @@ export default function AdminAssetsPage() {
   const { data: missingMapData } = useGetMissingMapDataQuery();
   const { data: itemInfoCount = 0 } = useCountItemInfoQuery();
   const { data: itemImageCount = 0 } = useCountItemImagesQuery();
-  const { data: idsOfMonstersMissingImages = [] } =
+  const { data: missingMonsterImages = [] } =
     useGetMonstersMissingImagesQuery();
+  const { data: missingItemImages = [] } = useGetItemsMissingImagesQuery();
 
   const uploader = useAssetUploader();
   const isReadyToUpload = !!(files.mapInfo && files.itemInfo && files.data);
@@ -158,22 +161,33 @@ export default function AdminAssetsPage() {
 
       <Typography paragraph>Any missing data will be listed below.</Typography>
 
-      {idsOfMonstersMissingImages.length > 0 && (
+      {missingMonsterImages.length > 0 && (
         <Accordion sx={{ [`&&`]: { marginTop: 0 } }}>
           <AccordionSummary expandIcon={<ExpandMore />}>
             <Typography>
-              Missing monster images ({idsOfMonstersMissingImages.length})
+              Missing monster images ({missingMonsterImages.length})
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <MonsterGrid
-              sx={{ height: "383px" }}
-              filter={{
-                Id: {
-                  value: idsOfMonstersMissingImages,
-                  matcher: "oneOfN",
-                },
-              }}
+            <LargeStringList
+              values={missingMonsterImages}
+              link={(id) => router.monster().view({ id })}
+            />
+          </AccordionDetails>
+        </Accordion>
+      )}
+
+      {missingItemImages.length > 0 && (
+        <Accordion sx={{ [`&&`]: { marginTop: 0 } }}>
+          <AccordionSummary expandIcon={<ExpandMore />}>
+            <Typography>
+              Missing item images ({missingItemImages.length})
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <LargeStringList
+              values={missingItemImages}
+              link={(id) => router.item().view({ id })}
             />
           </AccordionDetails>
         </Accordion>
@@ -187,9 +201,10 @@ export default function AdminAssetsPage() {
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography sx={{ maxHeight: 300, overflowY: "auto" }}>
-              {missingMapData.images.join(", ")}
-            </Typography>
+            <LargeStringList
+              values={missingMapData.images}
+              link={(id) => router.map().view({ id })}
+            />
           </AccordionDetails>
         </Accordion>
       )}
@@ -202,9 +217,10 @@ export default function AdminAssetsPage() {
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography sx={{ maxHeight: 300, overflowY: "auto" }}>
-              {missingMapData.bounds.join(", ")}
-            </Typography>
+            <LargeStringList
+              values={missingMapData.bounds}
+              link={(id) => router.map().view({ id })}
+            />
           </AccordionDetails>
         </Accordion>
       )}
@@ -221,5 +237,27 @@ export default function AdminAssetsPage() {
         re-uploading them to RACP.
       </Typography>
     </>
+  );
+}
+
+function LargeStringList<T>({
+  values,
+  max = 100,
+  link,
+}: {
+  values: T[];
+  link?: (value: T) => LinkTo;
+  max?: number;
+}) {
+  return (
+    <Typography sx={{ maxHeight: 300, overflowY: "auto" }}>
+      {values.slice(0, max).map((value, index) => (
+        <Fragment key={index}>
+          {index > 0 && ", "}
+          {link ? <Link to={link(value)}>{`${value}`}</Link> : `${value}`}
+        </Fragment>
+      ))}
+      {values.length > 100 && ` (and ${values.length - max} more)`}
+    </Typography>
   );
 }

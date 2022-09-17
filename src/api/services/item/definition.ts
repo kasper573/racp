@@ -28,5 +28,11 @@ export const itemDefinition = createRpcDefinition({
       .fileUpload("uploadItemImages", zod.void(), {
         tags: ["ITEM_IMAGES"],
         auth: UserAccessLevel.Admin,
-      }),
+      })
+      .query(
+        "getItemsMissingImages",
+        zod.void(),
+        zod.array(itemType.shape["Id"]),
+        { tags: ["ITEM_IMAGES"] }
+      ),
 });

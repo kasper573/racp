@@ -58,6 +58,7 @@ export const {
   useUploadMapImagesMutation,
   useUploadMonsterImagesMutation,
   useGetMonstersMissingImagesQuery,
+  useGetItemsMissingImagesQuery,
   useSearchMapsQuery,
   useSearchMonsterSpawnsQuery,
   useDecompileLuaTableFilesMutation,

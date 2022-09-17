@@ -36,5 +36,9 @@ export function itemController(repo: ItemRepository) {
     },
     countItemImages: repo.countImages,
     uploadItemImages: repo.updateImages,
+    async getItemsMissingImages() {
+      const itemsWithMissingImages = await repo.missingImages();
+      return itemsWithMissingImages.map((m) => m.Id);
+    },
   });
 }

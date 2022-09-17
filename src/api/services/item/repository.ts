@@ -66,6 +66,10 @@ export function createItemRepository({
     countImages: () =>
       fs.promises.readdir(imageLinker.directory).then((dirs) => dirs.length),
     updateImages: createImageUpdater(formatter, imageLinker),
+    missingImages: () =>
+      getItems().then((map) =>
+        Array.from(map.values()).filter((item) => item.ImageUrl === undefined)
+      ),
     destroy: () => {
       infoFile.close();
       imageWatcher.close();

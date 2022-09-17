@@ -48,7 +48,7 @@ export function createMonsterRepository({
     getMonsters,
     updateImages: createImageUpdater(formatter, imageLinker),
     missingImages: () =>
-      monstersPromise.then((map) =>
+      getMonsters().then((map) =>
         Array.from(map.values()).filter(
           (monster) => monster.ImageUrl === undefined
         )
