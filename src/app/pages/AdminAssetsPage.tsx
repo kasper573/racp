@@ -37,6 +37,7 @@ import { Link, LinkTo } from "../components/Link";
 import { router } from "../router";
 
 export default function AdminAssetsPage() {
+  const [message, setMessage] = useState<string>();
   const [files, setFiles] = useState<Partial<Record<UploaderFileName, File>>>(
     {}
   );
@@ -54,12 +55,14 @@ export default function AdminAssetsPage() {
   const isReadyToUpload = !!(files.mapInfo && files.itemInfo && files.data);
 
   async function uploadFiles() {
+    setMessage(undefined);
     try {
       if (isReadyToUpload) {
         await uploader.upload(files.mapInfo!, files.itemInfo!, files.data!);
       }
     } finally {
       setFiles({});
+      setMessage("Upload complete");
     }
   }
 
@@ -122,6 +125,12 @@ export default function AdminAssetsPage() {
           </ProgressButton>
         </Box>
       </Tooltip>
+
+      {message && (
+        <Typography color="green" sx={{ textAlign: "center", marginBottom: 2 }}>
+          {message}
+        </Typography>
+      )}
 
       {uploader.isPending && (
         <LinearProgress
