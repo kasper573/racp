@@ -63,5 +63,5 @@ function uploadAssets() {
   cy.selectFileByName("itemInfo", `${fixtures}/itemInfo_red-potion.lub`);
   cy.selectFileByName("data", `${fixtures}/prontera_poring_red-potion.grf`);
   cy.findByRole("button", { name: "Upload" }).click();
-  cy.findByText("Upload complete").should("exist");
+  cy.contains("Upload complete");
 }
