@@ -89,7 +89,7 @@ async function configureRAthena() {
   conn.destroy();
   await db.destroy();
   logger.log("Finished configuring RAthena");
-  process.exit(1);
+  process.exit(exitCode);
 }
 
 async function runSqlFile(
