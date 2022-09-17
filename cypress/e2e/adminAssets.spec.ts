@@ -15,40 +15,40 @@ describe("after uploading assets", () => {
   });
 
   describe("map", () => {
-    it("exists", () => gotoMap("prontera"));
+    before(() => gotoMap("prontera"));
+
+    it("exists", () => cy.contains("Prontera"));
 
     it("has pins", () => {
-      gotoMap("prontera");
       cy.findAllByTestId("Map pin").should("exist");
     });
 
     it("has image", () => {
-      gotoMap("prontera");
       cy.findByTestId("Map viewport").should("have.css", "background-image");
     });
   });
 
   describe("monster", () => {
-    it("exists", () => gotoMonster(1002));
+    before(() => gotoMonster(1002));
+
+    it("exists", () => cy.contains("Poring"));
 
     it("has image", () => {
-      gotoMonster(1002);
       cy.findByRole("img", { name: "Poring" });
     });
   });
 
   describe("item", () => {
-    it("exists", () => gotoItem(501));
+    before(() => gotoItem(501));
+
+    it("exists", () => cy.contains("Red Potion"));
 
     it("has client texts", () => {
-      gotoItem(501);
-
       cy.contains("Red Potion Identified Display Name");
       cy.contains("Red Potion Identified Description");
     });
 
     it("has image", () => {
-      gotoItem(501);
       cy.findByRole("img", { name: "Red Potion" });
     });
   });
