@@ -75,14 +75,22 @@ const linker = createPublicFileLinker({
 });
 
 const user = createUserRepository({ yaml, ...args });
-const maps = createMapRepository({ files, linker, formatter, npc });
-const items = createItemRepository({ ...args, yaml, files, formatter, linker });
+const maps = createMapRepository({ files, linker, formatter, npc, logger });
+const items = createItemRepository({
+  ...args,
+  yaml,
+  files,
+  formatter,
+  linker,
+  logger,
+});
 const monsters = createMonsterRepository({
   ...args,
   yaml,
   npc,
   formatter,
   linker,
+  logger,
 });
 
 linkDropsWithItems(items, monsters);

@@ -60,14 +60,16 @@ export class GRF<Stream = any> extends Loader<Stream> {
 
     // Optimized version without using jDataView (faster)
     for (let i = 0, p = 0; i < this.fileCount; ++i) {
-      let filename = "";
+      let filePath = "";
       while (data[p]) {
-        filename += String.fromCharCode(data[p++]);
+        filePath += String.fromCharCode(data[p++]);
       }
 
       p++;
 
       const entry: GRFFileEntry = {
+        path: normalizePath(filePath),
+        name: filePath.split(/[\\/]/).pop() ?? filePath,
         compressedSize:
           data[p++] | (data[p++] << 8) | (data[p++] << 16) | (data[p++] << 24),
         lengthAligned:
@@ -85,7 +87,7 @@ export class GRF<Stream = any> extends Loader<Stream> {
 
       // Not a file (folder ?)
       if (entry.type & FILELIST_TYPE_FILE) {
-        this.files.set(filename.toLowerCase(), entry);
+        this.files.set(entry.path, entry);
       }
     }
   }
@@ -114,7 +116,7 @@ export class GRF<Stream = any> extends Loader<Stream> {
   }
 
   public async getEntry(path: string): Promise<GRFFile> {
-    path = path.toLowerCase();
+    path = normalizePath(path);
     const name = path.split(/[\\/]/).pop() || path;
     if (!this.loaded) {
       return Promise.resolve({ name, error: "GRF not loaded yet" });
@@ -129,6 +131,10 @@ export class GRF<Stream = any> extends Loader<Stream> {
       });
     }
 
+    return this.readEntry(entry);
+  }
+
+  public async readEntry(entry: GRFFileEntry) {
     const buffer = await this.getBuffer(
       entry.offset + HEADER_SIZE,
       entry.lengthAligned
@@ -136,14 +142,16 @@ export class GRF<Stream = any> extends Loader<Stream> {
 
     try {
       const data = this.decodeEntry(buffer, entry);
-      return Promise.resolve({ data, name });
+      return Promise.resolve({ data, name: entry.name });
     } catch (error) {
-      return Promise.resolve({ name, error });
+      return Promise.resolve({ name: entry.name, error });
     }
   }
 }
 
 export interface GRFFileEntry {
+  path: string;
+  name: string;
   type: number;
   offset: number;
   realSize: number;
@@ -156,3 +164,5 @@ export interface GRFFile {
   data?: Uint8Array;
   error?: unknown;
 }
+
+const normalizePath = (path: string) => path.toLowerCase();

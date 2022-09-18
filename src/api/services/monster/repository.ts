@@ -2,8 +2,9 @@ import { RAthenaMode } from "../../options";
 import { YamlDriver } from "../../rathena/YamlDriver";
 import { NpcDriver } from "../../rathena/NpcDriver";
 import { ImageFormatter } from "../../../lib/createImageFormatter";
-import { autoMapLinkerUrls, Linker } from "../../../lib/createPublicFileLinker";
-import { createImageUpdater } from "../../common/createImageUpdater";
+import { Linker } from "../../../lib/createPublicFileLinker";
+import { createImageRepository } from "../../common/createImageRepository";
+import { Logger } from "../../../lib/logger";
 import { Monster, monsterSpawnType } from "./types";
 import { createMonsterResolver } from "./util/createMonsterResolver";
 
@@ -15,16 +16,18 @@ export function createMonsterRepository({
   formatter,
   yaml,
   npc,
+  logger,
 }: {
   linker: Linker;
   formatter: ImageFormatter;
   rAthenaMode: RAthenaMode;
   yaml: YamlDriver;
   npc: NpcDriver;
+  logger: Logger;
 }) {
   const imageLinker = linker.chain("monsters");
   const imageName = (m: Monster) => `${m.Id}${formatter.fileExtension}`;
-  const [imageUrlsPromise, imageWatcher] = autoMapLinkerUrls(imageLinker);
+  const imageRepository = createImageRepository(formatter, imageLinker, logger);
 
   const monsterResolver = createMonsterResolver(rAthenaMode);
   const spawnsPromise = npc.resolve("scripts_monsters.conf", monsterSpawnType);
@@ -32,12 +35,11 @@ export function createMonsterRepository({
 
   async function getMonsters() {
     const monsters = await monstersPromise;
-    const imageUrls = await imageUrlsPromise;
     return Array.from(monsters.values()).reduce(
       (monsters, monster) =>
         monsters.set(monster.Id, {
           ...monster,
-          ImageUrl: imageUrls.get(imageName(monster)),
+          ImageUrl: imageRepository.urlMap.get(imageName(monster)),
         }),
       new Map<Monster["Id"], Monster>()
     );
@@ -46,13 +48,13 @@ export function createMonsterRepository({
   return {
     getSpawns: () => spawnsPromise,
     getMonsters,
-    updateImages: createImageUpdater(formatter, imageLinker),
+    updateImages: imageRepository.update,
     missingImages: () =>
       getMonsters().then((map) =>
         Array.from(map.values()).filter(
           (monster) => monster.ImageUrl === undefined
         )
       ),
-    destroy: () => imageWatcher.close(),
+    destroy: () => imageRepository.close(),
   };
 }

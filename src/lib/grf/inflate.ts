@@ -1,3 +1,5 @@
+// Based on Inflate.js from https://github.com/vthibault/roBrowser
+
 export class Inflate {
   bytes: Uint8Array;
   bytesPos: number;

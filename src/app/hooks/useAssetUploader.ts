@@ -1,4 +1,4 @@
-import { memoize, pick } from "lodash";
+import { chunk, pick } from "lodash";
 import * as zod from "zod";
 import { useMemo, useState } from "react";
 import { cropSurroundingColors, RGB } from "../../lib/cropSurroundingColors";
@@ -27,6 +27,7 @@ import {
 } from "../../lib/useTaskScheduler";
 import { MapBoundsRegistry } from "../../api/services/map/types";
 import { getErrorMessage } from "../components/ErrorMessage";
+import { trimExtension } from "../../lib/trimExtension";
 
 export function useAssetUploader() {
   const [uploadMapImages, mapImageUpload] = useUploadMapImagesMutation();
@@ -40,7 +41,7 @@ export function useAssetUploader() {
   const [customErrors, setCustomErrors] = useState<string[]>([]);
 
   const tracker = useTaskScheduler({
-    maxConcurrent: 50,
+    maxConcurrent: 30,
     defaultPriority: Math.random,
   });
 
@@ -92,12 +93,12 @@ export function useAssetUploader() {
     );
 
     await Promise.allSettled([
-      tracker.track([
-        {
+      tracker.track(
+        divide(images, 100).map((partial) => ({
           group: "Uploading map image packs",
-          fn: () => uploadMapImages(images),
-        },
-      ]),
+          fn: () => uploadMapImages(partial),
+        }))
+      ),
       tracker.track([
         { group: `Uploading map bounds`, fn: () => updateMapBounds(bounds) },
       ]),
@@ -133,23 +134,23 @@ export function useAssetUploader() {
     ]);
 
     const monsterImages = await tracker.track(
-      monsterSpriteInfo.map(({ id, spritePath }) => ({
+      monsterSpriteInfo.map(({ id, spriteName, spritePath }) => ({
         group: "Unpacking monster images",
         id: `Monster ID: ${id}, Sprite: "${spritePath}"`,
         fn: async () => {
           const file = await grf.getFile(spritePath);
-          const spr = await new SPR(readFileStream, file, `${id}`).load();
+          const spr = await new SPR(readFileStream, file, spriteName).load();
           return toRpcFile(await spriteToTextureFile(spr));
         },
       }))
     );
 
-    await tracker.track([
-      {
+    await tracker.track(
+      divide(monsterImages, 100).map((partial) => ({
         group: "Uploading monster image packs",
-        fn: () => uploadMonsterImages(monsterImages),
-      },
-    ]);
+        fn: () => uploadMonsterImages(partial),
+      }))
+    );
   }
 
   async function uploadItemInfoAndImages(grf: GRF, infoFile: File) {
@@ -166,23 +167,25 @@ export function useAssetUploader() {
     }
 
     const itemImages = await tracker.track(
-      resolveSpriteInfo(grf, resourceNames).map(({ id, spritePath }) => ({
-        group: "Unpacking item images",
-        id: `Item ID: ${id}, Sprite: "${spritePath}"`,
-        fn: async () => {
-          const file = await grf.getFile(spritePath);
-          const spr = await new SPR(readFileStream, file, `${id}`).load();
-          return toRpcFile(await spriteToTextureFile(spr));
-        },
-      }))
+      resolveSpriteInfo(grf, resourceNames).map(
+        ({ id, spriteName, spritePath }) => ({
+          group: "Unpacking item images",
+          id: `Item ID: ${id}, Sprite: "${spritePath}"`,
+          fn: async () => {
+            const file = await grf.getFile(spritePath);
+            const spr = await new SPR(readFileStream, file, spriteName).load();
+            return toRpcFile(await spriteToTextureFile(spr));
+          },
+        })
+      )
     );
 
-    await tracker.track([
-      {
+    await tracker.track(
+      divide(itemImages, 100).map((partial) => ({
         group: "Uploading item image packs",
-        fn: () => uploadItemImages(itemImages),
-      },
-    ]);
+        fn: () => uploadItemImages(partial),
+      }))
+    );
   }
 
   async function upload(mapInfoFile: File, itemInfoFile: File, grfFile: File) {
@@ -272,24 +275,37 @@ function resolveSpriteInfo(
   grf: GRF,
   idToSpriteName: Record<number, string>
 ): SpriteInfo[] {
-  const allSpritePaths = Array.from(grf.files.keys()).filter((path) =>
-    path.endsWith(".spr")
+  const normalizeSpriteName = (name: string) => name.toLowerCase();
+  const spriteNameToIds = Object.entries(idToSpriteName).reduce(
+    (existing: Record<string, string[]>, [id, spriteName]) => {
+      const key = normalizeSpriteName(spriteName);
+      if (existing[key]) {
+        existing[key].push(id);
+      } else {
+        existing[key] = [id];
+      }
+      return existing;
+    },
+    {}
   );
 
-  const findSpritePath = memoize(allSpritePaths.find.bind(allSpritePaths));
+  const infoList: SpriteInfo[] = [];
+  for (const entry of grf.files.values()) {
+    if (!entry.path.endsWith(".spr")) {
+      continue;
+    }
+    const key = normalizeSpriteName(trimExtension(entry.name));
+    const ids = spriteNameToIds[key] ?? [];
+    for (const id of ids) {
+      infoList.push({
+        id: parseInt(id, 10),
+        spriteName: id,
+        spritePath: entry.path,
+      });
+    }
+  }
 
-  const infoEntries = Object.entries(idToSpriteName).map(
-    ([id, spriteName]) => ({
-      id: parseInt(id, 10),
-      spritePath: findSpritePath((path) =>
-        path.endsWith(`\\${spriteName.toLowerCase()}.spr`)
-      ),
-    })
-  );
-
-  return infoEntries.filter(
-    (entry): entry is SpriteInfo => entry.spritePath !== undefined
-  );
+  return infoList;
 }
 
 async function spriteToTextureFile(sprite: SPR) {
@@ -313,6 +329,10 @@ async function cropMapImage(file: File) {
 interface SpriteInfo {
   id: number;
   spritePath: string;
+  spriteName: string;
 }
 
 const mapImageCropColor: RGB = [255, 0, 255]; // Magenta
+
+const divide = <T>(list: T[], parts: number): T[][] =>
+  chunk(list, Math.round(list.length / parts));

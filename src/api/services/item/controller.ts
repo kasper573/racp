@@ -1,6 +1,7 @@
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { createSearchController } from "../../common/search";
 import { createRpcController } from "../../util/rpc";
+import { bufferToLuaCode } from "../../common/parseLuaTableAs";
 import { itemDefinition } from "./definition";
 import { itemFilter } from "./types";
 import { ItemRepository } from "./repository";
@@ -26,7 +27,7 @@ export function itemController(repo: ItemRepository) {
       if (!luaFile) {
         throw new RpcException("A file must be uploaded");
       }
-      const itemInfoAsLuaCode = Buffer.from(luaFile.data).toString("utf8");
+      const itemInfoAsLuaCode = bufferToLuaCode(Buffer.from(luaFile.data));
       const { success } = repo.updateInfo(itemInfoAsLuaCode);
       if (!success) {
         throw new RpcException("File could not be parsed as item info.");
