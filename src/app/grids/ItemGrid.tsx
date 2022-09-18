@@ -4,6 +4,7 @@ import { Item, ItemFilter } from "../../api/services/item/types";
 import { useSearchItemsQuery } from "../state/client";
 import { router } from "../router";
 import { Link } from "../components/Link";
+import { ImageWithFallback } from "../components/ImageWithFallback";
 
 export const ItemGrid = DataGrid.define<Item, ItemFilter, Item["Id"]>({
   // Without assertion typescript yields possibly infinite error
@@ -14,7 +15,11 @@ export const ItemGrid = DataGrid.define<Item, ItemFilter, Item["Id"]>({
       renderCell({ row: item }) {
         return (
           <Stack direction="row" spacing={1} alignItems="center">
-            <img src={item.ImageUrl} alt="" width={32} />
+            <ImageWithFallback
+              src={item.ImageUrl}
+              alt={item.Name}
+              sx={{ width: 32 }}
+            />
             <Link to={router.item().view({ id: item.Id })}>{item.Name}</Link>
           </Stack>
         );

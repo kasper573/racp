@@ -12,6 +12,7 @@ import { TabbedPaper } from "../components/TabbedPaper";
 import { KVTable } from "../components/KVTable";
 import { MonsterDropGrid } from "../grids/MonsterDropGrid";
 import { TooltipText } from "../components/TooltipText";
+import { ImageWithFallback } from "../components/ImageWithFallback";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MonsterViewPage(): ReactElement {
@@ -40,9 +41,7 @@ export default function MonsterViewPage(): ReactElement {
             ({monster.AegisName})
           </TooltipText>
         )}
-        {monster.ImageUrl && (
-          <MonsterImage src={monster.ImageUrl} alt={monster.Name} />
-        )}
+        <MonsterImage src={monster.ImageUrl} alt={monster.Name} />
       </Header>
 
       <Stack spacing={2} direction="row" sx={{ flex: 1 }}>
@@ -124,7 +123,7 @@ export default function MonsterViewPage(): ReactElement {
   );
 }
 
-const MonsterImage = styled("img")`
+const MonsterImage = styled(ImageWithFallback)`
   position: absolute;
   margin-left: 12px;
   max-height: 75px;

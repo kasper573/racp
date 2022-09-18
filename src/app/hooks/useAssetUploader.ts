@@ -317,4 +317,4 @@ interface SpriteInfo {
 const mapImageCropColor: RGB = [255, 0, 255]; // Magenta
 
 const divide = <T>(list: T[], parts: number): T[][] =>
-  chunk(list, Math.round(list.length / parts));
+  chunk(list, Math.ceil(list.length / parts));

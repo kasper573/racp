@@ -14,6 +14,7 @@ import { DataGridQueryFn } from "../components/DataGrid";
 import { Monster, MonsterFilter } from "../../api/services/monster/types";
 import { Link } from "../components/Link";
 import { dropChanceString, itemNameString } from "../grids/MonsterDropGrid";
+import { ImageWithFallback } from "../components/ImageWithFallback";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ItemViewPage(): ReactElement {
@@ -62,7 +63,7 @@ export default function ItemViewPage(): ReactElement {
             ({itemNameString(displayName, item.Slots)})
           </TooltipText>
         )}
-        {item.ImageUrl && <ItemImage src={item.ImageUrl} alt={item.Name} />}
+        <ItemImage src={item.ImageUrl} alt={item.Name} />
       </Header>
 
       <Stack spacing={2} direction="column">
@@ -130,7 +131,7 @@ export default function ItemViewPage(): ReactElement {
   );
 }
 
-const ItemImage = styled("img")`
+const ItemImage = styled(ImageWithFallback)`
   position: absolute;
   margin-left: 12px;
   max-height: 75px;
