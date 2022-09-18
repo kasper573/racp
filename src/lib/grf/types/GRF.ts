@@ -1,7 +1,7 @@
 // Based on https://github.com/vthibault/grf-loader
 
-import { inflate } from "pako";
 import { decodeFull, decodeHeader } from "../des";
+import { Inflate } from "../inflate";
 import { Loader } from "../Loader";
 
 const FILELIST_TYPE_FILE = 0x01;
@@ -55,7 +55,8 @@ export class GRF<Stream = any> extends Loader<Stream> {
       compressedSize
     );
 
-    const data = inflate(compressed);
+    const data = new Uint8Array(realSize);
+    new Inflate(compressed).getBytes(data);
 
     // Optimized version without using jDataView (faster)
     for (let i = 0, p = 0; i < this.fileCount; ++i) {
@@ -99,8 +100,9 @@ export class GRF<Stream = any> extends Loader<Stream> {
     if (entry.realSize === entry.compressedSize) {
       return data;
     }
-
-    return inflate(data);
+    const out = new Uint8Array(entry.realSize);
+    new Inflate(data).getBytes(out);
+    return out;
   }
 
   public async getFile(path: string) {
