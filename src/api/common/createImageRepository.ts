@@ -9,8 +9,9 @@ import { Logger } from "../../lib/logger";
 export function createImageRepository(
   formatter: ImageFormatter,
   linker: Linker,
-  logger: Logger
+  parentLogger: Logger
 ) {
+  const logger = parentLogger.chain("image");
   const urlMap = new Map<string, string>();
   async function updateUrlMap() {
     logger.log("Updating url map");
