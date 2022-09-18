@@ -1,4 +1,4 @@
-import { memoize, pick } from "lodash";
+import { pick } from "lodash";
 import * as zod from "zod";
 import { useMemo, useState } from "react";
 import { cropSurroundingColors, RGB } from "../../lib/cropSurroundingColors";
@@ -157,7 +157,7 @@ export function useAssetUploader() {
       {
         group: "Uploading item info",
         fn: async () => updateItemInfo([await toRpcFile(infoFile)]).unwrap(),
-        schedule: { priority: 0 },
+        schedule: { priority: -1 },
       },
     ]);
 
@@ -166,15 +166,17 @@ export function useAssetUploader() {
     }
 
     const itemImages = await tracker.track(
-      resolveSpriteInfo(grf, resourceNames).map(({ id, spritePath }) => ({
-        group: "Unpacking item images",
-        id: `Item ID: ${id}, Sprite: "${spritePath}"`,
-        fn: async () => {
-          const file = await grf.getFile(spritePath);
-          const spr = await new SPR(readFileStream, file, `${id}`).load();
-          return toRpcFile(await spriteToTextureFile(spr));
-        },
-      }))
+      resolveSpriteInfo(grf, resourceNames).map(
+        ({ id, spriteName, spritePath }) => ({
+          group: "Unpacking item images",
+          id: `Item ID: ${id}, Sprite: "${spritePath}"`,
+          fn: async () => {
+            const file = await grf.getFile(spritePath);
+            const spr = await new SPR(readFileStream, file, spriteName).load();
+            return toRpcFile(await spriteToTextureFile(spr));
+          },
+        })
+      )
     );
 
     await tracker.track([
@@ -272,24 +274,26 @@ function resolveSpriteInfo(
   grf: GRF,
   idToSpriteName: Record<number, string>
 ): SpriteInfo[] {
-  const allSpritePaths = Array.from(grf.files.keys()).filter((path) =>
-    path.endsWith(".spr")
+  const allSpritePaths = Array.from(grf.files.keys()).filter((f) => f.endsWith(".spr"));
+  const normalizeSpriteName = (name: string) => name.toLowerCase();
+  const normalizedIdLookup = Object.entries(idToSpriteName).reduce(
+    (existing: Record<string, string>, [id, spriteName]) => ({
+      ...existing,
+      [normalizeSpriteName(spriteName)]: id,
+    }),
+    {}
   );
 
-  const findSpritePath = memoize(allSpritePaths.find.bind(allSpritePaths));
-
-  const infoEntries = Object.entries(idToSpriteName).map(
-    ([id, spriteName]) => ({
-      id: parseInt(id, 10),
-      spritePath: findSpritePath((path) =>
-        path.endsWith(`\\${spriteName.toLowerCase()}.spr`)
-      ),
-    })
-  );
-
-  return infoEntries.filter(
-    (entry): entry is SpriteInfo => entry.spritePath !== undefined
-  );
+  const entries: SpriteInfo[] = [];
+  for (const spritePath of allSpritePaths) {
+    const fileName = spritePath.split("\\").pop() ?? "";
+    const spriteName = normalizeSpriteName(fileName.split(".").shift()!);
+    const id = normalizedIdLookup[spriteName];
+    if (id !== undefined) {
+      entries.push({ id: parseInt(id, 10), spriteName, spritePath });
+    }
+  }
+  return entries;
 }
 
 async function spriteToTextureFile(sprite: SPR) {
@@ -313,6 +317,7 @@ async function cropMapImage(file: File) {
 interface SpriteInfo {
   id: number;
   spritePath: string;
+  spriteName: string;
 }
 
 const mapImageCropColor: RGB = [255, 0, 255]; // Magenta

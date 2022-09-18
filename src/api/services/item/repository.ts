@@ -24,7 +24,8 @@ export function createItemRepository({
   formatter: ImageFormatter;
 }) {
   const imageLinker = linker.chain("items");
-  const imageName = (id: ItemId) => `${id}${formatter.fileExtension}`;
+  const imageName = (item: Item) =>
+    `${item.Info?.identifiedResourceName}${formatter.fileExtension}`;
   const [imageUrlsPromise, imageWatcher] = autoMapLinkerUrls(imageLinker);
 
   const itemResolver = createItemResolver({ tradeScale });
@@ -39,7 +40,7 @@ export function createItemRepository({
         map.set(item.Id, {
           ...item,
           Info: infoFile.data?.[item.Id],
-          ImageUrl: imageUrls.get(imageName(item.Id)),
+          ImageUrl: imageUrls.get(imageName(item)),
         }),
       new Map<ItemId, Item>()
     );
