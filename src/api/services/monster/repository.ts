@@ -16,7 +16,7 @@ export function createMonsterRepository({
   formatter,
   yaml,
   npc,
-  logger,
+  logger: parentLogger,
 }: {
   linker: Linker;
   formatter: ImageFormatter;
@@ -25,6 +25,7 @@ export function createMonsterRepository({
   npc: NpcDriver;
   logger: Logger;
 }) {
+  const logger = parentLogger.chain("monster");
   const imageLinker = linker.chain("monsters");
   const imageName = (m: Monster) => `${m.Id}${formatter.fileExtension}`;
   const imageRepository = createImageRepository(formatter, imageLinker, logger);

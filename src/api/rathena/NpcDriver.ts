@@ -12,12 +12,13 @@ export type NpcDriver = ReturnType<typeof createNpcDriver>;
 export function createNpcDriver({
   rAthenaPath,
   rAthenaMode,
-  logger,
+  logger: parentLogger,
 }: {
   rAthenaPath: string;
   rAthenaMode: RAthenaMode;
   logger: Logger;
 }) {
+  const logger = parentLogger.chain("npc");
   const npcFolder = path.resolve(rAthenaPath, "npc");
   const modeFolder = path.resolve(npcFolder, modeFolderNames[rAthenaMode]);
 

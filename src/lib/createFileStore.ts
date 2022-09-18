@@ -6,7 +6,8 @@ import { watchFileInDirectory } from "./watchFileInDirectory";
 
 export type FileStore = ReturnType<typeof createFileStore>;
 
-export function createFileStore(directory: string, logger: Logger) {
+export function createFileStore(directory: string, parentLogger: Logger) {
+  const logger = parentLogger.chain("fileStore");
   ensureDir(directory);
   return {
     directory,

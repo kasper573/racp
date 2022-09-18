@@ -17,7 +17,7 @@ export function createItemRepository({
   tradeScale,
   linker,
   formatter,
-  logger,
+  logger: parentLogger,
 }: {
   yaml: YamlDriver;
   files: FileStore;
@@ -26,6 +26,7 @@ export function createItemRepository({
   formatter: ImageFormatter;
   logger: Logger;
 }) {
+  const logger = parentLogger.chain("item");
   const imageLinker = linker.chain("items");
   const imageName = (item: Item) => `${item.Id}${formatter.fileExtension}`;
   const imageRepository = createImageRepository(formatter, imageLinker, logger);

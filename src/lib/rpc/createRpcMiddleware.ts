@@ -22,9 +22,10 @@ export interface RpcMiddlewareOptions<Auth, Context> {
 
 export function createRpcMiddlewareFactory<Auth, Context>({
   validatorFor,
-  logger,
+  logger: parentLogger,
   getContext,
 }: RpcMiddlewareOptions<Auth, Context>) {
+  const logger = parentLogger.chain("rpc");
   function factory<
     Entries extends RpcDefinitionEntries,
     Controller extends RpcController<Entries, Context>

@@ -23,7 +23,7 @@ export function createMapRepository({
   linker,
   formatter,
   npc,
-  logger,
+  logger: parentLogger,
 }: {
   files: FileStore;
   linker: Linker;
@@ -31,6 +31,7 @@ export function createMapRepository({
   npc: NpcDriver;
   logger: Logger;
 }) {
+  const logger = parentLogger.chain("map");
   const imageLinker = linker.chain("maps");
   const mapImageName = (mapId: string) => `${mapId}${formatter.fileExtension}`;
   const imageRepository = createImageRepository(formatter, imageLinker, logger);
