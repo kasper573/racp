@@ -1,23 +1,13 @@
-import { Loader } from "../Loader";
-import { StreamReader } from "../Reader";
+import * as JDataView from "jdataview";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class GAT<Stream = any> extends Loader<Stream> {
+export class GAT {
   header = "";
   version: number[] = [];
   width = 0;
   height = 0;
 
-  constructor(
-    readFromStream: StreamReader<Stream>,
-    stream: Stream,
-    public name = ""
-  ) {
-    super(readFromStream, stream);
-  }
-
-  protected async loadImpl() {
-    const view = await this.getDataView(0, 14);
+  constructor(data: Uint8Array, public name = "") {
+    const view = new JDataView(data, void 0, void 0, true);
     this.header = view.getString(4);
     this.version = view.getBytes(2);
     this.width = view.getUint32();

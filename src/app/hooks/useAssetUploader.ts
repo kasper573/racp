@@ -16,7 +16,7 @@ import { GRF } from "../../lib/grf/types/GRF";
 import { GAT } from "../../lib/grf/types/GAT";
 import { readFileStream } from "../../lib/grf/readFileStream";
 import { ReducedLuaTables } from "../../api/services/util/types";
-import { SPR } from "../../lib/grf/types/SPR";
+import { RGBABitmap, SPR } from "../../lib/grf/types/SPR";
 import { canvasToBlob, imageDataToCanvas } from "../../lib/imageUtils";
 import { defined } from "../../lib/defined";
 import {
@@ -134,14 +134,10 @@ export function useAssetUploader() {
     ]);
 
     const monsterImages = await tracker.track(
-      monsterSpriteInfo.map(({ id, spriteName, spritePath }) => ({
+      monsterSpriteInfo.map((info) => ({
         group: "Unpacking monster images",
-        id: `Monster ID: ${id}, Sprite: "${spritePath}"`,
-        fn: async () => {
-          const file = await grf.getFile(spritePath);
-          const spr = await new SPR(readFileStream, file, spriteName).load();
-          return toRpcFile(await spriteToTextureFile(spr));
-        },
+        id: `Monster ID: ${info.id}, Sprite: "${info.spritePath}"`,
+        fn: () => loadSpriteFromGRF(grf, info),
       }))
     );
 
@@ -167,17 +163,11 @@ export function useAssetUploader() {
     }
 
     const itemImages = await tracker.track(
-      resolveSpriteInfo(grf, resourceNames).map(
-        ({ id, spriteName, spritePath }) => ({
-          group: "Unpacking item images",
-          id: `Item ID: ${id}, Sprite: "${spritePath}"`,
-          fn: async () => {
-            const file = await grf.getFile(spritePath);
-            const spr = await new SPR(readFileStream, file, spriteName).load();
-            return toRpcFile(await spriteToTextureFile(spr));
-          },
-        })
-      )
+      resolveSpriteInfo(grf, resourceNames).map((info) => ({
+        group: "Unpacking item images",
+        id: `Item ID: ${info.id}, Sprite: "${info.spritePath}"`,
+        fn: () => loadSpriteFromGRF(grf, info),
+      }))
     );
 
     await tracker.track(
@@ -240,9 +230,7 @@ function createMapDataUnpackJobs<Stream>(grf: GRF<Stream>) {
       const imageFilePath = `data\\texture\\à¯àúàîåíæäàì½º\\map\\${mapName}.bmp`;
 
       const [gatResult, imageResult] = await Promise.allSettled([
-        grf
-          .getFile(gatFilePath)
-          .then((file) => new GAT(readFileStream, file, file.name).load()),
+        grf.getEntry(gatFilePath).then(({ data, name }) => new GAT(data, name)),
         grf.getFile(imageFilePath).then(cropMapImage).then(toRpcFile),
       ]);
 
@@ -308,9 +296,19 @@ function resolveSpriteInfo(
   return infoList;
 }
 
-async function spriteToTextureFile(sprite: SPR) {
-  const frame = sprite.compileFrame(0);
-  const blob = await canvasToBlob(
+async function loadSpriteFromGRF(
+  grf: GRF,
+  { spriteName, spritePath }: SpriteInfo
+) {
+  const { data } = await grf.getEntry(spritePath);
+  const spr = await new SPR(data);
+  const frame = spr.compileFrame(0);
+  const blob = await frameToBlob(frame);
+  return toRpcFile(new File([blob], spriteName));
+}
+
+async function frameToBlob(frame: RGBABitmap) {
+  return canvasToBlob(
     imageDataToCanvas(
       new ImageData(
         new Uint8ClampedArray(frame.data),
@@ -319,7 +317,6 @@ async function spriteToTextureFile(sprite: SPR) {
       )
     )
   );
-  return new File([blob], sprite.name);
 }
 
 async function cropMapImage(file: File) {

@@ -16,7 +16,7 @@ const FILE_TABLE_SIZE = Uint32Array.BYTES_PER_ELEMENT * 2;
 export class GRF<Stream = any> extends Loader<Stream> {
   public version = 0x200;
   public fileCount = 0;
-  public files = new Map<string, GRFFileEntry>();
+  public files = new Map<string, GRFFileMetaData>();
   private fileTableOffset = 0;
 
   public async loadImpl(): Promise<void> {
@@ -67,7 +67,7 @@ export class GRF<Stream = any> extends Loader<Stream> {
 
       p++;
 
-      const entry: GRFFileEntry = {
+      const entry: GRFFileMetaData = {
         path: normalizePath(filePath),
         name: filePath.split(/[\\/]/).pop() ?? filePath,
         compressedSize:
@@ -92,7 +92,7 @@ export class GRF<Stream = any> extends Loader<Stream> {
     }
   }
 
-  private decodeEntry(data: Uint8Array, entry: GRFFileEntry): Uint8Array {
+  private decodeEntry(data: Uint8Array, entry: GRFFileMetaData): Uint8Array {
     if (entry.type & FILELIST_TYPE_ENCRYPT_MIXED) {
       decodeFull(data, entry.lengthAligned, entry.compressedSize);
     } else if (entry.type & FILELIST_TYPE_ENCRYPT_HEADER) {
@@ -108,27 +108,19 @@ export class GRF<Stream = any> extends Loader<Stream> {
   }
 
   public async getFile(path: string) {
-    const entry = await this.getEntry(path);
-    if (entry.data !== undefined) {
-      return new File([entry.data], entry.name);
-    }
-    throw new Error(`${entry.error}`);
+    const { data, name } = await this.getEntry(path);
+    return new File([data], name);
   }
 
   public async getEntry(path: string): Promise<GRFFile> {
     path = normalizePath(path);
-    const name = path.split(/[\\/]/).pop() || path;
     if (!this.loaded) {
-      return Promise.resolve({ name, error: "GRF not loaded yet" });
+      throw new Error("GRF not loaded yet");
     }
 
     const entry = this.files.get(path);
-
     if (!entry) {
-      return Promise.resolve({
-        name,
-        error: `File "${path}" not found`,
-      });
+      throw new Error(`File "${path}" not found`);
     }
 
     const buffer = await this.getBuffer(
@@ -136,16 +128,11 @@ export class GRF<Stream = any> extends Loader<Stream> {
       entry.lengthAligned
     );
 
-    try {
-      const data = this.decodeEntry(buffer, entry);
-      return Promise.resolve({ data, name: entry.name });
-    } catch (error) {
-      return Promise.resolve({ name: entry.name, error });
-    }
+    return { data: this.decodeEntry(buffer, entry), name: entry.name };
   }
 }
 
-export interface GRFFileEntry {
+export interface GRFFileMetaData {
   path: string;
   name: string;
   type: number;
@@ -155,10 +142,9 @@ export interface GRFFileEntry {
   lengthAligned: number;
 }
 
-export interface GRFFile {
+export type GRFFile = {
   name: string;
-  data?: Uint8Array;
-  error?: unknown;
-}
+  data: Uint8Array;
+};
 
 const normalizePath = (path: string) => path.toLowerCase();
