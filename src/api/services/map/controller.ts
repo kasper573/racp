@@ -2,6 +2,7 @@ import { createRpcController } from "../../util/rpc";
 import { RpcException } from "../../../lib/rpc/RpcException";
 import { defined } from "../../../lib/defined";
 import { createSearchController } from "../../common/search";
+import { bufferToLuaCode } from "../../common/parseLuaTableAs";
 import { MapRepository } from "./repository";
 import { mapDefinition } from "./definition";
 import { mapInfoFilter, warpFilter } from "./types";
@@ -27,17 +28,17 @@ export async function mapController(repo: MapRepository) {
     countMapImages: repo.countImages,
     uploadMapImages: repo.updateImages,
     async countMapInfo() {
-      return Object.keys(await repo.getMaps()).length;
+      return (await repo.getMaps()).size;
     },
     async uploadMapInfo([file]) {
       if (!file) {
         throw new RpcException("A file must be uploaded");
       }
-      const res = repo.updateInfo(Buffer.from(file.data).toString("utf8"));
+      const res = repo.updateInfo(bufferToLuaCode(Buffer.from(file.data)));
       if (!res.success) {
         throw new Error("File could not be parsed as map info.");
       }
-      return Object.values(res.data).map((map) => map.id);
+      return Object.values(res.data ?? {}).map((map) => map.id);
     },
     async updateMapBounds(bounds) {
       repo.updateBounds(bounds);
@@ -46,16 +47,16 @@ export async function mapController(repo: MapRepository) {
       return repo
         .getMaps()
         .then(
-          (record) => Object.values(record).filter((map) => !!map.bounds).length
+          (map) => Array.from(map.values()).filter((map) => !!map.bounds).length
         );
     },
     async getMissingMapData() {
-      const maps = Object.values(await repo.getMaps());
+      const maps = Array.from((await repo.getMaps()).values());
       const images = defined(
-        maps.map(({ id, imageUrl }) => (imageUrl ? id : undefined))
+        maps.map(({ id, imageUrl }) => (!imageUrl ? id : undefined))
       );
       const bounds = defined(
-        maps.map(({ id, bounds }) => (bounds ? id : undefined))
+        maps.map(({ id, bounds }) => (!bounds ? id : undefined))
       );
       return { images, bounds };
     },

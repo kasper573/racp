@@ -6,7 +6,8 @@ import { watchFileInDirectory } from "./watchFileInDirectory";
 
 export type FileStore = ReturnType<typeof createFileStore>;
 
-export function createFileStore(directory: string, logger: Logger) {
+export function createFileStore(directory: string, parentLogger: Logger) {
+  const logger = parentLogger.chain("fs");
   ensureDir(directory);
   return {
     directory,
@@ -17,53 +18,85 @@ export function createFileStore(directory: string, logger: Logger) {
       const entryLogger = logger.chain(relativeFilename);
       const filename = path.resolve(directory, relativeFilename);
 
-      const watcher = watchFileInDirectory(directory, relativeFilename, reload);
+      let isAutoLoadEnabled = true;
+      const watcher = watchFileInDirectory(directory, relativeFilename, () => {
+        if (isAutoLoadEnabled) {
+          loadFileContent();
+        }
+      });
+
       let currentData: Data | undefined;
+      let currentFileContent: string | undefined;
 
-      function setData(data?: Data) {
-        currentData = data;
-        entryLogger.log(
-          "updated, new data:",
-          currentData === undefined ? "undefined" : JSON.stringify(currentData)
-        );
-      }
+      function setFileContent(
+        fileContent?: string
+      ): FileParseResult<Data | undefined> | "unchanged" {
+        if (fileContent === currentFileContent) {
+          return "unchanged";
+        }
 
-      function reload() {
-        try {
-          const fileContent = fs.readFileSync(filename, "utf-8");
+        if (fileContent !== undefined) {
           const res = parseFileContent(fileContent);
           if (res.success) {
-            setData(res.data);
+            currentData = res.data;
+            currentFileContent = fileContent;
           } else {
             entryLogger.error(
-              `Could not load file, failed to parse its content. Received error: ${res}`
+              `Could not parse file content. Received error: ${res.error}`
             );
+            return res;
           }
-        } catch {
-          setData(undefined);
-        }
-      }
-
-      function update(fileContent: string) {
-        const res = parseFileContent(fileContent);
-        if (res.success) {
-          fs.writeFileSync(filename, fileContent, "utf-8");
-          setData(res.data);
         } else {
-          entryLogger.error(
-            `Could not update file. Failed to parse new content. Received error: ${res}`
-          );
+          currentData = undefined;
+          currentFileContent = undefined;
         }
-        return res;
+
+        entryLogger.log("updated, new size:", currentFileContent?.length ?? 0);
+        return { success: true, data: currentData };
       }
 
-      reload();
+      function loadFileContent() {
+        let loadedContent: string | undefined;
+        try {
+          loadedContent = fs.readFileSync(filename, "utf-8");
+        } catch {
+          // File missing = content undefined
+        }
+        setFileContent(loadedContent);
+      }
+
+      function writeFileContent(
+        newContent?: string
+      ): FileParseResult<Data | undefined> {
+        const res = setFileContent(newContent);
+        if (res === "unchanged") {
+          return { success: true, data: currentData };
+        }
+
+        if (!res.success) {
+          return res;
+        }
+
+        try {
+          if (newContent === undefined) {
+            fs.rmSync(filename);
+          } else {
+            fs.writeFileSync(filename, newContent, "utf-8");
+          }
+          return res;
+        } catch (error) {
+          entryLogger.error(`Could not update file "${filename}": ${error}`);
+          return { success: false, error };
+        }
+      }
+
+      loadFileContent();
 
       return {
         get data() {
           return currentData;
         },
-        update,
+        update: writeFileContent,
         close: () => watcher.close(),
       };
     },
@@ -72,7 +105,7 @@ export function createFileStore(directory: string, logger: Logger) {
 
 export interface FileStoreEntry<Data> {
   get data(): Data | undefined;
-  update(fileContent: string): FileParseResult<Data>;
+  update(fileContent?: string): FileParseResult<Data | undefined>;
   close(): void;
 }
 
@@ -83,4 +116,4 @@ export type ContentParser<T = any> = (
 
 export type FileParseResult<T> =
   | { success: true; data: T }
-  | { success: false };
+  | { success: false; error: unknown };

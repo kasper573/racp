@@ -9,11 +9,12 @@ export const dbInfoConfigName = "inter_athena.conf";
 
 export function createConfigDriver({
   rAthenaPath,
-  logger,
+  logger: parentLogger,
 }: {
   rAthenaPath: string;
   logger: Logger;
 }) {
+  const logger = parentLogger.chain("config");
   const configDirectory = path.resolve(rAthenaPath, "conf");
   const configPath = (configName: string) =>
     path.resolve(configDirectory, configName);

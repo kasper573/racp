@@ -1,10 +1,12 @@
 import * as fs from "fs";
 import { FileStore } from "../../../lib/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
-import { autoMapLinkerUrls, Linker } from "../../../lib/createPublicFileLinker";
+import { Linker } from "../../../lib/createPublicFileLinker";
 import { ImageFormatter } from "../../../lib/createImageFormatter";
 import { NpcDriver } from "../../rathena/NpcDriver";
-import { createImageUpdater } from "../../common/createImageUpdater";
+import { createImageRepository } from "../../common/createImageRepository";
+import { trimExtension } from "../../../lib/trimExtension";
+import { Logger } from "../../../lib/logger";
 import {
   MapBoundsRegistry,
   mapBoundsRegistryType,
@@ -13,6 +15,7 @@ import {
   mapInfoType,
   warpType,
 } from "./types";
+
 export type MapRepository = ReturnType<typeof createMapRepository>;
 
 export function createMapRepository({
@@ -20,15 +23,18 @@ export function createMapRepository({
   linker,
   formatter,
   npc,
+  logger: parentLogger,
 }: {
   files: FileStore;
   linker: Linker;
   formatter: ImageFormatter;
   npc: NpcDriver;
+  logger: Logger;
 }) {
+  const logger = parentLogger.chain("map");
   const imageLinker = linker.chain("maps");
   const mapImageName = (mapId: string) => `${mapId}${formatter.fileExtension}`;
-  const [imageUrlsPromise, imageWatcher] = autoMapLinkerUrls(imageLinker);
+  const imageRepository = createImageRepository(formatter, imageLinker, logger);
 
   const infoFile = files.entry("mapInfo.lub", parseMapInfo);
   const boundsFile = files.entry("mapBounds.json", (str) =>
@@ -36,14 +42,13 @@ export function createMapRepository({
   );
 
   async function getMaps() {
-    const imageUrls = await imageUrlsPromise;
     return Object.entries(infoFile.data ?? {}).reduce((all, [key, info]) => {
       const id = trimExtension(key);
       return all.set(id, {
         ...info,
         id,
         bounds: boundsFile.data?.[id],
-        imageUrl: imageUrls.get(mapImageName(id)),
+        imageUrl: imageRepository.urlMap.get(mapImageName(id)),
       });
     }, new Map<MapId, MapInfo>());
   }
@@ -54,7 +59,7 @@ export function createMapRepository({
     countImages: () =>
       fs.promises.readdir(imageLinker.directory).then((dirs) => dirs.length),
     warps: npc.resolve("scripts_warps.conf", warpType),
-    updateImages: createImageUpdater(formatter, imageLinker),
+    updateImages: imageRepository.update,
     async updateBounds(registryChanges: MapBoundsRegistry) {
       const updatedRegistry = {
         ...(boundsFile.data ?? {}),
@@ -65,11 +70,9 @@ export function createMapRepository({
     destroy: () => {
       infoFile.close();
       boundsFile.close();
-      imageWatcher.close();
+      imageRepository.close();
     },
   };
 }
 
 const parseMapInfo = (luaCode: string) => parseLuaTableAs(luaCode, mapInfoType);
-
-const trimExtension = (id: string) => id.replace(/\.[^.]+$/, "");

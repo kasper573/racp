@@ -3,12 +3,9 @@ import { useEffect, useMemo, useReducer } from "react";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { groupBy, uniq } from "lodash";
 import { allResolved } from "./allResolved";
-import {
-  SchedulerCallOptions,
-  SchedulerHookOptions,
-  useScheduler,
-} from "./useScheduler";
+import { useBottleneck } from "./useBottleneck";
 import { useLatest } from "./useLatest";
+import { useIsMounted } from "./useIsMounted";
 
 export type TaskRejectionReason = unknown;
 
@@ -32,10 +29,7 @@ export interface TaskGroup extends Record<TaskState, Task[]> {
   progress: number;
 }
 
-export type InputTask<T> = { schedule?: SchedulerCallOptions } & Pick<
-  Task<T>,
-  "fn" | "group"
-> &
+export type InputTask<T> = Pick<Task<T>, "fn" | "group"> &
   Partial<Pick<Task<T>, "id">>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -82,9 +76,10 @@ const slice = createSlice({
   },
 });
 
-export function useTaskScheduler(options?: SchedulerHookOptions) {
+export function useTaskScheduler() {
+  const isSchedulerAlive = useIsMounted();
   const [tasks, dispatch] = useReducer(slice.reducer, slice.getInitialState());
-  const [schedule, resetScheduler] = useScheduler(options);
+  const schedule = useBottleneck();
   const groups = useMemo(() => groupTasks(tasks), [tasks]);
   const progress = useMemo(() => schedulerProgress(groups), [groups]);
   const isPending = progress < 1;
@@ -92,9 +87,9 @@ export function useTaskScheduler(options?: SchedulerHookOptions) {
 
   const latest = useLatest({ reset });
   useEffect(() => latest.current.reset, [latest]);
+  useEffect(() => {});
 
   function reset() {
-    resetScheduler();
     dispatch(slice.actions.clear());
   }
 
@@ -103,9 +98,12 @@ export function useTaskScheduler(options?: SchedulerHookOptions) {
 
     dispatch(slice.actions.add(tasks));
 
-    const promises = tasks.map((task, index) =>
+    const promises = tasks.map((task) =>
       schedule(async () => {
         try {
+          if (!isSchedulerAlive()) {
+            throw new Error("Scheduler was killed");
+          }
           const res = await task.fn();
           dispatch(slice.actions.resolve(task.id));
           return res;
@@ -113,7 +111,7 @@ export function useTaskScheduler(options?: SchedulerHookOptions) {
           dispatch(slice.actions.reject({ id: task.id, reason }));
           throw reason;
         }
-      }, inputTasks[index].schedule)
+      })
     );
 
     return allResolved(promises);

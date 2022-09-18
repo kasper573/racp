@@ -1,7 +1,7 @@
 // Based on https://github.com/vthibault/grf-loader
 
-import { inflate } from "pako";
 import { decodeFull, decodeHeader } from "../des";
+import { Inflate } from "../inflate";
 import { Loader } from "../Loader";
 
 const FILELIST_TYPE_FILE = 0x01;
@@ -16,7 +16,7 @@ const FILE_TABLE_SIZE = Uint32Array.BYTES_PER_ELEMENT * 2;
 export class GRF<Stream = any> extends Loader<Stream> {
   public version = 0x200;
   public fileCount = 0;
-  public files = new Map<string, GRFFileEntry>();
+  public files = new Map<string, GRFFileMetaData>();
   private fileTableOffset = 0;
 
   public async loadImpl(): Promise<void> {
@@ -55,18 +55,21 @@ export class GRF<Stream = any> extends Loader<Stream> {
       compressedSize
     );
 
-    const data = inflate(compressed);
+    const data = new Uint8Array(realSize);
+    new Inflate(compressed).getBytes(data);
 
     // Optimized version without using jDataView (faster)
     for (let i = 0, p = 0; i < this.fileCount; ++i) {
-      let filename = "";
+      let filePath = "";
       while (data[p]) {
-        filename += String.fromCharCode(data[p++]);
+        filePath += String.fromCharCode(data[p++]);
       }
 
       p++;
 
-      const entry: GRFFileEntry = {
+      const entry: GRFFileMetaData = {
+        path: normalizePath(filePath),
+        name: filePath.split(/[\\/]/).pop() ?? filePath,
         compressedSize:
           data[p++] | (data[p++] << 8) | (data[p++] << 16) | (data[p++] << 24),
         lengthAligned:
@@ -84,12 +87,12 @@ export class GRF<Stream = any> extends Loader<Stream> {
 
       // Not a file (folder ?)
       if (entry.type & FILELIST_TYPE_FILE) {
-        this.files.set(filename.toLowerCase(), entry);
+        this.files.set(entry.path, entry);
       }
     }
   }
 
-  private decodeEntry(data: Uint8Array, entry: GRFFileEntry): Uint8Array {
+  private decodeEntry(data: Uint8Array, entry: GRFFileMetaData): Uint8Array {
     if (entry.type & FILELIST_TYPE_ENCRYPT_MIXED) {
       decodeFull(data, entry.lengthAligned, entry.compressedSize);
     } else if (entry.type & FILELIST_TYPE_ENCRYPT_HEADER) {
@@ -99,32 +102,25 @@ export class GRF<Stream = any> extends Loader<Stream> {
     if (entry.realSize === entry.compressedSize) {
       return data;
     }
-
-    return inflate(data);
+    const out = new Uint8Array(entry.realSize);
+    new Inflate(data).getBytes(out);
+    return out;
   }
 
   public async getFile(path: string) {
-    const entry = await this.getEntry(path);
-    if (entry.data !== undefined) {
-      return new File([entry.data], entry.name);
-    }
-    throw new Error(`${entry.error}`);
+    const { data, name } = await this.getEntry(path);
+    return new File([data], name);
   }
 
   public async getEntry(path: string): Promise<GRFFile> {
-    path = path.toLowerCase();
-    const name = path.split(/[\\/]/).pop() || path;
+    path = normalizePath(path);
     if (!this.loaded) {
-      return Promise.resolve({ name, error: "GRF not loaded yet" });
+      throw new Error("GRF not loaded yet");
     }
 
     const entry = this.files.get(path);
-
     if (!entry) {
-      return Promise.resolve({
-        name,
-        error: `File "${path}" not found`,
-      });
+      throw new Error(`File "${path}" not found`);
     }
 
     const buffer = await this.getBuffer(
@@ -132,16 +128,13 @@ export class GRF<Stream = any> extends Loader<Stream> {
       entry.lengthAligned
     );
 
-    try {
-      const data = this.decodeEntry(buffer, entry);
-      return Promise.resolve({ data, name });
-    } catch (error) {
-      return Promise.resolve({ name, error });
-    }
+    return { data: this.decodeEntry(buffer, entry), name: entry.name };
   }
 }
 
-export interface GRFFileEntry {
+export interface GRFFileMetaData {
+  path: string;
+  name: string;
   type: number;
   offset: number;
   realSize: number;
@@ -149,8 +142,9 @@ export interface GRFFileEntry {
   lengthAligned: number;
 }
 
-export interface GRFFile {
+export type GRFFile = {
   name: string;
-  data?: Uint8Array;
-  error?: unknown;
-}
+  data: Uint8Array;
+};
+
+const normalizePath = (path: string) => path.toLowerCase();

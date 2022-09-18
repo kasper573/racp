@@ -1,7 +1,7 @@
 import * as zod from "zod";
 import { createRpcController } from "../../util/rpc";
 import { unluac } from "../../../lib/unluac/unluac";
-import { parseLuaTableAs } from "../../common/parseLuaTableAs";
+import { bufferToLuaCode, parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { utilDefinition } from "./definition";
 import { ReducedLuaTables } from "./types";
 
@@ -12,7 +12,7 @@ export function utilController() {
         Buffer.from(new Uint8Array(file.data))
       );
       const decompiled = await Promise.all(compiled.map(unluac));
-      const luaCodes = decompiled.map((buffer) => buffer.toString("utf8"));
+      const luaCodes = decompiled.map(bufferToLuaCode);
       return luaCodes.reduce((reduction: ReducedLuaTables, luaCode) => {
         const res = parseLuaTableAs(luaCode, zod.unknown(), reduction);
         return res.success ? res.data : reduction;

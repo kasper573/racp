@@ -52,17 +52,17 @@ const logger = createLogger(
 const app = express();
 const authenticator = createAuthenticator({ secret: args.jwtSecret, ...args });
 const { sign } = authenticator;
-const yaml = createYamlDriver({ ...args, logger: logger.chain("yaml") });
-const config = createConfigDriver({ ...args, logger: logger.chain("config") });
+const yaml = createYamlDriver({ ...args, logger });
+const config = createConfigDriver({ ...args, logger });
 const db = createDatabaseDriver(config);
 const files = createFileStore(
   path.join(process.cwd(), args.dataFolder),
-  logger.chain("fs")
+  logger
 );
-const npc = createNpcDriver({ ...args, logger: logger.chain("npc") });
+const npc = createNpcDriver({ ...args, logger });
 const rpc = createRpcMiddlewareFactory<UserAccessLevel, RpcContext>({
   validatorFor: authenticator.validatorFor,
-  logger: logger.chain("rpc"),
+  logger,
   getContext: ({ auth }: JWTRequest<AuthenticatorPayload>) => ({ auth }),
 });
 
@@ -75,14 +75,22 @@ const linker = createPublicFileLinker({
 });
 
 const user = createUserRepository({ yaml, ...args });
-const maps = createMapRepository({ files, linker, formatter, npc });
-const items = createItemRepository({ ...args, yaml, files, formatter, linker });
+const maps = createMapRepository({ files, linker, formatter, npc, logger });
+const items = createItemRepository({
+  ...args,
+  yaml,
+  files,
+  formatter,
+  linker,
+  logger,
+});
 const monsters = createMonsterRepository({
   ...args,
   yaml,
   npc,
   formatter,
   linker,
+  logger,
 });
 
 linkDropsWithItems(items, monsters);

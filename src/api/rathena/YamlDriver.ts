@@ -12,12 +12,14 @@ export type YamlDriver = ReturnType<typeof createYamlDriver>;
 export function createYamlDriver({
   rAthenaPath,
   rAthenaMode,
-  logger,
+  logger: parentLogger,
 }: {
   rAthenaPath: string;
   rAthenaMode: string;
   logger: Logger;
 }) {
+  const logger = parentLogger.chain("yaml");
+
   async function loadNode(file: string): Promise<DBNode | undefined> {
     const filePath = path.resolve(rAthenaPath, file);
     let content: string;
