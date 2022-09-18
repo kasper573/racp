@@ -1,6 +1,6 @@
 import { chunk, pick } from "lodash";
 import * as zod from "zod";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { cropSurroundingColors, RGB } from "../../lib/cropSurroundingColors";
 import {
   useDecompileLuaTableFilesMutation,
@@ -38,8 +38,6 @@ export function useAssetUploader() {
   const [uploadItemImages, itemImageUpload] = useUploadItemImagesMutation();
   const [decompileLuaTables] = useDecompileLuaTableFilesMutation();
 
-  const [customErrors, setCustomErrors] = useState<string[]>([]);
-
   const tracker = useTaskScheduler({
     maxConcurrent: 30,
     defaultPriority: Math.random,
@@ -75,7 +73,7 @@ export function useAssetUploader() {
     itemImageUpload.error,
   ]);
 
-  const errors = [...serverErrors, ...trackerErrors, ...customErrors];
+  const errors = [...serverErrors, ...trackerErrors];
 
   async function uploadMapDataFromGRF(grf: GRF) {
     const mapData = await tracker.track(
@@ -92,17 +90,16 @@ export function useAssetUploader() {
       {}
     );
 
-    await Promise.allSettled([
-      tracker.track(
-        divide(images, 100).map((partial) => ({
-          group: "Uploading map image packs",
-          fn: () => uploadMapImages(partial),
-        }))
-      ),
-      tracker.track([
-        { group: `Uploading map bounds`, fn: () => updateMapBounds(bounds) },
-      ]),
+    await tracker.track([
+      { group: `Uploading map bounds`, fn: () => updateMapBounds(bounds) },
     ]);
+
+    await tracker.track(
+      divide(images, 100).map((partial) => ({
+        group: "Uploading map image packs",
+        fn: () => uploadMapImages(partial),
+      }))
+    );
   }
 
   async function uploadMapInfoLubFiles(lubFiles: File[]) {
@@ -124,7 +121,6 @@ export function useAssetUploader() {
   async function uploadMonsterImagesFromGRF(grf: GRF) {
     const [monsterSpriteInfo = []] = await tracker.track([
       {
-        schedule: { priority: 0 },
         group: "Locating monster images",
         fn: () =>
           determineMonsterSpriteNames(grf, (files) =>
@@ -154,7 +150,6 @@ export function useAssetUploader() {
       {
         group: "Uploading item info",
         fn: async () => updateItemInfo([await toRpcFile(infoFile)]).unwrap(),
-        schedule: { priority: 0 },
       },
     ]);
 
@@ -179,12 +174,7 @@ export function useAssetUploader() {
   }
 
   async function upload(mapInfoFile: File, itemInfoFile: File, grfFile: File) {
-    setCustomErrors([]);
     tracker.reset();
-
-    const nonBlockingPromises: Promise<unknown>[] = [];
-
-    nonBlockingPromises.push(uploadMapInfoLubFiles([mapInfoFile]));
 
     const [grf] = await tracker.track([
       {
@@ -193,13 +183,11 @@ export function useAssetUploader() {
       },
     ]);
 
-    nonBlockingPromises.push(
-      uploadMapDataFromGRF(grf),
-      uploadMonsterImagesFromGRF(grf),
-      uploadItemInfoAndImages(grf, itemInfoFile)
-    );
-
-    await Promise.all(nonBlockingPromises);
+    // Sequence instead of parallel because it uses less memory
+    await uploadMapInfoLubFiles([mapInfoFile]);
+    await uploadMapDataFromGRF(grf);
+    await uploadMonsterImagesFromGRF(grf);
+    await uploadItemInfoAndImages(grf, itemInfoFile);
   }
 
   return {
