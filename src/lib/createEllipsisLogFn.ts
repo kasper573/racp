@@ -6,7 +6,10 @@ const fallbackColumns = 80;
 export function createEllipsisLogFn(writeStream: WriteStream): LogFn {
   return (...args) =>
     writeStream.write(
-      ellipsis(args.join(" "), writeStream.columns ?? fallbackColumns) + "\n"
+      ellipsis(args.join(" "), writeStream.columns ?? fallbackColumns) +
+        // Reset color in case ellipsis breaks coloring
+        "\x1b" +
+        "\n"
     );
 }
 
