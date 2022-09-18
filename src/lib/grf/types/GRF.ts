@@ -131,10 +131,6 @@ export class GRF<Stream = any> extends Loader<Stream> {
       });
     }
 
-    return this.readEntry(entry);
-  }
-
-  public async readEntry(entry: GRFFileEntry) {
     const buffer = await this.getBuffer(
       entry.offset + HEADER_SIZE,
       entry.lengthAligned
