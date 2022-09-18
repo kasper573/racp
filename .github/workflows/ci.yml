@@ -75,4 +75,4 @@ jobs:
           log: verbose
           CYPRESS_BASE_URL: http://localhost:8080
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          #CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}

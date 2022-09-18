@@ -15,7 +15,7 @@
     "api:prod": "ts-node --files src/api/server",
     "e2e:dev": "cross-env CYPRESS_BASE_URL=http://localhost:8080 cypress open",
     "e2e:ci:dependencies": "concurrently \"yarn api:prod\" \"yarn app:prod\"",
-    "e2e:ci:run": "cross-var npx start-server-and-test e2e:ci:dependencies $CYPRESS_BASE_URL 'cypress run --record'",
+    "e2e:ci:run": "cross-var npx start-server-and-test e2e:ci:dependencies $CYPRESS_BASE_URL 'cypress run'",
     "remove-ugc": "ts-node --files scripts/removeUGC.ts",
     "codegen": "ts-node --files scripts/generateRAthenaTypes.ts",
     "configure-rathena": "ts-node --files scripts/configureRAthena.ts"
