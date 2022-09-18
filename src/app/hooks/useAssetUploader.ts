@@ -38,10 +38,7 @@ export function useAssetUploader() {
   const [uploadItemImages, itemImageUpload] = useUploadItemImagesMutation();
   const [decompileLuaTables] = useDecompileLuaTableFilesMutation();
 
-  const tracker = useTaskScheduler({
-    maxConcurrent: 30,
-    defaultPriority: Math.random,
-  });
+  const tracker = useTaskScheduler();
 
   const trackerErrors = useMemo(
     () =>
