@@ -80,11 +80,12 @@ export function useAssetUploader() {
     const mapData = await tracker.track(createMapDataUnpackJobs(grf));
 
     const images = defined(mapData.map(({ image }) => image));
-    const bounds = mapData.reduce(
-      (bounds: MapBoundsRegistry, { gat }) =>
-        gat ? { ...bounds, [fileNameToMapName(gat.name)]: gat } : bounds,
-      {}
-    );
+    const bounds = mapData.reduce((bounds: MapBoundsRegistry, { gat }) => {
+      if (gat) {
+        bounds[fileNameToMapName(gat.name)] = gat;
+      }
+      return bounds;
+    }, {});
 
     await tracker.track([
       { group: `Uploading map bounds`, fn: () => updateMapBounds(bounds) },

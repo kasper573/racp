@@ -107,5 +107,5 @@ app.use(rpc(metaDefinition, metaController({ items, monsters })));
 app.use(rpc(utilDefinition, utilController()));
 
 http.createServer(app).listen(args.apiPort, args.hostname, () => {
-  console.log(`API is running on port ${args.port}`);
+  console.log(`API is running on port ${args.apiPort}`);
 });
