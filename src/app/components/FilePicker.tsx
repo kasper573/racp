@@ -2,7 +2,7 @@ import { ComponentProps, ReactNode, useEffect, useRef } from "react";
 import { Stack, styled, Typography } from "@mui/material";
 import { ProgressButton } from "./ProgressButton";
 
-export interface FileUploaderProps
+export interface FilePickerProps
   extends Omit<ComponentProps<typeof Stack>, "onChange"> {
   buttonText: ReactNode;
   isLoading?: boolean;
@@ -14,7 +14,7 @@ export interface FileUploaderProps
   disabled?: boolean;
 }
 
-export function FileUploader({
+export function FilePicker({
   isLoading,
   value,
   onChange,
@@ -24,7 +24,7 @@ export function FileUploader({
   emptyText = "No file selected",
   disabled,
   ...props
-}: FileUploaderProps) {
+}: FilePickerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!value?.length && inputRef.current) {

@@ -1,7 +1,7 @@
 import { chunk, pick } from "lodash";
 import * as zod from "zod";
 import { useMemo } from "react";
-import { cropSurroundingColors, RGB } from "../../lib/cropSurroundingColors";
+import { cropSurroundingColors, RGB } from "../../../lib/cropSurroundingColors";
 import {
   useDecompileLuaTableFilesMutation,
   useUpdateMapBoundsMutation,
@@ -10,24 +10,24 @@ import {
   useUploadMapImagesMutation,
   useUploadMapInfoMutation,
   useUploadMonsterImagesMutation,
-} from "../state/client";
-import { RpcFile, toRpcFile } from "../../lib/rpc/RpcFile";
-import { GRF } from "../../lib/grf/types/GRF";
-import { GAT } from "../../lib/grf/types/GAT";
-import { readFileStream } from "../../lib/grf/readFileStream";
-import { ReducedLuaTables } from "../../api/services/util/types";
-import { RGBABitmap, SPR } from "../../lib/grf/types/SPR";
-import { canvasToBlob, imageDataToCanvas } from "../../lib/imageUtils";
-import { defined } from "../../lib/defined";
+} from "../../state/client";
+import { RpcFile, toRpcFile } from "../../../lib/rpc/RpcFile";
+import { GRF } from "../../../lib/grf/types/GRF";
+import { GAT } from "../../../lib/grf/types/GAT";
+import { ReducedLuaTables } from "../../../api/services/util/types";
+import { RGBABitmap, SPR } from "../../../lib/grf/types/SPR";
+import { canvasToBlob, imageDataToCanvas } from "../../../lib/imageUtils";
+import { defined } from "../../../lib/defined";
 import {
   describeTask,
   describeTaskGroup,
+  InputTask,
   TaskRejectionReason,
   useTaskScheduler,
-} from "../../lib/useTaskScheduler";
-import { MapBoundsRegistry } from "../../api/services/map/types";
-import { getErrorMessage } from "../components/ErrorMessage";
-import { trimExtension } from "../../lib/trimExtension";
+} from "../../../lib/useTaskScheduler";
+import { MapBoundsRegistry } from "../../../api/services/map/types";
+import { getErrorMessage } from "../../components/ErrorMessage";
+import { trimExtension } from "../../../lib/trimExtension";
 
 export function useAssetUploader() {
   const [uploadMapImages, mapImageUpload] = useUploadMapImagesMutation();
@@ -73,12 +73,7 @@ export function useAssetUploader() {
   const errors = [...serverErrors, ...trackerErrors];
 
   async function uploadMapDataFromGRF(grf: GRF) {
-    const mapData = await tracker.track(
-      createMapDataUnpackJobs(grf).map((fn) => ({
-        group: "Unpacking map data",
-        fn,
-      }))
-    );
+    const mapData = await tracker.track(createMapDataUnpackJobs(grf));
 
     const images = defined(mapData.map(({ image }) => image));
     const bounds = mapData.reduce(
@@ -176,15 +171,24 @@ export function useAssetUploader() {
     const [grf] = await tracker.track([
       {
         group: "Loading GRF file",
-        fn: () => new GRF(readFileStream, grfFile).load(),
+        id: grfFile.name,
+        fn: () => GRF.load(grfFile),
       },
     ]);
 
-    // Sequence instead of parallel because it uses less memory
+    if (!grf) {
+      return;
+    }
+
+    // Sequence instead of all in parallel to save memory (since we're dealing with huge GRF files)
+    await Promise.allSettled([
+      // Start item info upload in parallel because it has a potential huge delay on the server side
+      uploadItemInfoAndImages(grf, itemInfoFile),
+      uploadMapDataFromGRF(grf),
+    ]);
+
     await uploadMapInfoLubFiles([mapInfoFile]);
-    await uploadMapDataFromGRF(grf);
     await uploadMonsterImagesFromGRF(grf);
-    await uploadItemInfoAndImages(grf, itemInfoFile);
   }
 
   return {
@@ -205,30 +209,38 @@ export const uploaderFilesRequired = {
 const fileNameToMapName = (filename: string) =>
   /([^/\\]+)\.\w+$/.exec(filename)?.[1] ?? "";
 
-function createMapDataUnpackJobs<Stream>(grf: GRF<Stream>) {
+function createMapDataUnpackJobs<Stream>(
+  grf: GRF<Stream>
+): Array<InputTask<{ gat?: GAT; image?: RpcFile }>> {
   const gatFilePathRegex = /^data\\(.*)\.gat$/;
 
   return Array.from(grf.files.keys())
     .filter((file) => gatFilePathRegex.test(file))
-    .map((gatFilePath) => async () => {
-      const mapName = fileNameToMapName(gatFilePath);
-      const imageFilePath = `data\\texture\\à¯àúàîåíæäàì½º\\map\\${mapName}.bmp`;
+    .map((gatFilePath) => ({
+      group: "Unpacking map data",
+      id: gatFilePath,
+      fn: async () => {
+        const mapName = fileNameToMapName(gatFilePath);
+        const imageFilePath = `data\\texture\\à¯àúàîåíæäàì½º\\map\\${mapName}.bmp`;
 
-      const [gatResult, imageResult] = await Promise.allSettled([
-        grf.getEntry(gatFilePath).then(({ data, name }) => new GAT(data, name)),
-        grf
-          .getEntry(imageFilePath)
-          .then(({ data, name }) => new File([data], name))
-          .then(cropMapImage)
-          .then(toRpcFile),
-      ]);
+        const [gatResult, imageResult] = await Promise.allSettled([
+          grf
+            .getEntry(gatFilePath)
+            .then(({ data, name }) => new GAT(data, name)),
+          grf
+            .getEntry(imageFilePath)
+            .then(({ data, name }) => new File([data], name))
+            .then(cropMapImage)
+            .then(toRpcFile),
+        ]);
 
-      const gat =
-        gatResult.status === "fulfilled" ? gatResult.value : undefined;
-      const image =
-        imageResult.status === "fulfilled" ? imageResult.value : undefined;
-      return { gat, image };
-    });
+        const gat =
+          gatResult.status === "fulfilled" ? gatResult.value : undefined;
+        const image =
+          imageResult.status === "fulfilled" ? imageResult.value : undefined;
+        return { gat, image };
+      },
+    }));
 }
 
 async function determineMonsterSpriteNames(
