@@ -1,7 +1,7 @@
 import * as path from "path";
 import * as fs from "fs";
 import { Logger } from "../logger";
-import { watchFileInDirectory } from "../watchFileInDirectory";
+import { watchFileInDirectory } from "./watchFileInDirectory";
 import { ensureDir } from "./ensureDir";
 
 export type FileStore = ReturnType<typeof createFileStore>;
