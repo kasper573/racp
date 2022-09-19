@@ -13,7 +13,7 @@ export function ImageWithFallback({
 >) {
   const image = useImage(src);
   if (image.isReady) {
-    return <Root src={image.dataUrl} alt={alt} {...props} />;
+    return <Root src={src} alt={alt} {...props} />;
   }
   return (
     <Tooltip title={image.isBroken ? "Broken image" : "Missing image"}>

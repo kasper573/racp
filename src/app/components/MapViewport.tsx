@@ -28,7 +28,7 @@ export function MapViewport({
       <Viewport
         data-testid="Map viewport"
         ref={setContainer}
-        imageUrl={image.dataUrl}
+        imageUrl={imageUrl}
         style={{
           width: "100%",
           aspectRatio: image.bounds
