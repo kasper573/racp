@@ -181,11 +181,15 @@ export function useAssetUploader() {
       return;
     }
 
-    // Sequence instead of parallel because it uses less memory
+    // Sequence instead of all in parallel to save memory (since we're dealing with huge GRF files)
+    await Promise.allSettled([
+      // Start item info upload in parallel because it has a potential huge delay on the server side
+      uploadItemInfoAndImages(grf, itemInfoFile),
+      uploadMapDataFromGRF(grf),
+    ]);
+
     await uploadMapInfoLubFiles([mapInfoFile]);
-    await uploadMapDataFromGRF(grf);
     await uploadMonsterImagesFromGRF(grf);
-    await uploadItemInfoAndImages(grf, itemInfoFile);
   }
 
   return {
