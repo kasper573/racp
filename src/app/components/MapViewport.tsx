@@ -8,6 +8,7 @@ import {
 } from "react";
 import { useImage } from "../../lib/hooks/useImage";
 import { MapBounds } from "../../api/services/map/types";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 export interface MapViewportProps extends ComponentProps<typeof Viewport> {
   bounds?: MapBounds;
@@ -16,36 +17,41 @@ export interface MapViewportProps extends ComponentProps<typeof Viewport> {
 export function MapViewport({
   imageUrl,
   children,
-  bounds,
+  bounds: mapBounds,
   style,
   ...props
 }: MapViewportProps) {
   const [container, setContainer] = useState<HTMLElement>();
-  const { image, isBroken } = useImage(imageUrl);
+  const image = useImage(imageUrl);
   return (
     <>
       <Viewport
         data-testid="Map viewport"
         ref={setContainer}
-        imageUrl={image?.src}
+        imageUrl={image.dataUrl}
         style={{
           width: "100%",
-          aspectRatio: image ? `${image.width} / ${image.height}` : undefined,
+          aspectRatio: image.bounds
+            ? `${image.bounds.width} / ${image.bounds.height}`
+            : undefined,
           ...style,
         }}
         {...props}
       >
         {!imageUrl && <Typography color="error">Map image missing</Typography>}
-        {isBroken && (
+        {image.isBroken && (
           <Typography color="error">Map image could not be loaded</Typography>
         )}
-        {bounds && image && (
-          <MapViewportContext.Provider value={{ bounds, container }}>
+        {mapBounds && image.bounds && (
+          <MapViewportContext.Provider value={{ bounds: mapBounds, container }}>
             {children}
           </MapViewportContext.Provider>
         )}
       </Viewport>
-      {!bounds && (
+      {image.isLoading && (
+        <LoadingSpinner size={96} sx={{ margin: "0 auto", marginTop: 4 }} />
+      )}
+      {!mapBounds && (
         <Typography color="error">
           Map bounds missing, cannot display pins
         </Typography>

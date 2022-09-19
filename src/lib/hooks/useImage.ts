@@ -1,26 +1,43 @@
 import { useEffect, useState } from "react";
+import { pick } from "lodash";
 import { loadImage } from "../image/loadImage";
+import { imageToCanvas } from "../image/imageToCanvas";
 
 export function useImage(imageUrl?: string) {
-  const [image, setImage] = useState<HTMLImageElement>();
-  const [isLoading, setIsLoading] = useState(true);
-  const isBroken = imageUrl && !image && !isLoading;
+  const [bounds, setBounds] = useState<{ width: number; height: number }>();
+  const [dataUrl, setDataUrl] = useState<string>();
+  const [isLoading, setIsLoading] = useState<boolean>();
+  const isBroken = imageUrl && !dataUrl && isLoading === false;
 
   useEffect(() => {
+    setBounds(undefined);
+    setDataUrl(undefined);
     if (!imageUrl) {
       return;
     }
     (async () => {
       try {
         setIsLoading(true);
-        setImage(await loadImage(imageUrl));
+        const image = await loadImage(imageUrl);
+        if (image) {
+          const dataUrl = image ? imageToCanvas(image).toDataURL() : undefined;
+          setBounds(pick(image, "width", "height"));
+          setDataUrl(dataUrl);
+        }
       } catch {
-        setImage(undefined);
+        setBounds(undefined);
+        setDataUrl(undefined);
       } finally {
         setIsLoading(false);
       }
     })();
   }, [imageUrl]);
 
-  return { image, isLoading, isBroken };
+  return {
+    bounds,
+    dataUrl,
+    isLoading: !!isLoading,
+    isReady: !!dataUrl,
+    isBroken,
+  };
 }
