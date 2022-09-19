@@ -2,10 +2,12 @@ import { Typography } from "@mui/material";
 import { ComponentProps } from "react";
 import { ZodError } from "zod";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ErrorLike = any;
+
 export interface ErrorMessageProps
   extends Omit<ComponentProps<typeof Typography>, "children"> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error?: any;
+  error?: ErrorLike;
 }
 
 export function ErrorMessage({ error, ...props }: ErrorMessageProps) {
@@ -20,10 +22,7 @@ export function ErrorMessage({ error, ...props }: ErrorMessageProps) {
   );
 }
 
-export function getErrorMessage(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error?: any
-): string | undefined {
+export function getErrorMessage(error?: ErrorLike): string | undefined {
   if (!error) {
     return;
   }

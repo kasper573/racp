@@ -19,12 +19,12 @@ export class GRF<Stream = any> extends Loader<Stream> {
   public files = new Map<string, GRFEncodedEntry>();
   private fileTableOffset = 0;
 
-  public async loadImpl(): Promise<void> {
-    await this.parseHeader();
-    await this.parseFileList();
+  public async loadImpl() {
+    await this.loadHeader();
+    await this.loadFileList();
   }
 
-  private async parseHeader(): Promise<void> {
+  private async loadHeader() {
     const reader = await this.getDataView(0, HEADER_SIZE);
 
     const signature = reader.getString(15);
@@ -43,7 +43,7 @@ export class GRF<Stream = any> extends Loader<Stream> {
     }
   }
 
-  private async parseFileList(): Promise<void> {
+  private async loadFileList(): Promise<void> {
     // Read table list, stored information
     const view = await this.getDataView(this.fileTableOffset, FILE_TABLE_SIZE);
     const compressedSize = view.getUint32();
