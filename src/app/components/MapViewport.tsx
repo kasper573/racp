@@ -28,7 +28,6 @@ export function MapViewport({
   return (
     <>
       <Viewport
-        data-testid="Map viewport"
         ref={setContainer}
         style={{
           width: "100%",
@@ -40,6 +39,7 @@ export function MapViewport({
         {...props}
       >
         <ImageWithFallback
+          alt="Map"
           src={imageUrl}
           width="100%"
           sx={{ display: "flex" }}

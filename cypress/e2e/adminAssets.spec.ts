@@ -17,7 +17,7 @@ describe("after uploading assets", () => {
     });
 
     it("has image", () => {
-      cy.findByTestId("Map viewport").isFixtureImage("prontera.png");
+      cy.findByRole("img", { name: "Map" }).isFixtureImage("prontera.png");
     });
   });
 
