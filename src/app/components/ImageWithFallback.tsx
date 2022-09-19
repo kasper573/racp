@@ -1,6 +1,6 @@
 import { ComponentProps } from "react";
 import { styled, Tooltip } from "@mui/material";
-import { BrokenImage } from "@mui/icons-material";
+import { BrokenImage, HideImage } from "@mui/icons-material";
 import { useImage } from "../../lib/hooks/useImage";
 
 export function ImageWithFallback({
@@ -8,19 +8,27 @@ export function ImageWithFallback({
   alt,
   ...props
 }: Pick<
-  ComponentProps<typeof Root>,
+  ComponentProps<typeof Image>,
   "src" | "alt" | "style" | "sx" | "className"
 >) {
   const image = useImage(src);
   if (image.isReady) {
-    return <Root src={src} alt={alt} {...props} />;
+    return <Image src={src} alt={alt} {...props} />;
+  }
+  if (image.isBroken) {
+    return (
+      <Tooltip title="Broken image">
+        <BrokenFallback {...props} />
+      </Tooltip>
+    );
   }
   return (
-    <Tooltip title={image.isBroken ? "Broken image" : "Missing image"}>
-      <Fallback {...props} />
+    <Tooltip title="Missing image">
+      <MissingFallback {...props} />
     </Tooltip>
   );
 }
 
-const Root = styled("img")``;
-const Fallback = styled(BrokenImage)``;
+const Image = styled("img")``;
+const BrokenFallback = styled(BrokenImage)``;
+const MissingFallback = styled(HideImage)``;
