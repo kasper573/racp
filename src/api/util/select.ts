@@ -4,11 +4,12 @@ export function select<V, S>(values: V[], selector: Selector<V, S>) {
   return values.reduce((list, value) => {
     const selected = selector(value);
     if (Array.isArray(selected)) {
-      return [...list, ...selected];
-    }
-    if (selected === undefined) {
+      list.push(...selected);
       return list;
     }
-    return [...list, selected];
+    if (selected !== undefined) {
+      list.push(selected);
+    }
+    return list;
   }, [] as S[]);
 }

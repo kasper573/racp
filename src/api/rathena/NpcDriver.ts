@@ -34,10 +34,10 @@ export function createNpcDriver({
       async function loadViaConfFile(npcConfFile: string) {
         const files = await loadNpcConfFile(npcConfFile, rAthenaPath);
         const entities = await Promise.all(files.map(loadEntities));
-        return entities.reduce(
-          (flattened, list) => [...flattened, ...list],
-          []
-        );
+        return entities.reduce((flattened, list) => {
+          flattened.push(...list);
+          return flattened;
+        }, []);
       }
 
       const [baseEntities, modeEntities] = await Promise.all([
@@ -66,7 +66,10 @@ function createNpcLoader<ET extends AnyNpcEntityType>(
           [createNpcEntityId(rAthenaPath, file, index)],
           ...matrix,
         ]);
-        return res.success ? [...entities, res.data] : entities;
+        if (res.success) {
+          entities.push(res.data);
+        }
+        return entities;
       },
       []
     );

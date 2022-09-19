@@ -11,10 +11,12 @@ export const toggleRecordType = zod
   .default({});
 
 export function resolveToggles(record: ToggleRecord = {}): ToggleName[] {
-  return Object.entries(record).reduce(
-    (names, [name, on]) => (on ? [...names, name] : names),
-    [] as ToggleName[]
-  );
+  return Object.entries(record).reduce((names, [name, on]) => {
+    if (on) {
+      names.push(name);
+    }
+    return names;
+  }, [] as ToggleName[]);
 }
 
 const stringOptions = zod.object({ caseSensitive: zod.boolean() }).partial();
