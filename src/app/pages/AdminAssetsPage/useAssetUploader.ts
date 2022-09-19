@@ -19,7 +19,6 @@ import { GRF } from "../../../lib/grf/types/GRF";
 import { GAT } from "../../../lib/grf/types/GAT";
 import { ReducedLuaTables } from "../../../api/services/util/types";
 import { RGBABitmap, SPR } from "../../../lib/grf/types/SPR";
-import { canvasToBlob, imageDataToCanvas } from "../../../lib/image/imageUtils";
 import { defined } from "../../../lib/std/defined";
 import {
   describeTask,
@@ -31,6 +30,8 @@ import {
 import { MapBoundsRegistry } from "../../../api/services/map/types";
 import { getErrorMessage } from "../../components/ErrorMessage";
 import { trimExtension } from "../../../lib/std/trimExtension";
+import { canvasToBlob } from "../../../lib/image/canvasToBlob";
+import { imageDataToCanvas } from "../../../lib/image/imageDataToCanvas";
 
 export function useAssetUploader() {
   const [uploadMapImages, mapImageUpload] = useUploadMapImagesMutation();
