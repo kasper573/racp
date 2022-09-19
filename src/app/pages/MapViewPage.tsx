@@ -42,7 +42,7 @@ export default function MapViewPage() {
   const [highlightSpawnId, setHighlightSpawnId] = useState<MonsterSpawnId>();
   const [highlightWarpId, setHighlightWarpId] = useState<WarpId>();
   const { id, x, y, tab = "warps" } = useRouteParams(router.map().view);
-  const { data: map, isLoading, error } = useGetMapQuery(id);
+  const { data: map, isFetching, isLoading, error } = useGetMapQuery(id);
   const routePoint = definedPoint({ x, y });
 
   const { data: { entities: warps = [] } = {} } = (
@@ -65,7 +65,7 @@ export default function MapViewPage() {
 
   const spawnSwarms = useMemo(() => createMonsterSwarms(spawns), [spawns]);
 
-  if (isLoading) {
+  if (isLoading || isFetching) {
     return <LoadingPage />;
   }
   if (!map || error) {
@@ -90,6 +90,26 @@ export default function MapViewPage() {
       <Header back={router.map}>{map.displayName}</Header>
       <Stack spacing={2} direction="row" sx={{ flex: 1 }}>
         <Stack direction="column" sx={{ flex: 2 }}>
+          <Stack direction="row" sx={{ height: 48 }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={showWarpPins}
+                  onChange={(e) => setShowWarpPins(e.target.checked)}
+                />
+              }
+              label="Show Warps"
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={showMonsterPins}
+                  onChange={(e) => setShowMonsterPins(e.target.checked)}
+                />
+              }
+              label="Show Monsters"
+            />
+          </Stack>
           <MapViewport imageUrl={map.imageUrl} bounds={map.bounds}>
             {showWarpPins &&
               warps.map((warp, index) => (
@@ -145,26 +165,6 @@ export default function MapViewPage() {
                 </MapPin>
               ))}
           </MapViewport>
-          <Stack direction="column" sx={{ flex: 1 }}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={showWarpPins}
-                  onChange={(e) => setShowWarpPins(e.target.checked)}
-                />
-              }
-              label="Show Warps"
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={showMonsterPins}
-                  onChange={(e) => setShowMonsterPins(e.target.checked)}
-                />
-              }
-              label="Show Monsters"
-            />
-          </Stack>
         </Stack>
         <Stack direction="column" sx={{ flex: 3 }}>
           <TabSwitch
