@@ -4,7 +4,7 @@ import { FileStore } from "../../../lib/fs/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { createImageRepository } from "../../common/createImageRepository";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
-import { ImageFormatter } from "../../../lib/createImageFormatter";
+import { ImageFormatter } from "../../../lib/image/createImageFormatter";
 import { Logger } from "../../../lib/logger";
 import { createItemResolver } from "./util/createItemResolver";
 import { Item, ItemId, itemInfoType } from "./types";

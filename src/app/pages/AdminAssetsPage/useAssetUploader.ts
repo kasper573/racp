@@ -1,7 +1,10 @@
 import { chunk, pick } from "lodash";
 import * as zod from "zod";
 import { useMemo } from "react";
-import { cropSurroundingColors, RGB } from "../../../lib/cropSurroundingColors";
+import {
+  cropSurroundingColors,
+  RGB,
+} from "../../../lib/image/cropSurroundingColors";
 import {
   useDecompileLuaTableFilesMutation,
   useUpdateMapBoundsMutation,
@@ -16,7 +19,7 @@ import { GRF } from "../../../lib/grf/types/GRF";
 import { GAT } from "../../../lib/grf/types/GAT";
 import { ReducedLuaTables } from "../../../api/services/util/types";
 import { RGBABitmap, SPR } from "../../../lib/grf/types/SPR";
-import { canvasToBlob, imageDataToCanvas } from "../../../lib/imageUtils";
+import { canvasToBlob, imageDataToCanvas } from "../../../lib/image/imageUtils";
 import { defined } from "../../../lib/std/defined";
 import {
   describeTask,

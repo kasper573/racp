@@ -7,7 +7,7 @@ import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
 import { createFileStore } from "../lib/fs/createFileStore";
 import { createLogger } from "../lib/logger";
 import { createPublicFileLinker } from "../lib/fs/createPublicFileLinker";
-import { createImageFormatter } from "../lib/createImageFormatter";
+import { createImageFormatter } from "../lib/image/createImageFormatter";
 import { createEllipsisLogFn } from "../lib/createEllipsisLogFn";
 import { createYamlDriver } from "./rathena/YamlDriver";
 import { createConfigDriver } from "./rathena/ConfigDriver";

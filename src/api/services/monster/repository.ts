@@ -1,7 +1,7 @@
 import { RAthenaMode } from "../../options";
 import { YamlDriver } from "../../rathena/YamlDriver";
 import { NpcDriver } from "../../rathena/NpcDriver";
-import { ImageFormatter } from "../../../lib/createImageFormatter";
+import { ImageFormatter } from "../../../lib/image/createImageFormatter";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
 import { createImageRepository } from "../../common/createImageRepository";
 import { Logger } from "../../../lib/logger";
