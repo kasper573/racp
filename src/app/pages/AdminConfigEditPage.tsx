@@ -1,4 +1,4 @@
-import { useRouteParams } from "../../lib/useRouteParams";
+import { useRouteParams } from "../../lib/hooks/useRouteParams";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { useGetConfigQuery, useUpdateConfigMutation } from "../state/client";
 import { TextEditor } from "../controls/TextEditor";

@@ -2,7 +2,7 @@ import { styled } from "@mui/material";
 import {
   useElevatedState,
   UseElevatedStateProps,
-} from "../../lib/useElevatedState";
+} from "../../lib/hooks/useElevatedState";
 
 export function TextEditor(props: UseElevatedStateProps<string>) {
   const [value, setValue] = useElevatedState(props);

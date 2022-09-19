@@ -16,7 +16,7 @@ import {
   useSearchWarpsQuery,
 } from "../state/client";
 import { router } from "../router";
-import { useRouteParams } from "../../lib/useRouteParams";
+import { useRouteParams } from "../../lib/hooks/useRouteParams";
 import { MapViewport } from "../components/MapViewport";
 import { TabSwitch } from "../components/TabSwitch";
 import { WarpGrid } from "../grids/WarpGrid";

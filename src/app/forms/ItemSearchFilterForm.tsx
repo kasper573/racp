@@ -6,7 +6,7 @@ import { typedKeys } from "../../lib/std/typedKeys";
 import { Select } from "../controls/Select";
 import { SliderMenu } from "../controls/SliderMenu";
 import { TextField } from "../controls/TextField";
-import { useLatest } from "../../lib/useLatest";
+import { useLatest } from "../../lib/hooks/useLatest";
 import { matcher } from "../../api/util/matcher";
 import { useZodMatcherForm } from "../../lib/zod/useZodMatcherForm";
 

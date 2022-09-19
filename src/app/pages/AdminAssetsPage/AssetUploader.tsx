@@ -1,6 +1,6 @@
 import { memo, useState } from "react";
 import { Box, LinearProgress, Tooltip, Typography } from "@mui/material";
-import { useBlockNavigation } from "../../../lib/useBlockNavigation";
+import { useBlockNavigation } from "../../../lib/hooks/useBlockNavigation";
 import { ProgressButton } from "../../components/ProgressButton";
 import { useAssetUploader } from "./useAssetUploader";
 import { AssetErrorList } from "./AssetErrorList";

@@ -1,7 +1,7 @@
 import { ComponentProps } from "react";
 import { styled, Tooltip } from "@mui/material";
 import { BrokenImage } from "@mui/icons-material";
-import { useImage } from "../../lib/useImage";
+import { useImage } from "../../lib/hooks/useImage";
 
 export function ImageWithFallback({
   src,

@@ -2,7 +2,7 @@ import { ReactElement } from "react";
 import { Box, Stack, styled } from "@mui/material";
 import { pick } from "lodash";
 import { useHistory } from "react-router";
-import { useRouteParams } from "../../lib/useRouteParams";
+import { useRouteParams } from "../../lib/hooks/useRouteParams";
 import { Header } from "../layout/Header";
 import { useSearchMonstersQuery } from "../state/client";
 import { router } from "../router";

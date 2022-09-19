@@ -27,7 +27,7 @@ import {
   InputTask,
   TaskRejectionReason,
   useTaskScheduler,
-} from "../../../lib/useTaskScheduler";
+} from "../../../lib/hooks/useTaskScheduler";
 import { MapBoundsRegistry } from "../../../api/services/map/types";
 import { getErrorMessage } from "../../components/ErrorMessage";
 import { trimExtension } from "../../../lib/std/trimExtension";

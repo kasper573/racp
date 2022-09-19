@@ -1,7 +1,7 @@
 import { FormEvent, useState } from "react";
 import { Typography } from "@mui/material";
 import { useHistory } from "react-router";
-import { useRouteParams } from "../../lib/useRouteParams";
+import { useRouteParams } from "../../lib/hooks/useRouteParams";
 import { useLoginMutation } from "../state/client";
 import { loginRedirect, router } from "../router";
 import { Link } from "../components/Link";
