@@ -48,15 +48,14 @@ export function createItemRepository({
     );
   }
 
-  function getResourceNames(): Record<ItemId, string> {
+  function getResourceNames() {
     return Object.entries(infoFile.data ?? {}).reduce(
-      (resourceNames: Record<ItemId, string>, [id, info]) =>
-        info.identifiedResourceName !== undefined
-          ? {
-              ...resourceNames,
-              [id]: info.identifiedResourceName,
-            }
-          : resourceNames,
+      (resourceNames: Record<string, string>, [id, info]) => {
+        if (info.identifiedResourceName !== undefined) {
+          resourceNames[id] = info.identifiedResourceName;
+        }
+        return resourceNames;
+      },
       {}
     );
   }
