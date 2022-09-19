@@ -2,7 +2,7 @@ import { groupBy } from "lodash";
 import { ItemRepository } from "../repository";
 import { MonsterRepository } from "../../monster/repository";
 import { MonsterDropPostProcess } from "../../monster/types";
-import { typedAssign } from "../../../../lib/typedAssign";
+import { typedAssign } from "../../../../lib/std/typedAssign";
 
 export async function linkDropsWithItems(
   items: ItemRepository,

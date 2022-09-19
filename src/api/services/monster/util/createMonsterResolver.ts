@@ -1,7 +1,7 @@
 import { createYamlResolver } from "../../../rathena/YamlDriver";
 import { RAthenaMode } from "../../../options";
 import { Monster, MonsterPostProcess, monsterType } from "../types";
-import { typedAssign } from "../../../../lib/typedAssign";
+import { typedAssign } from "../../../../lib/std/typedAssign";
 
 export function createMonsterResolver(rAthenaMode: RAthenaMode) {
   async function extract(monster: Monster): Promise<MonsterPostProcess> {

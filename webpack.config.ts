@@ -7,7 +7,7 @@ import { omit } from "lodash";
 import ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 import ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 import HtmlWebpackPlugin = require("html-webpack-plugin");
-import { defined } from "./src/lib/defined";
+import { defined } from "./src/lib/std/defined";
 import { rootId } from "./src/app/layout/globalStyles";
 
 const env = loadEnv({

@@ -1,6 +1,6 @@
 import * as zod from "zod";
 import { AnyZodObject, ZodRawShape, ZodType, ZodTypeAny } from "zod";
-import { typedKeys } from "../typedKeys";
+import { typedKeys } from "../std/typedKeys";
 import { isZodSubType } from "./isZodType";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

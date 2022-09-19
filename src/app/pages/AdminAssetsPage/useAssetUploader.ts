@@ -17,7 +17,7 @@ import { GAT } from "../../../lib/grf/types/GAT";
 import { ReducedLuaTables } from "../../../api/services/util/types";
 import { RGBABitmap, SPR } from "../../../lib/grf/types/SPR";
 import { canvasToBlob, imageDataToCanvas } from "../../../lib/imageUtils";
-import { defined } from "../../../lib/defined";
+import { defined } from "../../../lib/std/defined";
 import {
   describeTask,
   describeTaskGroup,
@@ -27,7 +27,7 @@ import {
 } from "../../../lib/useTaskScheduler";
 import { MapBoundsRegistry } from "../../../api/services/map/types";
 import { getErrorMessage } from "../../components/ErrorMessage";
-import { trimExtension } from "../../../lib/trimExtension";
+import { trimExtension } from "../../../lib/std/trimExtension";
 
 export function useAssetUploader() {
   const [uploadMapImages, mapImageUpload] = useUploadMapImagesMutation();

@@ -3,7 +3,7 @@ import {
   MemberExpression,
   TableConstructorExpression,
 } from "luaparse";
-import { trimQuotes } from "./trimQuotes";
+import { trimQuotes } from "./std/trimQuotes";
 
 export function parseLuaTable(
   table: TableConstructorExpression,

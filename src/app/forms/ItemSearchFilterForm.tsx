@@ -2,7 +2,7 @@ import { Box, styled } from "@mui/material";
 import { useEffect } from "react";
 import { ItemFilter, itemFilter } from "../../api/services/item/types";
 import { useGetMetaQuery } from "../state/client";
-import { typedKeys } from "../../lib/typedKeys";
+import { typedKeys } from "../../lib/std/typedKeys";
 import { Select } from "../controls/Select";
 import { SliderMenu } from "../controls/SliderMenu";
 import { TextField } from "../controls/TextField";

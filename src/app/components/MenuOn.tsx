@@ -1,6 +1,6 @@
 import Menu from "@mui/material/Menu";
 import { ComponentProps, ReactNode, MouseEvent, useState } from "react";
-import { concatFunctions } from "../../lib/concatFunctions";
+import { concatFunctions } from "../../lib/std/concatFunctions";
 
 export interface MenuOnProps<T extends Element>
   extends Omit<ComponentProps<typeof Menu>, "open"> {
