@@ -25,8 +25,8 @@ export function createImageRepository(
   const updateUrlMapDebounced = debounce(updateUrlMap, 10);
 
   let pendingUpdates = 0;
-  const watcher = fs.watch(linker.directory, () => {
-    if (!pendingUpdates) {
+  const watcher = fs.watch(linker.directory, (event) => {
+    if (!pendingUpdates && event === "rename") {
       updateUrlMapDebounced();
     }
   });
