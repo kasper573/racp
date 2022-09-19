@@ -106,6 +106,9 @@ export const monsterSpawnType = createSegmentedObject()
     event: zod.string().optional(),
     size: zodNumeric().optional(),
     ai: zodNumeric().optional(),
+    // The following are custom addons and not part of the rAthena data
+    // The values are applied after loading the npc files
+    imageUrl: zod.string().optional(),
   })
   .build();
 

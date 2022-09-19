@@ -27,7 +27,7 @@ export function createMonsterRepository({
 }) {
   const logger = parentLogger.chain("monster");
   const imageLinker = linker.chain("monsters");
-  const imageName = (m: Monster) => `${m.Id}${formatter.fileExtension}`;
+  const imageName = (id: Monster["Id"]) => `${id}${formatter.fileExtension}`;
   const imageRepository = createImageRepository(formatter, imageLinker, logger);
 
   const monsterResolver = createMonsterResolver(rAthenaMode);
@@ -40,14 +40,22 @@ export function createMonsterRepository({
       (monsters, monster) =>
         monsters.set(monster.Id, {
           ...monster,
-          ImageUrl: imageRepository.urlMap.get(imageName(monster)),
+          ImageUrl: imageRepository.urlMap.get(imageName(monster.Id)),
         }),
       new Map<Monster["Id"], Monster>()
     );
   }
 
+  async function getMonsterSpawns() {
+    const spawns = await spawnsPromise;
+    return spawns.map((spawn) => ({
+      ...spawn,
+      imageUrl: imageRepository.urlMap.get(imageName(spawn.id)),
+    }));
+  }
+
   return {
-    getSpawns: () => spawnsPromise,
+    getSpawns: getMonsterSpawns,
     getMonsters,
     updateImages: imageRepository.update,
     missingImages: () =>

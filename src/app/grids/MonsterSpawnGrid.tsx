@@ -1,3 +1,4 @@
+import { Stack } from "@mui/material";
 import { DataGrid, DataGridQueryFn } from "../components/DataGrid";
 import {
   MonsterSpawn,
@@ -8,6 +9,7 @@ import { useSearchMonsterSpawnsQuery } from "../state/client";
 import { router } from "../router";
 import { durationString } from "../../lib/std/durationString";
 import { Link } from "../components/Link";
+import { ImageWithFallback } from "../components/ImageWithFallback";
 
 export const MonsterSpawnGrid = DataGrid.define<
   MonsterSpawn,
@@ -26,7 +28,16 @@ export const MonsterSpawnGrid = DataGrid.define<
       width: 180,
       renderCell({ row: spawn }) {
         return (
-          <Link to={router.monster().view({ id: spawn.id })}>{spawn.name}</Link>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <ImageWithFallback
+              src={spawn.imageUrl}
+              alt={spawn.name}
+              sx={{ width: 32 }}
+            />
+            <Link to={router.monster().view({ id: spawn.id })}>
+              {spawn.name}
+            </Link>
+          </Stack>
         );
       },
     },
