@@ -42,7 +42,7 @@ export default function MapViewPage() {
   const [highlightSpawnId, setHighlightSpawnId] = useState<MonsterSpawnId>();
   const [highlightWarpId, setHighlightWarpId] = useState<WarpId>();
   const { id, x, y, tab = "warps" } = useRouteParams(router.map().view);
-  const { data: map, isLoading } = useGetMapQuery(id);
+  const { data: map, isLoading, error } = useGetMapQuery(id);
   const routePoint = definedPoint({ x, y });
 
   const { data: { entities: warps = [] } = {} } = (
@@ -68,7 +68,7 @@ export default function MapViewPage() {
   if (isLoading) {
     return <LoadingPage />;
   }
-  if (!map) {
+  if (!map || error) {
     return <Header>Map not found</Header>;
   }
 

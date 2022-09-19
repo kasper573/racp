@@ -19,7 +19,7 @@ import { LoadingPage } from "./LoadingPage";
 
 export default function ItemViewPage(): ReactElement {
   const { id } = useRouteParams(router.item().view);
-  const { data: item, isLoading } = useGetItemQuery(id);
+  const { data: item, isLoading, error } = useGetItemQuery(id);
   const { data: { entities: droppedBy = [] } = {} } = (
     useSearchMonstersQuery as unknown as DataGridQueryFn<Monster, MonsterFilter>
   )({
@@ -30,7 +30,7 @@ export default function ItemViewPage(): ReactElement {
   if (isLoading) {
     return <LoadingPage />;
   }
-  if (!item) {
+  if (!item || error) {
     return <Header>Item not found</Header>;
   }
   const displayName = item.Info?.identifiedDisplayName?.content;

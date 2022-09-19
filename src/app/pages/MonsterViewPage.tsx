@@ -18,7 +18,7 @@ import { LoadingPage } from "./LoadingPage";
 export default function MonsterViewPage(): ReactElement {
   const history = useHistory();
   const { id, tab = "spawns" } = useRouteParams(router.monster().view);
-  const { data, isLoading } = useSearchMonstersQuery({
+  const { data, isLoading, error } = useSearchMonstersQuery({
     filter: { Id: { value: id, matcher: "=" } },
     limit: 1,
   });
@@ -28,7 +28,7 @@ export default function MonsterViewPage(): ReactElement {
   if (isLoading) {
     return <LoadingPage />;
   }
-  if (!monster) {
+  if (!monster || error) {
     return <Header>Monster not found</Header>;
   }
 
