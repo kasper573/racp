@@ -14,7 +14,6 @@ import {
 import { RpcFile, toRpcFile } from "../../../lib/rpc/RpcFile";
 import { GRF } from "../../../lib/grf/types/GRF";
 import { GAT } from "../../../lib/grf/types/GAT";
-import { readFileStream } from "../../../lib/grf/readFileStream";
 import { ReducedLuaTables } from "../../../api/services/util/types";
 import { RGBABitmap, SPR } from "../../../lib/grf/types/SPR";
 import { canvasToBlob, imageDataToCanvas } from "../../../lib/imageUtils";
@@ -173,7 +172,7 @@ export function useAssetUploader() {
       {
         group: "Loading GRF file",
         id: grfFile.name,
-        fn: () => new GRF(readFileStream, grfFile).load(),
+        fn: () => GRF.load(grfFile),
       },
     ]);
 

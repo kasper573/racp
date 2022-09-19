@@ -1,8 +1,9 @@
 // Based on https://github.com/vthibault/grf-loader
 
+import * as JDataView from "jdataview";
 import { decodeFull, decodeHeader } from "../des";
 import { Inflate } from "../inflate";
-import { Loader } from "../Loader";
+import { readFileStream } from "../readFileStream";
 
 const FILELIST_TYPE_FILE = 0x01;
 const FILELIST_TYPE_ENCRYPT_MIXED = 0x02; // encryption mode 0 (header DES + periodic DES/shuffle)
@@ -13,15 +14,32 @@ const HEADER_SIZE = 46;
 const FILE_TABLE_SIZE = Uint32Array.BYTES_PER_ELEMENT * 2;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class GRF<Stream = any> extends Loader<Stream> {
+export class GRF<Stream = any> {
   public version = 0x200;
   public fileCount = 0;
   public files = new Map<string, GRFEncodedEntry>();
   private fileTableOffset = 0;
 
-  public async loadImpl() {
-    await this.loadHeader();
-    await this.loadFileList();
+  private constructor(private file: File | Blob) {}
+
+  private getBuffer(offset: number, length: number) {
+    return readFileStream(this.file, offset, length);
+  }
+
+  private async getDataView(
+    offset: number,
+    length: number
+  ): Promise<JDataView> {
+    const buffer = await this.getBuffer(offset, length);
+
+    return new JDataView(buffer, void 0, void 0, true);
+  }
+
+  static async load(file: File | Blob): Promise<GRF> {
+    const grf = new GRF(file);
+    await grf.loadHeader();
+    await grf.loadFileList();
+    return grf;
   }
 
   private async loadHeader() {
@@ -94,10 +112,6 @@ export class GRF<Stream = any> extends Loader<Stream> {
 
   public async getEntry(path: string): Promise<GRFDecodedEntry> {
     path = normalizePath(path);
-    if (!this.loaded) {
-      throw new Error("GRF not loaded yet");
-    }
-
     const entry = this.files.get(path);
     if (!entry) {
       throw new Error(`File "${path}" not found`);
