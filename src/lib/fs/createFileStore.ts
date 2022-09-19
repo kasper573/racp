@@ -1,8 +1,8 @@
-import * as fs from "fs";
 import * as path from "path";
+import * as fs from "fs";
+import { Logger } from "../logger";
+import { watchFileInDirectory } from "../watchFileInDirectory";
 import { ensureDir } from "./ensureDir";
-import { Logger } from "./logger";
-import { watchFileInDirectory } from "./watchFileInDirectory";
 
 export type FileStore = ReturnType<typeof createFileStore>;
 

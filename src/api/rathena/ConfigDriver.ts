@@ -2,6 +2,7 @@ import * as path from "path";
 import * as fs from "fs";
 import recursiveReadDir = require("recursive-readdir");
 import { Logger } from "../../lib/logger";
+import { fileExists } from "../../lib/fs/fileExists";
 
 export type ConfigDriver = ReturnType<typeof createConfigDriver>;
 
@@ -46,14 +47,7 @@ export function createConfigDriver({
     };
   });
 
-  const exists = logger.wrap(async function exists(configName: string) {
-    try {
-      await fs.promises.stat(configPath(configName));
-      return true;
-    } catch {
-      return false;
-    }
-  });
+  const exists = (configName: string) => fileExists(configPath(configName));
 
   const update = logger.wrap(async function update(
     configName: string,
@@ -92,7 +86,6 @@ export function createConfigDriver({
   return {
     list,
     read,
-    exists,
     update,
     parse,
     load,
