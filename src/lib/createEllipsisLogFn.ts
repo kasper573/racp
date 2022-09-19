@@ -8,7 +8,7 @@ export function createEllipsisLogFn(writeStream: WriteStream): LogFn {
     writeStream.write(
       ellipsis(args.join(" "), writeStream.columns ?? fallbackColumns) +
         // Reset color in case ellipsis breaks coloring
-        "\x1b" +
+        "\x1b[0m" +
         "\n"
     );
 }
