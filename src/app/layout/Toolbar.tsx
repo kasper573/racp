@@ -35,8 +35,11 @@ export function Toolbar() {
         </IconButton>
       </Tooltip>
       <MenuOn
+        contentProps={{
+          "data-testid": "user menu",
+        }}
         trigger={(open) => (
-          <IconButton sx={{ ml: 1 }} onClick={open}>
+          <IconButton data-testid="user icon" sx={{ ml: 1 }} onClick={open}>
             {profile ? (
               <OnlineBadge>
                 <AccountCircle />
