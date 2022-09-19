@@ -58,4 +58,6 @@ const typeMap: Partial<Record<keyof typeof zod, MysqlTypes>> = {
   date: ["datetime", "date"], // Redefining because zod date is lowercase, but default is capitalized
 };
 
-generate();
+if (require.main === module) {
+  generate();
+}

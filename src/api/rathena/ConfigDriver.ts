@@ -61,25 +61,9 @@ export function createConfigDriver({
 
   const presets = {
     dbInfoConfigName,
+    createDBInfo,
     async dbInfo(prefix: string) {
-      const info = await load(dbInfoConfigName);
-      return {
-        get host() {
-          return info.get(`${prefix}_ip`);
-        },
-        get port() {
-          return parseInt(info.get(`${prefix}_port`), 10);
-        },
-        get user() {
-          return info.get(`${prefix}_id`);
-        },
-        get password() {
-          return info.get(`${prefix}_pw`);
-        },
-        get database() {
-          return info.get(`${prefix}_db`);
-        },
-      };
+      return createDBInfo(await load(dbInfoConfigName), prefix);
     },
   };
 
@@ -90,6 +74,29 @@ export function createConfigDriver({
     parse,
     load,
     presets,
+  };
+}
+
+function createDBInfo(
+  config: { get: (key: string) => string },
+  prefix: string
+) {
+  return {
+    get host() {
+      return config.get(`${prefix}_ip`);
+    },
+    get port() {
+      return parseInt(config.get(`${prefix}_port`), 10);
+    },
+    get user() {
+      return config.get(`${prefix}_id`);
+    },
+    get password() {
+      return config.get(`${prefix}_pw`);
+    },
+    get database() {
+      return config.get(`${prefix}_db`);
+    },
   };
 }
 

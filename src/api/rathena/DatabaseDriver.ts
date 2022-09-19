@@ -1,6 +1,7 @@
 import knex, { Knex } from "knex";
+import * as mysql from "mysql";
 import { singletons } from "../../lib/singletons";
-import { ConfigDriver } from "./ConfigDriver";
+import { ConfigDriver, dbInfoConfigName } from "./ConfigDriver";
 import { Tables } from "./DatabaseDriver.types";
 
 export type DatabaseDriver = ReturnType<typeof createDatabaseDriver>;
@@ -13,7 +14,6 @@ export type DatabaseDriver = ReturnType<typeof createDatabaseDriver>;
 export function createDatabaseDriver(cfg: ConfigDriver) {
   const db = singletons({
     login: () => driverForDB(cfg, "login_server"),
-    ipban: () => driverForDB(cfg, "ipban_server"),
     map: () => driverForDB(cfg, "map_server"),
     char: () => driverForDB(cfg, "char_server"),
     destroy: () => destroy,
@@ -27,16 +27,35 @@ export function createDatabaseDriver(cfg: ConfigDriver) {
 
   const drivers: Record<string, Knex> = {};
 
+  const dbInfoConfig = cfg.load(dbInfoConfigName);
+
   function driverForDB(cfg: ConfigDriver, dbPrefix: string) {
+    const dbInfo = dbInfoConfig.then((config) =>
+      cfg.presets.createDBInfo(config, dbPrefix)
+    );
+
     const driver = knex({
       client: "mysql",
-      connection: () => cfg.presets.dbInfo(dbPrefix),
+      connection: () => dbInfo,
     });
+
     drivers[dbPrefix] = driver;
+
     return {
+      dbInfo,
+      name: dbPrefix,
       table: <TableName extends keyof Tables>(tableName: TableName) => {
         type Entity = Tables[TableName];
         return driver<Entity, Entity[]>(tableName);
+      },
+      async useConnection(use: (conn: mysql.Connection) => Promise<void>) {
+        const info = await dbInfo;
+        const conn = mysql.createConnection({
+          ...info,
+          multipleStatements: true,
+        });
+        await use(conn);
+        conn.destroy();
       },
     };
   }
