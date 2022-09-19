@@ -1,7 +1,6 @@
-import { ComponentProps } from "react";
+import { ComponentProps, useEffect, useState } from "react";
 import { styled, Tooltip } from "@mui/material";
 import { BrokenImage, HideImage } from "@mui/icons-material";
-import { useImage } from "../../lib/hooks/useImage";
 
 export function ImageWithFallback({
   src,
@@ -9,13 +8,20 @@ export function ImageWithFallback({
   ...props
 }: Pick<
   ComponentProps<typeof Image>,
-  "src" | "alt" | "style" | "sx" | "className"
+  "src" | "alt" | "style" | "sx" | "className" | "width" | "height"
 >) {
-  const image = useImage(src);
-  if (image.isReady) {
-    return <Image src={src} alt={alt} {...props} />;
+  const [state, setState] = useState<"pending" | "loaded" | "error">("pending");
+
+  useEffect(() => setState("pending"), [src]);
+
+  if (!src) {
+    return (
+      <Tooltip title="Missing image">
+        <MissingFallback {...props} />
+      </Tooltip>
+    );
   }
-  if (image.isBroken) {
+  if (state === "error") {
     return (
       <Tooltip title="Broken image">
         <BrokenFallback {...props} />
@@ -23,9 +29,13 @@ export function ImageWithFallback({
     );
   }
   return (
-    <Tooltip title="Missing image">
-      <MissingFallback {...props} />
-    </Tooltip>
+    <Image
+      src={src}
+      alt={alt}
+      onLoad={() => setState("loaded")}
+      onError={() => setState("error")}
+      {...props}
+    />
   );
 }
 

@@ -5,7 +5,7 @@ import { loadImage } from "../image/loadImage";
 export function useImage(imageUrl?: string) {
   const [isReady, setIsReady] = useState(false);
   const [isBroken, setIsBroken] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(imageUrl !== undefined);
   const [bounds, setBounds] = useState<{ width: number; height: number }>();
 
   useEffect(() => {
@@ -13,6 +13,7 @@ export function useImage(imageUrl?: string) {
     setIsReady(false);
     setIsBroken(false);
     if (!imageUrl) {
+      setIsLoading(false);
       return;
     }
     (async () => {

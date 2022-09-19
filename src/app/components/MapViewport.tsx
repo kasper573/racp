@@ -9,9 +9,11 @@ import {
 import { useImage } from "../../lib/hooks/useImage";
 import { MapBounds } from "../../api/services/map/types";
 import { LoadingSpinner } from "./LoadingSpinner";
+import { ImageWithFallback } from "./ImageWithFallback";
 
 export interface MapViewportProps extends ComponentProps<typeof Viewport> {
   bounds?: MapBounds;
+  imageUrl?: string;
 }
 
 export function MapViewport({
@@ -28,7 +30,6 @@ export function MapViewport({
       <Viewport
         data-testid="Map viewport"
         ref={setContainer}
-        imageUrl={imageUrl}
         style={{
           width: "100%",
           aspectRatio: image.bounds
@@ -38,16 +39,21 @@ export function MapViewport({
         }}
         {...props}
       >
-        {!imageUrl && <Typography color="error">Map image missing</Typography>}
-        {image.isBroken && (
-          <Typography color="error">Map image could not be loaded</Typography>
-        )}
+        <ImageWithFallback
+          src={imageUrl}
+          width="100%"
+          sx={{ display: "flex" }}
+        />
         {mapBounds && image.bounds && (
           <MapViewportContext.Provider value={{ bounds: mapBounds, container }}>
             {children}
           </MapViewportContext.Provider>
         )}
       </Viewport>
+      {!imageUrl && <Typography color="error">Map image missing</Typography>}
+      {image.isBroken && (
+        <Typography color="error">Map image could not be loaded</Typography>
+      )}
       {image.isLoading && (
         <LoadingSpinner size={96} sx={{ margin: "0 auto", marginTop: 4 }} />
       )}
@@ -60,15 +66,9 @@ export function MapViewport({
   );
 }
 
-const Viewport = styled(Box, {
-  shouldForwardProp: (prop) => prop !== "imageUrl",
-})<{ imageUrl?: string }>`
+const Viewport = styled(Box)`
   position: relative;
   background-color: ${(props) => props.theme.palette.divider};
-  background-image: ${({ imageUrl }) =>
-    imageUrl ? `url(${imageUrl})` : undefined};
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
 `;
 
 export const MapCoordinate = forwardRef<
