@@ -4,7 +4,6 @@ import { Badge } from "@mui/material";
 export function OnlineBadge(props: ComponentProps<typeof Badge>) {
   return (
     <Badge
-      data-testid="online-badge"
       overlap="circular"
       variant="dot"
       color="success"

@@ -1,17 +1,25 @@
 import Menu from "@mui/material/Menu";
-import { ComponentProps, ReactNode, MouseEvent, useState } from "react";
+import {
+  ComponentProps,
+  ReactNode,
+  MouseEvent,
+  useState,
+  HTMLAttributes,
+} from "react";
 import { concatFunctions } from "../../lib/std/concatFunctions";
 
 export interface MenuOnProps<T extends Element>
   extends Omit<ComponentProps<typeof Menu>, "open"> {
   trigger: (openMenu: (e: MouseEvent<T>) => void) => ReactNode;
   closeOnMenuClicked?: boolean;
+  contentProps?: HTMLAttributes<HTMLDivElement> & { "data-testid"?: string };
 }
 
 export function MenuOn<T extends Element>({
   trigger,
   children,
   closeOnMenuClicked = true,
+  contentProps,
   ...menuProps
 }: MenuOnProps<T>) {
   const [anchor, setAnchor] = useState<null | T>(null);
@@ -34,7 +42,9 @@ export function MenuOn<T extends Element>({
         }}
         onClose={concatFunctions(menuProps.onClose, close)}
       >
-        <div onClick={closeOnMenuClicked ? close : undefined}>{children}</div>
+        <div {...contentProps} onClick={closeOnMenuClicked ? close : undefined}>
+          {children}
+        </div>
       </Menu>
     </>
   );
