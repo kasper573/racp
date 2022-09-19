@@ -16,7 +16,7 @@ const FILE_TABLE_SIZE = Uint32Array.BYTES_PER_ELEMENT * 2;
 export class GRF<Stream = any> extends Loader<Stream> {
   public version = 0x200;
   public fileCount = 0;
-  public files = new Map<string, GRFFileMetaData>();
+  public files = new Map<string, GRFEncodedEntry>();
   private fileTableOffset = 0;
 
   public async loadImpl(): Promise<void> {
@@ -67,7 +67,7 @@ export class GRF<Stream = any> extends Loader<Stream> {
 
       p++;
 
-      const entry: GRFFileMetaData = {
+      const entry: GRFEncodedEntry = {
         path: normalizePath(filePath),
         name: filePath.split(/[\\/]/).pop() ?? filePath,
         compressedSize:
@@ -92,27 +92,7 @@ export class GRF<Stream = any> extends Loader<Stream> {
     }
   }
 
-  private decodeEntry(data: Uint8Array, entry: GRFFileMetaData): Uint8Array {
-    if (entry.type & FILELIST_TYPE_ENCRYPT_MIXED) {
-      decodeFull(data, entry.lengthAligned, entry.compressedSize);
-    } else if (entry.type & FILELIST_TYPE_ENCRYPT_HEADER) {
-      decodeHeader(data, entry.lengthAligned);
-    }
-
-    if (entry.realSize === entry.compressedSize) {
-      return data;
-    }
-    const out = new Uint8Array(entry.realSize);
-    new Inflate(data).getBytes(out);
-    return out;
-  }
-
-  public async getFile(path: string) {
-    const { data, name } = await this.getEntry(path);
-    return new File([data], name);
-  }
-
-  public async getEntry(path: string): Promise<GRFFile> {
+  public async getEntry(path: string): Promise<GRFDecodedEntry> {
     path = normalizePath(path);
     if (!this.loaded) {
       throw new Error("GRF not loaded yet");
@@ -123,16 +103,34 @@ export class GRF<Stream = any> extends Loader<Stream> {
       throw new Error(`File "${path}" not found`);
     }
 
-    const buffer = await this.getBuffer(
+    const encodedData = await this.getBuffer(
       entry.offset + HEADER_SIZE,
       entry.lengthAligned
     );
 
-    return { data: this.decodeEntry(buffer, entry), name: entry.name };
+    return { data: decodeEntryData(entry, encodedData), name: entry.name };
   }
 }
 
-export interface GRFFileMetaData {
+function decodeEntryData(
+  entry: GRFEncodedEntry,
+  encodedData: Uint8Array
+): Uint8Array {
+  if (entry.type & FILELIST_TYPE_ENCRYPT_MIXED) {
+    decodeFull(encodedData, entry.lengthAligned, entry.compressedSize);
+  } else if (entry.type & FILELIST_TYPE_ENCRYPT_HEADER) {
+    decodeHeader(encodedData, entry.lengthAligned);
+  }
+
+  if (entry.realSize === entry.compressedSize) {
+    return encodedData;
+  }
+  const out = new Uint8Array(entry.realSize);
+  new Inflate(encodedData).getBytes(out);
+  return out;
+}
+
+export interface GRFEncodedEntry {
   path: string;
   name: string;
   type: number;
@@ -142,7 +140,7 @@ export interface GRFFileMetaData {
   lengthAligned: number;
 }
 
-export type GRFFile = {
+export type GRFDecodedEntry = {
   name: string;
   data: Uint8Array;
 };

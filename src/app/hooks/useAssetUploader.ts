@@ -216,7 +216,11 @@ function createMapDataUnpackJobs<Stream>(grf: GRF<Stream>) {
 
       const [gatResult, imageResult] = await Promise.allSettled([
         grf.getEntry(gatFilePath).then(({ data, name }) => new GAT(data, name)),
-        grf.getFile(imageFilePath).then(cropMapImage).then(toRpcFile),
+        grf
+          .getEntry(imageFilePath)
+          .then(({ data, name }) => new File([data], name))
+          .then(cropMapImage)
+          .then(toRpcFile),
       ]);
 
       const gat =
@@ -232,11 +236,11 @@ async function determineMonsterSpriteNames(
   decompileLuaTables: (files: RpcFile[]) => Promise<ReducedLuaTables>
 ): Promise<Record<number, string>> {
   const identityFile = await grf
-    .getFile("data\\lua files\\datainfo\\npcidentity.lub")
+    .getEntry("data\\lua files\\datainfo\\npcidentity.lub")
     .then(toRpcFile);
 
   const nameFile = await grf
-    .getFile("data\\lua files\\datainfo\\jobname.lub")
+    .getEntry("data\\lua files\\datainfo\\jobname.lub")
     .then(toRpcFile);
 
   const table = await decompileLuaTables([identityFile, nameFile]);
