@@ -1,7 +1,7 @@
 import { Fragment, ReactElement } from "react";
 import { Stack, styled } from "@mui/material";
 import { pick } from "lodash";
-import { useRouteParams } from "../../lib/useRouteParams";
+import { useRouteParams } from "../../lib/hooks/useRouteParams";
 import { Header } from "../layout/Header";
 import { useGetItemQuery, useSearchMonstersQuery } from "../state/client";
 import { router } from "../router";

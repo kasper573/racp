@@ -1,11 +1,9 @@
 import trimImageData, { TrimOptions } from "trim-image-data";
 import { loadImage } from "./loadImage";
-import {
-  canvasToBlob,
-  canvasToData,
-  imageDataToCanvas,
-  imageToCanvas,
-} from "./imageUtils";
+import { canvasToBlob } from "./canvasToBlob";
+import { imageDataToCanvas } from "./imageDataToCanvas";
+import { canvasToData } from "./canvasToData";
+import { imageToCanvas } from "./imageToCanvas";
 
 export type RGB = [number, number, number];
 

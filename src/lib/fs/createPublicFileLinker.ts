@@ -1,6 +1,6 @@
 import * as nodePath from "path";
+import { defined } from "../std/defined";
 import { ensureDir } from "./ensureDir";
-import { defined } from "./defined";
 
 export function createPublicFileLinker({
   directory,

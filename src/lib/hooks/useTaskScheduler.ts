@@ -2,7 +2,7 @@ import { v4 as uuid } from "uuid";
 import { useEffect, useMemo, useReducer } from "react";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { groupBy, uniq } from "lodash";
-import { allResolved } from "./allResolved";
+import { allResolved } from "../std/allResolved";
 import { useBottleneck } from "./useBottleneck";
 import { useLatest } from "./useLatest";
 import { useIsMounted } from "./useIsMounted";

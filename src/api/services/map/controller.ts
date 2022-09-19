@@ -1,6 +1,6 @@
 import { createRpcController } from "../../util/rpc";
 import { RpcException } from "../../../lib/rpc/RpcException";
-import { defined } from "../../../lib/defined";
+import { defined } from "../../../lib/std/defined";
 import { createSearchController } from "../../common/search";
 import { bufferToLuaCode } from "../../common/parseLuaTableAs";
 import { MapRepository } from "./repository";

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { loadImage } from "./loadImage";
+import { loadImage } from "../image/loadImage";
 
 export function useImage(imageUrl?: string) {
   const [image, setImage] = useState<HTMLImageElement>();

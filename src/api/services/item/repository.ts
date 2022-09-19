@@ -1,10 +1,10 @@
 import * as fs from "fs";
 import { YamlDriver } from "../../rathena/YamlDriver";
-import { FileStore } from "../../../lib/createFileStore";
+import { FileStore } from "../../../lib/fs/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { createImageRepository } from "../../common/createImageRepository";
-import { Linker } from "../../../lib/createPublicFileLinker";
-import { ImageFormatter } from "../../../lib/createImageFormatter";
+import { Linker } from "../../../lib/fs/createPublicFileLinker";
+import { ImageFormatter } from "../../../lib/image/createImageFormatter";
 import { Logger } from "../../../lib/logger";
 import { createItemResolver } from "./util/createItemResolver";
 import { Item, ItemId, itemInfoType } from "./types";

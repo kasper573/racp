@@ -1,11 +1,11 @@
 import * as fs from "fs";
-import { FileStore } from "../../../lib/createFileStore";
+import { FileStore } from "../../../lib/fs/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
-import { Linker } from "../../../lib/createPublicFileLinker";
-import { ImageFormatter } from "../../../lib/createImageFormatter";
+import { Linker } from "../../../lib/fs/createPublicFileLinker";
+import { ImageFormatter } from "../../../lib/image/createImageFormatter";
 import { NpcDriver } from "../../rathena/NpcDriver";
 import { createImageRepository } from "../../common/createImageRepository";
-import { trimExtension } from "../../../lib/trimExtension";
+import { trimExtension } from "../../../lib/std/trimExtension";
 import { Logger } from "../../../lib/logger";
 import {
   MapBoundsRegistry,

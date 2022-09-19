@@ -1,8 +1,8 @@
 import { Dispatch, memo, SetStateAction } from "react";
 import { Stack } from "@mui/material";
-import { typedKeys } from "../../../lib/typedKeys";
+import { typedKeys } from "../../../lib/std/typedKeys";
 import { FilePicker } from "../../components/FilePicker";
-import { defined } from "../../../lib/defined";
+import { defined } from "../../../lib/std/defined";
 import { UploaderFileName, uploaderFilesRequired } from "./useAssetUploader";
 
 export type AssetFiles = Partial<Record<UploaderFileName, File>>;

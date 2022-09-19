@@ -1,9 +1,9 @@
 import * as zod from "zod";
 import { createYamlResolver } from "../../../rathena/YamlDriver";
 import { Item, itemPostProcessType, itemType } from "../types";
-import { defined } from "../../../../lib/defined";
+import { defined } from "../../../../lib/std/defined";
 import { clientTextContent } from "../../../common/clientTextType";
-import { typedAssign } from "../../../../lib/typedAssign";
+import { typedAssign } from "../../../../lib/std/typedAssign";
 
 export interface ItemResolverProps {
   tradeScale: number;

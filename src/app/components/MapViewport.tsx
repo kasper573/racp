@@ -6,7 +6,7 @@ import {
   useContext,
   useState,
 } from "react";
-import { useImage } from "../../lib/useImage";
+import { useImage } from "../../lib/hooks/useImage";
 import { MapBounds } from "../../api/services/map/types";
 
 export interface MapViewportProps extends ComponentProps<typeof Viewport> {

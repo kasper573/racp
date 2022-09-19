@@ -6,7 +6,7 @@ import {
 } from "../../api/services/monster/types";
 import { useSearchMonsterSpawnsQuery } from "../state/client";
 import { router } from "../router";
-import { durationString } from "../../lib/durationString";
+import { durationString } from "../../lib/std/durationString";
 import { Link } from "../components/Link";
 
 export const MonsterSpawnGrid = DataGrid.define<

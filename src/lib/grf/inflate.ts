@@ -17,7 +17,7 @@ export class Inflate {
     const flg = bytes[bytesPos++];
     if (cmf === -1 || flg === -1)
       throw new Error("Invalid header in flate stream: " + cmf + ", " + flg);
-    if ((cmf & 0x0f) != 0x08)
+    if ((cmf & 0x0f) !== 0x08)
       throw new Error(
         "Unknown compression method in flate stream: " + cmf + ", " + flg
       );

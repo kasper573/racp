@@ -1,5 +1,5 @@
 import { ComponentProps } from "react";
-import { defined } from "../../lib/defined";
+import { defined } from "../../lib/std/defined";
 import { TextField } from "./TextField";
 
 export type Range = [number | undefined, number | undefined];

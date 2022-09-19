@@ -2,8 +2,8 @@ import * as path from "path";
 import * as fs from "fs";
 import Bottleneck from "bottleneck";
 import { debounce } from "lodash";
-import { ImageFormatter } from "../../lib/createImageFormatter";
-import { Linker } from "../../lib/createPublicFileLinker";
+import { ImageFormatter } from "../../lib/image/createImageFormatter";
+import { Linker } from "../../lib/fs/createPublicFileLinker";
 import { Logger } from "../../lib/logger";
 
 export function createImageRepository(

@@ -1,7 +1,10 @@
 import { chunk, pick } from "lodash";
 import * as zod from "zod";
 import { useMemo } from "react";
-import { cropSurroundingColors, RGB } from "../../../lib/cropSurroundingColors";
+import {
+  cropSurroundingColors,
+  RGB,
+} from "../../../lib/image/cropSurroundingColors";
 import {
   useDecompileLuaTableFilesMutation,
   useUpdateMapBoundsMutation,
@@ -16,18 +19,19 @@ import { GRF } from "../../../lib/grf/types/GRF";
 import { GAT } from "../../../lib/grf/types/GAT";
 import { ReducedLuaTables } from "../../../api/services/util/types";
 import { RGBABitmap, SPR } from "../../../lib/grf/types/SPR";
-import { canvasToBlob, imageDataToCanvas } from "../../../lib/imageUtils";
-import { defined } from "../../../lib/defined";
+import { defined } from "../../../lib/std/defined";
 import {
   describeTask,
   describeTaskGroup,
   InputTask,
   TaskRejectionReason,
   useTaskScheduler,
-} from "../../../lib/useTaskScheduler";
+} from "../../../lib/hooks/useTaskScheduler";
 import { MapBoundsRegistry } from "../../../api/services/map/types";
 import { getErrorMessage } from "../../components/ErrorMessage";
-import { trimExtension } from "../../../lib/trimExtension";
+import { trimExtension } from "../../../lib/std/trimExtension";
+import { canvasToBlob } from "../../../lib/image/canvasToBlob";
+import { imageDataToCanvas } from "../../../lib/image/imageDataToCanvas";
 
 export function useAssetUploader() {
   const [uploadMapImages, mapImageUpload] = useUploadMapImagesMutation();

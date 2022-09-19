@@ -1,6 +1,6 @@
 import { Dispatch as ReduxDispatch, Middleware } from "redux";
 import { ZodType } from "zod";
-import { typedKeys } from "./typedKeys";
+import { typedKeys } from "./std/typedKeys";
 
 export function rtkStorage<State>() {
   return function factory<

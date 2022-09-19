@@ -7,7 +7,7 @@ import {
   GridColDef,
   GridEnrichedColDef,
 } from "@mui/x-data-grid/models/colDef/gridColDef";
-import { typedKeys } from "../../lib/typedKeys";
+import { typedKeys } from "../../lib/std/typedKeys";
 import { SearchQuery, SearchResult, SearchSort } from "../../api/common/search";
 import { Link } from "./Link";
 

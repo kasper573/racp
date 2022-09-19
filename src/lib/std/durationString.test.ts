@@ -1,5 +1,6 @@
 import { expect } from "@jest/globals";
 import { durationString } from "./durationString";
+
 describe("durationString", () => {
   const ms = 1;
   const s = 1000 * ms;

@@ -3,7 +3,7 @@ import { Router, Request, Response, RequestHandler } from "express";
 import * as bodyParser from "body-parser";
 import fileUpload = require("express-fileupload");
 import { FileArray, UploadedFile } from "express-fileupload";
-import { typedKeys } from "../typedKeys";
+import { typedKeys } from "../std/typedKeys";
 import { createFunctionLogPrefix, Logger } from "../logger";
 import {
   RpcDefinitionEntry,
