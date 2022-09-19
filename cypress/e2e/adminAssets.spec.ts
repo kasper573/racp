@@ -1,15 +1,8 @@
-import {
-  gotoItem,
-  gotoMap,
-  gotoMonster,
-  removeUGC,
-  signIn,
-} from "../support/actions";
+import { gotoItem, gotoMap, gotoMonster, signIn } from "../support/actions";
 
 before(() => {
   cy.visit("/");
   signIn(Cypress.env("ADMIN_USER"), Cypress.env("ADMIN_PASSWORD"));
-  removeUGC();
   uploadAssets();
 });
 
