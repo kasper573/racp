@@ -3,23 +3,17 @@ import {
   findDataCells,
   findDataRows,
   findRowById,
-  sortGridBy,
 } from "../support/actions/grid";
-import { menuSlide, waitForPageReady } from "../support/actions/common";
+import { menuSlide } from "../support/actions/common";
 import {
-  CompareFn,
   compareNumbers,
   createTextCompareFn,
-  invertCompareFn,
+  generateSearchPageTests,
 } from "../support/util";
 
-describe("can search for monsters by", () => {
-  beforeEach(() => {
-    cy.visit("/");
-    listMonsters();
-  });
-
-  const searches: Record<string, { input: Function; verify: Function }> = {
+generateSearchPageTests({
+  gotoPage: listMonsters,
+  searches: {
     id: {
       input: () => cy.findByLabelText("ID").type("1309"),
       verify: () => findRowById(1309),
@@ -91,27 +85,10 @@ describe("can search for monsters by", () => {
       input: () => cy.get("#Modes").select("CastSensorChase"),
       verify: () => findDataCells("Name", /Archer Guardian/i),
     },
-  };
-
-  Object.entries(searches).forEach(([name, { input, verify }]) => {
-    it(name, () => {
-      input();
-      waitForPageReady();
-      verify();
-    });
-  });
-});
-
-describe("can sort monsters by", () => {
-  before(() => {
-    cy.visit("/");
-    listMonsters();
-  });
-
-  const compareTexts = createTextCompareFn();
-  const columns: Record<string, CompareFn> = {
-    Name: compareTexts,
-    Level: compareTexts,
+  },
+  sorts: {
+    Name: createTextCompareFn(),
+    Level: createTextCompareFn(),
     Attack: compareNumbers,
     "M. Attack": compareNumbers,
     Defense: compareNumbers,
@@ -124,18 +101,5 @@ describe("can sort monsters by", () => {
     "Atk. Range": compareNumbers,
     "Skill Range": compareNumbers,
     "Chase Range": compareNumbers,
-  };
-
-  Object.entries(columns).forEach(([name, compareFn]) => {
-    describe(name, () => {
-      it("asc", () => {
-        sortGridBy(name, "asc");
-        findDataCells(name).shouldBeSortedBy(compareFn);
-      });
-      it("desc", () => {
-        sortGridBy(name, "desc");
-        findDataCells(name).shouldBeSortedBy(invertCompareFn(compareFn));
-      });
-    });
-  });
+  },
 });
