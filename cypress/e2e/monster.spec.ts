@@ -5,11 +5,8 @@ import {
   findRowById,
 } from "../support/actions/grid";
 import { menuSlide } from "../support/actions/common";
-import {
-  compareNumeric,
-  compareStrings,
-  generateSearchPageTests,
-} from "../support/util";
+import { compareNumeric, compareStrings } from "../support/util";
+import { generateSearchPageTests } from "../support/generateSearchPageTests";
 
 generateSearchPageTests({
   gotoPage: listMonsters,

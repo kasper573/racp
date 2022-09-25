@@ -4,8 +4,9 @@ import {
   findDataRows,
   findRowById,
 } from "../support/actions/grid";
-import { compareStrings, generateSearchPageTests } from "../support/util";
+import { compareStrings } from "../support/util";
 import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
+import { generateSearchPageTests } from "../support/generateSearchPageTests";
 
 // Some searches require assets to function
 before(() => {

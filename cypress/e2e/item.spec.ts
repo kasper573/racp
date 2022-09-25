@@ -4,13 +4,10 @@ import {
   findDataRows,
   findRowById,
 } from "../support/actions/grid";
-import {
-  compareNumeric,
-  compareStrings,
-  generateSearchPageTests,
-} from "../support/util";
+import { compareNumeric, compareStrings } from "../support/util";
 import { menuSlide } from "../support/actions/common";
 import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
+import { generateSearchPageTests } from "../support/generateSearchPageTests";
 
 // Some searches require assets to function
 before(() => {
