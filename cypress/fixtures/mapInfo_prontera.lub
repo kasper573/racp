@@ -8,20 +8,101 @@ mapTbl = {
 		},
 		backgroundBmp = "village"
 	},
-	["prt_fild1.rsw"] = {
-        displayName = "Prontera Field East",
+	["prt_field1.rsw"] = {
+        displayName = "Prontera Field 1",
         notifyEnter = true,
         signName = {
-            mainTitle = "East Field of Prontera"
+            mainTitle = "Fields of Prontera"
         },
         backgroundBmp = "field_s2"
     },
-    ["prt_fild2.rsw"] = {
-        displayName = "Prontera Field West",
+    ["prt_field2.rsw"] = {
+        displayName = "Prontera Field 2",
         notifyEnter = true,
         signName = {
-            mainTitle = "West Field of Prontera"
+            mainTitle = "Fields of Prontera"
         },
         backgroundBmp = "field_s2"
     },
+    ["prt_field3.rsw"] = {
+        displayName = "Prontera Field 3",
+        notifyEnter = true,
+        signName = {
+            mainTitle = "Fields of Prontera"
+        },
+        backgroundBmp = "field_s2"
+    },
+    ["prt_field4.rsw"] = {
+        displayName = "Prontera Field 4",
+        notifyEnter = true,
+        signName = {
+            mainTitle = "Fields of Prontera"
+        },
+        backgroundBmp = "field_s2"
+    },
+    ["prt_field5.rsw"] = {
+        displayName = "Prontera Field 5",
+        notifyEnter = true,
+        signName = {
+            mainTitle = "Fields of Prontera"
+        },
+        backgroundBmp = "field_s2"
+    },
+    ["prt_field6.rsw"] = {
+        displayName = "Prontera Field 6",
+        notifyEnter = true,
+        signName = {
+            mainTitle = "Fields of Prontera"
+        },
+        backgroundBmp = "field_s2"
+    },
+    ["prt_field7.rsw"] = {
+        displayName = "Prontera Field 7",
+        notifyEnter = true,
+        signName = {
+            mainTitle = "Fields of Prontera"
+        },
+        backgroundBmp = "field_s2"
+    },
+    ["prt_field8.rsw"] = {
+        displayName = "Prontera Field 8",
+        notifyEnter = true,
+        signName = {
+            mainTitle = "Fields of Prontera"
+        },
+        backgroundBmp = "field_s2"
+    },
+    ["prt_field9.rsw"] = {
+        displayName = "Prontera Field 9",
+        notifyEnter = true,
+        signName = {
+            mainTitle = "Fields of Prontera"
+        },
+        backgroundBmp = "field_s2"
+    },
+    ["prt_field10.rsw"] = {
+        displayName = "Prontera Field 10",
+        notifyEnter = true,
+        signName = {
+            mainTitle = "Fields of Prontera"
+        },
+        backgroundBmp = "field_s2"
+    },
+    ["prt_field11.rsw"] = {
+        displayName = "Prontera Field 11",
+        notifyEnter = true,
+        signName = {
+            mainTitle = "Fields of Prontera"
+        },
+        backgroundBmp = "field_s2"
+    },
+    ["prt_field12.rsw"] = {
+        displayName = "Prontera Field 12",
+        notifyEnter = true,
+        signName = {
+            mainTitle = "Fields of Prontera"
+        },
+        backgroundBmp = "field_s2"
+    },
+
 }

@@ -1,9 +1,20 @@
+import { unwrap } from "./common";
+
 export function findRowById(id: string | number) {
   return findDataRows().filter((i, e) => e.getAttribute("data-id") === `${id}`);
 }
 
 export function findDataRows() {
-  return cy.findAllByRole("row").filter(dataRowSelector);
+  return cy
+    .findAllByRole("row")
+    .filter((i, e) => e.hasAttribute(dataRowIdAttribute));
+}
+
+export function findDataRowIds() {
+  return findDataRows().then((rows) => {
+    const ids = rows.map((i, row) => row.getAttribute("data-id"));
+    return unwrap(ids);
+  });
 }
 
 export function findDataCells(
@@ -14,7 +25,9 @@ export function findDataCells(
     const index = header.index();
     return cy
       .wrap(header.closest(`[role=grid]`))
-      .get(`[role=row]${dataRowSelector} [role=cell]:nth-child(${index + 1})`)
+      .get(
+        `[role=row][${dataRowIdAttribute}] [role=cell]:nth-child(${index + 1})`
+      )
       .filter((i, col) => {
         if (filter === undefined) {
           return true;
@@ -50,4 +63,4 @@ const sortMenuItemOptions = {
   none: /Unsort/i,
 };
 
-const dataRowSelector = "[data-id]";
+const dataRowIdAttribute = "data-id";
