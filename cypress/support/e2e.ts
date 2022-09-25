@@ -6,5 +6,5 @@ Cypress.Keyboard.defaults({
 });
 
 before(() => {
-  cy.exec("yarn run remove-ugc");
+  cy.exec("yarn run reset-data");
 });

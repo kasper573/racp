@@ -3,10 +3,9 @@ import { createLogger } from "../src/lib/logger";
 import { readCliArgs } from "../src/api/util/cli";
 import { options } from "../src/api/options";
 import { createConfigDriver } from "../src/api/rathena/ConfigDriver";
-import { resetDatabases } from "./resetDatabases";
 
 /**
- * Updates a clean rathena build with the settings we need to run racp + rathena in CI.
+ * Updates an rAthena build with the settings we need to run racp + rathena in CI.
  */
 async function configureRAthena() {
   const logger = createLogger(console.log).chain("configureRAthena");
@@ -18,8 +17,6 @@ async function configureRAthena() {
     MYSQL_PASSWORD: { type: "string", required: true },
     MYSQL_DATABASE: { type: "string", required: true },
   });
-
-  logger.log("args", JSON.stringify(args));
 
   const cfg = createConfigDriver({ ...args, logger });
 
@@ -46,11 +43,9 @@ async function configureRAthena() {
     )
   );
 
-  const success = await resetDatabases({ cfg, logger });
   logger.log("Finished configuring RAthena");
-  return success ? 0 : 1;
 }
 
 if (require.main === module) {
-  configureRAthena().then(process.exit);
+  configureRAthena();
 }

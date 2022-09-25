@@ -77,7 +77,16 @@ function createNpcLoader<ET extends AnyNpcEntityType>(
 }
 
 async function loadNpcConfFile(npcConfFile: string, rAthenaPath: string) {
-  const text = await readFile(npcConfFile);
+  let text: string;
+  try {
+    text = await readFile(npcConfFile);
+  } catch (e) {
+    // "File not found" errors are ignored and treated as empty configuration records
+    if ((e as NodeJS.ErrnoException)?.code === "ENOENT") {
+      return [];
+    }
+    throw e;
+  }
   const entities = parseTextEntities(text).map((matrix) =>
     npcConfEntity.parse(matrix)
   );
