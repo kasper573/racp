@@ -1,5 +1,6 @@
 import * as path from "path";
 import * as fs from "fs";
+import Bottleneck from "bottleneck";
 import { debounce } from "lodash";
 import { ImageFormatter } from "../../lib/image/createImageFormatter";
 import { Linker } from "../../lib/fs/createPublicFileLinker";
@@ -12,6 +13,7 @@ export function createImageRepository(
 ) {
   const logger = parentLogger.chain("image");
   const urlMap = new Map<string, string>();
+
   async function updateUrlMap() {
     logger.log("Updating url map");
     urlMap.clear();
@@ -32,12 +34,13 @@ export function createImageRepository(
 
   async function updateImages(files: Array<{ name: string; data: number[] }>) {
     await Promise.all(
-      files.map(
-        (file) => () =>
+      files.map((file) =>
+        openFilesBottleneck.schedule(() =>
           formatter.write(
             linker.path(path.basename(file.name)),
             Buffer.from(new Uint8Array(file.data))
           )
+        )
       )
     );
   }
@@ -62,3 +65,6 @@ export function createImageRepository(
     close: () => watcher.close(),
   };
 }
+
+// 1k max open files is a common OS default. We'll use 900 to be safe.
+const openFilesBottleneck = new Bottleneck({ maxConcurrent: 900 });
