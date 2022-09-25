@@ -1,5 +1,6 @@
 import {
-  countRows,
+  findDataColumns,
+  findDataRows,
   findRowById,
   findRowsByField,
   listMonsters,
@@ -22,10 +23,12 @@ describe("can search for monsters by", () => {
   it("name", () => {
     cy.findByLabelText("Name").type("dopp");
     waitForLoadingSpinner();
-    countRows().then((length) => {
-      expect(length).to.be.greaterThan(0, "No monsters found");
-      findRowsByField("Name", /dopp/i).should("have.length", length);
-    });
+    findDataRows()
+      .its("length")
+      .then((length) => {
+        expect(length).to.be.greaterThan(0, "No monsters found");
+        findRowsByField("Name", /dopp/i).should("have.length", length);
+      });
   });
 
   it("race", () => {
@@ -50,5 +53,17 @@ describe("can search for monsters by", () => {
     menuSlide("Level", [50, 55]);
     waitForLoadingSpinner();
     findRowsByField("Level", (level) => +level >= 50 && +level <= 55);
+  });
+
+  it("move speed", () => {
+    menuSlide("Move Speed", [100, 200]);
+    waitForLoadingSpinner();
+    findDataColumns("Move Speed").each((col) => {
+      cy.wrap(col)
+        .invoke("text")
+        .then((text) => {
+          cy.wrap(parseFloat(text)).shouldBeBetween(100, 200);
+        });
+    });
   });
 });

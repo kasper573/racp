@@ -44,7 +44,7 @@ Cypress.Commands.overwrite<"select", "element">(
     cy.findAllByRole("option").filter(shouldSelect).click();
 
     // Closes the menu. Required to commit the selection.
-    cy.get("body").click();
+    cy.closePoppers();
 
     return wrappedSubject;
   }
