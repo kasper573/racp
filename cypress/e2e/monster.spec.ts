@@ -6,7 +6,7 @@ import {
 } from "../support/actions/grid";
 import { menuSlide } from "../support/actions/common";
 import {
-  compareNumbers,
+  compareNumeric,
   createTextCompareFn,
   generateSearchPageTests,
 } from "../support/util";
@@ -88,18 +88,18 @@ generateSearchPageTests({
   },
   sorts: {
     Name: createTextCompareFn(),
-    Level: createTextCompareFn(),
-    Attack: compareNumbers,
-    "M. Attack": compareNumbers,
-    Defense: compareNumbers,
-    "M. Defense": compareNumbers,
-    Hit: compareNumbers,
-    Flee: compareNumbers,
-    "Base XP": compareNumbers,
-    "Job XP": compareNumbers,
-    "Move Speed": compareNumbers,
-    "Atk. Range": compareNumbers,
-    "Skill Range": compareNumbers,
-    "Chase Range": compareNumbers,
+    Level: compareNumeric,
+    Attack: compareNumeric,
+    "M. Attack": compareNumeric,
+    Defense: compareNumeric,
+    "M. Defense": compareNumeric,
+    Hit: compareNumeric,
+    Flee: compareNumeric,
+    "Base XP": compareNumeric,
+    "Job XP": compareNumeric,
+    "Move Speed": compareNumeric,
+    "Atk. Range": compareNumeric,
+    "Skill Range": compareNumeric,
+    "Chase Range": compareNumeric,
   },
 });
