@@ -10,3 +10,11 @@ export function menuSlide(name: string, newValueOrValues: number | number[]) {
 export function waitForLoadingSpinner(testId = "loading-spinner") {
   cy.findByTestId(testId).shouldExistTemporarily();
 }
+
+export function unwrap<T>(query: JQuery<T>) {
+  const values: T[] = [];
+  for (let i = 0; i < query.length; i++) {
+    values.push(query.get(i));
+  }
+  return values;
+}

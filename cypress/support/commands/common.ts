@@ -1,5 +1,6 @@
 /// <reference types="cypress" />
 import "@testing-library/cypress/add-commands";
+import { unwrap } from "../actions/common";
 
 Cypress.Commands.add(
   "shouldExistTemporarily",
@@ -23,11 +24,28 @@ Cypress.Commands.add("closePoppers", () => {
   cy.get("body").click("bottomRight");
 });
 
+Cypress.Commands.add(
+  "shouldBeSortedBy",
+  { prevSubject: "element" },
+  (subject, compareFn) => {
+    cy.wrap(subject).then((elements) => {
+      const texts = unwrap(elements.map((i, e) => e.textContent));
+      const sorted = [...texts].sort(compareFn);
+      cy.wrap(elements).each((element, i) => {
+        cy.wrap(element).should("have.text", sorted[i]);
+      });
+    });
+  }
+);
+
 declare global {
   namespace Cypress {
     interface Chainable {
       shouldExistTemporarily(): Chainable<Element>;
       shouldBeBetween(min: number, max: number): Chainable<Element>;
+      shouldBeSortedBy<T>(
+        compareFn: (a: T, b: T) => number
+      ): Chainable<Element>;
       closePoppers(): Chainable<Element>;
     }
   }

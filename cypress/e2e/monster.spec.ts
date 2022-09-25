@@ -3,8 +3,15 @@ import {
   findDataCells,
   findDataRows,
   findRowById,
+  sortGridBy,
 } from "../support/actions/grid";
 import { menuSlide, waitForLoadingSpinner } from "../support/actions/common";
+import {
+  CompareFn,
+  compareNumbers,
+  createTextCompareFn,
+  invertCompareFn,
+} from "../support/util";
 
 beforeEach(() => {
   cy.visit("/");
@@ -95,5 +102,38 @@ describe("can search for monsters by", () => {
     cy.get("#Modes").select("CastSensorChase");
     waitForLoadingSpinner();
     findDataCells("Name", /Archer Guardian/i);
+  });
+});
+
+describe("can filter monsters by", () => {
+  const compareTexts = createTextCompareFn();
+  const columns: Record<string, CompareFn> = {
+    Name: compareTexts,
+    Level: compareTexts,
+    Attack: compareNumbers,
+    "M. Attack": compareNumbers,
+    Defense: compareNumbers,
+    "M. Defense": compareNumbers,
+    Hit: compareNumbers,
+    Flee: compareNumbers,
+    "Base XP": compareNumbers,
+    "Job XP": compareNumbers,
+    "Move Speed": compareNumbers,
+    "Atk. Range": compareNumbers,
+    "Skill Range": compareNumbers,
+    "Chase Range": compareNumbers,
+  };
+
+  Object.entries(columns).forEach(([name, compareFn]) => {
+    describe(name, () => {
+      it("asc", () => {
+        sortGridBy(name, "asc");
+        findDataCells(name).shouldBeSortedBy(compareFn);
+      });
+      it("desc", () => {
+        sortGridBy(name, "desc");
+        findDataCells(name).shouldBeSortedBy(invertCompareFn(compareFn));
+      });
+    });
   });
 });
