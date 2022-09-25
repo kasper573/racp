@@ -1,4 +1,4 @@
-import { chunk, pick } from "lodash";
+import { chunk, flatten, pick } from "lodash";
 import * as zod from "zod";
 import { useMemo } from "react";
 import {
@@ -126,12 +126,14 @@ export function useAssetUploader() {
       },
     ]);
 
-    const monsterImages = await tracker.track(
-      monsterSpriteInfo.map((info) => ({
-        group: "Unpacking monster images",
-        id: `Monster ID: ${info.id}, Sprite: "${info.spritePath}"`,
-        fn: () => loadSpriteFromGRF(grf, info),
-      }))
+    const monsterImages = flatten(
+      await tracker.track(
+        monsterSpriteInfo.map((info) => ({
+          group: "Unpacking monster images",
+          id: info.sourcePath,
+          fn: () => loadSpriteFromGRF(grf, info),
+        }))
+      )
     );
 
     await tracker.track(
@@ -154,12 +156,14 @@ export function useAssetUploader() {
       return;
     }
 
-    const itemImages = await tracker.track(
-      resolveSpriteInfo(grf, resourceNames).map((info) => ({
-        group: "Unpacking item images",
-        id: `Item ID: ${info.id}, Sprite: "${info.spritePath}"`,
-        fn: () => loadSpriteFromGRF(grf, info),
-      }))
+    const itemImages = flatten(
+      await tracker.track(
+        resolveSpriteInfo(grf, resourceNames).map((info) => ({
+          group: "Unpacking item images",
+          id: info.sourcePath,
+          fn: () => loadSpriteFromGRF(grf, info),
+        }))
+      )
     );
 
     await tracker.track(
@@ -290,11 +294,10 @@ function resolveSpriteInfo(
     }
     const key = normalizeSpriteName(trimExtension(entry.name));
     const ids = spriteNameToIds[key] ?? [];
-    for (const id of ids) {
+    if (ids.length > 0) {
       infoList.push({
-        id: parseInt(id, 10),
-        spriteName: id,
-        spritePath: entry.path,
+        outputNames: ids,
+        sourcePath: entry.path,
       });
     }
   }
@@ -304,13 +307,14 @@ function resolveSpriteInfo(
 
 async function loadSpriteFromGRF(
   grf: GRF,
-  { spriteName, spritePath }: SpriteInfo
-) {
-  const { data } = await grf.getEntry(spritePath);
-  const spr = await new SPR(data);
+  { outputNames, sourcePath }: SpriteInfo
+): Promise<RpcFile[]> {
+  const { data: sprData } = await grf.getEntry(sourcePath);
+  const spr = await new SPR(sprData);
   const frame = spr.compileFrame(0);
   const blob = await frameToBlob(frame);
-  return toRpcFile(new File([blob], spriteName));
+  const data = Array.from(new Uint8Array(await blob.arrayBuffer()));
+  return outputNames.map((name): RpcFile => ({ name, data }));
 }
 
 async function frameToBlob(frame: RGBABitmap) {
@@ -330,9 +334,8 @@ async function cropMapImage(file: File) {
 }
 
 interface SpriteInfo {
-  id: number;
-  spritePath: string;
-  spriteName: string;
+  sourcePath: string;
+  outputNames: string[];
 }
 
 const mapImageCropColor: RGB = [255, 0, 255]; // Magenta
