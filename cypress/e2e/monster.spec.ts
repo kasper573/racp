@@ -7,7 +7,7 @@ import {
 import { menuSlide } from "../support/actions/common";
 import {
   compareNumeric,
-  createTextCompareFn,
+  compareStrings,
   generateSearchPageTests,
 } from "../support/util";
 
@@ -87,7 +87,7 @@ generateSearchPageTests({
     },
   },
   sorts: {
-    Name: createTextCompareFn(),
+    Name: compareStrings,
     Level: compareNumeric,
     Attack: compareNumeric,
     "M. Attack": compareNumeric,

@@ -4,7 +4,7 @@ import {
   findDataRows,
   findRowById,
 } from "../support/actions/grid";
-import { createTextCompareFn, generateSearchPageTests } from "../support/util";
+import { compareStrings, generateSearchPageTests } from "../support/util";
 import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
 
 // Some searches require assets to function
@@ -33,7 +33,7 @@ generateSearchPageTests({
     },
   },
   sorts: {
-    Name: createTextCompareFn(),
-    id: createTextCompareFn(),
+    Name: compareStrings,
+    id: compareStrings,
   },
 });

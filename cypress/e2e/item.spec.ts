@@ -6,7 +6,7 @@ import {
 } from "../support/actions/grid";
 import {
   compareNumeric,
-  createTextCompareFn,
+  compareStrings,
   generateSearchPageTests,
 } from "../support/util";
 import { menuSlide } from "../support/actions/common";
@@ -84,7 +84,7 @@ generateSearchPageTests({
     },
   },
   sorts: {
-    Name: createTextCompareFn(),
+    Name: compareStrings,
     Buy: compareNumeric,
     Sell: compareNumeric,
     Weight: compareNumeric,

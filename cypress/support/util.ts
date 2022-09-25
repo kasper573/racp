@@ -49,15 +49,7 @@ export function generateSearchPageTests({
   });
 }
 
-export function createTextCompareFn(caseSensitive = true): CompareFn<string> {
-  return (a, b) => {
-    if (!caseSensitive) {
-      a = a.toLowerCase();
-      b = b.toLowerCase();
-    }
-    return a.localeCompare(b);
-  };
-}
+export const compareStrings: CompareFn<string> = (a, b) => a.localeCompare(b);
 
 export const compareNumeric: CompareFn<string> = (a, b) => {
   const aNum = isNumeric(a) ? parseInt(a) : undefined;
