@@ -1,12 +1,10 @@
+import { listMonsters } from "../support/actions/nav";
 import {
-  findDataColumns,
+  findDataCells,
   findDataRows,
   findRowById,
-  findRowsByField,
-  listMonsters,
-  menuSlide,
-  waitForLoadingSpinner,
-} from "../support/actions";
+} from "../support/actions/grid";
+import { menuSlide, waitForLoadingSpinner } from "../support/actions/common";
 
 beforeEach(() => {
   cy.visit("/");
@@ -27,43 +25,37 @@ describe("can search for monsters by", () => {
       .its("length")
       .then((length) => {
         expect(length).to.be.greaterThan(0, "No monsters found");
-        findRowsByField("Name", /dopp/i).should("have.length", length);
+        findDataCells("Name", /dopp/i).should("have.length", length);
       });
   });
 
   it("race", () => {
     cy.get("#Race").select("Angel");
     waitForLoadingSpinner();
-    findRowsByField("Name", "Angeling");
+    findDataCells("Name", "Angeling");
   });
 
   it("element", () => {
     cy.get("#Element").select("Earth");
     waitForLoadingSpinner();
-    findRowsByField("Name", "Fabre");
+    findDataCells("Name", "Fabre");
   });
 
   it("size", () => {
     cy.get("#Size").select("Small");
     waitForLoadingSpinner();
-    findRowsByField("Name", "Familiar");
+    findDataCells("Name", "Familiar");
   });
 
   it("level", () => {
     menuSlide("Level", [50, 55]);
     waitForLoadingSpinner();
-    findRowsByField("Level", (level) => +level >= 50 && +level <= 55);
+    findDataCells("Level", (text) => +text >= 50 && +text <= 55);
   });
 
   it("move speed", () => {
     menuSlide("Move Speed", [100, 200]);
     waitForLoadingSpinner();
-    findDataColumns("Move Speed").each((col) => {
-      cy.wrap(col)
-        .invoke("text")
-        .then((text) => {
-          cy.wrap(parseFloat(text)).shouldBeBetween(100, 200);
-        });
-    });
+    findDataCells("Move Speed", (text) => +text >= 100 && +text <= 200);
   });
 });

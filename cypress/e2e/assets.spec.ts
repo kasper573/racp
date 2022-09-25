@@ -1,4 +1,5 @@
-import { gotoItem, gotoMap, gotoMonster, signIn } from "../support/actions";
+import { gotoItem, gotoMap, gotoMonster } from "../support/actions/nav";
+import { signIn } from "../support/actions/user";
 
 before(() => {
   cy.visit("/");
