@@ -67,19 +67,19 @@ export function ItemSearchFilterForm({ value, onChange }: FormDataProps) {
         label="Element"
         multi
         options={meta?.elements}
-        {...field("Elements", "includesSome")}
+        {...field("Elements", "includesSomeString")}
       />
       <Select
         label="Status"
         multi
         options={meta?.statuses}
-        {...field("Statuses", "includesSome")}
+        {...field("Statuses", "includesSomeString")}
       />
       <Select
         label="Race"
         multi
         options={meta?.races}
-        {...field("Races", "includesSome")}
+        {...field("Races", "includesSomeString")}
       />
       <TextField
         size="small"

@@ -73,9 +73,9 @@ export const matcher = createZodMatcher()
     (a, b) => without(b, ...a).length === 0
   )
   .add(
-    "includesSome",
-    zod.array(item),
-    zod.array(item),
+    "includesSomeString",
+    zod.array(zod.string()),
+    zod.array(zod.string()),
     zod.void(),
     (a, b) => without(b, ...a).length < b.length
   )
