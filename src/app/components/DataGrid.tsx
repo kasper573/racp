@@ -84,6 +84,9 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
           autoPageSize={true}
           page={pageIndex}
           pageSize={pageSize}
+          // Effectively disable column buffering since it gets in the way of e2e testing.
+          // The optimization is negligible anyway.
+          columnBuffer={99}
           onPageSizeChange={setPageSize}
           components={{
             LoadingOverlay,
