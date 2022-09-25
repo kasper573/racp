@@ -68,7 +68,14 @@ export function SliderMenu({
         sx={{ ml: 3, mr: 3, display: "flex", width }}
         onChange={
           ranged
-            ? (e, value) => onChange?.(value as [number, number])
+            ? (e, value) => {
+                const [a, b] = value as [number, number];
+                if (a === min && b === max) {
+                  onChange?.(undefined);
+                } else {
+                  onChange?.([a, b]);
+                }
+              }
             : (e, value) => onChange?.(value as number)
         }
         {...props}
