@@ -1,4 +1,3 @@
-import * as fs from "fs";
 import { FileStore } from "../../../lib/fs/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
@@ -7,6 +6,7 @@ import { NpcDriver } from "../../rathena/NpcDriver";
 import { createImageRepository } from "../../common/createImageRepository";
 import { trimExtension } from "../../../lib/std/trimExtension";
 import { Logger } from "../../../lib/logger";
+import { gfs } from "../../util/gfs";
 import {
   MapBoundsRegistry,
   mapBoundsRegistryType,
@@ -57,7 +57,7 @@ export function createMapRepository({
     getMaps,
     updateInfo: infoFile.update,
     countImages: () =>
-      fs.promises.readdir(imageLinker.directory).then((dirs) => dirs.length),
+      gfs.readdir(imageLinker.directory).then((dirs) => dirs.length),
     warps: npc.resolve("scripts_warps.conf", warpType),
     updateImages: imageRepository.update,
     async updateBounds(registryChanges: MapBoundsRegistry) {

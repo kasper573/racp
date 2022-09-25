@@ -1,4 +1,3 @@
-import * as fs from "fs";
 import { YamlDriver } from "../../rathena/YamlDriver";
 import { FileStore } from "../../../lib/fs/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
@@ -6,6 +5,7 @@ import { createImageRepository } from "../../common/createImageRepository";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
 import { ImageFormatter } from "../../../lib/image/createImageFormatter";
 import { Logger } from "../../../lib/logger";
+import { gfs } from "../../util/gfs";
 import { createItemResolver } from "./util/createItemResolver";
 import { Item, ItemId, itemInfoType } from "./types";
 
@@ -66,7 +66,7 @@ export function createItemRepository({
     getResourceNames,
     countInfo: () => Object.keys(infoFile.data ?? {}).length,
     countImages: () =>
-      fs.promises.readdir(imageLinker.directory).then((dirs) => dirs.length),
+      gfs.readdir(imageLinker.directory).then((dirs) => dirs.length),
     updateImages: imageRepository.update,
     missingImages: () =>
       getItems().then((map) =>

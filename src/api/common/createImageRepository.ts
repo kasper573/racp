@@ -5,6 +5,7 @@ import { debounce } from "lodash";
 import { ImageFormatter } from "../../lib/image/createImageFormatter";
 import { Linker } from "../../lib/fs/createPublicFileLinker";
 import { Logger } from "../../lib/logger";
+import { gfs } from "../util/gfs";
 
 export function createImageRepository(
   formatter: ImageFormatter,
@@ -17,7 +18,7 @@ export function createImageRepository(
   async function updateUrlMap() {
     logger.log("Updating url map");
     urlMap.clear();
-    const names = await fs.promises.readdir(linker.directory);
+    const names = await gfs.readdir(linker.directory);
     for (const name of names) {
       urlMap.set(name, linker.url(name));
     }

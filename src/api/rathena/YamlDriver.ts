@@ -1,4 +1,3 @@
-import * as fs from "fs";
 import * as path from "path";
 import * as zod from "zod";
 import * as yaml from "yaml";
@@ -6,6 +5,7 @@ import { ZodType } from "zod";
 import { isPlainObject } from "@reduxjs/toolkit";
 import { typedKeys } from "../../lib/std/typedKeys";
 import { Logger } from "../../lib/logger";
+import { gfs } from "../util/gfs";
 
 export type YamlDriver = ReturnType<typeof createYamlDriver>;
 
@@ -24,7 +24,7 @@ export function createYamlDriver({
     const filePath = path.resolve(rAthenaPath, file);
     let content: string;
     try {
-      content = await fs.promises.readFile(filePath, "utf-8");
+      content = await gfs.readFile(filePath, "utf-8");
     } catch (e) {
       // "File not found" errors are permitted, so we don't log them.
       if ((e as NodeJS.ErrnoException)?.code !== "ENOENT") {

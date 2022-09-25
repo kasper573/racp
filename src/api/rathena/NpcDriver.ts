@@ -1,11 +1,11 @@
 import * as path from "path";
-import * as fs from "fs";
 import * as zod from "zod";
 import { matchRecursive } from "xregexp";
 import { ZodObject, ZodString } from "zod";
 import { createSegmentedObject } from "../../lib/zod/ZodSegmentedObject";
 import { Logger } from "../../lib/logger";
 import { RAthenaMode } from "../options";
+import { gfs } from "../util/gfs";
 
 export type NpcDriver = ReturnType<typeof createNpcDriver>;
 
@@ -50,7 +50,7 @@ export function createNpcDriver({
   };
 }
 
-const readFile = (file: string) => fs.promises.readFile(file, "utf-8");
+const readFile = (file: string) => gfs.readFile(file, "utf-8");
 const createNpcEntityId = (rAthenaPath: string, file: string, index: number) =>
   `${path.relative(rAthenaPath, file)}#${index}`;
 

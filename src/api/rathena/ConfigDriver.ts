@@ -1,8 +1,7 @@
 import * as path from "path";
-import * as fs from "fs";
 import recursiveReadDir = require("recursive-readdir");
 import { Logger } from "../../lib/logger";
-import { fileExists } from "../../lib/fs/fileExists";
+import { gfs } from "../util/gfs";
 
 export type ConfigDriver = ReturnType<typeof createConfigDriver>;
 
@@ -26,7 +25,7 @@ export function createConfigDriver({
   });
 
   const read = logger.wrap(async function read(configName: string) {
-    return fs.promises.readFile(configPath(configName), "utf-8");
+    return gfs.readFile(configPath(configName), "utf-8");
   });
 
   const load = logger.wrap(async function load(configName: string) {
@@ -47,16 +46,15 @@ export function createConfigDriver({
     };
   });
 
-  const exists = (configName: string) => fileExists(configPath(configName));
-
   const update = logger.wrap(async function update(
     configName: string,
     value: string
   ) {
-    if (await exists(configName)) {
-      return fs.promises.writeFile(configPath(configName), value);
+    try {
+      return gfs.writeFile(configPath(configName), value);
+    } catch {
+      throw new Error(`Unknown config`);
     }
-    throw new Error(`Unknown config`);
   });
 
   const presets = {

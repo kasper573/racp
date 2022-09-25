@@ -1,24 +1,34 @@
-import * as fs from "fs";
 import { exec } from "child_process";
 import { tmpFile } from "./tmpFile";
 
 /**
  * Node wrapper for the unluac binary
  */
-export async function unluac(
-  compiledLuaCode: NodeJS.ArrayBufferView
-): Promise<Buffer> {
-  const inputFile = tmpFile("lub");
-  const outputFile = tmpFile("lua");
-  await fs.promises.writeFile(inputFile, compiledLuaCode);
-  try {
-    await spawnUnluac(inputFile, outputFile);
-    const output = await fs.promises.readFile(outputFile);
-    await fs.promises.unlink(outputFile);
-    return output;
-  } finally {
-    await fs.promises.unlink(inputFile);
+export function createUnluac({
+  write,
+  read,
+  remove,
+}: {
+  write: (path: string, data: NodeJS.ArrayBufferView) => Promise<void>;
+  read: (path: string) => Promise<Buffer>;
+  remove: (path: string) => Promise<void>;
+}) {
+  async function unluac(
+    compiledLuaCode: NodeJS.ArrayBufferView
+  ): Promise<Buffer> {
+    const inputFile = tmpFile("lub");
+    const outputFile = tmpFile("lua");
+    await write(inputFile, compiledLuaCode);
+    try {
+      await spawnUnluac(inputFile, outputFile);
+      const output = await read(outputFile);
+      await remove(outputFile);
+      return output;
+    } finally {
+      await remove(inputFile);
+    }
   }
+  return unluac;
 }
 
 function spawnUnluac(inputFile: string, outputFile: string) {
