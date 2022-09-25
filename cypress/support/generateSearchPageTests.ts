@@ -30,10 +30,11 @@ export function generateSearchPageTests({
     });
   });
 
+  const clearFilters = () =>
+    cy.findByRole("button", { name: "Clear filters" }).click();
+
   describe("can search by", () => {
-    afterEach(() => {
-      cy.findByRole("button", { name: "Clear filters" }).click();
-    });
+    beforeEach(clearFilters);
 
     Object.entries(searches).forEach(([name, { input, verify }]) => {
       it(name, () => {
@@ -45,6 +46,8 @@ export function generateSearchPageTests({
   });
 
   describe("can sort by", () => {
+    before(clearFilters);
+
     Object.entries(sorts).forEach(([name, compareFn]) => {
       describe(name, () => {
         it("asc", () => {
