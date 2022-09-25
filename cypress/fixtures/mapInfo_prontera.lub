@@ -8,4 +8,20 @@ mapTbl = {
 		},
 		backgroundBmp = "village"
 	},
+	["prt_fild1.rsw"] = {
+        displayName = "Prontera Field East",
+        notifyEnter = true,
+        signName = {
+            mainTitle = "East Field of Prontera"
+        },
+        backgroundBmp = "field_s2"
+    },
+    ["prt_fild2.rsw"] = {
+        displayName = "Prontera Field West",
+        notifyEnter = true,
+        signName = {
+            mainTitle = "West Field of Prontera"
+        },
+        backgroundBmp = "field_s2"
+    },
 }
