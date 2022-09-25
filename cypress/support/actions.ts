@@ -29,26 +29,65 @@ export function assertSignedIn(username?: string) {
   openUserMenu().contains("Signed in" + (username ? ` as ${username}` : ""));
 }
 
-export function findRowById(id: string) {
+export function findRowById(id: string | number) {
   return cy.findByRole("row", {
-    name: (n, e) => e.getAttribute("data-id") === id,
+    name: (n, e) => e.getAttribute("data-id") === `${id}`,
   });
 }
 
-export function gotoMap(id: string) {
+export function findRowsByField(
+  fieldName: string,
+  fieldValue: RegExp | string | number
+) {
+  return cy.findAllByRole("row", {
+    name: (n, row) => {
+      const columns = Array.from(row.children);
+      const match = columns.find((col) => {
+        if (col.getAttribute("data-field") !== fieldName) {
+          return false;
+        }
+        const value = col.textContent ?? "";
+        return fieldValue instanceof RegExp
+          ? fieldValue.test(value)
+          : value === `${fieldValue}`;
+      });
+      return !!match;
+    },
+  });
+}
+
+export function countRows() {
+  return cy
+    .findAllByRole("row", { name: (n, row) => row.hasAttribute("data-id") })
+    .its("length");
+}
+
+export function listMaps() {
   cy.findByRole("menu", { name: "Main menu" }).findByText("Maps").click();
+}
+
+export function gotoMap(id: string) {
+  listMaps();
   cy.findByLabelText("ID").type(id);
   findRowById(id).findByRole("link").click();
 }
 
-export function gotoMonster(id: number) {
+export function listMonsters() {
   cy.findByRole("menu", { name: "Main menu" }).findByText("Monsters").click();
+}
+
+export function gotoMonster(id: number) {
+  listMonsters();
   cy.findByLabelText("ID").type(`${id}`);
   findRowById(`${id}`).findByRole("link").click();
 }
 
-export function gotoItem(id: number) {
+export function listItems() {
   cy.findByRole("menu", { name: "Main menu" }).findByText("Items").click();
+}
+
+export function gotoItem(id: number) {
+  listItems();
   cy.findByLabelText("ID").type(`${id}`);
   findRowById(`${id}`).findByRole("link").click();
 }
