@@ -1,3 +1,5 @@
+import "./util/patchFS";
+
 import * as http from "http";
 import * as path from "path";
 import * as express from "express";
