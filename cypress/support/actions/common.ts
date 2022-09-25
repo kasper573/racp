@@ -8,7 +8,7 @@ export function menuSlide(name: string, newValueOrValues: number | number[]) {
 }
 
 export function waitForPageReady() {
-  cy.waitForNetworkIdle(900);
+  cy.waitForNetworkIdle(800);
   cy.findByTestId("loading-spinner").should("not.exist");
 }
 
