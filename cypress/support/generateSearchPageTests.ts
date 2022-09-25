@@ -23,13 +23,11 @@ export function generateSearchPageTests({
           idsAfterPagination,
           "Next page should only have new rows"
         );
+
+        // Reset to the first page before searching and filtering
+        cy.findByRole("button", { name: "Go to first page" }).click();
       });
     });
-  });
-
-  // Reset to the first page before searching and filtering
-  after(() => {
-    cy.findByRole("button", { name: "Go to first page" }).click();
   });
 
   describe("can search by", () => {
