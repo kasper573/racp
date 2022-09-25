@@ -36,5 +36,3 @@ export function gotoItem(id: number) {
   waitForPageReady();
   findRowById(`${id}`).findByRole("link").click();
 }
-
-// Bump
