@@ -6,5 +6,5 @@ Cypress.Keyboard.defaults({
 });
 
 before(() => {
-  cy.exec("yarn run reset-data");
+  //cy.exec("yarn run reset-data");
 });
