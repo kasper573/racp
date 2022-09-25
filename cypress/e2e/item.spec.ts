@@ -1,9 +1,5 @@
 import { listItems } from "../support/actions/nav";
-import {
-  findDataCells,
-  findDataRows,
-  findRowById,
-} from "../support/actions/grid";
+import { findDataCells, findRowById } from "../support/actions/grid";
 import { compareNumeric, compareStrings } from "../support/util";
 import { menuSlide } from "../support/actions/common";
 import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
@@ -14,10 +10,10 @@ before(() => {
   cy.visit("/");
   signInAsAdmin();
   uploadAssets();
+  listItems();
 });
 
 generateSearchPageTests({
-  gotoPage: listItems,
   searches: {
     id: {
       input: () => cy.findByLabelText("ID").type("501"),
@@ -26,12 +22,10 @@ generateSearchPageTests({
     name: {
       input: () => cy.findByLabelText("Name").type("potion"),
       verify: () =>
-        findDataRows()
-          .its("length")
-          .then((length) => {
-            expect(length).to.be.greaterThan(0, "No items found");
-            findDataCells("Name", /potion/i).should("have.length", length);
-          }),
+        findDataCells("Name", (text) => !/potion/i.test(text)).should(
+          "have.length",
+          0
+        ),
     },
     "primary type": {
       input: () => cy.get(`[id="Primary Type"]`).select("Weapon"),

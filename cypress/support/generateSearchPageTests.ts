@@ -4,11 +4,9 @@ import { findDataCells, findDataRowIds, sortGridBy } from "./actions/grid";
 import { CompareFn, invertCompareFn } from "./util";
 
 export function generateSearchPageTests({
-  gotoPage,
   searches,
   sorts,
 }: {
-  gotoPage: Function;
   searches: Record<string, { input: Function; verify: Function }>;
   sorts: Record<string, CompareFn>;
 }) {
@@ -16,8 +14,6 @@ export function generateSearchPageTests({
   // This test assumes that the implementation uses a generic solution
   // and that if one pagination option works, they all work.
   it("can paginate", () => {
-    cy.visit("/");
-    gotoPage();
     findDataRowIds().then((idsBeforePagination) => {
       cy.findByRole("button", { name: "Go to next page" }).click();
       waitForPageReady();
@@ -27,16 +23,18 @@ export function generateSearchPageTests({
           idsAfterPagination,
           "Next page should only have new rows"
         );
+
+        // Reset to the first page before searching and filtering
+        cy.findByRole("button", { name: "Go to first page" }).click();
       });
     });
   });
 
+  const clearFilters = () =>
+    cy.findByRole("button", { name: "Clear filters" }).click();
+
   describe("can search by", () => {
-    // Reload page before each search to reset search filter
-    beforeEach(() => {
-      cy.visit("/");
-      gotoPage();
-    });
+    beforeEach(clearFilters);
 
     Object.entries(searches).forEach(([name, { input, verify }]) => {
       it(name, () => {
@@ -47,12 +45,8 @@ export function generateSearchPageTests({
     });
   });
 
-  describe("can filter by", () => {
-    // Only a single page load is necessary since we can only have one sort active
-    before(() => {
-      cy.visit("/");
-      gotoPage();
-    });
+  describe("can sort by", () => {
+    before(clearFilters);
 
     Object.entries(sorts).forEach(([name, compareFn]) => {
       describe(name, () => {

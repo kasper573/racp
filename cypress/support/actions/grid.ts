@@ -1,19 +1,16 @@
 import { unwrap } from "./common";
 
 export function findRowById(id: string | number) {
-  return findDataRows().filter((i, e) => e.getAttribute("data-id") === `${id}`);
-}
-
-export function findDataRows() {
-  return cy
-    .findAllByRole("row")
-    .filter((i, e) => e.hasAttribute(dataRowIdAttribute));
+  return cy.findByRole("row", {
+    name: (i, e) => e.getAttribute(idAttribute) === `${id}`,
+    hidden: true,
+  });
 }
 
 export function findDataRowIds() {
-  return findDataRows().then((rows) => {
-    const ids = rows.map((i, row) => row.getAttribute("data-id"));
-    return unwrap(ids);
+  return cy.findAllByRole("row").then((rows) => {
+    const ids = rows.map((i, row) => row.getAttribute(idAttribute));
+    return unwrap(ids).filter(Boolean);
   });
 }
 
@@ -22,17 +19,17 @@ export function findDataCells(
   filter?: RegExp | string | number | ((textContent: string) => boolean)
 ) {
   return cy.findByRole("columnheader", { name }).then((header) => {
-    const index = header.index();
-    return cy
-      .wrap(header.closest(`[role=grid]`))
-      .get(
-        `[role=row][${dataRowIdAttribute}] [role=cell]:nth-child(${index + 1})`
-      )
-      .filter((i, col) => {
+    const fieldName = header.attr(fieldAttribute);
+    return cy.findAllByRole("cell", {
+      hidden: true,
+      name: (i, cell) => {
+        if (cell.getAttribute(fieldAttribute) !== fieldName) {
+          return false;
+        }
         if (filter === undefined) {
           return true;
         }
-        const textContent = col.textContent ?? "";
+        const textContent = cell.textContent ?? "";
         if (typeof filter === "function") {
           return filter(textContent);
         }
@@ -40,7 +37,8 @@ export function findDataCells(
           return filter.test(textContent);
         }
         return textContent === `${filter}`;
-      });
+      },
+    });
   });
 }
 
@@ -63,4 +61,5 @@ const sortMenuItemOptions = {
   none: /Unsort/i,
 };
 
-const dataRowIdAttribute = "data-id";
+const idAttribute = "data-id";
+const fieldAttribute = "data-field";

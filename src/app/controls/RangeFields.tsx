@@ -1,5 +1,4 @@
 import { ComponentProps } from "react";
-import { defined } from "../../lib/std/defined";
 import { TextField } from "./TextField";
 
 export type Range = [number | undefined, number | undefined];
@@ -31,7 +30,6 @@ export function RangeFields({
         value={a}
         optional
         onChange={(n) => emit([n, b])}
-        onBlur={() => emit([floor(a, b), b])}
         {...props}
       />
       <TextField
@@ -40,7 +38,6 @@ export function RangeFields({
         value={b}
         optional
         onChange={(n) => emit([a, n])}
-        onBlur={() => emit([a, ceil(b, a)])}
         {...props}
       />
     </>
@@ -49,9 +46,3 @@ export function RangeFields({
 
 const flatten = ([a, b]: Range): Range | undefined =>
   a === undefined && b === undefined ? undefined : [a, b];
-
-export const floor = (val?: number, limit?: number) =>
-  val === undefined ? val : Math.min(...defined([val, limit]));
-
-export const ceil = (val?: number, limit?: number) =>
-  val === undefined ? val : Math.max(...defined([val, limit]));

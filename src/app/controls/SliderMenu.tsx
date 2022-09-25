@@ -59,7 +59,7 @@ export function SliderMenu({
             "aria-label": name,
           },
         }}
-        value={ranged ? value ?? [min, max] : value ?? min}
+        value={value}
         marks
         step={step}
         min={min}

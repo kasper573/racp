@@ -1,15 +1,15 @@
 import { listMonsters } from "../support/actions/nav";
-import {
-  findDataCells,
-  findDataRows,
-  findRowById,
-} from "../support/actions/grid";
+import { findDataCells, findRowById } from "../support/actions/grid";
 import { menuSlide } from "../support/actions/common";
 import { compareNumeric, compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/generateSearchPageTests";
 
+before(() => {
+  cy.visit("/");
+  listMonsters();
+});
+
 generateSearchPageTests({
-  gotoPage: listMonsters,
   searches: {
     id: {
       input: () => cy.findByLabelText("ID").type("1309"),
@@ -18,12 +18,10 @@ generateSearchPageTests({
     name: {
       input: () => cy.findByLabelText("Name").type("dopp"),
       verify: () =>
-        findDataRows()
-          .its("length")
-          .then((length) => {
-            expect(length).to.be.greaterThan(0, "No monsters found");
-            findDataCells("Name", /dopp/i).should("have.length", length);
-          }),
+        findDataCells("Name", (text) => !/dopp/i.test(text)).should(
+          "have.length",
+          0
+        ),
     },
     race: {
       input: () => cy.get("#Race").select("Angel"),
