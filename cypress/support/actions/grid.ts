@@ -1,19 +1,16 @@
 import { unwrap } from "./common";
 
 export function findRowById(id: string | number) {
-  return findDataRows().filter((i, e) => e.getAttribute("data-id") === `${id}`);
-}
-
-export function findDataRows() {
-  return cy
-    .findAllByRole("row")
-    .filter((i, e) => e.hasAttribute(dataRowIdAttribute));
+  return cy.findByRole("row", {
+    name: (i, e) => e.getAttribute("data-id") === `${id}`,
+    hidden: true,
+  });
 }
 
 export function findDataRowIds() {
-  return findDataRows().then((rows) => {
+  return cy.findAllByRole("row").then((rows) => {
     const ids = rows.map((i, row) => row.getAttribute("data-id"));
-    return unwrap(ids);
+    return unwrap(ids).filter(Boolean);
   });
 }
 
