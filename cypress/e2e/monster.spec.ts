@@ -29,3 +29,15 @@ it(`can search for monsters by race`, () => {
   cy.waitForNetworkIdle(1000);
   findRowsByField("Name", "Angeling");
 });
+
+it(`can search for monsters by element`, () => {
+  cy.get("#Element").select("Earth");
+  cy.waitForNetworkIdle(1000);
+  findRowsByField("Name", "Fabre");
+});
+
+it(`can search for monsters by size`, () => {
+  cy.get("#Size").select("Small");
+  cy.waitForNetworkIdle(1000);
+  findRowsByField("Name", "Familiar");
+});
