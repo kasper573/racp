@@ -61,18 +61,28 @@ export function Layout({ children }: { children?: ReactNode }) {
       </MuiDrawer>
       <Box component="main" sx={contentBounds}>
         <MuiToolbar />
-        <FullscreenContainer maxWidth={maxWidth}>
-          <Suspense fallback={<LoadingPage />}>{children}</Suspense>
-        </FullscreenContainer>
+        <ContentBounds maxWidth={maxWidth}>
+          <ContentSurface>
+            <Suspense fallback={<LoadingPage />}>{children}</Suspense>
+          </ContentSurface>
+        </ContentBounds>
       </Box>
     </>
   );
 }
 
-const FullscreenContainer = styled(Container)`
+// The purpose of the bounds/surface separation is to provide a relative element for content to dock into,
+// while still relying on the MUI Container to set the bounds (Having margin + bounds on the same element wouldn't work).
+
+const ContentBounds = styled(Container)`
+  display: flex;
+  flex: 1;
+  padding: ${({ theme }) => theme.spacing(3)};
+`;
+
+const ContentSurface = styled("div")`
   flex: 1;
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: ${({ theme }) => theme.spacing(3)};
 `;
