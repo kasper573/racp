@@ -43,3 +43,9 @@ it(`can search for monsters by size`, () => {
   waitForLoadingSpinner();
   findRowsByField("Name", "Familiar");
 });
+
+it(`can search for monsters by level`, () => {
+  menuSlide("Level", [50, 55]);
+  waitForLoadingSpinner();
+  findRowsByField("Level", (level) => +level >= 50 && +level <= 55);
+});
