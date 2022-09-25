@@ -76,4 +76,24 @@ describe("can search for monsters by", () => {
     waitForLoadingSpinner();
     findDataCells("Chase Range", (text) => +text >= 6 && +text <= 13);
   });
+
+  it("base xp", () => {
+    cy.findByLabelText("Base XP (min)").type("5000");
+    cy.findByLabelText("Base XP (max)").type("6000");
+    waitForLoadingSpinner();
+    findDataCells("Base XP", (text) => +text >= 5000 && +text <= 6000);
+  });
+
+  it("job xp", () => {
+    cy.findByLabelText("Job XP (min)").type("5000");
+    cy.findByLabelText("Job XP (max)").type("6000");
+    waitForLoadingSpinner();
+    findDataCells("Job XP", (text) => +text >= 5000 && +text <= 6000);
+  });
+
+  it("modes", () => {
+    cy.get("#Modes").select("CastSensorChase");
+    waitForLoadingSpinner();
+    findDataCells("Name", /Archer Guardian/i);
+  });
 });
