@@ -10,6 +10,14 @@ import {
   generateSearchPageTests,
 } from "../support/util";
 import { menuSlide } from "../support/actions/common";
+import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
+
+// Some searches require assets to function
+before(() => {
+  cy.visit("/");
+  signInAsAdmin();
+  uploadAssets();
+});
 
 generateSearchPageTests({
   gotoPage: listItems,

@@ -4,15 +4,14 @@ import {
   signIn,
   signOut,
 } from "../support/actions/user";
+import { signInAsAdmin } from "../support/actions/admin";
 
 beforeEach(() => {
   cy.visit("/");
 });
 
 describe("admin", () => {
-  beforeEach(() =>
-    signIn(Cypress.env("ADMIN_USER"), Cypress.env("ADMIN_PASSWORD"))
-  );
+  beforeEach(signInAsAdmin);
   it("can sign in", () => assertSignedIn());
   it("have access to admin menu once signed in", () => {
     cy.findByRole("menu", { name: "Admin" }).should("exist");
