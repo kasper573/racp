@@ -1,7 +1,5 @@
 import { assertSignedIn, register, signIn, signOut } from "../support/actions";
 
-before(() => cy.exec("yarn run reset-data"));
-
 beforeEach(() => {
   cy.visit("/");
 });
