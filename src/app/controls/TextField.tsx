@@ -26,13 +26,16 @@ export function TextField({
   onChange,
   optional,
   issues,
+  label,
+  id = typeof label === "string" ? label : undefined,
   ...props
 }: TextFieldProps) {
   const readOnly = onChange === undefined;
   return (
     <MuiTextField
       type={type}
-      name={typeof props.label === "string" ? props.label : undefined}
+      id={id}
+      label={label}
       error={(issues?.length ?? 0) > 0}
       helperText={issues?.join(", ")}
       value={value ?? ""}
