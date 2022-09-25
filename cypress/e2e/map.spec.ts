@@ -13,10 +13,10 @@ before(() => {
   cy.visit("/");
   signInAsAdmin();
   uploadAssets();
+  listMaps();
 });
 
 generateSearchPageTests({
-  gotoPage: listMaps,
   searches: {
     id: {
       input: () => cy.findByLabelText("ID").type("prontera"),

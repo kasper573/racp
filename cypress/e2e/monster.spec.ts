@@ -8,8 +8,12 @@ import { menuSlide } from "../support/actions/common";
 import { compareNumeric, compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/generateSearchPageTests";
 
+before(() => {
+  cy.visit("/");
+  listMonsters();
+});
+
 generateSearchPageTests({
-  gotoPage: listMonsters,
   searches: {
     id: {
       input: () => cy.findByLabelText("ID").type("1309"),

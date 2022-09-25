@@ -14,10 +14,10 @@ before(() => {
   cy.visit("/");
   signInAsAdmin();
   uploadAssets();
+  listItems();
 });
 
 generateSearchPageTests({
-  gotoPage: listItems,
   searches: {
     id: {
       input: () => cy.findByLabelText("ID").type("501"),
