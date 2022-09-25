@@ -22,9 +22,10 @@ describe("can search for monsters by", () => {
   it("name", () => {
     cy.findByLabelText("Name").type("dopp");
     waitForLoadingSpinner();
-    countRows().then((length) =>
-      findRowsByField("Name", /dopp/i).should("have.length", length)
-    );
+    countRows().then((length) => {
+      expect(length).to.be.greaterThan(0, "No monsters found");
+      findRowsByField("Name", /dopp/i).should("have.length", length);
+    });
   });
 
   it("race", () => {
