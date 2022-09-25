@@ -40,13 +40,15 @@ import { utilDefinition } from "./services/util/definition";
 import { utilController } from "./services/util/controller";
 import { UserAccessLevel } from "./services/user/types";
 import { RpcContext } from "./util/rpc";
+import { timeColor } from "./common/timeColor";
 
 const args = readCliArgs(options);
 const logger = createLogger(
   {
     verbose: console.log,
     truncated: createEllipsisLogFn(process.stdout),
-  }[args.log]
+  }[args.log],
+  { timeColor }
 );
 
 const app = express();

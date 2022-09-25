@@ -1,27 +1,20 @@
 import { isPlainObject } from "lodash";
 
-export interface Logger {
-  log: LogFn;
-  warn: LogFn;
-  error: LogFn;
-  wrap: <Fn extends AnyFn>(
-    fn: Fn,
-    functionName?: string,
-    emitArgs?: (...args: Parameters<Fn>) => void
-  ) => Fn;
-  chain: (name: string) => Logger;
-}
+const colorWrap = (codes: AnsiColors, args: unknown[]) => [
+  ...codes.map((code) => `\x1b[${code}m`),
+  ...args,
+  "\x1b[0m", // Reset attributes
+];
 
-export type LogFn = (...args: unknown[]) => void;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type AnyFn = (...args: any[]) => any;
-
-export function createLogger(logFn: LogFn, name?: string): Logger {
+export function createLogger(
+  logFn: LogFn,
+  options: LoggerOptions = {}
+): Logger {
+  const { name, timeColor, errorColor = [31], warnColor = [33] } = options;
   const log = name ? createNamedLogFn(logFn, name) : logFn;
-  const chain = (name: string) => createLogger(log, name);
-  const error: LogFn = (...args) => log("\x1b[31m", ...args, "\x1b[0m");
-  const warn: LogFn = (...args) => log("\x1b[33m", ...args, "\x1b[0m");
+  const chain = (name: string) => createLogger(log, { ...options, name });
+  const error: LogFn = (...args) => log(...colorWrap(errorColor, args));
+  const warn: LogFn = (...args) => log(...colorWrap(warnColor, args));
 
   return {
     log,
@@ -30,7 +23,12 @@ export function createLogger(logFn: LogFn, name?: string): Logger {
     chain,
     wrap(fn, functionName = fn.name, emitArgs) {
       function wrapped(...args: unknown[]) {
-        const logFunction = createFunctionLogger(functionName, args, log);
+        const logFunction = createFunctionLogger(
+          functionName,
+          args,
+          log,
+          timeColor
+        );
         (emitArgs as any)?.(...args);
 
         const startTime = Date.now();
@@ -58,11 +56,12 @@ function createNamedLogFn(logFn: LogFn, name: string): LogFn {
 function createFunctionLogger(
   functionName: string,
   args: unknown[],
-  log: LogFn
+  log: LogFn,
+  timeColor?: TimeColorResolver
 ) {
   return (result: unknown, startTime: number) =>
     log(
-      createFunctionLogPrefix(functionName, args, startTime) +
+      createFunctionLogPrefix(functionName, args, startTime, timeColor) +
         stringifyResult(result)
     );
 }
@@ -70,11 +69,16 @@ function createFunctionLogger(
 export function createFunctionLogPrefix(
   functionName: string,
   args: unknown[],
-  startTime: number
+  startTime: number,
+  getTimeColor?: TimeColorResolver
 ) {
-  return `(${Date.now() - startTime}ms) ${functionName}(${stringifyArgs(
-    args
-  )}) -> `;
+  const timeSpent = Date.now() - startTime;
+  let timeString = `${timeSpent}ms`;
+  let timeColor = getTimeColor?.(timeSpent);
+  if (timeColor !== undefined) {
+    timeString = colorWrap(timeColor, [timeString]).join("");
+  }
+  return `(${timeString}) ${functionName}(${stringifyArgs(args)}) -> `;
 }
 
 function stringifyArgs(args: unknown[]) {
@@ -128,3 +132,31 @@ function quantify(value: unknown) {
       return value;
   }
 }
+
+type AnsiColors = number[];
+
+export type TimeColorResolver = (ms: number) => AnsiColors | undefined;
+
+export interface LoggerOptions {
+  name?: string;
+  timeColor?: TimeColorResolver;
+  errorColor?: AnsiColors;
+  warnColor?: AnsiColors;
+}
+
+export interface Logger {
+  log: LogFn;
+  warn: LogFn;
+  error: LogFn;
+  wrap: <Fn extends AnyFn>(
+    fn: Fn,
+    functionName?: string,
+    emitArgs?: (...args: Parameters<Fn>) => void
+  ) => Fn;
+  chain: (name: string) => Logger;
+}
+
+export type LogFn = (...args: unknown[]) => void;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnyFn = (...args: any[]) => any;
