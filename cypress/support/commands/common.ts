@@ -3,15 +3,6 @@ import "@testing-library/cypress/add-commands";
 import { unwrap } from "../actions/common";
 
 Cypress.Commands.add(
-  "shouldExistTemporarily",
-  { prevSubject: "element" },
-  (subject) => {
-    cy.wrap(subject).should("exist");
-    cy.wrap(subject).should("not.exist");
-  }
-);
-
-Cypress.Commands.add(
   "shouldBeBetween",
   { prevSubject: true },
   (subject, min, max) => {
@@ -41,7 +32,6 @@ Cypress.Commands.add(
 declare global {
   namespace Cypress {
     interface Chainable {
-      shouldExistTemporarily(): Chainable<Element>;
       shouldBeBetween(min: number, max: number): Chainable<Element>;
       shouldBeSortedBy<T>(
         compareFn: (a: T, b: T) => number

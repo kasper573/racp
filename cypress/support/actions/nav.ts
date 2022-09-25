@@ -1,35 +1,32 @@
 import { findRowById } from "./grid";
-import { waitForPageReady } from "./common";
+import { createPageAction } from "./common";
 
-export function listMaps() {
+export const listMaps = createPageAction(() => {
   cy.findByRole("menu", { name: "Main menu" }).findByText("Maps").click();
-}
+});
 
 export function gotoMap(id: string) {
   listMaps();
-  waitForPageReady();
   cy.findByLabelText("ID").type(id);
   findRowById(id).findByRole("link").click();
 }
 
-export function listMonsters() {
+export const listMonsters = createPageAction(() => {
   cy.findByRole("menu", { name: "Main menu" }).findByText("Monsters").click();
-}
+});
 
 export function gotoMonster(id: number) {
   listMonsters();
-  waitForPageReady();
   cy.findByLabelText("ID").type(`${id}`);
   findRowById(`${id}`).findByRole("link").click();
 }
 
-export function listItems() {
+export const listItems = createPageAction(() => {
   cy.findByRole("menu", { name: "Main menu" }).findByText("Items").click();
-}
+});
 
 export function gotoItem(id: number) {
   listItems();
-  waitForPageReady();
   cy.findByLabelText("ID").type(`${id}`);
   findRowById(`${id}`).findByRole("link").click();
 }

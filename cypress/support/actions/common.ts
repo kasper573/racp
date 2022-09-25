@@ -8,11 +8,14 @@ export function menuSlide(name: string, newValueOrValues: number | number[]) {
 }
 
 export function waitForPageReady() {
-  cy.waitForNetworkIdle(250);
+  cy.waitForNetworkIdle(1000);
 }
 
-export function waitForLoadingSpinner(testId = "loading-spinner") {
-  cy.findByTestId(testId).shouldExistTemporarily();
+export function createPageAction(fn: Function) {
+  return () => {
+    fn();
+    waitForPageReady();
+  };
 }
 
 export function unwrap<T>(query: JQuery<T>) {
