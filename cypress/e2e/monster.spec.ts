@@ -105,7 +105,7 @@ describe("can search for monsters by", () => {
   });
 });
 
-describe("can filter monsters by", () => {
+describe("can sort monsters by", () => {
   before(() => {
     cy.visit("/");
     listMonsters();
