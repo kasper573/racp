@@ -37,7 +37,7 @@ export function findRowById(id: string | number) {
 
 export function findRowsByField(
   fieldName: string,
-  fieldValue: RegExp | string | number
+  filter: RegExp | string | number | ((textContent: string) => boolean)
 ) {
   return cy.findAllByRole("row", {
     name: (n, row) => {
@@ -46,10 +46,14 @@ export function findRowsByField(
         if (col.getAttribute("data-field") !== fieldName) {
           return false;
         }
-        const value = col.textContent ?? "";
-        return fieldValue instanceof RegExp
-          ? fieldValue.test(value)
-          : value === `${fieldValue}`;
+        const textContent = col.textContent ?? "";
+        if (typeof filter === "function") {
+          return filter(textContent);
+        }
+        if (filter instanceof RegExp) {
+          return filter.test(textContent);
+        }
+        return textContent === `${filter}`;
       });
       return !!match;
     },
@@ -90,4 +94,17 @@ export function gotoItem(id: number) {
   listItems();
   cy.findByLabelText("ID").type(`${id}`);
   findRowById(`${id}`).findByRole("link").click();
+}
+
+/**
+ * Opens a SliderMenu of the given name and updates its sliders with the new values
+ */
+export function menuSlide(name: string, newValueOrValues: number | number[]) {
+  cy.findByRole("textbox", { name }).click();
+  cy.findAllByRole("slider", { name, hidden: true }).slide(newValueOrValues);
+  cy.get("body").click(); // close the menu
+}
+
+export function waitForLoadingSpinner(testId = "loading-spinner") {
+  cy.findByTestId(testId).shouldExistTemporarily();
 }

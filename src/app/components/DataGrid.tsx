@@ -10,6 +10,7 @@ import {
 import { typedKeys } from "../../lib/std/typedKeys";
 import { SearchQuery, SearchResult, SearchSort } from "../../api/common/search";
 import { Link } from "./Link";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 export type DataGridProps<
   Entity,
@@ -84,6 +85,9 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
           page={pageIndex}
           pageSize={pageSize}
           onPageSizeChange={setPageSize}
+          components={{
+            LoadingOverlay,
+          }}
           componentsProps={{
             row: {
               onMouseEnter: (e: MouseEvent<HTMLElement>) =>
@@ -205,3 +209,18 @@ function processColumnConvention<Entity, Id extends GridRowId>({
     })),
   ];
 }
+
+function LoadingOverlay() {
+  return (
+    <Center>
+      <LoadingSpinner />
+    </Center>
+  );
+}
+
+const Center = styled("div")`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+`;

@@ -3,6 +3,8 @@ import {
   findRowById,
   findRowsByField,
   listMonsters,
+  menuSlide,
+  waitForLoadingSpinner,
 } from "../support/actions";
 
 beforeEach(() => {
@@ -11,33 +13,33 @@ beforeEach(() => {
 });
 
 it(`can search for monsters by id`, () => {
-  cy.findByLabelText("ID").type("1002");
-  cy.waitForNetworkIdle(1000);
-  findRowById(1002);
+  cy.findByLabelText("ID").type("1309");
+  waitForLoadingSpinner();
+  findRowById(1309);
 });
 
 it(`can search for monsters by name`, () => {
-  cy.findByLabelText("Name").type("scorp");
-  cy.waitForNetworkIdle(1000);
+  cy.findByLabelText("Name").type("dopp");
+  waitForLoadingSpinner();
   countRows().then((length) =>
-    findRowsByField("Name", /scorp/i).should("have.length", length)
+    findRowsByField("Name", /dopp/i).should("have.length", length)
   );
 });
 
 it(`can search for monsters by race`, () => {
   cy.get("#Race").select("Angel");
-  cy.waitForNetworkIdle(1000);
+  waitForLoadingSpinner();
   findRowsByField("Name", "Angeling");
 });
 
 it(`can search for monsters by element`, () => {
   cy.get("#Element").select("Earth");
-  cy.waitForNetworkIdle(1000);
+  waitForLoadingSpinner();
   findRowsByField("Name", "Fabre");
 });
 
 it(`can search for monsters by size`, () => {
   cy.get("#Size").select("Small");
-  cy.waitForNetworkIdle(1000);
+  waitForLoadingSpinner();
   findRowsByField("Name", "Familiar");
 });
