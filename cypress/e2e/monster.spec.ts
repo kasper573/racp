@@ -58,4 +58,10 @@ describe("can search for monsters by", () => {
     waitForLoadingSpinner();
     findDataCells("Move Speed", (text) => +text >= 100 && +text <= 200);
   });
+
+  it("attack range", () => {
+    menuSlide("Atk. Range", [5, 10]);
+    waitForLoadingSpinner();
+    findDataCells("Atk. Range", (text) => +text >= 5 && +text <= 10);
+  });
 });
