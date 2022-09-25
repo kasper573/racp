@@ -64,4 +64,16 @@ describe("can search for monsters by", () => {
     waitForLoadingSpinner();
     findDataCells("Atk. Range", (text) => +text >= 5 && +text <= 10);
   });
+
+  it("skill range", () => {
+    menuSlide("Skill Range", [4, 8]);
+    waitForLoadingSpinner();
+    findDataCells("Skill Range", (text) => +text >= 4 && +text <= 8);
+  });
+
+  it("chase range", () => {
+    menuSlide("Chase Range", [6, 13]);
+    waitForLoadingSpinner();
+    findDataCells("Chase Range", (text) => +text >= 6 && +text <= 13);
+  });
 });
