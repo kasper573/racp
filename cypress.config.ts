@@ -3,6 +3,8 @@ import { defineConfig } from "cypress";
 const dotenvFlowPlugin = require("cypress-dotenv-flow");
 
 export default defineConfig({
+  viewportWidth: 1920,
+  viewportHeight: 1080,
   e2e: {
     specPattern: "cypress/**/*.spec.ts",
     setupNodeEvents(on, config) {
