@@ -1,13 +1,6 @@
 /// <reference types="cypress" />
 import "@testing-library/cypress/add-commands";
 
-Cypress.Commands.add("selectFileByName", (name, files, options) => {
-  cy.get(`input[type="file"][name="${name}"]`).selectFile(files, {
-    force: true,
-    ...options,
-  });
-});
-
 Cypress.Commands.add("imageSrc", { prevSubject: true }, (subject: JQuery) => {
   const tagName = subject.prop("tagName");
   if (tagName === "IMG") {
@@ -42,21 +35,14 @@ Cypress.Commands.add(
   }
 );
 
+const stripCssUrl = (url = "") =>
+  url.replace(/^url\(["']?/, "").replace(/["']?\)$/, "");
+
 declare global {
   namespace Cypress {
     interface Chainable {
-      selectFileByName(
-        inputName: string,
-        files: FileReference | FileReference[],
-        options?: Partial<SelectFileOptions>
-      ): Chainable<Element>;
-
       isFixtureImage(fixtureImage: string): Chainable<Element>;
-
       imageSrc(): Chainable<string>;
     }
   }
 }
-
-const stripCssUrl = (url = "") =>
-  url.replace(/^url\(["']?/, "").replace(/["']?\)$/, "");

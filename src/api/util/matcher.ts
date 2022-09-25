@@ -44,9 +44,16 @@ export const matcher = createZodMatcher()
     zod.number().optional(),
     zod.tuple([zod.number().nullish(), zod.number().nullish()]),
     zod.void(),
-    (a, [min, max]) =>
-      a === undefined ||
-      (a >= (min ?? Number.MIN_VALUE) && a <= (max ?? Number.MAX_VALUE))
+    (a, [min, max]) => {
+      if (min === undefined && max === undefined) {
+        return true;
+      }
+      return (
+        a !== undefined &&
+        a >= (min ?? Number.MIN_VALUE) &&
+        a <= (max ?? Number.MAX_VALUE)
+      );
+    }
   )
   .add(
     "oneOfN",
@@ -73,9 +80,9 @@ export const matcher = createZodMatcher()
     (a, b) => without(b, ...a).length === 0
   )
   .add(
-    "includesSome",
-    zod.array(item),
-    zod.array(item),
+    "includesSomeString",
+    zod.array(zod.string()),
+    zod.array(zod.string()),
     zod.void(),
     (a, b) => without(b, ...a).length < b.length
   )

@@ -67,19 +67,19 @@ export function ItemSearchFilterForm({ value, onChange }: FormDataProps) {
         label="Element"
         multi
         options={meta?.elements}
-        {...field("Elements", "includesSome")}
+        {...field("Elements", "includesSomeString")}
       />
       <Select
         label="Status"
         multi
         options={meta?.statuses}
-        {...field("Statuses", "includesSome")}
+        {...field("Statuses", "includesSomeString")}
       />
       <Select
         label="Race"
         multi
         options={meta?.races}
-        {...field("Races", "includesSome")}
+        {...field("Races", "includesSomeString")}
       />
       <TextField
         size="small"
@@ -143,12 +143,14 @@ const count = (value: unknown) => (Array.isArray(value) ? value.length : 0);
 const ControlGrid = styled(Box)`
   display: grid;
   grid-gap: 8px;
+  grid-auto-rows: auto;
   ${({ theme }) => theme.breakpoints.down("md")} {
     grid-template-columns: 1fr 1fr 1fr;
-    grid-auto-rows: auto;
   }
   ${({ theme }) => theme.breakpoints.up("md")} {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+  ${({ theme }) => theme.breakpoints.up("lg")} {
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
-    grid-auto-rows: auto;
   }
 `;

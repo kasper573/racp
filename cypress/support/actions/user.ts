@@ -28,27 +28,3 @@ export function signOut() {
 export function assertSignedIn(username?: string) {
   openUserMenu().contains("Signed in" + (username ? ` as ${username}` : ""));
 }
-
-export function findRowById(id: string) {
-  return cy.findByRole("row", {
-    name: (n, e) => e.getAttribute("data-id") === id,
-  });
-}
-
-export function gotoMap(id: string) {
-  cy.findByRole("menu", { name: "Main menu" }).findByText("Maps").click();
-  cy.findByLabelText("ID").type(id);
-  findRowById(id).findByRole("link").click();
-}
-
-export function gotoMonster(id: number) {
-  cy.findByRole("menu", { name: "Main menu" }).findByText("Monsters").click();
-  cy.findByLabelText("ID").type(`${id}`);
-  findRowById(`${id}`).findByRole("link").click();
-}
-
-export function gotoItem(id: number) {
-  cy.findByRole("menu", { name: "Main menu" }).findByText("Items").click();
-  cy.findByLabelText("ID").type(`${id}`);
-  findRowById(`${id}`).findByRole("link").click();
-}

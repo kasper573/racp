@@ -37,15 +37,15 @@ export function createItemRepository({
 
   async function getItems() {
     const plainItems = await itemsPromise;
-    return Array.from(plainItems.values()).reduce(
-      (map, item) =>
-        map.set(item.Id, {
-          ...item,
-          Info: infoFile.data?.[item.Id],
-          ImageUrl: imageRepository.urlMap.get(imageName(item)),
-        }),
-      new Map<ItemId, Item>()
-    );
+    return Array.from(plainItems.values()).reduce((map, item) => {
+      const updatedItem: Item = {
+        ...item,
+        Info: infoFile.data?.[item.Id],
+        ImageUrl: imageRepository.urlMap.get(imageName(item)),
+      };
+      itemResolver.postProcess?.(updatedItem, map);
+      return map.set(item.Id, updatedItem);
+    }, new Map<ItemId, Item>());
   }
 
   function getResourceNames() {

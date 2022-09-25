@@ -53,6 +53,7 @@
     "css-loader": "6.7.1",
     "cypress": "10.7.0",
     "cypress-dotenv-flow": "^1.2.2",
+    "cypress-network-idle": "^1.10.1",
     "dotenv-flow": "3.2.0",
     "eslint": "8.22.0",
     "eslint-config-react-app": "7.0.1",

@@ -31,13 +31,17 @@ export function SliderMenu({
   onChange,
   ranged,
   value = ranged ? [min, max] : min,
+  name = typeof label === "string" ? label : undefined,
   ...props
 }: SliderMenuProps) {
   return (
     <MenuOn
+      transitionDuration={0}
+      disablePortal
       closeOnMenuClicked={false}
       trigger={(open) => (
         <TextField
+          name={name}
           size={size}
           onClick={open}
           value={valueToString(value)}
@@ -48,6 +52,13 @@ export function SliderMenu({
       )}
     >
       <Slider
+        name={name}
+        componentsProps={{
+          input: {
+            role: "slider",
+            "aria-label": name,
+          },
+        }}
         value={ranged ? value ?? [min, max] : value ?? min}
         marks
         step={step}
@@ -57,7 +68,14 @@ export function SliderMenu({
         sx={{ ml: 3, mr: 3, display: "flex", width }}
         onChange={
           ranged
-            ? (e, value) => onChange?.(value as [number, number])
+            ? (e, value) => {
+                const [a, b] = value as [number, number];
+                if (a === min && b === max) {
+                  onChange?.(undefined);
+                } else {
+                  onChange?.([a, b]);
+                }
+              }
             : (e, value) => onChange?.(value as number)
         }
         {...props}

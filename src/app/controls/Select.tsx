@@ -27,6 +27,7 @@ export function Select({
   value,
   onChange,
   sx,
+  id = typeof label === "string" ? label : undefined,
   empty = "No options",
   autoSort = true,
   ...props
@@ -39,6 +40,7 @@ export function Select({
     <FormControl sx={{ minWidth: 120, ...sx }} {...props}>
       {label && <InputLabel size="small">{label}</InputLabel>}
       <MuiSelect
+        id={id}
         size="small"
         multiple={multi}
         value={multi ? value ?? emptyStringList : value ?? ""}
