@@ -1,5 +1,5 @@
 import { findRowById } from "./grid";
-import { createPageAction } from "./common";
+import { createPageAction, waitForPageReady } from "./common";
 
 export const listMaps = createPageAction(() => {
   cy.findByRole("menu", { name: "Main menu" }).findByText("Maps").click();
@@ -8,6 +8,7 @@ export const listMaps = createPageAction(() => {
 export function gotoMap(id: string) {
   listMaps();
   cy.findByLabelText("ID").type(id);
+  waitForPageReady();
   findRowById(id).findByRole("link").click();
 }
 
@@ -18,6 +19,7 @@ export const listMonsters = createPageAction(() => {
 export function gotoMonster(id: number) {
   listMonsters();
   cy.findByLabelText("ID").type(`${id}`);
+  waitForPageReady();
   findRowById(`${id}`).findByRole("link").click();
 }
 
@@ -28,5 +30,6 @@ export const listItems = createPageAction(() => {
 export function gotoItem(id: number) {
   listItems();
   cy.findByLabelText("ID").type(`${id}`);
+  waitForPageReady();
   findRowById(`${id}`).findByRole("link").click();
 }
