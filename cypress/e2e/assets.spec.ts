@@ -1,6 +1,7 @@
 import { gotoItem, gotoMap, gotoMonster, signIn } from "../support/actions";
 
 before(() => {
+  cy.exec("yarn run reset-data");
   cy.visit("/");
   signIn(Cypress.env("ADMIN_USER"), Cypress.env("ADMIN_PASSWORD"));
   uploadAssets();
