@@ -9,13 +9,7 @@ export function menuSlide(name: string, newValueOrValues: number | number[]) {
 
 export function waitForPageReady() {
   cy.waitForNetworkIdle(1000);
-}
-
-export function createPageAction(fn: Function) {
-  return () => {
-    fn();
-    waitForPageReady();
-  };
+  cy.findByTestId("loading-spinner").should("not.exist");
 }
 
 export function unwrap<T>(query: JQuery<T>) {
