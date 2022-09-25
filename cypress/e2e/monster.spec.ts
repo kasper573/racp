@@ -13,12 +13,12 @@ import {
   invertCompareFn,
 } from "../support/util";
 
-beforeEach(() => {
-  cy.visit("/");
-  listMonsters();
-});
-
 describe("can search for monsters by", () => {
+  beforeEach(() => {
+    cy.visit("/");
+    listMonsters();
+  });
+
   it("id", () => {
     cy.findByLabelText("ID").type("1309");
     waitForLoadingSpinner();
@@ -106,6 +106,11 @@ describe("can search for monsters by", () => {
 });
 
 describe("can filter monsters by", () => {
+  before(() => {
+    cy.visit("/");
+    listMonsters();
+  });
+
   const compareTexts = createTextCompareFn();
   const columns: Record<string, CompareFn> = {
     Name: compareTexts,

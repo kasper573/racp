@@ -38,7 +38,9 @@ export function sortGridBy(
   cy.findByRole("columnheader", { name }).within(() => {
     return cy.get(`button[aria-label="Menu"]`).click({ force: true });
   });
-  cy.findByRole("menuitem", { name: sortMenuItemOptions[type] }).click();
+  cy.findByRole("menuitem", { name: sortMenuItemOptions[type] }).click({
+    force: true,
+  });
   cy.closePoppers();
 }
 

@@ -7,6 +7,10 @@ export function menuSlide(name: string, newValueOrValues: number | number[]) {
   cy.closePoppers();
 }
 
+export function waitForPageReady() {
+  cy.waitForNetworkIdle(250);
+}
+
 export function waitForLoadingSpinner(testId = "loading-spinner") {
   cy.findByTestId(testId).shouldExistTemporarily();
 }
