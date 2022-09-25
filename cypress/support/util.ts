@@ -36,10 +36,12 @@ export function generateSearchPageTests({
       describe(name, () => {
         it("asc", () => {
           sortGridBy(name, "asc");
+          waitForPageReady();
           findDataCells(name).shouldBeSortedBy(compareFn);
         });
         it("desc", () => {
           sortGridBy(name, "desc");
+          waitForPageReady();
           findDataCells(name).shouldBeSortedBy(invertCompareFn(compareFn));
         });
       });
