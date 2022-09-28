@@ -14,7 +14,7 @@ import {
   useUploadMapInfoMutation,
   useUploadMonsterImagesMutation,
 } from "../../state/client";
-import { RpcFile, toRpcFile } from "../../../lib/rpc/RpcFile";
+import { RpcFile, toRpcFile } from "../../../api/common/RpcFile";
 import { GRF } from "../../../lib/grf/types/GRF";
 import { GAT } from "../../../lib/grf/types/GAT";
 import { ReducedLuaTables } from "../../../api/services/util/types";

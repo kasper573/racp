@@ -1,7 +1,7 @@
 import * as zod from "zod";
 import { t } from "../t";
 import { bufferToLuaCode, parseLuaTableAs } from "../../common/parseLuaTableAs";
-import { rpcFile } from "../../../lib/rpc/RpcFile";
+import { rpcFile } from "../../common/RpcFile";
 import { createUnluac } from "../../../lib/unluac/unluac";
 import { gfs } from "../../util/gfs";
 import { access } from "../../middlewares/access";

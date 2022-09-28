@@ -1,7 +1,7 @@
 import { ZodType } from "zod";
 import { ResultDescription } from "@reduxjs/toolkit/src/query/endpointDefinitions";
 import * as zod from "zod";
-import { RpcFile } from "./RpcFile";
+import { RpcFile } from "../../api/common/RpcFile";
 
 function buildRpcDefinition<
   Auth,

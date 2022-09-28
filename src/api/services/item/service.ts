@@ -3,7 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { createSearchProcedure } from "../../common/search";
 import { bufferToLuaCode } from "../../common/parseLuaTableAs";
 import { t } from "../t";
-import { rpcFile } from "../../../lib/rpc/RpcFile";
+import { rpcFile } from "../../common/RpcFile";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
 import { itemFilter, itemIdType, itemType } from "./types";

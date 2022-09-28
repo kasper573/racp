@@ -11,11 +11,11 @@ import {
 import { ResponseHandler } from "@reduxjs/toolkit/dist/query/fetchBaseQuery";
 import { ZodType } from "zod";
 import { typedKeys } from "../std/typedKeys";
+import { RpcFile, toBrowserFile } from "../../api/common/RpcFile";
 import {
   RpcDefinitionEntry,
   RpcDefinitionEntries,
 } from "./createRpcDefinition";
-import { RpcFile, toBrowserFile } from "./RpcFile";
 
 export function createRpcEndpoints<
   BaseQuery extends BaseQueryFn<FetchArgs>,
