@@ -29,5 +29,5 @@ export function Auth({ children, fallback, ...props }: AuthProps) {
   }
 
   const childrenFn = typeof children === "function" ? children : () => children;
-  return <>{allowAccess ? childrenFn(profile) : fallback}</>;
+  return <>{allowAccess ? childrenFn(profile ?? undefined) : fallback}</>;
 }
