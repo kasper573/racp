@@ -17,7 +17,7 @@ export function ItemSearchFilterForm({ value, onChange }: FormDataProps) {
     value,
     onChange,
   });
-  const { data: meta } = trpc.meta.getMeta.useQuery();
+  const { data: meta } = trpc.meta.read.useQuery();
   const [emptySubTypeExplanation, itemSubTypes] = useSubTypeBehavior({
     value,
     onChange,
@@ -110,7 +110,7 @@ interface FormDataProps {
 }
 
 function useSubTypeBehavior({ value, onChange }: FormDataProps) {
-  const { data: meta } = trpc.meta.getMeta.useQuery();
+  const { data: meta } = trpc.meta.read.useQuery();
 
   // Empty subtype filter whenever it's
   const latest = useLatest({ onChange, value });

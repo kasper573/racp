@@ -17,7 +17,7 @@ export function MonsterSearchFilterForm({
   value,
   onChange,
 }: MonsterSearchFilterFormProps) {
-  const { data: meta } = trpc.meta.getMeta.useQuery();
+  const { data: meta } = trpc.meta.read.useQuery();
   const field = useZodMatcherForm({
     matcher,
     schema: monsterFilter.type,

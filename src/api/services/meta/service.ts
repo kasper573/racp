@@ -17,7 +17,7 @@ export function createMetaService({
   items: ItemRepository;
   monsters: MonsterRepository;
 }) {
-  async function getMeta() {
+  async function load() {
     const [itemsMap, monsterMap] = await Promise.all([
       items.getItems(),
       monsters.getMonsters(),
@@ -29,10 +29,10 @@ export function createMetaService({
   }
 
   // Crude caching by collecting meta only once when data is first ready
-  const metaPromise = getMeta();
+  const metaPromise = load();
 
   return t.router({
-    getMeta: t.procedure.output(metaType).query(() => metaPromise),
+    read: t.procedure.output(metaType).query(() => metaPromise),
   });
 }
 
