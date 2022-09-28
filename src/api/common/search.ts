@@ -2,6 +2,7 @@ import * as zod from "zod";
 import { ZodType } from "zod";
 import { clamp, get } from "lodash";
 import { Path, zodPath } from "../../lib/zod/zodPath";
+import { t } from "../services/t";
 
 export const sortDirectionType = zod.union([
   zod.literal("asc"),
@@ -87,6 +88,21 @@ export function createSearchController<Entity, Filter>(
       total: matches.length,
     };
   };
+}
+
+export function createSearchProcedure<ET extends ZodType, FT extends ZodType>(
+  entityType: ET,
+  filterType: FT,
+  getEntities: () => Promise<zod.infer<ET>[]>,
+  isMatch: (item: zod.infer<ET>, filter: zod.infer<FT>) => boolean,
+  limitCap = 50
+) {
+  const [queryType, resultType] = createSearchTypes(entityType, filterType);
+  const search = createSearchController(getEntities, isMatch, limitCap);
+  return t.procedure
+    .input(queryType)
+    .output(resultType)
+    .query(({ input }) => search(input));
 }
 
 function createCompareFn<T>(list: SearchSort<T>) {
