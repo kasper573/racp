@@ -30,8 +30,7 @@ import { createNpcDriver } from "./rathena/NpcDriver";
 import { createMetaService } from "./services/meta/service";
 import { createItemRepository } from "./services/item/repository";
 import { createMonsterRepository } from "./services/monster/repository";
-import { mapDefinition } from "./services/map/definition";
-import { mapController } from "./services/map/controller";
+import { createMapService } from "./services/map/service";
 import { createMapRepository } from "./services/map/repository";
 import { linkDropsWithItems } from "./services/item/util/linkDropsWithItems";
 import { createUserRepository } from "./services/user/repository";
@@ -100,7 +99,6 @@ app.use(cors());
 app.use(express.static(linker.directory));
 app.use(rpc(configDefinition, configController(config)));
 app.use(rpc(itemDefinition, itemController(items)));
-app.use(rpc(mapDefinition, mapController(maps)));
 
 app.use(
   "/trpc",
@@ -110,6 +108,7 @@ app.use(
       user: createUserService({ db, user, sign, ...args }),
       monster: createMonsterService(monsters),
       meta: createMetaService({ items, monsters }),
+      map: createMapService(maps),
     }),
     createContext: ({ req }: { req: JWTRequest<AuthenticatorPayload> }) => ({
       auth: req.auth,
