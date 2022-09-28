@@ -5,6 +5,7 @@ import { ImageFormatter } from "../../../lib/image/createImageFormatter";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
 import { createImageRepository } from "../../common/createImageRepository";
 import { Logger } from "../../../lib/logger";
+import { createAsyncMemo } from "../../../lib/createAsyncMemo";
 import { Monster, monsterSpawnType } from "./types";
 import { createMonsterResolver } from "./util/createMonsterResolver";
 
@@ -34,25 +35,31 @@ export function createMonsterRepository({
   const spawnsPromise = npc.resolve("scripts_monsters.conf", monsterSpawnType);
   const monstersPromise = yaml.resolve("db/mob_db.yml", monsterResolver);
 
-  async function getMonsters() {
-    const monsters = await monstersPromise;
-    return Array.from(monsters.values()).reduce(
-      (monsters, monster) =>
-        monsters.set(monster.Id, {
-          ...monster,
-          ImageUrl: imageRepository.urlMap.get(imageName(monster.Id)),
-        }),
-      new Map<Monster["Id"], Monster>()
-    );
-  }
+  const getMonsters = createAsyncMemo(
+    async () => [await monstersPromise, imageRepository.urlMap] as const,
+    (monsters, urlMap) => {
+      logger.log("Recomputing monster repository");
+      return Array.from(monsters.values()).reduce(
+        (monsters, monster) =>
+          monsters.set(monster.Id, {
+            ...monster,
+            ImageUrl: urlMap[imageName(monster.Id)],
+          }),
+        new Map<Monster["Id"], Monster>()
+      );
+    }
+  );
 
-  async function getMonsterSpawns() {
-    const spawns = await spawnsPromise;
-    return spawns.map((spawn) => ({
-      ...spawn,
-      imageUrl: imageRepository.urlMap.get(imageName(spawn.id)),
-    }));
-  }
+  const getMonsterSpawns = createAsyncMemo(
+    async () => [await spawnsPromise, imageRepository.urlMap] as const,
+    (spawns, urlMap) => {
+      logger.log("Recomputing monster spawn repository");
+      return spawns.map((spawn) => ({
+        ...spawn,
+        imageUrl: urlMap[imageName(spawn.id)],
+      }));
+    }
+  );
 
   return {
     getSpawns: getMonsterSpawns,
