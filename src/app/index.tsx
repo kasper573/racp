@@ -17,7 +17,13 @@ if (root) {
   const history = createBrowserHistory();
   const store = createStore({ history, logoutRedirect });
   const trpcClient = createTRPCClient(() => store.getState().auth?.token);
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60 * 1000 * 10, // 10 minutes
+      },
+    },
+  });
   setupAuthBehavior(store, ({ auth }) => auth);
   createRoot(root).render(
     <StrictMode>
