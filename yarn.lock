@@ -2088,6 +2088,19 @@
     "@swc/core-win32-ia32-msvc" "1.2.204"
     "@swc/core-win32-x64-msvc" "1.2.204"
 
+"@tanstack/query-core@4.7.1":
+  version "4.7.1"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-4.7.1.tgz#e732da7d0a4f31b4caa806099fc599617753d451"
+  integrity sha512-BzFI4KdiklxfUUgNiO6E4XsSwaX5NscuIhP7aqWbS8Hqik1KohfvO+SXpftSZHOyzm0+XpycRsip/QEs3Hx3AA==
+
+"@tanstack/react-query@^4.7.1":
+  version "4.7.1"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-4.7.1.tgz#ff7d58e113b735c231138f9b9be828e1730923c4"
+  integrity sha512-/3PBXuvdlvUbSv5eqgkda4VAN14t+rpDop9LnZmEmIMW8ARrbW7Rt6PYTya33JGaeo6XoztRzEH8TaY5S+neNQ==
+  dependencies:
+    "@tanstack/query-core" "4.7.1"
+    use-sync-external-store "^1.2.0"
+
 "@testing-library/cypress@^8.0.3":
   version "8.0.3"
   resolved "https://registry.yarnpkg.com/@testing-library/cypress/-/cypress-8.0.3.tgz#24ab34df34d7896866603ade705afbdd186e273c"
@@ -2109,6 +2122,16 @@
     dom-accessibility-api "^0.5.9"
     lz-string "^1.4.4"
     pretty-format "^27.0.2"
+
+"@trpc/react@^10.0.0-proxy-beta.8":
+  version "10.0.0-proxy-beta.8"
+  resolved "https://registry.yarnpkg.com/@trpc/react/-/react-10.0.0-proxy-beta.8.tgz#4cdc1119b28cd555e2504088bc3995972f6ee2cd"
+  integrity sha512-YE0/T6ej5kTFCn4n6YMXXvMmKAR0TZcAD9tVmzWxGEYlmhqrR9a8b9N6aCh67v91MHMSi8g/kcR1mmdyXZQFAw==
+
+"@trpc/server@^10.0.0-proxy-beta.8":
+  version "10.0.0-proxy-beta.8"
+  resolved "https://registry.yarnpkg.com/@trpc/server/-/server-10.0.0-proxy-beta.8.tgz#34b618d1c9a00c6eac79d90a1d0c86e7e2bf034d"
+  integrity sha512-JSKA9f+nV5Mu3Yczbm3iWfu1S94Yj/xM6pjp/P0kCdtyKBm9qqoMsxpx6Qf6LISGKNYA/uV2LdFln2Xdw4T8Lg==
 
 "@tsconfig/node10@^1.0.7":
   version "1.0.9"
@@ -10044,7 +10067,7 @@ use-debounce@8.0.1:
   resolved "https://registry.yarnpkg.com/use-debounce/-/use-debounce-8.0.1.tgz#5f3e11b067bdf9f2c554a20b4764e38b48022664"
   integrity sha512-6tGAFJKJ0qCalecaV7/gm/M6n238nmitNppvR89ff1yfwSFjwFKR7IQZzIZf1KZRQhqNireBzytzU6jgb29oVg==
 
-use-sync-external-store@^1.0.0:
+use-sync-external-store@^1.0.0, use-sync-external-store@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.2.0.tgz#7dbefd6ef3fe4e767a0cf5d7287aacfb5846928a"
   integrity sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==

@@ -3,6 +3,7 @@ import * as path from "path";
 import * as express from "express";
 import cors = require("cors");
 import { Request as JWTRequest } from "express-jwt";
+import * as trpcExpress from "@trpc/server/adapters/express";
 import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
 import { createFileStore } from "../lib/fs/createFileStore";
 import { createLogger } from "../lib/logger";
@@ -36,11 +37,10 @@ import { mapController } from "./services/map/controller";
 import { createMapRepository } from "./services/map/repository";
 import { linkDropsWithItems } from "./services/item/util/linkDropsWithItems";
 import { createUserRepository } from "./services/user/repository";
-import { utilDefinition } from "./services/util/definition";
-import { utilController } from "./services/util/controller";
 import { UserAccessLevel } from "./services/user/types";
-import { RpcContext } from "./util/rpc";
 import { timeColor } from "./common/timeColor";
+import { createApiRouter } from "./services/router";
+import { RpcContext } from "./services/t";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -106,7 +106,16 @@ app.use(rpc(userDefinition, userController({ db, user, sign, ...args })));
 app.use(rpc(monsterDefinition, monsterController(monsters)));
 app.use(rpc(mapDefinition, mapController(maps)));
 app.use(rpc(metaDefinition, metaController({ items, monsters })));
-app.use(rpc(utilDefinition, utilController()));
+
+app.use(
+  "/trpc",
+  trpcExpress.createExpressMiddleware({
+    router: createApiRouter(),
+    createContext: ({ req }: { req: JWTRequest<AuthenticatorPayload> }) => ({
+      auth: req.auth,
+    }),
+  })
+);
 
 http.createServer(app).listen(args.apiPort, args.hostname, () => {
   console.log(`API is running on port ${args.apiPort}`);
