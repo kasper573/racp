@@ -4,6 +4,7 @@ import { UserService } from "./user/service";
 import { MonsterService } from "./monster/service";
 import { MetaService } from "./meta/service";
 import { MapService } from "./map/service";
+import { ItemService } from "./item/service";
 
 export function createApiRouter(services: ApiServices) {
   return t.router(services);
@@ -12,9 +13,10 @@ export function createApiRouter(services: ApiServices) {
 export type ApiServices = {
   util: UtilService;
   user: UserService;
+  item: ItemService;
   monster: MonsterService;
-  meta: MetaService;
   map: MapService;
+  meta: MetaService;
 };
 
 export type ApiRouter = ReturnType<typeof createApiRouter>;

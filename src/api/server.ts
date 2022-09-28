@@ -21,8 +21,7 @@ import {
 } from "./services/user/util/Authenticator";
 import { createUserService } from "./services/user/service";
 import { createUtilService } from "./services/util/service";
-import { itemDefinition } from "./services/item/definition";
-import { itemController } from "./services/item/controller";
+import { createItemService } from "./services/item/service";
 import { readCliArgs } from "./util/cli";
 import { options } from "./options";
 import { createMonsterService } from "./services/monster/service";
@@ -98,7 +97,6 @@ app.use(authenticator.middleware);
 app.use(cors());
 app.use(express.static(linker.directory));
 app.use(rpc(configDefinition, configController(config)));
-app.use(rpc(itemDefinition, itemController(items)));
 
 app.use(
   "/trpc",
@@ -106,9 +104,10 @@ app.use(
     router: createApiRouter({
       util: createUtilService(),
       user: createUserService({ db, user, sign, ...args }),
+      item: createItemService(items),
       monster: createMonsterService(monsters),
-      meta: createMetaService({ items, monsters }),
       map: createMapService(maps),
+      meta: createMetaService({ items, monsters }),
     }),
     createContext: ({ req }: { req: JWTRequest<AuthenticatorPayload> }) => ({
       auth: req.auth,
