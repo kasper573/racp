@@ -77,19 +77,25 @@ export function createUserService({
         return sign({ id, access });
       }),
     getMyProfile: t.procedure
-      .output(userProfileType.optional())
+      .output(userProfileType.nullable())
       .query(async ({ ctx: { auth } }) => {
         if (!auth) {
-          return undefined;
+          return null;
         }
+
         const user = await db.login
           .table("login")
           .select("userid", "group_id", "email")
           .where("account_id", "=", auth.id)
           .first();
+
         if (!user) {
-          return undefined;
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Profile not found",
+          });
         }
+
         return {
           id: auth.id,
           username: user.userid,
