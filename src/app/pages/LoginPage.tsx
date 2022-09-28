@@ -24,13 +24,14 @@ export default function LoginPage() {
 
   async function submit(e: FormEvent) {
     e.preventDefault();
+    let token: string;
     try {
-      const token = await login(loginPayload);
-      dispatch(auth.actions.update(token));
-      history.push(destination ?? loginRedirect);
+      token = await login(loginPayload);
     } catch {
-      // Do nothing
+      return;
     }
+    dispatch(auth.actions.update(token));
+    history.push(destination ?? loginRedirect);
   }
 
   return (

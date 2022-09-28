@@ -22,11 +22,15 @@ export default function RegisterPage() {
     e.preventDefault();
     try {
       await register(registerPayload);
-      await login(registerPayload);
-      history.push(loginRedirect);
     } catch {
-      // Do nothing
+      return;
     }
+    try {
+      await login(registerPayload);
+    } catch {
+      return;
+    }
+    history.push(loginRedirect);
   }
 
   return (
