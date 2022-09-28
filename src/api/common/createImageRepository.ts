@@ -22,13 +22,10 @@ export function createImageRepository(
   }
 
   function createUrlMap(names: string[]): UrlMap {
-    const record = names.reduce(
-      (record: Record<string, string>, name) => ({
-        ...record,
-        [name]: linker.url(name),
-      }),
-      {}
-    );
+    const record = names.reduce((record: Record<string, string>, name) => {
+      record[name] = linker.url(name);
+      return record;
+    }, {});
     return Object.freeze(record);
   }
 
