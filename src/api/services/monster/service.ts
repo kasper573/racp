@@ -16,23 +16,23 @@ export type MonsterService = ReturnType<typeof createMonsterService>;
 
 export function createMonsterService(repo: MonsterRepository) {
   return t.router({
-    searchMonsters: createSearchProcedure(
+    search: createSearchProcedure(
       monsterType,
       monsterFilter.type,
       async () => Array.from((await repo.getMonsters()).values()),
       (entity, payload) => monsterFilter.for(payload)(entity)
     ),
-    searchMonsterSpawns: createSearchProcedure(
+    searchSpawns: createSearchProcedure(
       monsterSpawnType,
       monsterSpawnFilter.type,
       repo.getSpawns,
       (entity, payload) => monsterSpawnFilter.for(payload)(entity)
     ),
-    uploadMonsterImages: t.procedure
+    uploadImages: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(zod.array(rpcFile))
       .mutation(({ input }) => repo.updateImages(input)),
-    getMonstersMissingImages: t.procedure
+    missingImages: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.array(monsterType.shape["Id"]))
       .query(async () => {

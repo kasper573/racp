@@ -54,7 +54,7 @@ export default function MapViewPage() {
   )({ filter: { fromMap: { value: id, matcher: "equals" } }, limit: 50 });
 
   const { data: { entities: spawns = [] } = {} } = (
-    trpc.monster.searchMonsterSpawns.useQuery as unknown as DataGridQueryFn<
+    trpc.monster.searchSpawns.useQuery as unknown as DataGridQueryFn<
       MonsterSpawn,
       MonsterSpawnFilter
     >

@@ -19,7 +19,7 @@ export default function AdminAssetsPage() {
   const { data: itemInfoCount = 0 } = trpc.item.countInfo.useQuery();
   const { data: itemImageCount = 0 } = trpc.item.countImages.useQuery();
   const { data: missingMonsterImages = [] } =
-    trpc.monster.getMonstersMissingImages.useQuery();
+    trpc.monster.missingImages.useQuery();
   const { data: missingItemImages = [] } = trpc.item.missingImages.useQuery();
 
   return (

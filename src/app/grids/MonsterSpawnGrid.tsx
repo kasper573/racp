@@ -17,8 +17,10 @@ export const MonsterSpawnGrid = DataGrid.define<
   MonsterSpawnId
 >({
   // Without assertion typescript yields possibly infinite error
-  query: trpc.monster.searchMonsterSpawns
-    .useQuery as unknown as DataGridQueryFn<MonsterSpawn, MonsterSpawnFilter>,
+  query: trpc.monster.searchSpawns.useQuery as unknown as DataGridQueryFn<
+    MonsterSpawn,
+    MonsterSpawnFilter
+  >,
   id: (spawn) => spawn.npcEntityId,
   columns: {
     name: {

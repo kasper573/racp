@@ -12,7 +12,7 @@ export const MonsterGrid = DataGrid.define<
   Monster["Id"]
 >({
   // Without assertion typescript yields possibly infinite error
-  query: trpc.monster.searchMonsters.useQuery as unknown as DataGridQueryFn<
+  query: trpc.monster.search.useQuery as unknown as DataGridQueryFn<
     Monster,
     MonsterFilter
   >,

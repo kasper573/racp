@@ -18,7 +18,7 @@ import { LoadingPage } from "./LoadingPage";
 export default function MonsterViewPage(): ReactElement {
   const history = useHistory();
   const { id, tab = "spawns" } = useRouteParams(router.monster().view);
-  const { data, isLoading, error } = trpc.monster.searchMonsters.useQuery({
+  const { data, isLoading, error } = trpc.monster.search.useQuery({
     filter: { Id: { value: id, matcher: "=" } },
     limit: 1,
   });

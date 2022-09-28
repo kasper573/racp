@@ -26,7 +26,7 @@ import { canvasToBlob } from "../../../lib/image/canvasToBlob";
 import { imageDataToCanvas } from "../../../lib/image/imageDataToCanvas";
 
 export function useAssetUploader() {
-  const { mutateAsync: uploadImages, ...mapImageUpload } =
+  const { mutateAsync: uploadMapImages, ...mapImageUpload } =
     trpc.map.uploadImages.useMutation();
   const { mutateAsync: uploadInfo, ...mapInfoUpload } =
     trpc.map.uploadInfo.useMutation();
@@ -35,7 +35,7 @@ export function useAssetUploader() {
   const { mutateAsync: updateItemInfo, ...itemInfoUpload } =
     trpc.item.uploadInfo.useMutation();
   const { mutateAsync: uploadMonsterImages, ...monsterImageUpload } =
-    trpc.monster.uploadMonsterImages.useMutation();
+    trpc.monster.uploadImages.useMutation();
   const { mutateAsync: uploadItemImages, ...itemImageUpload } =
     trpc.item.uploadImages.useMutation();
   const { mutateAsync: decompileLuaTables } =
@@ -94,7 +94,7 @@ export function useAssetUploader() {
     await tracker.track(
       divide(images, 100).map((partial) => ({
         group: "Uploading map image packs",
-        fn: () => uploadImages(partial),
+        fn: () => uploadMapImages(partial),
       }))
     );
   }
