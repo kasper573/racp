@@ -8,6 +8,8 @@ import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
 import { ReducedLuaTables, reducedLuaTables } from "./types";
 
+export type UtilService = ReturnType<typeof createUtilService>;
+
 export function createUtilService() {
   const unluac = createUnluac({
     write: gfs.writeFile,

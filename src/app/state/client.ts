@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/dist/query/react";
 import { configDefinition } from "../../api/services/config/definition";
 import { createRpcEndpoints } from "../../lib/rpc/createRpcEndpoints";
-import { userDefinition } from "../../api/services/user/definition";
+import { userDefinition } from "../../api/services/user/service";
 import { itemDefinition } from "../../api/services/item/definition";
 import { monsterDefinition } from "../../api/services/monster/definition";
 import { metaDefinition } from "../../api/services/meta/definition";

@@ -19,8 +19,8 @@ import {
   AuthenticatorPayload,
   createAuthenticator,
 } from "./services/user/util/Authenticator";
-import { userDefinition } from "./services/user/definition";
-import { userController } from "./services/user/controller";
+import { createUserService } from "./services/user/service";
+import { createUtilService } from "./services/util/service";
 import { itemDefinition } from "./services/item/definition";
 import { itemController } from "./services/item/controller";
 import { readCliArgs } from "./util/cli";
@@ -102,7 +102,6 @@ app.use(cors());
 app.use(express.static(linker.directory));
 app.use(rpc(configDefinition, configController(config)));
 app.use(rpc(itemDefinition, itemController(items)));
-app.use(rpc(userDefinition, userController({ db, user, sign, ...args })));
 app.use(rpc(monsterDefinition, monsterController(monsters)));
 app.use(rpc(mapDefinition, mapController(maps)));
 app.use(rpc(metaDefinition, metaController({ items, monsters })));
@@ -110,7 +109,10 @@ app.use(rpc(metaDefinition, metaController({ items, monsters })));
 app.use(
   "/trpc",
   trpcExpress.createExpressMiddleware({
-    router: createApiRouter(),
+    router: createApiRouter({
+      util: createUtilService(),
+      user: createUserService({ db, user, sign, ...args }),
+    }),
     createContext: ({ req }: { req: JWTRequest<AuthenticatorPayload> }) => ({
       auth: req.auth,
     }),
