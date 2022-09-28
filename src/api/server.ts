@@ -13,8 +13,7 @@ import { createEllipsisLogFn } from "../lib/createEllipsisLogFn";
 import { createYamlDriver } from "./rathena/YamlDriver";
 import { createConfigDriver } from "./rathena/ConfigDriver";
 import { createDatabaseDriver } from "./rathena/DatabaseDriver";
-import { configDefinition } from "./services/config/definition";
-import { configController } from "./services/config/controller";
+import { createConfigService } from "./services/config/service";
 import {
   AuthenticatorPayload,
   createAuthenticator,
@@ -96,13 +95,12 @@ linkDropsWithItems(items, monsters);
 app.use(authenticator.middleware);
 app.use(cors());
 app.use(express.static(linker.directory));
-app.use(rpc(configDefinition, configController(config)));
-
 app.use(
   "/trpc",
   trpcExpress.createExpressMiddleware({
     router: createApiRouter({
       util: createUtilService(),
+      config: createConfigService(config),
       user: createUserService({ db, user, sign, ...args }),
       item: createItemService(items),
       monster: createMonsterService(monsters),
