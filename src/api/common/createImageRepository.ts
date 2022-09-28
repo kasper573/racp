@@ -6,6 +6,7 @@ import { ImageFormatter } from "../../lib/image/createImageFormatter";
 import { Linker } from "../../lib/fs/createPublicFileLinker";
 import { Logger } from "../../lib/logger";
 import { gfs } from "../util/gfs";
+import { RpcFile } from "./RpcFile";
 
 export function createImageRepository(
   formatter: ImageFormatter,
@@ -38,7 +39,7 @@ export function createImageRepository(
     }
   });
 
-  async function updateImages(files: Array<{ name: string; data: number[] }>) {
+  async function updateImages(files: RpcFile[]) {
     await Promise.all(
       files.map((file) =>
         openFilesBottleneck.schedule(() =>
@@ -51,12 +52,10 @@ export function createImageRepository(
     );
   }
 
-  async function updateImagesAndSuppressUrlMapUpdates(
-    ...args: Parameters<typeof updateImages>
-  ) {
+  async function updateImagesAndSuppressUrlMapUpdates(files: RpcFile[]) {
     try {
       pendingUpdates++;
-      return await updateImages(...args);
+      return await updateImages(files);
     } finally {
       pendingUpdates--;
       updateUrlMap();

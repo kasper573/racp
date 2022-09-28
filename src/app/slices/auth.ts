@@ -1,7 +1,10 @@
 import { AnyAction, createSlice, Store } from "@reduxjs/toolkit";
 import * as zod from "zod";
-import { client } from "../state/client";
+import { useHistory } from "react-router";
 import { createAppAsyncThunk } from "../state/utils";
+import { trpc } from "../state/client";
+import { useAppDispatch } from "../state/store";
+import { loginRedirect } from "../router";
 
 export const authState = zod.object({
   token: zod.string().optional(),
@@ -21,21 +24,34 @@ export const logout = createAppAsyncThunk(
   }
 );
 
+export function useLogin(destination = loginRedirect) {
+  const dispatch = useAppDispatch();
+  const history = useHistory();
+  const { mutateAsync, ...rest } = trpc.user.login.useMutation();
+  async function login(...payload: Parameters<typeof mutateAsync>) {
+    let token: string;
+    try {
+      token = await mutateAsync(...payload);
+    } catch {
+      return;
+    }
+    dispatch(auth.actions.update(token));
+    history.push(destination ?? loginRedirect);
+  }
+  return [login, rest] as const;
+}
+
 export const auth = createSlice({
   name: "auth",
   initialState,
   reducers: {
+    update: (state, { payload: token }: { payload: AuthState["token"] }) => {
+      state.token = token;
+    },
     clear(state) {
       delete state.token;
     },
   },
-  extraReducers: (builder) =>
-    builder.addMatcher(
-      client.endpoints.login.matchFulfilled,
-      (state, { payload: token }) => {
-        state.token = token;
-      }
-    ),
 });
 
 function isTokenExpired(token: string) {
@@ -43,12 +59,18 @@ function isTokenExpired(token: string) {
   return Math.floor(new Date().getTime() / 1000) >= expiry;
 }
 
-export function setupAuthBehavior<State>(
-  store: Store<State>,
-  selectState: (state: State) => AuthState,
-  interval = 1000
-) {
-  const getToken = () => selectState(store.getState()).token;
+export function setupAuthBehavior<State>({
+  store,
+  selectAuthState,
+  onTokenChanged,
+  interval = 1000,
+}: {
+  store: Store<State>;
+  selectAuthState: (state: State) => AuthState;
+  onTokenChanged?: () => void;
+  interval?: number;
+}) {
+  const getToken = () => selectAuthState(store.getState()).token;
 
   // Logout when token expires
   const intervalId = setInterval(() => {
@@ -58,13 +80,12 @@ export function setupAuthBehavior<State>(
     }
   }, interval);
 
-  // Reset API cache when token changes
   let prevToken = getToken();
   const unsubscribe = store.subscribe(() => {
     const newToken = getToken();
     if (newToken !== prevToken) {
       prevToken = newToken;
-      store.dispatch(client.internalActions.resetApiState());
+      onTokenChanged?.();
     }
   });
 

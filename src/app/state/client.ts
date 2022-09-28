@@ -1,74 +1,23 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/dist/query/react";
-import { configDefinition } from "../../api/services/config/definition";
-import { createRpcEndpoints } from "../../lib/rpc/createRpcEndpoints";
-import { userDefinition } from "../../api/services/user/definition";
-import { itemDefinition } from "../../api/services/item/definition";
-import { monsterDefinition } from "../../api/services/monster/definition";
-import { metaDefinition } from "../../api/services/meta/definition";
-import { mapDefinition } from "../../api/services/map/definition";
-import { utilDefinition } from "../../api/services/util/definition";
-import { AppState } from "./store";
+import { createTRPCReact, httpBatchLink } from "@trpc/react";
+import { ApiRouter } from "../../api/services/router";
 
-export const client = createApi({
-  baseQuery: fetchBaseQuery({
-    baseUrl: process.env.apiBaseUrl,
-    prepareHeaders: (headers, { getState }) => {
-      const { token } = (getState() as AppState).auth;
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
-  tagTypes: [
-    ...metaDefinition.tagTypes,
-    ...configDefinition.tagTypes,
-    ...userDefinition.tagTypes,
-    ...itemDefinition.tagTypes,
-    ...monsterDefinition.tagTypes,
-    ...mapDefinition.tagTypes,
-    ...utilDefinition.tagTypes,
-  ],
-  endpoints: (builder) => ({
-    ...createRpcEndpoints(builder, metaDefinition.entries),
-    ...createRpcEndpoints(builder, configDefinition.entries),
-    ...createRpcEndpoints(builder, userDefinition.entries),
-    ...createRpcEndpoints(builder, itemDefinition.entries),
-    ...createRpcEndpoints(builder, monsterDefinition.entries),
-    ...createRpcEndpoints(builder, mapDefinition.entries),
-    ...createRpcEndpoints(builder, utilDefinition.entries),
-  }),
-});
+export const trpc = createTRPCReact<ApiRouter>();
 
-export const {
-  useCountItemImagesQuery,
-  useUploadItemImagesMutation,
-  useRegisterMutation,
-  useUpdateMyProfileMutation,
-  useGetMyProfileQuery,
-  useGetMetaQuery,
-  useGetItemQuery,
-  useSearchItemsQuery,
-  useListConfigsQuery,
-  useGetConfigQuery,
-  useSearchMonstersQuery,
-  useCountItemInfoQuery,
-  useUpdateConfigMutation,
-  useUploadItemInfoMutation,
-  useUploadMapImagesMutation,
-  useUploadMonsterImagesMutation,
-  useGetMonstersMissingImagesQuery,
-  useGetItemsMissingImagesQuery,
-  useSearchMapsQuery,
-  useSearchMonsterSpawnsQuery,
-  useDecompileLuaTableFilesMutation,
-  useGetMapQuery,
-  useCountMapBoundsQuery,
-  useSearchWarpsQuery,
-  useUploadMapInfoMutation,
-  useUpdateMapBoundsMutation,
-  useCountMapImagesQuery,
-  useCountMapInfoQuery,
-  useGetMissingMapDataQuery,
-  useLoginMutation,
-} = client;
+export function createTRPCClient(getToken: () => string | undefined) {
+  return trpc.createClient({
+    links: [
+      httpBatchLink({
+        url: process.env.apiBaseUrl!,
+        headers() {
+          const token = getToken();
+          if (token) {
+            return {
+              Authorization: `Bearer ${token}`,
+            };
+          }
+          return {};
+        },
+      }),
+    ],
+  });
+}

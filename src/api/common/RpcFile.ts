@@ -5,7 +5,7 @@ export const rpcFile = zod.object({
   data: zod.array(zod.number()), // Uint8Array
 });
 
-// A normalized file type since node and browser have different types for files
+// A normalized file type since TRPC doesn't support regular file uploads
 export type RpcFile = zod.infer<typeof rpcFile>;
 
 export async function toRpcFile(

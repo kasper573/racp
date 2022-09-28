@@ -5,16 +5,8 @@ import {
   cropSurroundingColors,
   RGB,
 } from "../../../lib/image/cropSurroundingColors";
-import {
-  useDecompileLuaTableFilesMutation,
-  useUpdateMapBoundsMutation,
-  useUploadItemImagesMutation,
-  useUploadItemInfoMutation,
-  useUploadMapImagesMutation,
-  useUploadMapInfoMutation,
-  useUploadMonsterImagesMutation,
-} from "../../state/client";
-import { RpcFile, toRpcFile } from "../../../lib/rpc/RpcFile";
+import { trpc } from "../../state/client";
+import { RpcFile, toRpcFile } from "../../../api/common/RpcFile";
 import { GRF } from "../../../lib/grf/types/GRF";
 import { GAT } from "../../../lib/grf/types/GAT";
 import { ReducedLuaTables } from "../../../api/services/util/types";
@@ -34,13 +26,20 @@ import { canvasToBlob } from "../../../lib/image/canvasToBlob";
 import { imageDataToCanvas } from "../../../lib/image/imageDataToCanvas";
 
 export function useAssetUploader() {
-  const [uploadMapImages, mapImageUpload] = useUploadMapImagesMutation();
-  const [uploadMapInfo, mapInfoUpload] = useUploadMapInfoMutation();
-  const [updateMapBounds, mapBoundsUpdate] = useUpdateMapBoundsMutation();
-  const [updateItemInfo, itemInfoUpload] = useUploadItemInfoMutation();
-  const [uploadMonsterImages] = useUploadMonsterImagesMutation();
-  const [uploadItemImages, itemImageUpload] = useUploadItemImagesMutation();
-  const [decompileLuaTables] = useDecompileLuaTableFilesMutation();
+  const { mutateAsync: uploadMapImages, ...mapImageUpload } =
+    trpc.map.uploadImages.useMutation();
+  const { mutateAsync: uploadInfo, ...mapInfoUpload } =
+    trpc.map.uploadInfo.useMutation();
+  const { mutateAsync: updateBounds, ...mapBoundsUpdate } =
+    trpc.map.updateBounds.useMutation();
+  const { mutateAsync: updateItemInfo, ...itemInfoUpload } =
+    trpc.item.uploadInfo.useMutation();
+  const { mutateAsync: uploadMonsterImages, ...monsterImageUpload } =
+    trpc.monster.uploadImages.useMutation();
+  const { mutateAsync: uploadItemImages, ...itemImageUpload } =
+    trpc.item.uploadImages.useMutation();
+  const { mutateAsync: decompileLuaTables } =
+    trpc.util.decompileLuaTableFiles.useMutation();
 
   const tracker = useTaskScheduler();
 
@@ -72,6 +71,7 @@ export function useAssetUploader() {
     mapBoundsUpdate.error,
     itemInfoUpload.error,
     itemImageUpload.error,
+    monsterImageUpload.error,
   ]);
 
   const errors = [...serverErrors, ...trackerErrors];
@@ -88,7 +88,7 @@ export function useAssetUploader() {
     }, {});
 
     await tracker.track([
-      { group: `Uploading map bounds`, fn: () => updateMapBounds(bounds) },
+      { group: `Uploading map bounds`, fn: () => updateBounds(bounds) },
     ]);
 
     await tracker.track(
@@ -99,18 +99,18 @@ export function useAssetUploader() {
     );
   }
 
-  async function uploadMapInfoLubFiles(lubFiles: File[]) {
+  async function uploadMapInfoLubFiles(lubFile: File) {
     await tracker
-      .track(
-        lubFiles.map((file) => ({
+      .track([
+        {
           group: "Unpacking map info file",
-          id: file.name,
-          fn: () => toRpcFile(file),
-        }))
-      )
-      .then((files) =>
+          id: lubFile.name,
+          fn: () => toRpcFile(lubFile),
+        },
+      ])
+      .then(([file]) =>
         tracker.track([
-          { group: `Uploading map info file`, fn: () => uploadMapInfo(files) },
+          { group: `Uploading map info file`, fn: () => uploadInfo(file) },
         ])
       );
   }
@@ -120,9 +120,9 @@ export function useAssetUploader() {
       {
         group: "Locating monster images",
         fn: () =>
-          determineMonsterSpriteNames(grf, (files) =>
-            decompileLuaTables(files).unwrap()
-          ).then((names) => resolveSpriteInfo(grf, names)),
+          determineMonsterSpriteNames(grf, decompileLuaTables).then((names) =>
+            resolveSpriteInfo(grf, names)
+          ),
       },
     ]);
 
@@ -148,7 +148,7 @@ export function useAssetUploader() {
     const [resourceNames] = await tracker.track([
       {
         group: "Uploading item info",
-        fn: async () => updateItemInfo([await toRpcFile(infoFile)]).unwrap(),
+        fn: async () => updateItemInfo(await toRpcFile(infoFile)),
       },
     ]);
 
@@ -196,7 +196,7 @@ export function useAssetUploader() {
       uploadMapDataFromGRF(grf),
     ]);
 
-    await uploadMapInfoLubFiles([mapInfoFile]);
+    await uploadMapInfoLubFiles(mapInfoFile);
     await uploadMonsterImagesFromGRF(grf);
   }
 

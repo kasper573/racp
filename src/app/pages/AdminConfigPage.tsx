@@ -1,6 +1,6 @@
 import { List, TextField } from "@mui/material";
 import { useState } from "react";
-import { useListConfigsQuery } from "../state/client";
+import { trpc } from "../state/client";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { router } from "../router";
 import { LinkListItem } from "../components/Link";
@@ -9,7 +9,7 @@ import { LoadingPage } from "./LoadingPage";
 
 export default function AdminConfigPage() {
   const [filter, setFilter] = useState("");
-  const { data: configs = [], error, isLoading } = useListConfigsQuery();
+  const { data: configs = [], error, isLoading } = trpc.config.list.useQuery();
   const filteredConfigs = configs.filter((config) =>
     config.toLowerCase().includes(filter.toLowerCase())
   );

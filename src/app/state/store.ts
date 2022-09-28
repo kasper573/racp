@@ -9,11 +9,9 @@ import { History } from "history";
 import { rtkStorage } from "../../lib/rtkStorage";
 import { auth, authState } from "../slices/auth";
 import { theme, themeState } from "../slices/theme";
-import { client } from "./client";
 import { localStorageProtocol } from "./utils";
 
 const reducers = {
-  [client.reducerPath]: client.reducer,
   [auth.name]: auth.reducer,
   [theme.name]: theme.reducer,
 };
@@ -34,9 +32,7 @@ export function createStore(extraArgument: AppThunkExtra) {
     preloadedState,
     reducer: combineReducers(reducers),
     middleware: (defaults) =>
-      defaults({ thunk: { extraArgument } })
-        .concat(client.middleware)
-        .concat(storageMiddleware),
+      defaults({ thunk: { extraArgument } }).concat(storageMiddleware),
   });
 }
 

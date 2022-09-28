@@ -41,12 +41,15 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(20);
   const [sort, setSort] = useState<SearchSort<Entity>>([]);
-  const { data: result, isFetching } = useQuery({
-    filter,
-    sort,
-    offset: pageIndex * pageSize,
-    limit: pageSize,
-  });
+  const { data: result, isFetching } = useQuery(
+    {
+      filter,
+      sort,
+      offset: pageIndex * pageSize,
+      limit: pageSize,
+    },
+    { keepPreviousData: true }
+  );
   const pageCount = Math.ceil((result?.total ?? 0) / pageSize);
   const columnList = processColumnConvention({ columns, id, link });
 
@@ -139,7 +142,8 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type DataGridQueryFn<Entity = any, Filter = any> = (
-  query: SearchQuery<Entity, Filter>
+  query: SearchQuery<Entity, Filter>,
+  options?: { keepPreviousData?: boolean }
 ) => {
   data?: SearchResult<Entity>;
   isFetching: boolean;

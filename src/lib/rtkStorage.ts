@@ -37,7 +37,7 @@ export function rtkStorage<State>() {
     return {
       preloadedState,
       storageMiddleware: (api) => {
-        const storedState = api.getState();
+        const storedState = { ...api.getState() };
         function save() {
           const updatedState = api.getState();
           for (const key of typedKeys(parsers) as Array<keyof State>) {

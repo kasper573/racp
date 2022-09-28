@@ -3,7 +3,8 @@ import * as path from "path";
 import * as express from "express";
 import cors = require("cors");
 import { Request as JWTRequest } from "express-jwt";
-import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
+import * as trpcExpress from "@trpc/server/adapters/express";
+import * as morgan from "morgan";
 import { createFileStore } from "../lib/fs/createFileStore";
 import { createLogger } from "../lib/logger";
 import { createPublicFileLinker } from "../lib/fs/createPublicFileLinker";
@@ -12,35 +13,27 @@ import { createEllipsisLogFn } from "../lib/createEllipsisLogFn";
 import { createYamlDriver } from "./rathena/YamlDriver";
 import { createConfigDriver } from "./rathena/ConfigDriver";
 import { createDatabaseDriver } from "./rathena/DatabaseDriver";
-import { configDefinition } from "./services/config/definition";
-import { configController } from "./services/config/controller";
+import { createConfigService } from "./services/config/service";
 import {
   AuthenticatorPayload,
   createAuthenticator,
 } from "./services/user/util/Authenticator";
-import { userDefinition } from "./services/user/definition";
-import { userController } from "./services/user/controller";
-import { itemDefinition } from "./services/item/definition";
-import { itemController } from "./services/item/controller";
+import { createUserService } from "./services/user/service";
+import { createUtilService } from "./services/util/service";
+import { createItemService } from "./services/item/service";
 import { readCliArgs } from "./util/cli";
 import { options } from "./options";
-import { monsterController } from "./services/monster/controller";
-import { monsterDefinition } from "./services/monster/definition";
+import { createMonsterService } from "./services/monster/service";
 import { createNpcDriver } from "./rathena/NpcDriver";
-import { metaDefinition } from "./services/meta/definition";
-import { metaController } from "./services/meta/controller";
+import { createMetaService } from "./services/meta/service";
 import { createItemRepository } from "./services/item/repository";
 import { createMonsterRepository } from "./services/monster/repository";
-import { mapDefinition } from "./services/map/definition";
-import { mapController } from "./services/map/controller";
+import { createMapService } from "./services/map/service";
 import { createMapRepository } from "./services/map/repository";
 import { linkDropsWithItems } from "./services/item/util/linkDropsWithItems";
 import { createUserRepository } from "./services/user/repository";
-import { utilDefinition } from "./services/util/definition";
-import { utilController } from "./services/util/controller";
-import { UserAccessLevel } from "./services/user/types";
-import { RpcContext } from "./util/rpc";
 import { timeColor } from "./common/timeColor";
+import { createApiRouter } from "./services/router";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -62,11 +55,6 @@ const files = createFileStore(
   logger
 );
 const npc = createNpcDriver({ ...args, logger });
-const rpc = createRpcMiddlewareFactory<UserAccessLevel, RpcContext>({
-  validatorFor: authenticator.validatorFor,
-  logger,
-  getContext: ({ auth }: JWTRequest<AuthenticatorPayload>) => ({ auth }),
-});
 
 const formatter = createImageFormatter({ extension: ".png", quality: 70 });
 
@@ -100,13 +88,25 @@ linkDropsWithItems(items, monsters);
 app.use(authenticator.middleware);
 app.use(cors());
 app.use(express.static(linker.directory));
-app.use(rpc(configDefinition, configController(config)));
-app.use(rpc(itemDefinition, itemController(items)));
-app.use(rpc(userDefinition, userController({ db, user, sign, ...args })));
-app.use(rpc(monsterDefinition, monsterController(monsters)));
-app.use(rpc(mapDefinition, mapController(maps)));
-app.use(rpc(metaDefinition, metaController({ items, monsters })));
-app.use(rpc(utilDefinition, utilController()));
+app.use(
+  morgan(":method :url :status :res[content-length] - :response-time ms")
+);
+app.use(
+  trpcExpress.createExpressMiddleware({
+    router: createApiRouter({
+      util: createUtilService(),
+      config: createConfigService(config),
+      user: createUserService({ db, user, sign, ...args }),
+      item: createItemService(items),
+      monster: createMonsterService(monsters),
+      map: createMapService(maps),
+      meta: createMetaService({ items, monsters }),
+    }),
+    createContext: ({ req }: { req: JWTRequest<AuthenticatorPayload> }) => ({
+      auth: req.auth,
+    }),
+  })
+);
 
 http.createServer(app).listen(args.apiPort, args.hostname, () => {
   console.log(`API is running on port ${args.apiPort}`);
