@@ -13,7 +13,7 @@ export default function AdminConfigEditPage() {
     error: queryError,
     isLoading,
   } = useGetConfigQuery(configName);
-  const [update, { error: updateError }] = useUpdateConfigMutation();
+  const { mutate: update, error: updateError } = useUpdateConfigMutation();
   const setValue = (content: string) => update({ name: configName, content });
 
   if (isLoading) {

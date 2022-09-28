@@ -14,18 +14,18 @@ export default function RegisterPage() {
     password: "",
     passwordConfirm: "",
   });
-  const [register, { error, isLoading }] = useRegisterMutation();
-  const [login] = useLoginMutation();
+  const { mutateAsync: register, error, isLoading } = useRegisterMutation();
+  const { mutateAsync: login } = useLoginMutation();
   const history = useHistory();
 
   async function submit(e: FormEvent) {
     e.preventDefault();
-    const registerResult = await register(registerPayload);
-    if ("data" in registerResult && registerResult.data) {
-      const loginResult = await login(registerPayload);
-      if ("data" in loginResult) {
-        history.push(loginRedirect);
-      }
+    try {
+      await register(registerPayload);
+      await login(registerPayload);
+      history.push(loginRedirect);
+    } catch {
+      // Do nothing
     }
   }
 

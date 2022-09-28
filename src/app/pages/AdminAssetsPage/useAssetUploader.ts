@@ -34,13 +34,20 @@ import { canvasToBlob } from "../../../lib/image/canvasToBlob";
 import { imageDataToCanvas } from "../../../lib/image/imageDataToCanvas";
 
 export function useAssetUploader() {
-  const [uploadMapImages, mapImageUpload] = useUploadMapImagesMutation();
-  const [uploadMapInfo, mapInfoUpload] = useUploadMapInfoMutation();
-  const [updateMapBounds, mapBoundsUpdate] = useUpdateMapBoundsMutation();
-  const [updateItemInfo, itemInfoUpload] = useUploadItemInfoMutation();
-  const [uploadMonsterImages] = useUploadMonsterImagesMutation();
-  const [uploadItemImages, itemImageUpload] = useUploadItemImagesMutation();
-  const [decompileLuaTables] = useDecompileLuaTableFilesMutation();
+  const { mutateAsync: uploadMapImages, ...mapImageUpload } =
+    useUploadMapImagesMutation();
+  const { mutateAsync: uploadMapInfo, ...mapInfoUpload } =
+    useUploadMapInfoMutation();
+  const { mutateAsync: updateMapBounds, ...mapBoundsUpdate } =
+    useUpdateMapBoundsMutation();
+  const { mutateAsync: updateItemInfo, ...itemInfoUpload } =
+    useUploadItemInfoMutation();
+  const { mutateAsync: uploadMonsterImages, ...monsterImageUpload } =
+    useUploadMonsterImagesMutation();
+  const { mutateAsync: uploadItemImages, ...itemImageUpload } =
+    useUploadItemImagesMutation();
+  const { mutateAsync: decompileLuaTables } =
+    useDecompileLuaTableFilesMutation();
 
   const tracker = useTaskScheduler();
 
@@ -72,6 +79,7 @@ export function useAssetUploader() {
     mapBoundsUpdate.error,
     itemInfoUpload.error,
     itemImageUpload.error,
+    monsterImageUpload.error,
   ]);
 
   const errors = [...serverErrors, ...trackerErrors];
@@ -99,18 +107,18 @@ export function useAssetUploader() {
     );
   }
 
-  async function uploadMapInfoLubFiles(lubFiles: File[]) {
+  async function uploadMapInfoLubFiles(lubFile: File) {
     await tracker
-      .track(
-        lubFiles.map((file) => ({
+      .track([
+        {
           group: "Unpacking map info file",
-          id: file.name,
-          fn: () => toRpcFile(file),
-        }))
-      )
-      .then((files) =>
+          id: lubFile.name,
+          fn: () => toRpcFile(lubFile),
+        },
+      ])
+      .then(([file]) =>
         tracker.track([
-          { group: `Uploading map info file`, fn: () => uploadMapInfo(files) },
+          { group: `Uploading map info file`, fn: () => uploadMapInfo(file) },
         ])
       );
   }
@@ -120,9 +128,9 @@ export function useAssetUploader() {
       {
         group: "Locating monster images",
         fn: () =>
-          determineMonsterSpriteNames(grf, (files) =>
-            decompileLuaTables(files).unwrap()
-          ).then((names) => resolveSpriteInfo(grf, names)),
+          determineMonsterSpriteNames(grf, decompileLuaTables).then((names) =>
+            resolveSpriteInfo(grf, names)
+          ),
       },
     ]);
 
@@ -148,7 +156,7 @@ export function useAssetUploader() {
     const [resourceNames] = await tracker.track([
       {
         group: "Uploading item info",
-        fn: async () => updateItemInfo([await toRpcFile(infoFile)]).unwrap(),
+        fn: async () => updateItemInfo(await toRpcFile(infoFile)),
       },
     ]);
 
@@ -196,7 +204,7 @@ export function useAssetUploader() {
       uploadMapDataFromGRF(grf),
     ]);
 
-    await uploadMapInfoLubFiles([mapInfoFile]);
+    await uploadMapInfoLubFiles(mapInfoFile);
     await uploadMonsterImagesFromGRF(grf);
   }
 

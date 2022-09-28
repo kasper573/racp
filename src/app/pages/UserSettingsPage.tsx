@@ -16,7 +16,7 @@ const defaultProfileMutation = {
 
 export default function UserSettingsPage() {
   const { data: profile, isLoading } = useGetMyProfileQuery();
-  const [updateMyProfile, { error }] = useUpdateMyProfileMutation();
+  const { mutate: updateMyProfile, error } = useUpdateMyProfileMutation();
   const [profileMutation, setProfileMutation] = useState<UserProfileMutation>(
     defaultProfileMutation
   );

@@ -30,7 +30,7 @@ export function createConfigService(cfg: ConfigDriver) {
     updateConfig: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(zod.object({ name: zod.string(), content: zod.string() }))
-      .query(async ({ input: { name, content } }) => {
+      .mutation(async ({ input: { name, content } }) => {
         try {
           await cfg.update(name, content);
         } catch {

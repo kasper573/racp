@@ -88,7 +88,6 @@ app.use(authenticator.middleware);
 app.use(cors());
 app.use(express.static(linker.directory));
 app.use(
-  "/trpc",
   trpcExpress.createExpressMiddleware({
     router: createApiRouter({
       util: createUtilService(),

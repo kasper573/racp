@@ -1,6 +1,5 @@
 import { AnyAction, createSlice, Store } from "@reduxjs/toolkit";
 import * as zod from "zod";
-import { client } from "../state/client";
 import { createAppAsyncThunk } from "../state/utils";
 
 export const authState = zod.object({
@@ -25,17 +24,13 @@ export const auth = createSlice({
   name: "auth",
   initialState,
   reducers: {
+    update: (state, { payload: token }: { payload: AuthState["token"] }) => {
+      state.token = token;
+    },
     clear(state) {
       delete state.token;
     },
   },
-  extraReducers: (builder) =>
-    builder.addMatcher(
-      client.endpoints.login.matchFulfilled,
-      (state, { payload: token }) => {
-        state.token = token;
-      }
-    ),
 });
 
 function isTokenExpired(token: string) {
@@ -64,7 +59,6 @@ export function setupAuthBehavior<State>(
     const newToken = getToken();
     if (newToken !== prevToken) {
       prevToken = newToken;
-      store.dispatch(client.internalActions.resetApiState());
     }
   });
 

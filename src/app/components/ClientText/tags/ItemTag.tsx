@@ -19,7 +19,7 @@ export const ItemTag: ClientTextTag = ({ node }) => {
       },
       limit: 1,
     },
-    { skip: !content }
+    { enabled: !!content }
   );
 
   // Link to item if one was found

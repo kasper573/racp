@@ -9,21 +9,27 @@ import { CenteredContent } from "../components/CenteredContent";
 import { Header } from "../layout/Header";
 import { UserLoginForm } from "../forms/UserLoginForm";
 import { LoginPayload } from "../../api/services/user/types";
+import { useAppDispatch } from "../state/store";
+import { auth } from "../slices/auth";
 
 export default function LoginPage() {
+  const dispatch = useAppDispatch();
   const { destination } = useRouteParams(router.user().login);
   const [loginPayload, setLoginPayload] = useState<LoginPayload>({
     username: "",
     password: "",
   });
-  const [login, { error, isLoading }] = useLoginMutation();
+  const { mutateAsync: login, error, isLoading } = useLoginMutation();
   const history = useHistory();
 
   async function submit(e: FormEvent) {
     e.preventDefault();
-    const result = await login(loginPayload);
-    if ("data" in result) {
+    try {
+      const token = await login(loginPayload);
+      dispatch(auth.actions.update(token));
       history.push(destination ?? loginRedirect);
+    } catch {
+      // Do nothing
     }
   }
 
