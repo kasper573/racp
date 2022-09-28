@@ -5,7 +5,7 @@ import { ImageFormatter } from "../../../lib/image/createImageFormatter";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
 import { createImageRepository } from "../../common/createImageRepository";
 import { Logger } from "../../../lib/logger";
-import { createAsyncMemo } from "../../../lib/createAsyncMemo";
+import { createAsyncMemo } from "../../../lib/createMemo";
 import { Monster, monsterSpawnType } from "./types";
 import { createMonsterResolver } from "./util/createMonsterResolver";
 

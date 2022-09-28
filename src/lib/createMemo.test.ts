@@ -1,5 +1,5 @@
 import { expect } from "@jest/globals";
-import { createAsyncMemo } from "./createAsyncMemo";
+import { createAsyncMemo } from "./createMemo";
 
 describe("createAsyncMemo", () => {
   it("computes only once for the same sources", async () => {

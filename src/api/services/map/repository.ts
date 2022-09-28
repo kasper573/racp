@@ -7,7 +7,7 @@ import { createImageRepository } from "../../common/createImageRepository";
 import { trimExtension } from "../../../lib/std/trimExtension";
 import { Logger } from "../../../lib/logger";
 import { gfs } from "../../util/gfs";
-import { createMemo } from "../../../lib/createAsyncMemo";
+import { createMemo } from "../../../lib/createMemo";
 import {
   MapBoundsRegistry,
   mapBoundsRegistryType,

@@ -6,7 +6,7 @@ import { Linker } from "../../../lib/fs/createPublicFileLinker";
 import { ImageFormatter } from "../../../lib/image/createImageFormatter";
 import { Logger } from "../../../lib/logger";
 import { gfs } from "../../util/gfs";
-import { createAsyncMemo } from "../../../lib/createAsyncMemo";
+import { createAsyncMemo } from "../../../lib/createMemo";
 import { createItemResolver } from "./util/createItemResolver";
 import { Item, ItemId, itemInfoType } from "./types";
 
