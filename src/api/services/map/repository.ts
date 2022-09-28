@@ -7,6 +7,7 @@ import { createImageRepository } from "../../common/createImageRepository";
 import { trimExtension } from "../../../lib/std/trimExtension";
 import { Logger } from "../../../lib/logger";
 import { gfs } from "../../util/gfs";
+import { createMemo } from "../../../lib/createMemo";
 import {
   MapBoundsRegistry,
   mapBoundsRegistryType,
@@ -41,17 +42,21 @@ export function createMapRepository({
     mapBoundsRegistryType.safeParse(JSON.parse(str))
   );
 
-  async function getMaps() {
-    return Object.entries(infoFile.data ?? {}).reduce((all, [key, info]) => {
-      const id = trimExtension(key);
-      return all.set(id, {
-        ...info,
-        id,
-        bounds: boundsFile.data?.[id],
-        imageUrl: imageRepository.urlMap.get(mapImageName(id)),
-      });
-    }, new Map<MapId, MapInfo>());
-  }
+  const getMaps = createMemo(
+    () => [infoFile.data, boundsFile.data, imageRepository.urlMap] as const,
+    (infoRecord, bounds, urlMap) => {
+      logger.log("Recomputing map repository");
+      return Object.entries(infoRecord ?? {}).reduce((all, [key, info]) => {
+        const id = trimExtension(key);
+        return all.set(id, {
+          ...info,
+          id,
+          bounds: bounds?.[id],
+          imageUrl: urlMap[mapImageName(id)],
+        });
+      }, new Map<MapId, MapInfo>());
+    }
+  );
 
   return {
     getMaps,

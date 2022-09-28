@@ -6,6 +6,7 @@ import { Linker } from "../../../lib/fs/createPublicFileLinker";
 import { ImageFormatter } from "../../../lib/image/createImageFormatter";
 import { Logger } from "../../../lib/logger";
 import { gfs } from "../../util/gfs";
+import { createAsyncMemo } from "../../../lib/createMemo";
 import { createItemResolver } from "./util/createItemResolver";
 import { Item, ItemId, itemInfoType } from "./types";
 
@@ -35,18 +36,22 @@ export function createItemRepository({
   const itemsPromise = yaml.resolve("db/item_db.yml", itemResolver);
   const infoFile = files.entry("itemInfo.lub", parseItemInfo);
 
-  async function getItems() {
-    const plainItems = await itemsPromise;
-    return Array.from(plainItems.values()).reduce((map, item) => {
-      const updatedItem: Item = {
-        ...item,
-        Info: infoFile.data?.[item.Id],
-        ImageUrl: imageRepository.urlMap.get(imageName(item)),
-      };
-      itemResolver.postProcess?.(updatedItem, map);
-      return map.set(item.Id, updatedItem);
-    }, new Map<ItemId, Item>());
-  }
+  const getItems = createAsyncMemo(
+    async () =>
+      [await itemsPromise, infoFile?.data, imageRepository.urlMap] as const,
+    (plainItems, info, urlMap) => {
+      logger.log("Recomputing item repository");
+      return Array.from(plainItems.values()).reduce((map, item) => {
+        const updatedItem: Item = {
+          ...item,
+          Info: info?.[item.Id],
+          ImageUrl: urlMap[imageName(item)],
+        };
+        itemResolver.postProcess?.(updatedItem, map);
+        return map.set(item.Id, updatedItem);
+      }, new Map<ItemId, Item>());
+    }
+  );
 
   function getResourceNames() {
     return Object.entries(infoFile.data ?? {}).reduce(

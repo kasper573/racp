@@ -13,15 +13,23 @@ export function createImageRepository(
   parentLogger: Logger
 ) {
   const logger = parentLogger.chain("image");
-  const urlMap = new Map<string, string>();
+  let urlMap: UrlMap = {};
 
   async function updateUrlMap() {
     logger.log("Updating url map");
-    urlMap.clear();
     const names = await gfs.readdir(linker.directory);
-    for (const name of names) {
-      urlMap.set(name, linker.url(name));
-    }
+    urlMap = createUrlMap(names);
+  }
+
+  function createUrlMap(names: string[]): UrlMap {
+    const record = names.reduce(
+      (record: Record<string, string>, name) => ({
+        ...record,
+        [name]: linker.url(name),
+      }),
+      {}
+    );
+    return Object.freeze(record);
   }
 
   const updateUrlMapDebounced = debounce(updateUrlMap, 10);
@@ -61,11 +69,15 @@ export function createImageRepository(
   updateUrlMap();
 
   return {
-    urlMap,
+    get urlMap() {
+      return urlMap;
+    },
     update: updateImagesAndSuppressUrlMapUpdates,
     close: () => watcher.close(),
   };
 }
+
+export type UrlMap = Readonly<Record<string, string>>;
 
 // 1k max open files is a common OS default. We'll use 900 to be safe.
 const openFilesBottleneck = new Bottleneck({ maxConcurrent: 900 });

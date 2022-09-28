@@ -44,11 +44,8 @@ export async function mapController(repo: MapRepository) {
       repo.updateBounds(bounds);
     },
     async countMapBounds() {
-      return repo
-        .getMaps()
-        .then(
-          (map) => Array.from(map.values()).filter((map) => !!map.bounds).length
-        );
+      return Array.from(repo.getMaps().values()).filter((map) => !!map.bounds)
+        .length;
     },
     async getMissingMapData() {
       const maps = Array.from((await repo.getMaps()).values());
