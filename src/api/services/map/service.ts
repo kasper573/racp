@@ -5,6 +5,8 @@ import { createSearchProcedure } from "../../common/search";
 import { bufferToLuaCode } from "../../common/parseLuaTableAs";
 import { t } from "../t";
 import { rpcFile } from "../../../lib/rpc/RpcFile";
+import { access } from "../../middlewares/access";
+import { UserAccessLevel } from "../user/types";
 import { MapRepository } from "./repository";
 import {
   mapBoundsRegistryType,
@@ -42,25 +44,33 @@ export function createMapService(repo: MapRepository) {
         return item;
       }),
     countMapImages: t.procedure
+      .use(access(UserAccessLevel.Admin))
       .output(zod.number())
       .query(() => repo.countImages()),
     uploadMapImages: t.procedure
+      .use(access(UserAccessLevel.Admin))
       .input(zod.array(rpcFile))
       .mutation(({ input }) => repo.updateImages(input)),
     countMapInfo: t.procedure
+      .use(access(UserAccessLevel.Admin))
       .output(zod.number())
       .query(() => repo.getMaps().size),
-    uploadMapInfo: t.procedure.input(rpcFile).mutation(({ input: file }) => {
-      const res = repo.updateInfo(bufferToLuaCode(Buffer.from(file.data)));
-      if (!res.success) {
-        throw new Error("File could not be parsed as map info.");
-      }
-      return Object.values(res.data ?? {}).map((map) => map.id);
-    }),
+    uploadMapInfo: t.procedure
+      .use(access(UserAccessLevel.Admin))
+      .input(rpcFile)
+      .mutation(({ input: file }) => {
+        const res = repo.updateInfo(bufferToLuaCode(Buffer.from(file.data)));
+        if (!res.success) {
+          throw new Error("File could not be parsed as map info.");
+        }
+        return Object.values(res.data ?? {}).map((map) => map.id);
+      }),
     updateMapBounds: t.procedure
+      .use(access(UserAccessLevel.Admin))
       .input(mapBoundsRegistryType)
       .mutation(({ input }) => repo.updateBounds(input)),
     countMapBounds: t.procedure
+      .use(access(UserAccessLevel.Admin))
       .output(zod.number())
       .query(
         () =>
@@ -68,6 +78,7 @@ export function createMapService(repo: MapRepository) {
             .length
       ),
     getMissingMapData: t.procedure
+      .use(access(UserAccessLevel.Admin))
       .output(
         zod.object({
           images: zod.array(mapIdType),
