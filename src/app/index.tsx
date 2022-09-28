@@ -24,7 +24,11 @@ if (root) {
       },
     },
   });
-  setupAuthBehavior(store, ({ auth }) => auth);
+  setupAuthBehavior({
+    store,
+    selectAuthState: ({ auth }) => auth,
+    onTokenChanged: () => queryClient.resetQueries(),
+  });
   createRoot(root).render(
     <StrictMode>
       <Provider store={store}>
