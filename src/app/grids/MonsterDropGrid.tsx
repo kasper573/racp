@@ -34,7 +34,7 @@ export function MonsterDropGrid({
         },
       ]}
       rows={drops}
-      getRowId={(drop) => drop.ItemId}
+      getRowId={(drop) => drops.indexOf(drop as MonsterDrop)}
       hideFooter
       {...props}
     />
