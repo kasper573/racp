@@ -4,6 +4,7 @@ import * as express from "express";
 import cors = require("cors");
 import { Request as JWTRequest } from "express-jwt";
 import * as trpcExpress from "@trpc/server/adapters/express";
+import * as morgan from "morgan";
 import { createFileStore } from "../lib/fs/createFileStore";
 import { createLogger } from "../lib/logger";
 import { createPublicFileLinker } from "../lib/fs/createPublicFileLinker";
@@ -87,6 +88,9 @@ linkDropsWithItems(items, monsters);
 app.use(authenticator.middleware);
 app.use(cors());
 app.use(express.static(linker.directory));
+app.use(
+  morgan(":method :url :status :res[content-length] - :response-time ms")
+);
 app.use(
   trpcExpress.createExpressMiddleware({
     router: createApiRouter({
