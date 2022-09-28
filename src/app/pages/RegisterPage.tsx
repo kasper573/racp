@@ -1,11 +1,10 @@
 import { FormEvent, useState } from "react";
-import { useHistory } from "react-router";
-import { loginRedirect } from "../router";
-import { useLoginMutation, useRegisterMutation } from "../state/client";
+import { useRegisterMutation } from "../state/client";
 import { UserRegisterForm } from "../forms/UserRegisterForm";
 import { UserRegisterPayload } from "../../api/services/user/types";
 import { CenteredContent } from "../components/CenteredContent";
 import { Header } from "../layout/Header";
+import { useLogin } from "../slices/auth";
 
 export default function RegisterPage() {
   const [registerPayload, setRegisterPayload] = useState<UserRegisterPayload>({
@@ -15,8 +14,7 @@ export default function RegisterPage() {
     passwordConfirm: "",
   });
   const { mutateAsync: register, error, isLoading } = useRegisterMutation();
-  const { mutateAsync: login } = useLoginMutation();
-  const history = useHistory();
+  const [login] = useLogin();
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -25,12 +23,7 @@ export default function RegisterPage() {
     } catch {
       return;
     }
-    try {
-      await login(registerPayload);
-    } catch {
-      return;
-    }
-    history.push(loginRedirect);
+    login(registerPayload);
   }
 
   return (

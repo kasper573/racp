@@ -1,6 +1,10 @@
 import { AnyAction, createSlice, Store } from "@reduxjs/toolkit";
 import * as zod from "zod";
+import { useHistory } from "react-router";
 import { createAppAsyncThunk } from "../state/utils";
+import { useLoginMutation } from "../state/client";
+import { useAppDispatch } from "../state/store";
+import { loginRedirect } from "../router";
 
 export const authState = zod.object({
   token: zod.string().optional(),
@@ -19,6 +23,23 @@ export const logout = createAppAsyncThunk(
     }
   }
 );
+
+export function useLogin(destination = loginRedirect) {
+  const dispatch = useAppDispatch();
+  const history = useHistory();
+  const { mutateAsync, ...rest } = useLoginMutation();
+  async function login(...payload: Parameters<typeof mutateAsync>) {
+    let token: string;
+    try {
+      token = await mutateAsync(...payload);
+    } catch {
+      return;
+    }
+    dispatch(auth.actions.update(token));
+    history.push(destination ?? loginRedirect);
+  }
+  return [login, rest] as const;
+}
 
 export const auth = createSlice({
   name: "auth",
