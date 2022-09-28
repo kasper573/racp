@@ -8,7 +8,7 @@ export const ItemTag: ClientTextTag = ({ node }) => {
   const { content } = useNodeInfo(node);
 
   // Assume tag content is an item name
-  const { data } = trpc.item.searchItems.useQuery(
+  const { data } = trpc.item.search.useQuery(
     {
       filter: {
         NameList: {

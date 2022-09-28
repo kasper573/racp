@@ -8,7 +8,7 @@ import { ImageWithFallback } from "../components/ImageWithFallback";
 
 export const ItemGrid = DataGrid.define<Item, ItemFilter, Item["Id"]>({
   // Without assertion typescript yields possibly infinite error
-  query: trpc.item.searchItems.useQuery as unknown as DataGridQueryFn<
+  query: trpc.item.search.useQuery as unknown as DataGridQueryFn<
     Item,
     ItemFilter
   >,

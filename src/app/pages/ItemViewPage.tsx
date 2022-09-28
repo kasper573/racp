@@ -19,7 +19,7 @@ import { LoadingPage } from "./LoadingPage";
 
 export default function ItemViewPage(): ReactElement {
   const { id } = useRouteParams(router.item().view);
-  const { data: item, isLoading, error } = trpc.item.getItem.useQuery(id);
+  const { data: item, isLoading, error } = trpc.item.read.useQuery(id);
   const { data: { entities: droppedBy = [] } = {} } = (
     trpc.monster.searchMonsters.useQuery as unknown as DataGridQueryFn<
       Monster,

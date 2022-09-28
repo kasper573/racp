@@ -16,12 +16,11 @@ export default function AdminAssetsPage() {
   const { data: mapInfoCount = 0 } = trpc.map.countMapInfo.useQuery();
   const { data: mapBoundsCount = 0 } = trpc.map.countMapBounds.useQuery();
   const { data: missingMapData } = trpc.map.getMissingMapData.useQuery();
-  const { data: itemInfoCount = 0 } = trpc.item.countItemInfo.useQuery();
-  const { data: itemImageCount = 0 } = trpc.item.countItemImages.useQuery();
+  const { data: itemInfoCount = 0 } = trpc.item.countInfo.useQuery();
+  const { data: itemImageCount = 0 } = trpc.item.countImages.useQuery();
   const { data: missingMonsterImages = [] } =
     trpc.monster.getMonstersMissingImages.useQuery();
-  const { data: missingItemImages = [] } =
-    trpc.item.getItemsMissingImages.useQuery();
+  const { data: missingItemImages = [] } = trpc.item.missingImages.useQuery();
 
   return (
     <>

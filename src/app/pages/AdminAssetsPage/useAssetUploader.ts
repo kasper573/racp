@@ -33,11 +33,11 @@ export function useAssetUploader() {
   const { mutateAsync: updateMapBounds, ...mapBoundsUpdate } =
     trpc.map.updateMapBounds.useMutation();
   const { mutateAsync: updateItemInfo, ...itemInfoUpload } =
-    trpc.item.uploadItemInfo.useMutation();
+    trpc.item.uploadInfo.useMutation();
   const { mutateAsync: uploadMonsterImages, ...monsterImageUpload } =
     trpc.monster.uploadMonsterImages.useMutation();
   const { mutateAsync: uploadItemImages, ...itemImageUpload } =
-    trpc.item.uploadItemImages.useMutation();
+    trpc.item.uploadImages.useMutation();
   const { mutateAsync: decompileLuaTables } =
     trpc.util.decompileLuaTableFiles.useMutation();
 

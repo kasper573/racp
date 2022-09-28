@@ -13,13 +13,13 @@ export type ItemService = ReturnType<typeof createItemService>;
 
 export function createItemService(repo: ItemRepository) {
   return t.router({
-    searchItems: createSearchProcedure(
+    search: createSearchProcedure(
       itemType,
       itemFilter.type,
       async () => Array.from((await repo.getItems()).values()),
       (entity, payload) => itemFilter.for(payload)(entity)
     ),
-    getItem: t.procedure
+    read: t.procedure
       .input(itemIdType)
       .output(itemType)
       .query(async ({ input: itemId }) => {
@@ -30,11 +30,11 @@ export function createItemService(repo: ItemRepository) {
         }
         return item;
       }),
-    countItemInfo: t.procedure
+    countInfo: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.number())
       .query(() => repo.countInfo()),
-    uploadItemInfo: t.procedure
+    uploadInfo: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(rpcFile)
       .mutation(async ({ input }) => {
@@ -48,15 +48,15 @@ export function createItemService(repo: ItemRepository) {
         }
         return repo.getResourceNames();
       }),
-    countItemImages: t.procedure
+    countImages: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.number())
       .query(() => repo.countImages()),
-    uploadItemImages: t.procedure
+    uploadImages: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(zod.array(rpcFile))
       .mutation(({ input }) => repo.updateImages(input)),
-    getItemsMissingImages: t.procedure
+    missingImages: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.array(itemType.shape["Id"]))
       .query(async () => {
