@@ -29,8 +29,6 @@ export const useGetItemQuery = trpc.item.getItem.useQuery;
 export const useSearchItemsQuery = trpc.item.searchItems.useQuery;
 export const useCountItemInfoQuery = trpc.item.countItemInfo.useQuery;
 export const useUploadItemInfoMutation = trpc.item.uploadItemInfo.useMutation;
-export const useUploadMapImagesMutation =
-  trpc.item.uploadItemImages.useMutation;
 export const useGetItemsMissingImagesQuery =
   trpc.item.getItemsMissingImages.useQuery;
 
@@ -56,6 +54,7 @@ export const useGetMapQuery = trpc.map.getMap.useQuery;
 export const useCountMapBoundsQuery = trpc.map.countMapBounds.useQuery;
 export const useSearchWarpsQuery = trpc.map.searchWarps.useQuery;
 export const useUploadMapInfoMutation = trpc.map.uploadMapInfo.useMutation;
+export const useUploadMapImagesMutation = trpc.map.uploadMapImages.useMutation;
 export const useUpdateMapBoundsMutation = trpc.map.updateMapBounds.useMutation;
 export const useCountMapImagesQuery = trpc.map.countMapImages.useQuery;
 export const useCountMapInfoQuery = trpc.map.countMapInfo.useQuery;
