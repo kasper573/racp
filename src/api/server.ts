@@ -4,7 +4,6 @@ import * as express from "express";
 import cors = require("cors");
 import { Request as JWTRequest } from "express-jwt";
 import * as trpcExpress from "@trpc/server/adapters/express";
-import { createRpcMiddlewareFactory } from "../lib/rpc/createRpcMiddleware";
 import { createFileStore } from "../lib/fs/createFileStore";
 import { createLogger } from "../lib/logger";
 import { createPublicFileLinker } from "../lib/fs/createPublicFileLinker";
@@ -32,10 +31,8 @@ import { createMapService } from "./services/map/service";
 import { createMapRepository } from "./services/map/repository";
 import { linkDropsWithItems } from "./services/item/util/linkDropsWithItems";
 import { createUserRepository } from "./services/user/repository";
-import { UserAccessLevel } from "./services/user/types";
 import { timeColor } from "./common/timeColor";
 import { createApiRouter } from "./services/router";
-import { RpcContext } from "./services/t";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -57,11 +54,6 @@ const files = createFileStore(
   logger
 );
 const npc = createNpcDriver({ ...args, logger });
-const rpc = createRpcMiddlewareFactory<UserAccessLevel, RpcContext>({
-  validatorFor: authenticator.validatorFor,
-  logger,
-  getContext: ({ auth }: JWTRequest<AuthenticatorPayload>) => ({ auth }),
-});
 
 const formatter = createImageFormatter({ extension: ".png", quality: 70 });
 
