@@ -1,9 +1,9 @@
 import { t } from "./t";
-import { util } from "./util/service";
+import { createUtilService } from "./util/service";
 
 export function createApiRouter() {
   return t.router({
-    util,
+    util: createUtilService(),
   });
 }
 
