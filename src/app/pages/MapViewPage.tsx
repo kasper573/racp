@@ -43,7 +43,7 @@ export default function MapViewPage() {
     isFetching,
     isLoading,
     error,
-  } = trpc.map.getMap.useQuery(id);
+  } = trpc.map.read.useQuery(id);
   const routePoint = definedPoint({ x, y });
 
   const { data: { entities: warps = [] } = {} } = (

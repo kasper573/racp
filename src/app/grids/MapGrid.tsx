@@ -5,7 +5,7 @@ import { router } from "../router";
 
 export const MapGrid = DataGrid.define<MapInfo, MapInfoFilter, MapInfo["id"]>({
   // Without assertion typescript yields possibly infinite error
-  query: trpc.map.searchMaps.useQuery as unknown as DataGridQueryFn<
+  query: trpc.map.search.useQuery as unknown as DataGridQueryFn<
     MapInfo,
     MapInfoFilter
   >,

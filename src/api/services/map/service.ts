@@ -21,7 +21,7 @@ export type MapService = ReturnType<typeof createMapService>;
 
 export function createMapService(repo: MapRepository) {
   return t.router({
-    searchMaps: createSearchProcedure(
+    search: createSearchProcedure(
       mapInfoType,
       mapInfoFilter.type,
       async () => Array.from(repo.getMaps().values()),
@@ -33,7 +33,7 @@ export function createMapService(repo: MapRepository) {
       () => repo.warps,
       (entity, payload) => warpFilter.for(payload)(entity)
     ),
-    getMap: t.procedure
+    read: t.procedure
       .input(mapIdType)
       .output(mapInfoType)
       .query(({ input: mapId }) => {
@@ -43,19 +43,19 @@ export function createMapService(repo: MapRepository) {
         }
         return item;
       }),
-    countMapImages: t.procedure
+    countImages: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.number())
       .query(() => repo.countImages()),
-    uploadMapImages: t.procedure
+    uploadImages: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(zod.array(rpcFile))
       .mutation(({ input }) => repo.updateImages(input)),
-    countMapInfo: t.procedure
+    countInfo: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.number())
       .query(() => repo.getMaps().size),
-    uploadMapInfo: t.procedure
+    uploadInfo: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(rpcFile)
       .mutation(({ input: file }) => {
@@ -65,11 +65,11 @@ export function createMapService(repo: MapRepository) {
         }
         return Object.values(res.data ?? {}).map((map) => map.id);
       }),
-    updateMapBounds: t.procedure
+    updateBounds: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(mapBoundsRegistryType)
       .mutation(({ input }) => repo.updateBounds(input)),
-    countMapBounds: t.procedure
+    countBounds: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.number())
       .query(
@@ -77,7 +77,7 @@ export function createMapService(repo: MapRepository) {
           Array.from(repo.getMaps().values()).filter((map) => !!map.bounds)
             .length
       ),
-    getMissingMapData: t.procedure
+    missingData: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(
         zod.object({

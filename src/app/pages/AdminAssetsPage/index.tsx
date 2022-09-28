@@ -12,10 +12,10 @@ import { AssetUploader } from "./AssetUploader";
 import { LargeStringList } from "./LargeStringList";
 
 export default function AdminAssetsPage() {
-  const { data: mapImageCount = 0 } = trpc.map.countMapImages.useQuery();
-  const { data: mapInfoCount = 0 } = trpc.map.countMapInfo.useQuery();
-  const { data: mapBoundsCount = 0 } = trpc.map.countMapBounds.useQuery();
-  const { data: missingMapData } = trpc.map.getMissingMapData.useQuery();
+  const { data: mapImageCount = 0 } = trpc.map.countImages.useQuery();
+  const { data: mapInfoCount = 0 } = trpc.map.countInfo.useQuery();
+  const { data: mapBoundsCount = 0 } = trpc.map.countBounds.useQuery();
+  const { data: missingMapData } = trpc.map.missingData.useQuery();
   const { data: itemInfoCount = 0 } = trpc.item.countInfo.useQuery();
   const { data: itemImageCount = 0 } = trpc.item.countImages.useQuery();
   const { data: missingMonsterImages = [] } =

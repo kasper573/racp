@@ -26,12 +26,12 @@ import { canvasToBlob } from "../../../lib/image/canvasToBlob";
 import { imageDataToCanvas } from "../../../lib/image/imageDataToCanvas";
 
 export function useAssetUploader() {
-  const { mutateAsync: uploadMapImages, ...mapImageUpload } =
-    trpc.map.uploadMapImages.useMutation();
-  const { mutateAsync: uploadMapInfo, ...mapInfoUpload } =
-    trpc.map.uploadMapInfo.useMutation();
-  const { mutateAsync: updateMapBounds, ...mapBoundsUpdate } =
-    trpc.map.updateMapBounds.useMutation();
+  const { mutateAsync: uploadImages, ...mapImageUpload } =
+    trpc.map.uploadImages.useMutation();
+  const { mutateAsync: uploadInfo, ...mapInfoUpload } =
+    trpc.map.uploadInfo.useMutation();
+  const { mutateAsync: updateBounds, ...mapBoundsUpdate } =
+    trpc.map.updateBounds.useMutation();
   const { mutateAsync: updateItemInfo, ...itemInfoUpload } =
     trpc.item.uploadInfo.useMutation();
   const { mutateAsync: uploadMonsterImages, ...monsterImageUpload } =
@@ -88,13 +88,13 @@ export function useAssetUploader() {
     }, {});
 
     await tracker.track([
-      { group: `Uploading map bounds`, fn: () => updateMapBounds(bounds) },
+      { group: `Uploading map bounds`, fn: () => updateBounds(bounds) },
     ]);
 
     await tracker.track(
       divide(images, 100).map((partial) => ({
         group: "Uploading map image packs",
-        fn: () => uploadMapImages(partial),
+        fn: () => uploadImages(partial),
       }))
     );
   }
@@ -110,7 +110,7 @@ export function useAssetUploader() {
       ])
       .then(([file]) =>
         tracker.track([
-          { group: `Uploading map info file`, fn: () => uploadMapInfo(file) },
+          { group: `Uploading map info file`, fn: () => uploadInfo(file) },
         ])
       );
   }
