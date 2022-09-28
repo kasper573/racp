@@ -1,4 +1,3 @@
-import { createRpcController } from "../../util/rpc";
 import { Item } from "../item/types";
 import { dedupe, dedupeRecordInsert } from "../../util/dedupe";
 import { select, Selector } from "../../util/select";
@@ -6,9 +5,12 @@ import { ClientTextNode } from "../../common/clientTextType";
 import { ItemRepository } from "../item/repository";
 import { MonsterRepository } from "../monster/repository";
 import { Monster } from "../monster/types";
-import { metaDefinition } from "./definition";
+import { t } from "../t";
+import { metaType } from "./types";
 
-export function metaController({
+export type MetaService = ReturnType<typeof createMetaService>;
+
+export function createMetaService({
   items,
   monsters,
 }: {
@@ -29,8 +31,8 @@ export function metaController({
   // Crude caching by collecting meta only once when data is first ready
   const metaPromise = getMeta();
 
-  return createRpcController(metaDefinition.entries, {
-    getMeta: () => metaPromise,
+  return t.router({
+    getMeta: t.procedure.output(metaType).query(() => metaPromise),
   });
 }
 

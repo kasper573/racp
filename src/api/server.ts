@@ -27,8 +27,7 @@ import { readCliArgs } from "./util/cli";
 import { options } from "./options";
 import { createMonsterService } from "./services/monster/service";
 import { createNpcDriver } from "./rathena/NpcDriver";
-import { metaDefinition } from "./services/meta/definition";
-import { metaController } from "./services/meta/controller";
+import { createMetaService } from "./services/meta/service";
 import { createItemRepository } from "./services/item/repository";
 import { createMonsterRepository } from "./services/monster/repository";
 import { mapDefinition } from "./services/map/definition";
@@ -102,7 +101,6 @@ app.use(express.static(linker.directory));
 app.use(rpc(configDefinition, configController(config)));
 app.use(rpc(itemDefinition, itemController(items)));
 app.use(rpc(mapDefinition, mapController(maps)));
-app.use(rpc(metaDefinition, metaController({ items, monsters })));
 
 app.use(
   "/trpc",
@@ -111,6 +109,7 @@ app.use(
       util: createUtilService(),
       user: createUserService({ db, user, sign, ...args }),
       monster: createMonsterService(monsters),
+      meta: createMetaService({ items, monsters }),
     }),
     createContext: ({ req }: { req: JWTRequest<AuthenticatorPayload> }) => ({
       auth: req.auth,
