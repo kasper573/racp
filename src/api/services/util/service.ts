@@ -4,6 +4,8 @@ import { bufferToLuaCode, parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { rpcFile } from "../../../lib/rpc/RpcFile";
 import { createUnluac } from "../../../lib/unluac/unluac";
 import { gfs } from "../../util/gfs";
+import { access } from "../../middlewares/access";
+import { UserAccessLevel } from "../user/types";
 import { ReducedLuaTables, reducedLuaTables } from "./types";
 
 export function createUtilService() {
@@ -15,6 +17,7 @@ export function createUtilService() {
 
   return t.router({
     decompileLuaTableFiles: t.procedure
+      .use(access(UserAccessLevel.Admin))
       .input(zod.array(rpcFile))
       .output(reducedLuaTables)
       .mutation(async ({ input: files }) => {
