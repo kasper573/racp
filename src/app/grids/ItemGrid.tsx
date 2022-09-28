@@ -1,14 +1,17 @@
 import { Stack } from "@mui/material";
 import { DataGrid, DataGridQueryFn } from "../components/DataGrid";
 import { Item, ItemFilter } from "../../api/services/item/types";
-import { useSearchItemsQuery } from "../state/client";
+import { trpc } from "../state/client";
 import { router } from "../router";
 import { Link } from "../components/Link";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 
 export const ItemGrid = DataGrid.define<Item, ItemFilter, Item["Id"]>({
   // Without assertion typescript yields possibly infinite error
-  query: useSearchItemsQuery as unknown as DataGridQueryFn<Item, ItemFilter>,
+  query: trpc.item.searchItems.useQuery as unknown as DataGridQueryFn<
+    Item,
+    ItemFilter
+  >,
   id: (item) => item.Id,
   columns: {
     Name: {

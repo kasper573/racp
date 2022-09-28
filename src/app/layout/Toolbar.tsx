@@ -17,12 +17,12 @@ import { UserAccessLevel } from "../../api/services/user/types";
 import { LinkMenuItem } from "../components/Link";
 import { router } from "../router";
 import { OnlineBadge } from "../components/OnlineBadge";
-import { useGetMyProfileQuery } from "../state/client";
+import { trpc } from "../state/client";
 
 export function Toolbar() {
   const dispatch = useAppDispatch();
   const mode = useAppSelector(({ theme }) => theme.mode);
-  const { data: profile } = useGetMyProfileQuery();
+  const { data: profile } = trpc.user.getMyProfile.useQuery();
   const inverseMode = mode === "dark" ? "light" : "dark";
   const modeSwitch = modeSwitches[inverseMode];
   return (

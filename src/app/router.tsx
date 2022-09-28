@@ -22,7 +22,7 @@ import {
 import { useLocation } from "react-router-dom";
 import { UserAccessLevel } from "../api/services/user/types";
 import { RestrictedPage } from "./pages/RestrictedPage";
-import { useGetMyProfileQuery } from "./state/client";
+import { trpc } from "./state/client";
 import { LoadingPage } from "./pages/LoadingPage";
 
 const defaultOptions = {
@@ -139,7 +139,7 @@ export const loginRedirect = router.user().$;
 function requireAuth(requiredAccess = UserAccessLevel.User): RouteMiddleware {
   return (next) => {
     const location = useLocation();
-    const { data: profile, isFetching } = useGetMyProfileQuery();
+    const { data: profile, isFetching } = trpc.user.getMyProfile.useQuery();
     if (isFetching) {
       return () => <LoadingPage />;
     }

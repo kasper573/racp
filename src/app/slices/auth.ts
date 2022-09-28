@@ -2,7 +2,7 @@ import { AnyAction, createSlice, Store } from "@reduxjs/toolkit";
 import * as zod from "zod";
 import { useHistory } from "react-router";
 import { createAppAsyncThunk } from "../state/utils";
-import { useLoginMutation } from "../state/client";
+import { trpc } from "../state/client";
 import { useAppDispatch } from "../state/store";
 import { loginRedirect } from "../router";
 
@@ -27,7 +27,7 @@ export const logout = createAppAsyncThunk(
 export function useLogin(destination = loginRedirect) {
   const dispatch = useAppDispatch();
   const history = useHistory();
-  const { mutateAsync, ...rest } = useLoginMutation();
+  const { mutateAsync, ...rest } = trpc.user.login.useMutation();
   async function login(...payload: Parameters<typeof mutateAsync>) {
     let token: string;
     try {

@@ -6,30 +6,22 @@ import {
 } from "@mui/material";
 import { ExpandMore } from "@mui/icons-material";
 import { Header } from "../../layout/Header";
-import {
-  useCountItemImagesQuery,
-  useCountItemInfoQuery,
-  useCountMapBoundsQuery,
-  useCountMapImagesQuery,
-  useCountMapInfoQuery,
-  useGetItemsMissingImagesQuery,
-  useGetMissingMapDataQuery,
-  useGetMonstersMissingImagesQuery,
-} from "../../state/client";
+import { trpc } from "../../state/client";
 import { router } from "../../router";
 import { AssetUploader } from "./AssetUploader";
 import { LargeStringList } from "./LargeStringList";
 
 export default function AdminAssetsPage() {
-  const { data: mapImageCount = 0 } = useCountMapImagesQuery();
-  const { data: mapInfoCount = 0 } = useCountMapInfoQuery();
-  const { data: mapBoundsCount = 0 } = useCountMapBoundsQuery();
-  const { data: missingMapData } = useGetMissingMapDataQuery();
-  const { data: itemInfoCount = 0 } = useCountItemInfoQuery();
-  const { data: itemImageCount = 0 } = useCountItemImagesQuery();
+  const { data: mapImageCount = 0 } = trpc.map.countMapImages.useQuery();
+  const { data: mapInfoCount = 0 } = trpc.map.countMapInfo.useQuery();
+  const { data: mapBoundsCount = 0 } = trpc.map.countMapBounds.useQuery();
+  const { data: missingMapData } = trpc.map.getMissingMapData.useQuery();
+  const { data: itemInfoCount = 0 } = trpc.item.countItemInfo.useQuery();
+  const { data: itemImageCount = 0 } = trpc.item.countItemImages.useQuery();
   const { data: missingMonsterImages = [] } =
-    useGetMonstersMissingImagesQuery();
-  const { data: missingItemImages = [] } = useGetItemsMissingImagesQuery();
+    trpc.monster.getMonstersMissingImages.useQuery();
+  const { data: missingItemImages = [] } =
+    trpc.item.getItemsMissingImages.useQuery();
 
   return (
     <>

@@ -2,13 +2,13 @@ import { ClientTextTag } from "../ClientTextTag";
 import { Link } from "../../Link";
 import { router } from "../../../router";
 import { useNodeInfo } from "../useNodeInfo";
-import { useSearchItemsQuery } from "../../../state/client";
+import { trpc } from "../../../state/client";
 
 export const ItemTag: ClientTextTag = ({ node }) => {
   const { content } = useNodeInfo(node);
 
   // Assume tag content is an item name
-  const { data } = useSearchItemsQuery(
+  const { data } = trpc.item.searchItems.useQuery(
     {
       filter: {
         NameList: {

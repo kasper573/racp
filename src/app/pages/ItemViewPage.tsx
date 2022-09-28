@@ -3,7 +3,7 @@ import { Stack, styled } from "@mui/material";
 import { pick } from "lodash";
 import { useRouteParams } from "../../lib/hooks/useRouteParams";
 import { Header } from "../layout/Header";
-import { useGetItemQuery, useSearchMonstersQuery } from "../state/client";
+import { trpc } from "../state/client";
 import { router } from "../router";
 import { TooltipText } from "../components/TooltipText";
 import { ClientTextBlock } from "../components/ClientText/ClientText";
@@ -19,9 +19,12 @@ import { LoadingPage } from "./LoadingPage";
 
 export default function ItemViewPage(): ReactElement {
   const { id } = useRouteParams(router.item().view);
-  const { data: item, isLoading, error } = useGetItemQuery(id);
+  const { data: item, isLoading, error } = trpc.item.getItem.useQuery(id);
   const { data: { entities: droppedBy = [] } = {} } = (
-    useSearchMonstersQuery as unknown as DataGridQueryFn<Monster, MonsterFilter>
+    trpc.monster.searchMonsters.useQuery as unknown as DataGridQueryFn<
+      Monster,
+      MonsterFilter
+    >
   )({
     filter: { Id: { value: item?.DroppedBy ?? [], matcher: "oneOfN" } },
     limit: item?.DroppedBy?.length,

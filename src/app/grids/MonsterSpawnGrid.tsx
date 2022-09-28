@@ -5,7 +5,7 @@ import {
   MonsterSpawnFilter,
   MonsterSpawnId,
 } from "../../api/services/monster/types";
-import { useSearchMonsterSpawnsQuery } from "../state/client";
+import { trpc } from "../state/client";
 import { router } from "../router";
 import { durationString } from "../../lib/std/durationString";
 import { Link } from "../components/Link";
@@ -17,10 +17,8 @@ export const MonsterSpawnGrid = DataGrid.define<
   MonsterSpawnId
 >({
   // Without assertion typescript yields possibly infinite error
-  query: useSearchMonsterSpawnsQuery as unknown as DataGridQueryFn<
-    MonsterSpawn,
-    MonsterSpawnFilter
-  >,
+  query: trpc.monster.searchMonsterSpawns
+    .useQuery as unknown as DataGridQueryFn<MonsterSpawn, MonsterSpawnFilter>,
   id: (spawn) => spawn.npcEntityId,
   columns: {
     name: {

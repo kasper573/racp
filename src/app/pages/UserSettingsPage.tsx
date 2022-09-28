@@ -1,10 +1,7 @@
 import { Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Header } from "../layout/Header";
-import {
-  useGetMyProfileQuery,
-  useUpdateMyProfileMutation,
-} from "../state/client";
+import { trpc } from "../state/client";
 import { UserProfileMutation } from "../../api/services/user/types";
 import { UserProfileForm } from "../forms/UserProfileForm";
 import { CenteredContent } from "../components/CenteredContent";
@@ -15,8 +12,9 @@ const defaultProfileMutation = {
 };
 
 export default function UserSettingsPage() {
-  const { data: profile, isLoading } = useGetMyProfileQuery();
-  const { mutate: updateMyProfile, error } = useUpdateMyProfileMutation();
+  const { data: profile, isLoading } = trpc.user.getMyProfile.useQuery();
+  const { mutate: updateMyProfile, error } =
+    trpc.user.updateMyProfile.useMutation();
   const [profileMutation, setProfileMutation] = useState<UserProfileMutation>(
     defaultProfileMutation
   );

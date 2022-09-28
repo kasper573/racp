@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { useRegisterMutation } from "../state/client";
+import { trpc } from "../state/client";
 import { UserRegisterForm } from "../forms/UserRegisterForm";
 import { UserRegisterPayload } from "../../api/services/user/types";
 import { CenteredContent } from "../components/CenteredContent";
@@ -13,7 +13,11 @@ export default function RegisterPage() {
     password: "",
     passwordConfirm: "",
   });
-  const { mutateAsync: register, error, isLoading } = useRegisterMutation();
+  const {
+    mutateAsync: register,
+    error,
+    isLoading,
+  } = trpc.user.register.useMutation();
   const [login] = useLogin();
 
   async function submit(e: FormEvent) {

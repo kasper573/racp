@@ -1,7 +1,7 @@
 import { Box, styled } from "@mui/material";
 import { useEffect } from "react";
 import { ItemFilter, itemFilter } from "../../api/services/item/types";
-import { useGetMetaQuery } from "../state/client";
+import { trpc } from "../state/client";
 import { typedKeys } from "../../lib/std/typedKeys";
 import { Select } from "../controls/Select";
 import { SliderMenu } from "../controls/SliderMenu";
@@ -17,7 +17,7 @@ export function ItemSearchFilterForm({ value, onChange }: FormDataProps) {
     value,
     onChange,
   });
-  const { data: meta } = useGetMetaQuery();
+  const { data: meta } = trpc.meta.getMeta.useQuery();
   const [emptySubTypeExplanation, itemSubTypes] = useSubTypeBehavior({
     value,
     onChange,
@@ -110,7 +110,7 @@ interface FormDataProps {
 }
 
 function useSubTypeBehavior({ value, onChange }: FormDataProps) {
-  const { data: meta } = useGetMetaQuery();
+  const { data: meta } = trpc.meta.getMeta.useQuery();
 
   // Empty subtype filter whenever it's
   const latest = useLatest({ onChange, value });

@@ -1,6 +1,6 @@
 import { useRouteParams } from "../../lib/hooks/useRouteParams";
 import { ErrorMessage } from "../components/ErrorMessage";
-import { useGetConfigQuery, useUpdateConfigMutation } from "../state/client";
+import { trpc } from "../state/client";
 import { TextEditor } from "../controls/TextEditor";
 import { router } from "../router";
 import { Header } from "../layout/Header";
@@ -12,8 +12,9 @@ export default function AdminConfigEditPage() {
     data: value,
     error: queryError,
     isLoading,
-  } = useGetConfigQuery(configName);
-  const { mutate: update, error: updateError } = useUpdateConfigMutation();
+  } = trpc.config.getConfig.useQuery(configName);
+  const { mutate: update, error: updateError } =
+    trpc.config.updateConfig.useMutation();
   const setValue = (content: string) => update({ name: configName, content });
 
   if (isLoading) {

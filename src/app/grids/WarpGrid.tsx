@@ -1,12 +1,15 @@
 import { DataGrid, DataGridQueryFn } from "../components/DataGrid";
 import { Warp, WarpFilter, WarpId } from "../../api/services/map/types";
-import { useSearchWarpsQuery } from "../state/client";
+import { trpc } from "../state/client";
 import { router } from "../router";
 import { Link } from "../components/Link";
 
 export const WarpGrid = DataGrid.define<Warp, WarpFilter, WarpId>({
   // Without assertion typescript yields possibly infinite error
-  query: useSearchWarpsQuery as unknown as DataGridQueryFn<Warp, WarpFilter>,
+  query: trpc.map.searchWarps.useQuery as unknown as DataGridQueryFn<
+    Warp,
+    WarpFilter
+  >,
   id: (warp) => warp.npcEntityId,
   columns: {
     toMap: {

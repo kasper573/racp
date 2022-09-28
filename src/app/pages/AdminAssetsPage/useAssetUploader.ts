@@ -5,15 +5,7 @@ import {
   cropSurroundingColors,
   RGB,
 } from "../../../lib/image/cropSurroundingColors";
-import {
-  useDecompileLuaTableFilesMutation,
-  useUpdateMapBoundsMutation,
-  useUploadItemImagesMutation,
-  useUploadItemInfoMutation,
-  useUploadMapImagesMutation,
-  useUploadMapInfoMutation,
-  useUploadMonsterImagesMutation,
-} from "../../state/client";
+import { trpc } from "../../state/client";
 import { RpcFile, toRpcFile } from "../../../api/common/RpcFile";
 import { GRF } from "../../../lib/grf/types/GRF";
 import { GAT } from "../../../lib/grf/types/GAT";
@@ -35,19 +27,19 @@ import { imageDataToCanvas } from "../../../lib/image/imageDataToCanvas";
 
 export function useAssetUploader() {
   const { mutateAsync: uploadMapImages, ...mapImageUpload } =
-    useUploadMapImagesMutation();
+    trpc.map.uploadMapImages.useMutation();
   const { mutateAsync: uploadMapInfo, ...mapInfoUpload } =
-    useUploadMapInfoMutation();
+    trpc.map.uploadMapInfo.useMutation();
   const { mutateAsync: updateMapBounds, ...mapBoundsUpdate } =
-    useUpdateMapBoundsMutation();
+    trpc.map.updateMapBounds.useMutation();
   const { mutateAsync: updateItemInfo, ...itemInfoUpload } =
-    useUploadItemInfoMutation();
+    trpc.item.uploadItemInfo.useMutation();
   const { mutateAsync: uploadMonsterImages, ...monsterImageUpload } =
-    useUploadMonsterImagesMutation();
+    trpc.monster.uploadMonsterImages.useMutation();
   const { mutateAsync: uploadItemImages, ...itemImageUpload } =
-    useUploadItemImagesMutation();
+    trpc.item.uploadItemImages.useMutation();
   const { mutateAsync: decompileLuaTables } =
-    useDecompileLuaTableFilesMutation();
+    trpc.util.decompileLuaTableFiles.useMutation();
 
   const tracker = useTaskScheduler();
 

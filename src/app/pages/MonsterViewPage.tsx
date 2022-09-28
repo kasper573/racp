@@ -4,7 +4,7 @@ import { pick } from "lodash";
 import { useHistory } from "react-router";
 import { useRouteParams } from "../../lib/hooks/useRouteParams";
 import { Header } from "../layout/Header";
-import { useSearchMonstersQuery } from "../state/client";
+import { trpc } from "../state/client";
 import { router } from "../router";
 import { MonsterSpawnGrid } from "../grids/MonsterSpawnGrid";
 import { TabSwitch } from "../components/TabSwitch";
@@ -18,7 +18,7 @@ import { LoadingPage } from "./LoadingPage";
 export default function MonsterViewPage(): ReactElement {
   const history = useHistory();
   const { id, tab = "spawns" } = useRouteParams(router.monster().view);
-  const { data, isLoading, error } = useSearchMonstersQuery({
+  const { data, isLoading, error } = trpc.monster.searchMonsters.useQuery({
     filter: { Id: { value: id, matcher: "=" } },
     limit: 1,
   });

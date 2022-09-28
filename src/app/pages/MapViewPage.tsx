@@ -10,11 +10,7 @@ import { useHistory } from "react-router";
 import { Directions, PestControlRodent } from "@mui/icons-material";
 import { groupBy } from "lodash";
 import { Header } from "../layout/Header";
-import {
-  useGetMapQuery,
-  useSearchMonsterSpawnsQuery,
-  useSearchWarpsQuery,
-} from "../state/client";
+import { trpc } from "../state/client";
 import { router } from "../router";
 import { useRouteParams } from "../../lib/hooks/useRouteParams";
 import { MapViewport } from "../components/MapViewport";
@@ -42,15 +38,23 @@ export default function MapViewPage() {
   const [highlightSpawnId, setHighlightSpawnId] = useState<MonsterSpawnId>();
   const [highlightWarpId, setHighlightWarpId] = useState<WarpId>();
   const { id, x, y, tab = "warps" } = useRouteParams(router.map().view);
-  const { data: map, isFetching, isLoading, error } = useGetMapQuery(id);
+  const {
+    data: map,
+    isFetching,
+    isLoading,
+    error,
+  } = trpc.map.getMap.useQuery(id);
   const routePoint = definedPoint({ x, y });
 
   const { data: { entities: warps = [] } = {} } = (
-    useSearchWarpsQuery as unknown as DataGridQueryFn<Warp, WarpFilter>
+    trpc.map.searchWarps.useQuery as unknown as DataGridQueryFn<
+      Warp,
+      WarpFilter
+    >
   )({ filter: { fromMap: { value: id, matcher: "equals" } }, limit: 50 });
 
   const { data: { entities: spawns = [] } = {} } = (
-    useSearchMonsterSpawnsQuery as unknown as DataGridQueryFn<
+    trpc.monster.searchMonsterSpawns.useQuery as unknown as DataGridQueryFn<
       MonsterSpawn,
       MonsterSpawnFilter
     >
