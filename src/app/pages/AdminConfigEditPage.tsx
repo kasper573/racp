@@ -12,9 +12,9 @@ export default function AdminConfigEditPage() {
     data: value,
     error: queryError,
     isLoading,
-  } = trpc.config.getConfig.useQuery(configName);
+  } = trpc.config.read.useQuery(configName);
   const { mutate: update, error: updateError } =
-    trpc.config.updateConfig.useMutation();
+    trpc.config.update.useMutation();
   const setValue = (content: string) => update({ name: configName, content });
 
   if (isLoading) {

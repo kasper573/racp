@@ -9,11 +9,11 @@ export type ConfigService = ReturnType<typeof createConfigService>;
 
 export function createConfigService(cfg: ConfigDriver) {
   return t.router({
-    listConfigs: t.procedure
+    list: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.array(zod.string()))
       .query(() => cfg.list()),
-    getConfig: t.procedure
+    read: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(zod.string())
       .output(zod.string())
@@ -27,7 +27,7 @@ export function createConfigService(cfg: ConfigDriver) {
           });
         }
       }),
-    updateConfig: t.procedure
+    update: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(zod.object({ name: zod.string(), content: zod.string() }))
       .mutation(async ({ input: { name, content } }) => {

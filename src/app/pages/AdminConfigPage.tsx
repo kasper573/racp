@@ -9,11 +9,7 @@ import { LoadingPage } from "./LoadingPage";
 
 export default function AdminConfigPage() {
   const [filter, setFilter] = useState("");
-  const {
-    data: configs = [],
-    error,
-    isLoading,
-  } = trpc.config.listConfigs.useQuery();
+  const { data: configs = [], error, isLoading } = trpc.config.list.useQuery();
   const filteredConfigs = configs.filter((config) =>
     config.toLowerCase().includes(filter.toLowerCase())
   );
