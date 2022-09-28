@@ -5,7 +5,7 @@ import { ClientTextNode } from "../../common/clientTextType";
 import { ItemRepository } from "../item/repository";
 import { MonsterRepository } from "../monster/repository";
 import { Monster } from "../monster/types";
-import { t } from "../t";
+import { t } from "../../trpc";
 import { metaType } from "./types";
 
 export type MetaService = ReturnType<typeof createMetaService>;

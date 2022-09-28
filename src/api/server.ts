@@ -33,7 +33,7 @@ import { createMapRepository } from "./services/map/repository";
 import { linkDropsWithItems } from "./services/item/util/linkDropsWithItems";
 import { createUserRepository } from "./services/user/repository";
 import { timeColor } from "./common/timeColor";
-import { createApiRouter } from "./services/router";
+import { createApiRouter } from "./router";
 
 const args = readCliArgs(options);
 const logger = createLogger(

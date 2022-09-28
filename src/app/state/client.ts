@@ -1,5 +1,5 @@
 import { createTRPCReact, httpBatchLink } from "@trpc/react";
-import { ApiRouter } from "../../api/services/router";
+import { ApiRouter } from "../../api/router";
 
 export const trpc = createTRPCReact<ApiRouter>();
 

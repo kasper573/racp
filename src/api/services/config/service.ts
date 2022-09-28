@@ -1,7 +1,7 @@
 import * as zod from "zod";
 import { TRPCError } from "@trpc/server";
 import { ConfigDriver } from "../../rathena/ConfigDriver";
-import { t } from "../t";
+import { t } from "../../trpc";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
 

@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { t } from "../services/t";
+import { t } from "../trpc";
 import { UserAccessLevel } from "../services/user/types";
 
 export function access(requiredAccessLevel: UserAccessLevel) {

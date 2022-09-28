@@ -1,6 +1,6 @@
 import * as zod from "zod";
 import { createSearchProcedure } from "../../common/search";
-import { t } from "../t";
+import { t } from "../../trpc";
 import { rpcFile } from "../../common/RpcFile";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";

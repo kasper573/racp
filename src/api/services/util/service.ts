@@ -1,5 +1,5 @@
 import * as zod from "zod";
-import { t } from "../t";
+import { t } from "../../trpc";
 import { bufferToLuaCode, parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { rpcFile } from "../../common/RpcFile";
 import { createUnluac } from "../../../lib/unluac/unluac";

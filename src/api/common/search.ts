@@ -2,7 +2,7 @@ import * as zod from "zod";
 import { ZodType } from "zod";
 import { clamp, get } from "lodash";
 import { Path, zodPath } from "../../lib/zod/zodPath";
-import { t } from "../services/t";
+import { t } from "../trpc";
 
 export const sortDirectionType = zod.union([
   zod.literal("asc"),
