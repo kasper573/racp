@@ -16,7 +16,7 @@ export type MonsterService = ReturnType<typeof createMonsterService>;
 
 export function createMonsterService(repo: MonsterRepository) {
   return t.router({
-    register: createSearchProcedure(
+    searchMonsters: createSearchProcedure(
       monsterType,
       monsterFilter.type,
       async () => Array.from((await repo.getMonsters()).values()),

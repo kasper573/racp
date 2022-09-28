@@ -78,7 +78,7 @@ export function createUserService({
       }),
     getMyProfile: t.procedure
       .output(userProfileType.optional())
-      .mutation(async ({ ctx: { auth } }) => {
+      .query(async ({ ctx: { auth } }) => {
         if (!auth) {
           return undefined;
         }
