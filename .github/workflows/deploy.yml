@@ -11,11 +11,11 @@ jobs:
           password: ${{ secrets.DEPLOY_PASSWORD }}
           script_stop: true
           script: |
-            if cd /opt/racp/;
-              then 
-                git pull origin ${{github.sha}};
+            if [ -d /opt/racp/ ]
+              then
+                git pull origin ${{github.sha}}
               else 
-                git clone https://github.com/${{ github.repository }}.git /opt/racp/; 
+                git clone https://github.com/${{ github.repository }}.git /opt/racp/
             fi
             cd /opt/racp/
             git checkout ${{github.sha}}
