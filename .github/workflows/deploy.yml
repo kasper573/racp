@@ -11,13 +11,16 @@ jobs:
           password: ${{ secrets.DEPLOY_PASSWORD }}
           script_stop: true
           script: |
-            if [ -d /opt/racp/ ]
+            racpFolder=/opt/racp/
+
+            if [ ! -d $racpFolder ]
               then
+                git clone https://github.com/${{ github.repository }}.git $racpFolder
+              else
+                cd $racpFolder
                 git pull origin ${{github.sha}}
-              else 
-                git clone https://github.com/${{ github.repository }}.git /opt/racp/
             fi
-            cd /opt/racp/
+
             git checkout ${{github.sha}}
             yarn install
 
