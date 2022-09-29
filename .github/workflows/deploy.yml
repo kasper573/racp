@@ -16,6 +16,7 @@ jobs:
             if [ ! -d $racpFolder ]
               then
                 git clone https://github.com/${{ github.repository }}.git#${{github.sha}} $racpFolder
+                cd $racpFolder
               else
                 cd $racpFolder
                 git pull origin ${{github.sha}}
