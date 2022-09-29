@@ -1,7 +1,8 @@
 import * as path from "path";
 import * as zod from "zod";
-import * as yaml from "yaml";
 import { ZodType } from "zod";
+import * as yaml from "yaml";
+import { isPlainObject } from "lodash";
 import { typedKeys } from "../../lib/std/typedKeys";
 import { Logger } from "../../lib/logger";
 import { gfs } from "../util/gfs";
@@ -123,22 +124,14 @@ function filterNulls(value: unknown) {
       filterNulls(item);
     }
   } else if (isPlainObject(value)) {
-    for (const key of typedKeys(value)) {
-      if (value[key] === null) {
-        delete value[key];
+    for (const key of typedKeys(value as object)) {
+      if ((value as object)[key] === null) {
+        delete (value as object)[key];
       } else {
-        filterNulls(value[key]);
+        filterNulls((value as object)[key]);
       }
     }
   }
-}
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    Object.getPrototypeOf(value) === Object.prototype
-  );
 }
 
 const noop = () => undefined;
