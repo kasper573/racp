@@ -1,7 +1,8 @@
 import { v4 as uuid } from "uuid";
-import { useEffect, useMemo, useReducer } from "react";
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { useEffect, useMemo } from "react";
 import { groupBy, uniq } from "lodash";
+import { createStore, useStore } from "zustand";
+import { immer } from "zustand/middleware/immer";
 import { allResolved } from "../std/allResolved";
 import { useBottleneck } from "./useBottleneck";
 import { useLatest } from "./useLatest";
@@ -35,50 +36,58 @@ export type InputTask<T> = Pick<Task<T>, "fn" | "group"> &
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TaskFn<T = any> = () => Promise<T>;
 
-const slice = createSlice({
-  name: "promiseTracker",
-  initialState: [] as Task[],
-  reducers: {
-    add(tasks, { payload: newTasks }: PayloadAction<Task[]>) {
-      const newIds = newTasks.map((t) => t.id);
-      const existing = tasks.find((task) => newIds.includes(task.id));
-      if (existing) {
-        throw new Error(`A task by id "${existing.id}" already exists`);
-      }
-      const uniqueNewIds = uniq(newIds);
-      if (uniqueNewIds.length !== newIds.length) {
-        throw new Error("Multiple tasks with the same id were provided");
-      }
-      tasks.push(...newTasks);
+const taskStore = createStore<{
+  tasks: Task[];
+  add(tasks: Task[]): void;
+  resolve(id: TaskId): void;
+  reject(id: TaskId, reason: TaskRejectionReason): void;
+  clear(): void;
+}>()(
+  immer((set) => ({
+    tasks: [],
+    add(newTasks) {
+      set(({ tasks }) => {
+        const newIds = newTasks.map((t) => t.id);
+        const existing = tasks.find((task) => newIds.includes(task.id));
+        if (existing) {
+          throw new Error(`A task by id "${existing.id}" already exists`);
+        }
+        const uniqueNewIds = uniq(newIds);
+        if (uniqueNewIds.length !== newIds.length) {
+          throw new Error("Multiple tasks with the same id were provided");
+        }
+        tasks.push(...newTasks);
+      });
     },
-    resolve(tasks, { payload: resolveId }: PayloadAction<TaskId>) {
-      const task = tasks.find(({ id }) => id === resolveId);
-      if (task) {
-        task.state = "resolved";
-        task.rejectionReason = undefined;
-      }
+    resolve(resolveId) {
+      set(({ tasks }) => {
+        const task = tasks.find(({ id }) => id === resolveId);
+        if (task) {
+          task.state = "resolved";
+          task.rejectionReason = undefined;
+        }
+      });
     },
-    reject(
-      tasks,
-      {
-        payload: rejection,
-      }: PayloadAction<{ id: TaskId; reason: TaskRejectionReason }>
-    ) {
-      const task = tasks.find(({ id }) => id === rejection.id);
-      if (task) {
-        task.state = "rejected";
-        task.rejectionReason = rejection.reason;
-      }
+    reject(rejectionId, reason) {
+      set(({ tasks }) => {
+        const task = tasks.find(({ id }) => id === rejectionId);
+        if (task) {
+          task.state = "rejected";
+          task.rejectionReason = reason;
+        }
+      });
     },
-    clear(tasks) {
-      tasks.splice(0, tasks.length);
+    clear() {
+      set((state) => {
+        state.tasks = [];
+      });
     },
-  },
-});
+  }))
+);
 
 export function useTaskScheduler() {
   const isSchedulerAlive = useIsMounted();
-  const [tasks, dispatch] = useReducer(slice.reducer, slice.getInitialState());
+  const { tasks, ...actions } = useStore(taskStore);
   const schedule = useBottleneck();
   const groups = useMemo(() => groupTasks(tasks), [tasks]);
   const progress = useMemo(() => schedulerProgress(groups), [groups]);
@@ -90,13 +99,13 @@ export function useTaskScheduler() {
   useEffect(() => {});
 
   function reset() {
-    dispatch(slice.actions.clear());
+    actions.clear();
   }
 
   function track<T>(inputTasks: InputTask<T>[]): Promise<T[]> {
     const tasks = inputTasks.map(normalizeInputTask);
 
-    dispatch(slice.actions.add(tasks));
+    actions.add(tasks);
 
     const promises = tasks.map((task) =>
       schedule(async () => {
@@ -105,10 +114,10 @@ export function useTaskScheduler() {
             throw new Error("Scheduler was killed");
           }
           const res = await task.fn();
-          dispatch(slice.actions.resolve(task.id));
+          actions.resolve(task.id);
           return res;
         } catch (reason) {
-          dispatch(slice.actions.reject({ id: task.id, reason }));
+          actions.reject(task.id, reason);
           throw reason;
         }
       })

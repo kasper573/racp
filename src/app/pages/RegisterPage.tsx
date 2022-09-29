@@ -4,7 +4,7 @@ import { UserRegisterForm } from "../forms/UserRegisterForm";
 import { UserRegisterPayload } from "../../api/services/user/types";
 import { CenteredContent } from "../components/CenteredContent";
 import { Header } from "../layout/Header";
-import { useLogin } from "../slices/auth";
+import { useLogin } from "../state/auth";
 
 export default function RegisterPage() {
   const [registerPayload, setRegisterPayload] = useState<UserRegisterPayload>({

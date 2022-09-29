@@ -8,10 +8,10 @@ import {
   MenuItem,
   Tooltip,
 } from "@mui/material";
-import { useAppDispatch, useAppSelector } from "../state/store";
-import { logout } from "../slices/auth";
+import { useStore } from "zustand";
+import { useLogout } from "../state/auth";
 import { MenuOn } from "../components/MenuOn";
-import { theme } from "../slices/theme";
+import { themeStore } from "../state/theme";
 import { Auth } from "../components/Auth";
 import { UserAccessLevel } from "../../api/services/user/types";
 import { LinkMenuItem } from "../components/Link";
@@ -20,17 +20,15 @@ import { OnlineBadge } from "../components/OnlineBadge";
 import { trpc } from "../state/client";
 
 export function Toolbar() {
-  const dispatch = useAppDispatch();
-  const mode = useAppSelector(({ theme }) => theme.mode);
+  const logout = useLogout();
+  const { mode, setMode } = useStore(themeStore);
   const { data: profile } = trpc.user.getMyProfile.useQuery();
   const inverseMode = mode === "dark" ? "light" : "dark";
   const modeSwitch = modeSwitches[inverseMode];
   return (
     <Box sx={{ ml: "auto", display: "flex" }}>
       <Tooltip title={modeSwitch.title}>
-        <IconButton
-          onClick={() => dispatch(theme.actions.setMode(inverseMode))}
-        >
+        <IconButton onClick={() => setMode(inverseMode)}>
           {modeSwitch.icon}
         </IconButton>
       </Tooltip>
@@ -63,7 +61,7 @@ export function Toolbar() {
           </ListItem>
           <Divider sx={{ mb: 1 }} />
           <LinkMenuItem to={router.user().settings()}>Settings</LinkMenuItem>
-          <MenuItem onClick={() => dispatch(logout())}>Sign out</MenuItem>
+          <MenuItem onClick={logout}>Sign out</MenuItem>
         </Auth>
         <Auth exact={UserAccessLevel.Guest}>
           <LinkMenuItem to={router.user().login({})}>Sign in</LinkMenuItem>
