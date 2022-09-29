@@ -8,9 +8,7 @@ export function listMaps() {
 
 export function gotoMap(id: string) {
   listMaps();
-  cy.findByLabelText("ID").type(id);
-  waitForPageReady();
-  findRowById(id).findByRole("link").click();
+  searchByIdAndClickLink(id);
 }
 
 export function listMonsters() {
@@ -20,9 +18,7 @@ export function listMonsters() {
 
 export function gotoMonster(id: number) {
   listMonsters();
-  cy.findByLabelText("ID").type(`${id}`);
-  waitForPageReady();
-  findRowById(`${id}`).findByRole("link").click();
+  searchByIdAndClickLink(id);
 }
 
 export function listItems() {
@@ -32,7 +28,12 @@ export function listItems() {
 
 export function gotoItem(id: number) {
   listItems();
+  searchByIdAndClickLink(id);
+}
+
+function searchByIdAndClickLink(id: string | number) {
   cy.findByLabelText("ID").type(`${id}`);
-  waitForPageReady();
+  waitForPageReady(); // Wait for search to finish
   findRowById(`${id}`).findByRole("link").click();
+  waitForPageReady(); // Wait for page to load
 }
