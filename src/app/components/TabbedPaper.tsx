@@ -18,9 +18,10 @@ export function TabbedPaper({
       <TabSwitch
         tabs={tabs}
         sx={{ borderBottom: 1, borderColor: "divider" }}
-        renderContent={(content) => (
+        renderContent={(content, label) => (
           <Paper
             sx={{ position: "relative", p: 2, ...paperProps?.sx }}
+            aria-label={`Content for ${label}`}
             {...paperProps}
           >
             {content}
