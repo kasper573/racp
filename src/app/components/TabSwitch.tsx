@@ -11,7 +11,7 @@ export interface TabSwitchProps
   extends Omit<ComponentProps<typeof Tabs>, "value"> {
   activeTabId?: TabItem["id"];
   tabs: TabItem[];
-  renderContent?: (content: ReactNode) => ReactNode;
+  renderContent?: (content: ReactNode, label: string) => ReactNode;
 }
 
 export function TabSwitch({
@@ -36,7 +36,9 @@ export function TabSwitch({
           <Tab key={index} label={label} value={id} />
         ))}
       </Tabs>
-      {activeTab ? renderContent(activeTab.content) : undefined}
+      {activeTab
+        ? renderContent(activeTab.content, activeTab.label)
+        : undefined}
     </>
   );
 }
