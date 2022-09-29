@@ -33,6 +33,5 @@ jobs:
             export rAthenaPath=./node_modules/rathena
             export log=verbose
 
-            killall node || echo "Server not running, no need to kill process"
             yarn api:prod &
             yarn app:prod &
