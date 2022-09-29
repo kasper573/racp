@@ -7,7 +7,7 @@ import { CenteredContent } from "../components/CenteredContent";
 import { Header } from "../layout/Header";
 import { UserLoginForm } from "../forms/UserLoginForm";
 import { LoginPayload } from "../../api/services/user/types";
-import { useLogin } from "../slices/auth";
+import { useLogin } from "../state/auth";
 
 export default function LoginPage() {
   const { destination } = useRouteParams(router.user().login);
