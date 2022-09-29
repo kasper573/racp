@@ -7,15 +7,18 @@ import { omit } from "lodash";
 import ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 import ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 import HtmlWebpackPlugin = require("html-webpack-plugin");
+import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
+import { WebpackPluginInstance } from "webpack";
 import { defined } from "./src/lib/std/defined";
 import { rootId } from "./src/app/layout/globalStyles";
 
 const env = loadEnv({
   NODE_ENV: { type: String, default: "development" },
   reactRefresh: { type: Boolean, optional: true },
-  apiBaseUrl: String,
-  appTitle: String,
+  apiBaseUrl: { type: String, default: "/" },
+  appTitle: { type: String, default: "RACP" },
   appPort: { type: Number, default: 8080 },
+  analyzeBundles: { type: Boolean, default: false },
 });
 
 const appDirectory = path.resolve(__dirname, "src", "app");
@@ -39,6 +42,8 @@ const config: webpack.Configuration = {
     }),
     isDevBuild && new ForkTsCheckerWebpackPlugin(),
     env.reactRefresh && new ReactRefreshWebpackPlugin(),
+    env.analyzeBundles &&
+      (new BundleAnalyzerPlugin() as unknown as WebpackPluginInstance),
   ]),
   module: {
     rules: [
