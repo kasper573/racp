@@ -2,6 +2,7 @@ import { v4 as uuid } from "uuid";
 import { useEffect, useMemo } from "react";
 import { groupBy, uniq } from "lodash";
 import { createStore, useStore } from "zustand";
+import produce from "immer";
 import { allResolved } from "../std/allResolved";
 import { useBottleneck } from "./useBottleneck";
 import { useLatest } from "./useLatest";
@@ -44,57 +45,44 @@ const taskStore = createStore<{
 }>((set) => ({
   tasks: [],
   add(newTasks) {
-    set((state) => {
-      const newIds = newTasks.map((t) => t.id);
-      const existing = state.tasks.find((task) => newIds.includes(task.id));
-      if (existing) {
-        throw new Error(`A task by id "${existing.id}" already exists`);
-      }
-      const uniqueNewIds = uniq(newIds);
-      if (uniqueNewIds.length !== newIds.length) {
-        throw new Error("Multiple tasks with the same id were provided");
-      }
-      return {
-        ...state,
-        tasks: [...state.tasks, ...newTasks],
-      };
-    });
+    set((state) =>
+      produce(state, ({ tasks }) => {
+        const newIds = newTasks.map((t) => t.id);
+        const existing = tasks.find((task) => newIds.includes(task.id));
+        if (existing) {
+          throw new Error(`A task by id "${existing.id}" already exists`);
+        }
+        const uniqueNewIds = uniq(newIds);
+        if (uniqueNewIds.length !== newIds.length) {
+          throw new Error("Multiple tasks with the same id were provided");
+        }
+        tasks.push(...newTasks);
+      })
+    );
   },
   resolve(resolveId) {
-    set((state) => {
-      const index = state.tasks.findIndex(({ id }) => id === resolveId);
-      if (index === -1) {
-        return state;
-      }
-      const updatedTasks = [...state.tasks];
-      updatedTasks[index] = {
-        ...updatedTasks[index],
-        state: "rejected",
-        rejectionReason: undefined,
-      };
-      return {
-        ...state,
-        tasks: updatedTasks,
-      };
-    });
+    set((state) =>
+      produce(state, ({ tasks }) => {
+        const task = tasks.find(({ id }) => id === resolveId);
+        if (!task) {
+          return;
+        }
+        task.state = "resolved";
+        task.rejectionReason = undefined;
+      })
+    );
   },
   reject(rejectionId, reason) {
-    set((state) => {
-      const index = state.tasks.findIndex(({ id }) => id === rejectionId);
-      if (index === -1) {
-        return state;
-      }
-      const updatedTasks = [...state.tasks];
-      updatedTasks[index] = {
-        ...updatedTasks[index],
-        state: "rejected",
-        rejectionReason: reason,
-      };
-      return {
-        ...state,
-        tasks: updatedTasks,
-      };
-    });
+    set((state) =>
+      produce(state, ({ tasks }) => {
+        const task = tasks.find(({ id }) => id === rejectionId);
+        if (!task) {
+          return;
+        }
+        task.state = "rejected";
+        task.rejectionReason = reason;
+      })
+    );
   },
   clear() {
     set((state) => ({ ...state, tasks: [] }));
