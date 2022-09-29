@@ -62,21 +62,19 @@ const taskStore = createStore<{
     resolve(resolveId) {
       set(({ tasks }) => {
         const task = tasks.find(({ id }) => id === resolveId);
-        if (!task) {
-          return;
+        if (task) {
+          task.state = "resolved";
+          task.rejectionReason = undefined;
         }
-        task.state = "resolved";
-        task.rejectionReason = undefined;
       });
     },
     reject(rejectionId, reason) {
       set(({ tasks }) => {
         const task = tasks.find(({ id }) => id === rejectionId);
-        if (!task) {
-          return;
+        if (task) {
+          task.state = "rejected";
+          task.rejectionReason = reason;
         }
-        task.state = "rejected";
-        task.rejectionReason = reason;
       });
     },
     clear() {
