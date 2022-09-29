@@ -10,11 +10,12 @@ jobs:
           username: ${{ secrets.DEPLOY_USERNAME }}
           password: ${{ secrets.DEPLOY_PASSWORD }}
           script: |
-            killall node
+            killall node || echo "No node process available to kill"
             mkdir -p /opt/racp/
             cd /opt/racp/
-            git clone ${{github.repositoryUrl}}
+            git clone https://github.com/${{ github.repository }}.git
             git checkout ${{github.sha}}
+            yarn install
 
             NODE_ENV=production
             apiPort=8081
