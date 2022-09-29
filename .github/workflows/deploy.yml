@@ -30,5 +30,4 @@ jobs:
             export rAthenaPath=./node_modules/rathena
             export log=verbose
 
-            nohup yarn api:prod
-            nohup yarn app:prod
+            yarn api:prod & yarn app:prod & disown
