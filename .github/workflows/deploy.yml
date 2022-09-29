@@ -11,7 +11,6 @@ jobs:
           password: ${{ secrets.DEPLOY_PASSWORD }}
           script_stop: true
           script: |
-            killall node || echo "No node process available to kill"
             if cd /opt/racp/;
               then 
                 git pull origin ${{github.sha}};
@@ -30,5 +29,6 @@ jobs:
             export rAthenaPath=./node_modules/rathena
             export log=verbose
 
-            nohup yarn api:prod & nohup yarn app:prod &
-            exit
+            killall node || echo "No node process available to kill"
+            nohup yarn api:prod > /dev/null &
+            nohup yarn app:prod > /dev/null &
