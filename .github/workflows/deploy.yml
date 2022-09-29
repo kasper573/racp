@@ -24,11 +24,11 @@ jobs:
 
             export NODE_ENV=production
             export hostname=0.0.0.0
-            export apiPort=8081
-            export appPort=80
-            export apiBaseUrl=//${{ secrets.DEPLOY_HOST }}:8081
+            export apiPort=${{ secrets.DEPLOY_API_PORT }}
+            export appPort=${{ secrets.DEPLOY_APP_PORT }}
+            export apiBaseUrl=//${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_API_PORT }}
             export rAthenaPath=./node_modules/rathena
             export log=verbose
 
-            yarn api:prod &!
-            yarn app:prod &!
+            nohup yarn api:prod
+            nohup yarn app:prod
