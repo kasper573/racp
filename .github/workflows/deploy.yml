@@ -9,4 +9,18 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USERNAME }}
           password: ${{ secrets.DEPLOY_PASSWORD }}
-          script: echo "Hello World"
+          script: |
+            killall node
+            mkdir -p /opt/racp/
+            cd /opt/racp/
+            git clone ${{github.repositoryUrl}}
+            git checkout ${{github.sha}}
+
+            NODE_ENV=production
+            apiPort=8081
+            appPort=80
+            apiBaseUrl=http://${{ secrets.DEPLOY_HOST }}:8081
+            rAthenaPath=./node_modules/rathena
+            log=verbose
+
+            yarn api:prod & yarn app:prod
