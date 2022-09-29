@@ -2,7 +2,7 @@ import { v4 as uuid } from "uuid";
 import { useEffect, useMemo } from "react";
 import { groupBy, uniq } from "lodash";
 import { createStore, useStore } from "zustand";
-import produce from "immer";
+import { immer } from "zustand/middleware/immer";
 import { allResolved } from "../std/allResolved";
 import { useBottleneck } from "./useBottleneck";
 import { useLatest } from "./useLatest";
@@ -42,11 +42,11 @@ const taskStore = createStore<{
   resolve(id: TaskId): void;
   reject(id: TaskId, reason: TaskRejectionReason): void;
   clear(): void;
-}>((set) => ({
-  tasks: [],
-  add(newTasks) {
-    set((state) =>
-      produce(state, ({ tasks }) => {
+}>()(
+  immer((set) => ({
+    tasks: [],
+    add(newTasks) {
+      set(({ tasks }) => {
         const newIds = newTasks.map((t) => t.id);
         const existing = tasks.find((task) => newIds.includes(task.id));
         if (existing) {
@@ -57,37 +57,35 @@ const taskStore = createStore<{
           throw new Error("Multiple tasks with the same id were provided");
         }
         tasks.push(...newTasks);
-      })
-    );
-  },
-  resolve(resolveId) {
-    set((state) =>
-      produce(state, ({ tasks }) => {
+      });
+    },
+    resolve(resolveId) {
+      set(({ tasks }) => {
         const task = tasks.find(({ id }) => id === resolveId);
         if (!task) {
           return;
         }
         task.state = "resolved";
         task.rejectionReason = undefined;
-      })
-    );
-  },
-  reject(rejectionId, reason) {
-    set((state) =>
-      produce(state, ({ tasks }) => {
+      });
+    },
+    reject(rejectionId, reason) {
+      set(({ tasks }) => {
         const task = tasks.find(({ id }) => id === rejectionId);
         if (!task) {
           return;
         }
         task.state = "rejected";
         task.rejectionReason = reason;
-      })
-    );
-  },
-  clear() {
-    set((state) => ({ ...state, tasks: [] }));
-  },
-}));
+      });
+    },
+    clear() {
+      set((state) => {
+        state.tasks = [];
+      });
+    },
+  }))
+);
 
 export function useTaskScheduler() {
   const isSchedulerAlive = useIsMounted();
