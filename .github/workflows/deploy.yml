@@ -33,6 +33,6 @@ jobs:
             export rAthenaPath=./node_modules/rathena
             export log=verbose
 
-            killall node || echo "No node process available to kill"
+            killall node || echo "Server not running, no need to kill process"
             nohup yarn api:prod > nohup.out 2> nohup.err < /dev/null &
             nohup yarn app:prod > nohup.out 2> nohup.err < /dev/null &
