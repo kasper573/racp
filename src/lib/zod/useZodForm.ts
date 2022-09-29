@@ -1,6 +1,7 @@
 import * as zod from "zod";
 import { ZodError, ZodType } from "zod";
-import { cloneDeep, get, set } from "lodash";
+import { get, set } from "lodash";
+import produce from "immer";
 import {
   useElevatedState,
   UseElevatedStateProps,
@@ -30,9 +31,11 @@ export function useZodForm<Schema extends ZodType>({
       issues,
       value: get(value, path),
       onChange(updatedFieldValue) {
-        const clone = cloneDeep(value);
-        set(clone, path, updatedFieldValue);
-        setValue(clone);
+        setValue(
+          produce(value, (draft: Entity) => {
+            set(draft, path, updatedFieldValue);
+          })
+        );
       },
     };
   }
