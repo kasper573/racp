@@ -2,7 +2,6 @@ import * as path from "path";
 import * as zod from "zod";
 import * as yaml from "yaml";
 import { ZodType } from "zod";
-import { isPlainObject } from "@reduxjs/toolkit";
 import { typedKeys } from "../../lib/std/typedKeys";
 import { Logger } from "../../lib/logger";
 import { gfs } from "../util/gfs";
@@ -132,6 +131,14 @@ function filterNulls(value: unknown) {
       }
     }
   }
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    Object.getPrototypeOf(value) === Object.prototype
+  );
 }
 
 const noop = () => undefined;
