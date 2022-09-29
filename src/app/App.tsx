@@ -5,14 +5,13 @@ import { HelmetProvider } from "react-helmet-async";
 import { useStore } from "zustand";
 import { Router } from "react-router";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { AnyRouter } from "@trpc/server";
 import { History } from "history";
 import { Layout } from "./layout/Layout";
 import { createTheme } from "./fixtures/theme";
 import { themeStore } from "./state/theme";
 import { trpc } from "./state/client";
 
-export function App<TRPCRouter extends AnyRouter>({
+export function App({
   history,
   trpcClient,
   queryClient,
