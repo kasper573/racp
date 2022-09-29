@@ -1,13 +1,12 @@
 import "./fixtures/roboto";
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserHistory } from "history";
-import { Router } from "react-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 import { App } from "./App";
 import { rootId } from "./layout/globalStyles";
 import { authStore, setupAuthBehavior } from "./state/auth";
-import { createTRPCClient, trpc } from "./state/client";
+import { createTRPCClient } from "./state/client";
+import { router } from "./router";
 
 const root = document.getElementById(rootId);
 if (root) {
@@ -25,14 +24,6 @@ if (root) {
     onTokenChanged: () => queryClient.resetQueries(),
   });
   createRoot(root).render(
-    <StrictMode>
-      <Router history={history}>
-        <trpc.Provider client={trpcClient} queryClient={queryClient}>
-          <QueryClientProvider client={queryClient}>
-            <App />
-          </QueryClientProvider>
-        </trpc.Provider>
-      </Router>
-    </StrictMode>
+    <App {...{ history, trpcClient, queryClient, router }} />
   );
 }
