@@ -15,13 +15,12 @@ jobs:
 
             if [ ! -d $racpFolder ]
               then
-                git clone https://github.com/${{ github.repository }}.git $racpFolder
+                git clone https://github.com/${{ github.repository }}.git#${{github.sha}} $racpFolder
               else
                 cd $racpFolder
                 git pull origin ${{github.sha}}
             fi
 
-            git checkout ${{github.sha}}
             yarn install
 
             export NODE_ENV=production
