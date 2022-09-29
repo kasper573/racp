@@ -12,7 +12,12 @@ jobs:
           script_stop: true
           script: |
             killall node || echo "No node process available to kill"
-            if cd /opt/racp/; then cd /opt/racp/ && git pull; else git clone https://github.com/${{ github.repository }}.git /opt/racp/; fi
+            if cd /opt/racp/;
+              then 
+                git pull origin ${{github.sha}};
+              else 
+                git clone https://github.com/${{ github.repository }}.git /opt/racp/; 
+            fi
             cd /opt/racp/
             git checkout ${{github.sha}}
             yarn install
