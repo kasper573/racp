@@ -35,8 +35,9 @@ describe("search", () => {
 });
 
 describe("details", () => {
+  before(() => gotoMap("prt_fild01"));
+
   it("can list warps", () => {
-    gotoMap("prt_fild01");
     cy.findByRole("tab", { name: /warps/i }).click();
     findDataCells("Destination", /prt_fild02/i);
     findDataCells("Destination", /prt_maze01/i);
@@ -44,7 +45,6 @@ describe("details", () => {
   });
 
   it("can list monsters", () => {
-    gotoMap("prt_fild01");
     cy.findByRole("tab", { name: /monsters/i }).click();
     findDataCells("Name", /lunatic ringleader/i);
     findDataCells("Name", /poring/i);
