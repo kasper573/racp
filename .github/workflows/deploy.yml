@@ -34,5 +34,5 @@ jobs:
             export log=verbose
 
             killall node || echo "Server not running, no need to kill process"
-            nohup yarn api:prod &
-            nohup yarn app:prod &
+            yarn api:prod &
+            yarn app:prod &
