@@ -27,6 +27,7 @@ export default function ItemViewPage(): ReactElement {
     >
   )({
     filter: { ItemId: { value: id, matcher: "=" } },
+    sort: [{ field: "Rate", sort: "desc" }],
   });
 
   if (isLoading) {
