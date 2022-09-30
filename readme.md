@@ -54,10 +54,35 @@ rAthenaPath=<path>
 ```
 
 - Open a terminal and navigate to the project root
-- Run `yarn dev:api` to start the api in dev mode
-- Run `yarn dev:app` to start the app in dev mode
-- Visit `http://localhost:8080/` in your browser
+- Run `yarn api:dev` to start the api in dev mode.
+- Run `yarn app:dev` to start the app in dev mode.
+- Visit `http://localhost:8080/` in your browser.
 
-## Production
+## Deployment
 
-TBD
+### Manual
+
+This is a fairly standard React + Express.js application, so you can use the provided [scripts](package.json) to manually manage a production deployment if you have the technical experience to do so.
+
+### Automatic
+
+RACP comes with a built-in deployment process that will automatically deploy the latest
+version of RACP to a server of your choice whenever you make changes to the repository.
+
+This process has **additional** prerequisites for your server:
+
+- Must be a UNIX server.
+- Requires [PM2](https://pm2.keymetrics.io/) to be installed.
+
+To use the automatic deployment:
+
+- Fork this repository
+- Add the following [GitHub Action Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) to your fork's repository settings:
+  - `DEPLOY_HOST` - The host of the server to deploy to
+  - `DEPLOY_USERNAME` - The ssh username to connect with when deploying
+  - `DEPLOY_PASSWORD` - The ssh password to connect with when deploying
+  - `DEPLOY_API_PORT` - The port to run the api on (Whatever port you want)
+  - `DEPLOY_APP_PORT` - The port to run the web app on (80 is recommended, but it's up to you)
+  - `DEPLOY_RATHENA_PATH` - The absolute path to the rAthena folder on your server
+  - `DEPLOY_ENABLED` - Set to true to enable automatic deployment
+- GitHub will now deploy automatically whenever you push changes to the main branch of your fork.
