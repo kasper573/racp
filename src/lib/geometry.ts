@@ -67,7 +67,3 @@ export function distance(a: Point, b: Point) {
   const y = a.y - b.y;
   return Math.sqrt(x * x + y * y);
 }
-
-export function isNear(a: Point, b: Point, grace: number) {
-  return distance(a, b) < grace;
-}

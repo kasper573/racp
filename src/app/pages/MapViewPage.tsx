@@ -3,24 +3,30 @@ import {
   Stack,
   styled,
   Switch,
+  Tooltip,
   Typography,
   useTheme,
 } from "@mui/material";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { useHistory } from "react-router";
-import { Directions, PestControlRodent } from "@mui/icons-material";
+import { Directions, PestControlRodent, Place } from "@mui/icons-material";
 import { groupBy } from "lodash";
 import Xarrow, { Xwrapper } from "react-xarrows";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
 import { router } from "../router";
 import { useRouteParams } from "../../lib/hooks/useRouteParams";
-import { MapViewport } from "../components/MapViewport";
+import { MapCoordinate, MapViewport } from "../components/MapViewport";
 import { TabSwitch } from "../components/TabSwitch";
 import { WarpGrid } from "../grids/WarpGrid";
 import { MonsterSpawnGrid } from "../grids/MonsterSpawnGrid";
 import { DataGridQueryFn } from "../components/DataGrid";
-import { Warp, WarpFilter, WarpId } from "../../api/services/map/types";
+import {
+  MapInfo,
+  Warp,
+  WarpFilter,
+  WarpId,
+} from "../../api/services/map/types";
 import { MapPin } from "../components/MapPin";
 import { Link } from "../components/Link";
 import {
@@ -30,18 +36,10 @@ import {
 } from "../../api/services/monster/types";
 import { defined } from "../../lib/std/defined";
 import { createSwarms } from "../../lib/createSwarms";
-import {
-  Area,
-  center,
-  distance,
-  intersect,
-  isNear,
-  Point,
-} from "../../lib/geometry";
+import { center, distance, intersect, Point } from "../../lib/geometry";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MapViewPage() {
-  const theme = useTheme();
   const history = useHistory();
   const [showWarpPins, setShowWarpPins] = useState(true);
   const [showMonsterPins, setShowMonsterPins] = useState(true);
@@ -77,28 +75,12 @@ export default function MapViewPage() {
     limit: 50,
   });
 
-  const spawnSwarms = useMemo(() => createMonsterSwarms(spawns), [spawns]);
-  const warpConnections = useMemo(() => resolveWarpConnections(warps), [warps]);
-
   if (isLoading || isFetching) {
     return <LoadingPage />;
   }
   if (!map || error) {
     return <Header>Map not found</Header>;
   }
-
-  const highlightedSwarm = spawnSwarms.find((swarm) =>
-    swarm.all.some(
-      (spawn) =>
-        spawn.npcEntityId === highlightSpawnId || intersect(spawn, routePoint)
-    )
-  );
-
-  const highlightedWarp = warps.find(
-    (warp) =>
-      warp.npcEntityId === highlightWarpId ||
-      intersect(warpArea(warp), routePoint)
-  );
 
   return (
     <>
@@ -125,73 +107,18 @@ export default function MapViewPage() {
               label="Show Monsters"
             />
           </Stack>
-          <MapViewport imageUrl={map.imageUrl} bounds={map.bounds}>
-            {showWarpPins && (
-              <Xwrapper>
-                {warpConnections.map(([a, b], index) => (
-                  <Xarrow
-                    key={`arrow${index}`}
-                    start={xArrowId(a)}
-                    end={xArrowId(b)}
-                    showHead={false}
-                    color={theme.palette.primary.main}
-                  />
-                ))}
-                {warps.map((warp, index) => (
-                  <MapPin
-                    data-testid="Map pin"
-                    key={`warp${index}`}
-                    x={warp.fromX}
-                    y={warp.fromY}
-                    highlight={warp === highlightedWarp}
-                    label={
-                      <LinkOnMap
-                        to={router.map().view({
-                          id: warp.toMap,
-                          x: warp.toX,
-                          y: warp.toY,
-                          tab,
-                        })}
-                      >
-                        <MapPinLabel color="white">{warp.toMap}</MapPinLabel>
-                      </LinkOnMap>
-                    }
-                  >
-                    <MapPinIcon id={xArrowId(warp)} sx={mapPinIconCss} />
-                  </MapPin>
-                ))}
-              </Xwrapper>
-            )}
-            {showMonsterPins &&
-              spawnSwarms.map((swarm, index) => (
-                <MapPin
-                  key={index}
-                  x={swarm.x}
-                  y={swarm.y}
-                  highlight={swarm === highlightedSwarm}
-                  label={
-                    <>
-                      {swarm.groups.map((group, index) => (
-                        <LinkOnMap
-                          key={index}
-                          to={router.monster().view({ id: group.id })}
-                          sx={{ lineHeight: "1em" }}
-                        >
-                          <MapPinLabel color={monsterColor}>
-                            {group.name}{" "}
-                            {group.size > 1 ? `x${group.size}` : ""}
-                          </MapPinLabel>
-                        </LinkOnMap>
-                      ))}
-                    </>
-                  }
-                >
-                  <PestControlRodent
-                    sx={{ ...mapPinIconCss, color: monsterColor }}
-                  />
-                </MapPin>
-              ))}
-          </MapViewport>
+          <MapView
+            map={map}
+            tab={tab}
+            warps={warps}
+            spawns={spawns}
+            routePoint={routePoint}
+            highlightWarpId={highlightWarpId}
+            highlightSpawnId={highlightSpawnId}
+            setHighlightWarpId={setHighlightWarpId}
+            showWarpPins={showWarpPins}
+            showMonsterPins={showMonsterPins}
+          />
         </Stack>
         <Stack direction="column" sx={{ flex: 3 }}>
           <TabSwitch
@@ -230,6 +157,135 @@ export default function MapViewPage() {
         </Stack>
       </Stack>
     </>
+  );
+}
+
+function MapView({
+  map,
+  tab,
+  warps,
+  spawns,
+  highlightWarpId,
+  highlightSpawnId,
+  setHighlightWarpId,
+  routePoint,
+  showWarpPins,
+  showMonsterPins,
+}: {
+  map: MapInfo;
+  tab?: string;
+  warps: Warp[];
+  spawns: MonsterSpawn[];
+  highlightWarpId?: WarpId;
+  setHighlightWarpId?: (id?: WarpId) => void;
+  highlightSpawnId?: MonsterSpawnId;
+  routePoint?: Point;
+  showWarpPins?: boolean;
+  showMonsterPins?: boolean;
+}) {
+  const theme = useTheme();
+
+  const spawnSwarms = useMemo(() => createMonsterSwarms(spawns), [spawns]);
+  const highlightedWarp = warps.find(
+    (warp) => warp.npcEntityId === highlightWarpId
+  );
+  const localWarps = warps.filter(
+    (warp) => warp.toMap === map.id && warp === highlightedWarp
+  );
+  const highlightedSwarm = spawnSwarms.find((swarm) =>
+    swarm.all.some(
+      (spawn) =>
+        spawn.npcEntityId === highlightSpawnId || intersect(spawn, routePoint)
+    )
+  );
+  return (
+    <MapViewport imageUrl={map.imageUrl} bounds={map.bounds}>
+      {showWarpPins && (
+        <Xwrapper>
+          {localWarps.map((warp, index) => (
+            <Fragment key={index}>
+              <Xarrow
+                start={warpXArrowId(warp)}
+                end={pointXArrowId({ x: warp.toX, y: warp.toY })}
+                color={theme.palette.primary.main}
+              />
+              <MapCoordinate
+                id={pointXArrowId({ x: warp.toX, y: warp.toY })}
+                x={warp.toX}
+                y={warp.toY}
+              />
+            </Fragment>
+          ))}
+          {warps.map((warp, index) => {
+            const mouseBindings = {
+              onMouseOver: () => setHighlightWarpId?.(warp.npcEntityId),
+              onMouseOut: () => setHighlightWarpId?.(undefined),
+            };
+            return (
+              <MapPin
+                data-testid="Map pin"
+                key={`warp${index}`}
+                x={warp.fromX}
+                y={warp.fromY}
+                highlight={warp === highlightedWarp}
+                {...mouseBindings}
+                label={
+                  <LinkOnMap
+                    to={router.map().view({
+                      id: warp.toMap,
+                      x: warp.toX,
+                      y: warp.toY,
+                      tab,
+                    })}
+                  >
+                    <MapPinLabel {...mouseBindings} color="white">
+                      {warp.toMap}
+                    </MapPinLabel>
+                  </LinkOnMap>
+                }
+              >
+                <MapPinIcon id={warpXArrowId(warp)} sx={mapPinIconCss} />
+              </MapPin>
+            );
+          })}
+        </Xwrapper>
+      )}
+      {showMonsterPins &&
+        spawnSwarms.map((swarm, index) => (
+          <MapPin
+            key={index}
+            x={swarm.x}
+            y={swarm.y}
+            highlight={swarm === highlightedSwarm}
+            label={
+              <>
+                {swarm.groups.map((group, index) => (
+                  <LinkOnMap
+                    key={index}
+                    to={router.monster().view({ id: group.id })}
+                    sx={{ lineHeight: "1em" }}
+                  >
+                    <MapPinLabel color={monsterColor}>
+                      {group.name} {group.size > 1 ? `x${group.size}` : ""}
+                    </MapPinLabel>
+                  </LinkOnMap>
+                ))}
+              </>
+            }
+          >
+            <PestControlRodent sx={{ ...mapPinIconCss, color: monsterColor }} />
+          </MapPin>
+        ))}
+      {routePoint && (
+        <MapCoordinate x={routePoint.x} y={routePoint.y}>
+          <Tooltip title="The warp you selected leads here">
+            <Place
+              sx={{ ...mapPinIconCss, fill: theme.palette.success.main }}
+            />
+          </Tooltip>
+        </MapCoordinate>
+      )}
+    </MapViewport>
   );
 }
 
@@ -278,39 +334,11 @@ function createMonsterSwarms(spawns: MonsterSpawn[], swarmDistance = 15) {
   });
 }
 
-const warpArea = (warp: Warp): Area => ({
-  x: warp.fromX,
-  y: warp.fromY,
-  width: warp.width,
-  height: warp.height,
-});
-
 function definedPoint(point?: Partial<Point>) {
   return point?.x !== undefined && point?.y !== undefined
     ? { x: point.x, y: point.y }
     : undefined;
 }
 
-function resolveWarpConnections(warps: Warp[]) {
-  const connections: Array<[Warp, Warp]> = [];
-  const pool = warps.slice();
-  while (pool.length > 0) {
-    const source = pool.pop()!;
-    const destinationIndex = pool.findIndex(
-      (other) =>
-        other.fromMap === source.toMap &&
-        isNear(
-          { x: other.fromX, y: other.fromY },
-          { x: source.toX, y: source.toY },
-          10
-        )
-    );
-    if (destinationIndex !== -1) {
-      const destination = pool.splice(destinationIndex, 1)[0];
-      connections.push([source, destination]);
-    }
-  }
-  return connections;
-}
-
-const xArrowId = (warp: Warp) => `warp_arrow_${warp.npcEntityId}`;
+const warpXArrowId = (warp: Warp) => `warp_arrow_${warp.npcEntityId}`;
+const pointXArrowId = (point: Point) => `point_arrow_${point.x}_${point.y}`;
