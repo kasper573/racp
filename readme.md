@@ -72,7 +72,7 @@ This is a fairly standard React + Express.js application, so you can use the pro
 - Run `yarn api:prod` to start the api in prod mode.
 - Run `yarn app:prod` to start the app in prod mode.
 
-You will need to provide the proper configuration options to the `api` and `app` commands, since only their `dev` variants come with all required configuration embedded. To see which configuration options are available: 
+You will need to provide the proper configuration options to the `api` and `app` commands, since only their `dev` variants come with all required configuration embedded. To see which configuration options are available:
 
 - For the Api: run `yarn api:prod --help`. Options are set via CLI or environment variables.
 - For the App: check [webpack.config.ts](webpack.config.ts). Options are set via environment variables.
