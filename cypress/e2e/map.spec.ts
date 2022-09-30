@@ -19,9 +19,9 @@ describe("search", () => {
         verify: () => findRowById("prontera"),
       },
       name: {
-        input: () => cy.findByLabelText("Name").type("field"),
+        input: () => cy.findByLabelText("Name").type("prt_"),
         verify: () =>
-          findDataCells("Name", (text) => !/field/i.test(text)).should(
+          findDataCells("Name", (text) => !/prt_/i.test(text)).should(
             "have.length",
             0
           ),
