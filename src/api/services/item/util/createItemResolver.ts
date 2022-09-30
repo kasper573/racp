@@ -50,7 +50,5 @@ function collect(
       item.EquipScript?.raw,
       item.UnEquipScript?.raw,
     ]),
-
-    DroppedBy: item.DroppedBy ?? [],
   };
 }

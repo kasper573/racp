@@ -11,12 +11,16 @@ import {
   ZodObject,
   ZodDefault,
   ZodEffects,
+  ZodAny,
 } from "zod";
 
 export function isZodType(
   type: ZodType | undefined,
   check: ZodFirstPartyTypeKind | ZodType
 ): boolean {
+  if (type instanceof ZodAny || check instanceof ZodAny) {
+    return true;
+  }
   if (!type) {
     return false;
   }

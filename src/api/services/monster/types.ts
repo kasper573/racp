@@ -4,23 +4,13 @@ import { zodNumeric } from "../../../lib/zod/zodNumeric";
 import { matcher, toggleRecordType } from "../../util/matcher";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 
-export type MonsterDropPostProcess = zod.infer<
-  typeof monsterDropPostProcessType
->;
-export const monsterDropPostProcessType = zod.object({
-  ItemId: zod.number().default(-1),
-  Name: zod.string().default(""),
-  Slots: zod.number().optional(),
-});
-
 export type MonsterDrop = zod.infer<typeof monsterDropType>;
-const monsterDropType = zod.object({
+export const monsterDropType = zod.object({
   Item: zod.string(), // AegisName
   Rate: zod.number(),
   StealProtected: zod.boolean().optional(),
   RandomOptionGroup: zod.string().optional(),
   Index: zod.number().optional(),
-  ...monsterDropPostProcessType.shape,
 });
 
 export type MonsterPostProcess = zod.infer<typeof monsterPostProcessType>;
@@ -32,9 +22,11 @@ export const monsterPostProcessType = zod.object({
   ImageUrl: zod.string().optional(), // Undefined means image is not present on the server
 });
 
+export const monsterIdType = zod.number();
+
 export type Monster = zod.infer<typeof monsterType>;
 export const monsterType = zod.object({
-  Id: zod.number(),
+  Id: monsterIdType,
   AegisName: zod.string(),
   Name: zod.string(),
   JapaneseName: zod.string().optional(),
