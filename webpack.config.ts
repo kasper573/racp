@@ -27,7 +27,7 @@ const isDevBuild = env.NODE_ENV === "development";
 const config: webpack.Configuration = {
   entry: path.resolve(appDirectory, "index.tsx"),
   output: {
-    path: path.resolve(__dirname, "./dist/app"),
+    path: path.resolve(__dirname, "./dist"),
     publicPath: "/",
     filename: "bundle.js",
   },

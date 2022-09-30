@@ -4,31 +4,37 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: "16"
-          cache: "yarn"
-
-      - run: yarn install --frozen-lockfile
-
-      - name: "Build"
-        env:
-          NODE_ENV: production
-          hostname: 0.0.0.0
-          apiPort: ${{ secrets.DEPLOY_API_PORT }}
-          appPort: ${{ secrets.DEPLOY_APP_PORT }}
-          apiBaseUrl: //${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_API_PORT }}
-          rAthenaPath: ./node_modules/rathena
-          log: verbose
-        run: yarn build
-
-      - uses: appleboy/scp-action@master
+      - uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USERNAME }}
           password: ${{ secrets.DEPLOY_PASSWORD }}
-          source: "dist"
-          target: "/opt/racp"
-          rm: true
+          script_stop: true
+          script: |
+            racpFolder=/opt/racp/
+
+            if [ ! -d $racpFolder ]
+              then
+                git clone https://github.com/${{ github.repository }}.git $racpFolder
+                cd $racpFolder
+                git checkout ${{github.sha}}
+              else
+                cd $racpFolder
+                git pull origin ${{github.sha}}
+            fi
+
+            yarn install
+
+            export NODE_ENV=production
+            export hostname=0.0.0.0
+            export apiPort=${{ secrets.DEPLOY_API_PORT }}
+            export appPort=${{ secrets.DEPLOY_APP_PORT }}
+            export apiBaseUrl=//${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_API_PORT }}
+            export rAthenaPath=./node_modules/rathena
+            export log=verbose
+
+            screen -XS racp quit
+            screen -S racp
+            yarn api:prod &
+            yarn app:prod &
+            exit
