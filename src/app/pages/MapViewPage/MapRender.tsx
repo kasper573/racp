@@ -2,20 +2,18 @@ import { styled, Tooltip, Typography, useTheme } from "@mui/material";
 import { Directions, PestControlRodent, Place } from "@mui/icons-material";
 import { Fragment, useMemo } from "react";
 import Xarrow, { Xwrapper } from "react-xarrows";
-import { groupBy } from "lodash";
 import { Link } from "../../components/Link";
-import { center, distance, intersect, Point } from "../../../lib/geometry";
+import { intersect, Point } from "../../../lib/geometry";
 import { MapInfo, Warp, WarpId } from "../../../api/services/map/types";
 import {
   MonsterSpawn,
   MonsterSpawnId,
 } from "../../../api/services/monster/types";
 import { router } from "../../router";
-import { defined } from "../../../lib/std/defined";
-import { createSwarms } from "../../../lib/createSwarms";
 import { MapContainer } from "./MapContainer";
 import { MapCoordinate } from "./MapCoordinate";
 import { MapPin } from "./MapPin";
+import { createMonsterSwarms } from "./createMonsterSwarms";
 
 export function MapRender({
   map,
@@ -165,31 +163,6 @@ const MapPinLabel = styled(Typography)`
   font-size: ${(p) => p.theme.typography.caption.fontSize};
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
 `;
-
-function createMonsterSwarms(spawns: MonsterSpawn[], swarmDistance = 15) {
-  const spawnsWithLocations = defined(
-    spawns.map(({ x, y, ...props }) =>
-      x !== undefined && y !== undefined ? { ...props, x, y } : undefined
-    )
-  );
-  const swarms = createSwarms(
-    spawnsWithLocations,
-    (a, b) => distance(a, b) <= swarmDistance
-  );
-  return swarms.map((swarm) => {
-    return {
-      ...center(swarm),
-      all: swarm,
-      groups: Object.values(groupBy(swarm, (spawn) => spawn.id)).map(
-        (group) => ({
-          name: group[0].name,
-          id: group[0].id,
-          size: group.length,
-        })
-      ),
-    };
-  });
-}
 
 const warpXArrowId = (warp: Warp) => `warp_arrow_${warp.npcEntityId}`;
 
