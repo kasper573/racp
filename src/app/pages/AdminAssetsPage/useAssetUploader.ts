@@ -92,7 +92,7 @@ export function useAssetUploader() {
     ]);
 
     await tracker.track(
-      divide(images, 100).map((partial) => ({
+      fileChunks(images).map((partial) => ({
         group: "Uploading map image packs",
         fn: () => uploadMapImages(partial),
       }))
@@ -137,7 +137,7 @@ export function useAssetUploader() {
     );
 
     await tracker.track(
-      divide(monsterImages, 100).map((partial) => ({
+      fileChunks(monsterImages).map((partial) => ({
         group: "Uploading monster image packs",
         fn: () => uploadMonsterImages(partial),
       }))
@@ -167,7 +167,7 @@ export function useAssetUploader() {
     );
 
     await tracker.track(
-      divide(itemImages, 100).map((partial) => ({
+      fileChunks(itemImages).map((partial) => ({
         group: "Uploading item image packs",
         fn: () => uploadItemImages(partial),
       }))
@@ -252,7 +252,7 @@ function createMapDataUnpackJobs<Stream>(
     }));
 }
 
-export async function determineMonsterSpriteNames(
+async function determineMonsterSpriteNames(
   grf: GRF,
   decompileLuaTables: (files: RpcFile[]) => Promise<ReducedLuaTables>
 ): Promise<Record<number, string>> {
@@ -340,5 +340,5 @@ interface SpriteInfo {
 
 const mapImageCropColor: RGB = [255, 0, 255]; // Magenta
 
-const divide = <T>(list: T[], parts: number): T[][] =>
-  chunk(list, Math.ceil(list.length / parts));
+// Upload files in chunks of an arbitrary small size to avoid memory issues
+const fileChunks = <T>(list: T[]): T[][] => chunk(list, 25);
