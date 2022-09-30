@@ -39,14 +39,16 @@ export function createItemService(repo: ItemRepository) {
       .input(rpcFile)
       .mutation(async ({ input }) => {
         const itemInfoAsLuaCode = bufferToLuaCode(Buffer.from(input.data));
-        const { success } = repo.updateInfo(itemInfoAsLuaCode);
-        if (!success) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "File could not be parsed as item info.",
-          });
-        }
-        return repo.getResourceNames();
+        return {};
+        // const { success } = repo.updateInfo(itemInfoAsLuaCode);
+        // if (!success) {
+        //   throw new TRPCError({
+        //     code: "BAD_REQUEST",
+        //     message: "File could not be parsed as item info.",
+        //   });
+        // }
+        //
+        //return repo.getResourceNames();
       }),
     countImages: t.procedure
       .use(access(UserAccessLevel.Admin))
