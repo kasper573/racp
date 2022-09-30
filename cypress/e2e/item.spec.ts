@@ -95,9 +95,8 @@ describe("details", () => {
   before(() => gotoItem(505));
 
   it("can list droppers", () => {
-    cy.findByLabelText("Content for Dropped by")
-      .should("contain.text", "Doppelganger")
-      .and("contain.text", "Nightmare")
-      .and("contain.text", "Acidus");
+    findDataCells("Name", "Doppelganger");
+    findDataCells("Name", "Nightmare");
+    findDataCells("Name", "Acidus");
   });
 });
