@@ -75,7 +75,7 @@ export function createMapRepository({
       }
 
       // Resolve map bounds and images
-      for (const map of Object.values(maps)) {
+      for (const map of maps.values()) {
         map.bounds = bounds?.[map.id];
         map.imageUrl = urlMap[mapImageName(map.id)];
       }
