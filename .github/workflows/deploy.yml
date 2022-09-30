@@ -1,0 +1,40 @@
+name: Deploy
+on: ["push"]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_ENABLED: ${{ secrets.DEPLOY_ENABLED == 'true' }}
+    steps:
+      - uses: appleboy/ssh-action@master
+        if: ${{ env.DEPLOY_ENABLED == 'true' }}
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          password: ${{ secrets.DEPLOY_PASSWORD }}
+          script: |
+            racpFolder=/opt/racp/
+
+            if [ ! -d $racpFolder ]
+              then
+                git clone https://github.com/${{ github.repository }}.git $racpFolder
+                cd $racpFolder
+                git checkout ${{github.sha}}
+              else
+                cd $racpFolder
+                git pull origin ${{github.sha}}
+            fi
+
+            yarn install
+
+            export NODE_ENV=production
+            export hostname=0.0.0.0
+            export apiPort=${{ secrets.DEPLOY_API_PORT }}
+            export appPort=${{ secrets.DEPLOY_APP_PORT }}
+            export apiBaseUrl=//${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_API_PORT }}
+            export rAthenaPath=${{ secrets.DEPLOY_RATHENA_PATH }}
+            export log=verbose
+
+            yarn app:build
+
+            pm2 restart ecosystem.config.json

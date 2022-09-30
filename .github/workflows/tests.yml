@@ -1,5 +1,8 @@
-name: CI
-on: ["push"]
+name: Tests
+on:
+  push:
+    paths-ignore:
+      - ".github/workflows/deploy.yml"
 jobs:
   lint:
     runs-on: ubuntu-latest
