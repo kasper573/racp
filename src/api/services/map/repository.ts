@@ -1,4 +1,4 @@
-import { uniq } from "lodash";
+import { flatten, uniq } from "lodash";
 import { FileStore } from "../../../lib/fs/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
@@ -41,6 +41,7 @@ export function createMapRepository({
   const mapImageName = (mapId: string) => `${mapId}${formatter.fileExtension}`;
   const imageRepository = createImageRepository(formatter, imageLinker, logger);
 
+  const warpsPromise = npc.resolve("scripts_warps.conf", warpType);
   const infoFile = files.entry("mapInfo.lub", parseMapInfo);
   const boundsFile = files.entry("mapBounds.json", (str) =>
     mapBoundsRegistryType.safeParse(JSON.parse(str))
@@ -49,12 +50,13 @@ export function createMapRepository({
   const getMaps = createAsyncMemo(
     async () =>
       [
+        await warpsPromise,
         await getSpawns(),
         infoFile.data,
         boundsFile.data,
         imageRepository.urlMap,
       ] as const,
-    (spawns, infoRecord, bounds, urlMap) => {
+    (warps, spawns, infoRecord, bounds, urlMap) => {
       logger.log("Recomputing map repository");
 
       // Resolve maps via info records
@@ -66,9 +68,13 @@ export function createMapRepository({
         new Map<MapId, MapInfo>()
       );
 
-      // Resolve maps via monster spawn entries
-      const mapIdsFromSpawns = uniq(spawns.map((spawn) => spawn.map));
-      for (const id of mapIdsFromSpawns) {
+      // Resolve maps via npc entries
+      const mapIdsFromWarpsAndSpawns = uniq([
+        ...spawns.map((spawn) => spawn.map),
+        ...flatten(warps.map((warp) => [warp.fromMap, warp.toMap])),
+      ]);
+
+      for (const id of mapIdsFromWarpsAndSpawns) {
         if (!maps.has(id)) {
           maps.set(id, mapInfoType.parse({ id, displayName: id }));
         }
@@ -89,7 +95,7 @@ export function createMapRepository({
     updateInfo: infoFile.update,
     countImages: () =>
       gfs.readdir(imageLinker.directory).then((dirs) => dirs.length),
-    warps: npc.resolve("scripts_warps.conf", warpType),
+    warps: warpsPromise,
     updateImages: imageRepository.update,
     async updateBounds(registryChanges: MapBoundsRegistry) {
       const updatedRegistry = {
