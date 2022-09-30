@@ -1,0 +1,14 @@
+{
+  "apps": [
+    {
+      "name": "racp-api",
+      "script": "scripts/exec.js",
+      "args": "--command \"yarn api:prod\""
+    },
+    {
+      "name": "racp-app",
+      "script": "scripts/exec.js",
+      "args": "--command \"yarn app:prod\""
+    }
+  ]
+}

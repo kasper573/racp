@@ -33,8 +33,4 @@ jobs:
             export rAthenaPath=./node_modules/rathena
             export log=verbose
 
-            screen -XS racp quit
-            screen -S racp
-            yarn api:prod &
-            yarn app:prod &
-            exit
+            pm2 restart ecosystem.config.json
