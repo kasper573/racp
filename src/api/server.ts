@@ -30,10 +30,11 @@ import { createItemRepository } from "./services/item/repository";
 import { createMonsterRepository } from "./services/monster/repository";
 import { createMapService } from "./services/map/service";
 import { createMapRepository } from "./services/map/repository";
-import { linkDropsWithItems } from "./services/item/util/linkDropsWithItems";
 import { createUserRepository } from "./services/user/repository";
 import { timeColor } from "./common/timeColor";
 import { createApiRouter } from "./router";
+import { createDropRepository } from "./services/drop/repository";
+import { createDropService } from "./services/drop/service";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -89,8 +90,7 @@ const maps = createMapRepository({
   npc,
   logger,
 });
-
-linkDropsWithItems(items, monsters);
+const drops = createDropRepository({ items, monsters, logger });
 
 app.use(authenticator.middleware);
 app.use(cors());
@@ -106,6 +106,7 @@ app.use(
       user: createUserService({ db, user, sign, ...args }),
       item: createItemService(items),
       monster: createMonsterService(monsters),
+      drop: createDropService(drops),
       map: createMapService(maps),
       meta: createMetaService({ items, monsters }),
     }),

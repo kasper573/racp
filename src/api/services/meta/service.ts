@@ -6,6 +6,7 @@ import { ItemRepository } from "../item/repository";
 import { MonsterRepository } from "../monster/repository";
 import { Monster } from "../monster/types";
 import { t } from "../../trpc";
+import { createAsyncMemo } from "../../../lib/createMemo";
 import { metaType } from "./types";
 
 export type MetaService = ReturnType<typeof createMetaService>;
@@ -17,22 +18,18 @@ export function createMetaService({
   items: ItemRepository;
   monsters: MonsterRepository;
 }) {
-  async function load() {
-    const [itemsMap, monsterMap] = await Promise.all([
-      items.getItems(),
-      monsters.getMonsters(),
-    ]);
-    return {
-      ...collectItemMeta(Array.from(itemsMap.values())),
-      ...collectMonsterMeta(Array.from(monsterMap.values())),
-    };
-  }
-
-  // Crude caching by collecting meta only once when data is first ready
-  const metaPromise = load();
+  const compileMeta = createAsyncMemo(
+    () => Promise.all([items.getItems(), monsters.getMonsters()]),
+    (items, monsters) => {
+      return {
+        ...collectItemMeta(Array.from(items.values())),
+        ...collectMonsterMeta(Array.from(monsters.values())),
+      };
+    }
+  );
 
   return t.router({
-    read: t.procedure.output(metaType).query(() => metaPromise),
+    read: t.procedure.output(metaType).query(compileMeta),
   });
 }
 

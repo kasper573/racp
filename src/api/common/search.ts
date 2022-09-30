@@ -62,13 +62,13 @@ export function createSearchTypes<ET extends ZodType, FT extends ZodType>(
 export function createSearchController<Entity, Filter>(
   getEntities: () => Promise<Entity[]>,
   isMatch: (item: Entity, filter: Filter) => boolean,
-  limitCap = 50
+  getMaxLimit: (numMatches: number, filter?: Filter) => number = () => 50
 ) {
   return async ({
     filter,
     sort,
     offset = 0,
-    limit = limitCap,
+    limit,
   }: SearchQuery<Entity, Filter>): Promise<SearchResult<Entity>> => {
     const entities = await getEntities();
     const matches = filter
@@ -79,7 +79,8 @@ export function createSearchController<Entity, Filter>(
       matches.sort(createCompareFn(sort));
     }
 
-    limit = clamp(limit, 0, limitCap);
+    limit = limit ?? matches.length;
+    limit = clamp(limit, 0, getMaxLimit(matches.length, filter));
     offset = clamp(offset, 0, matches.length);
     const sliceEnd = offset + limit;
     const slice = matches.slice(offset, sliceEnd);
@@ -95,10 +96,10 @@ export function createSearchProcedure<ET extends ZodType, FT extends ZodType>(
   filterType: FT,
   getEntities: () => Promise<zod.infer<ET>[]>,
   isMatch: (item: zod.infer<ET>, filter: zod.infer<FT>) => boolean,
-  limitCap = 50
+  getMaxLimit?: (numMatches: number, filter?: zod.infer<FT>) => number
 ) {
   const [queryType, resultType] = createSearchTypes(entityType, filterType);
-  const search = createSearchController(getEntities, isMatch, limitCap);
+  const search = createSearchController(getEntities, isMatch, getMaxLimit);
   return t.procedure
     .input(queryType)
     .output(resultType)
