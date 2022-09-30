@@ -8,7 +8,7 @@
     {
       "name": "racp-app",
       "script": "scripts/exec.js",
-      "args": "--command \"yarn app:prod\""
+      "args": "--command \"yarn app:serve\""
     }
   ]
 }

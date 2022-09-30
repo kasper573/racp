@@ -24,6 +24,7 @@ jobs:
             fi
 
             yarn install
+            yarn app:build
 
             export NODE_ENV=production
             export hostname=0.0.0.0
