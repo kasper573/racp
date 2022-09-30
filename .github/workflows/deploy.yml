@@ -3,9 +3,11 @@ on: ["push"]
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      DEPLOY_ENABLED: ${{ secrets.DEPLOY_ENABLED == 'true' }}
     steps:
       - uses: appleboy/ssh-action@master
-        if: ${{ secrets.DEPLOY_ENABLED == 'true' }}
+        if: ${{ env.DEPLOY_ENABLED }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USERNAME }}
