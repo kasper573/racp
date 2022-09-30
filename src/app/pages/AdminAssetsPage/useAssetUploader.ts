@@ -252,7 +252,7 @@ function createMapDataUnpackJobs<Stream>(
     }));
 }
 
-async function determineMonsterSpriteNames(
+export async function determineMonsterSpriteNames(
   grf: GRF,
   decompileLuaTables: (files: RpcFile[]) => Promise<ReducedLuaTables>
 ): Promise<Record<number, string>> {
