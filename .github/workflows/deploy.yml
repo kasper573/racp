@@ -31,7 +31,7 @@ jobs:
             yarn install
 
             export NODE_ENV=production
-            export hostname=0.0.0.0
+            export hostname=${{ secrets.DEPLOY_HOST }}
             export apiPort=${{ secrets.DEPLOY_API_PORT }}
             export appPort=${{ secrets.DEPLOY_APP_PORT }}
             export apiBaseUrl=//${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_API_PORT }}
