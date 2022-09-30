@@ -24,6 +24,8 @@ export function createUnluac({
       const output = await read(outputFile);
       await remove(outputFile);
       return output;
+    } catch {
+      throw new Error("Failed to decompile lua code");
     } finally {
       await remove(inputFile);
     }
