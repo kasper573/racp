@@ -2,6 +2,8 @@
 
 Not ready for public use. Use at your own risk.
 
+[Demo](http://139.59.197.170)
+
 ## Design goals
 
 <details>
