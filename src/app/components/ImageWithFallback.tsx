@@ -17,14 +17,14 @@ export function ImageWithFallback({
   if (!src) {
     return (
       <Tooltip title="Missing image">
-        <MissingFallback {...props} />
+        <MissingFallback role="img" aria-label={alt} {...props} />
       </Tooltip>
     );
   }
   if (state === "error") {
     return (
       <Tooltip title="Broken image">
-        <BrokenFallback {...props} />
+        <BrokenFallback role="img" aria-label={alt} {...props} />
       </Tooltip>
     );
   }
