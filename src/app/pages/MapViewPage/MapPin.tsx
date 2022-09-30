@@ -1,7 +1,8 @@
 import { ComponentProps, ReactNode, useContext, useState } from "react";
 import { Box, Popper, styled } from "@mui/material";
-import { MapCoordinate, MapViewportContext } from "./MapViewport";
-import { LinkTo } from "./Link";
+import { LinkTo } from "../../components/Link";
+import { MapContainerContext } from "./MapContainer";
+import { MapCoordinate } from "./MapCoordinate";
 
 export interface MapPinProps
   extends Omit<ComponentProps<typeof MapCoordinate>, "onClick"> {
@@ -18,7 +19,7 @@ export function MapPin({
   label,
   ...props
 }: MapPinProps) {
-  const { container } = useContext(MapViewportContext);
+  const { container } = useContext(MapContainerContext);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   return (
     <>
