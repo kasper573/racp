@@ -11,23 +11,24 @@ import { TabbedPaper } from "../components/TabbedPaper";
 import { Script } from "../components/Script";
 import { resolveToggles } from "../../api/util/matcher";
 import { DataGridQueryFn } from "../components/DataGrid";
-import { Monster, MonsterFilter } from "../../api/services/monster/types";
-import { Link } from "../components/Link";
-import { dropChanceString, itemNameString } from "../grids/MonsterDropGrid";
+import { itemNameString } from "../grids/ItemDropGrid";
 import { ImageWithFallback } from "../components/ImageWithFallback";
+import { ItemDrop, ItemDropFilter } from "../../api/services/drop/types";
+import { MonsterGrid } from "../grids/MonsterGrid";
+import { TabSwitch } from "../components/TabSwitch";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ItemViewPage(): ReactElement {
   const { id } = useRouteParams(router.item().view);
   const { data: item, isLoading, error } = trpc.item.read.useQuery(id);
-  const { data: { entities: droppedBy = [] } = {} } = (
-    trpc.monster.search.useQuery as unknown as DataGridQueryFn<
-      Monster,
-      MonsterFilter
+  const { data: { entities: [drop] = [] } = {} } = (
+    trpc.drop.search.useQuery as unknown as DataGridQueryFn<
+      ItemDrop,
+      ItemDropFilter
     >
   )({
-    filter: { Id: { value: item?.DroppedBy ?? [], matcher: "oneOfN" } },
-    limit: item?.DroppedBy?.length,
+    filter: { ItemId: { value: id, matcher: "=" } },
+    limit: 1,
   });
 
   if (isLoading) {
@@ -45,18 +46,6 @@ export default function ItemViewPage(): ReactElement {
     pick(item, "Script", "EquipScript", "UnEquipScript")
   );
 
-  const droppers = droppedBy
-    .map((monster) => {
-      const drop = [...monster.Drops, ...monster.MvpDrops].find(
-        (drop) => drop.ItemId === item.Id
-      );
-      return {
-        monster,
-        drop,
-      };
-    })
-    .sort((a, b) => (b.drop?.Rate ?? 0) - (a.drop?.Rate ?? 0));
-
   return (
     <>
       <Header back={router.item}>
@@ -69,7 +58,7 @@ export default function ItemViewPage(): ReactElement {
         <ItemImage src={item.ImageUrl} alt={item.Name} />
       </Header>
 
-      <Stack spacing={2} direction="column">
+      <Stack spacing={2} sx={{ flex: 1 }} direction="column">
         <TabbedPaper
           tabs={[
             {
@@ -102,33 +91,26 @@ export default function ItemViewPage(): ReactElement {
               },
             ]}
           />
-          <TabbedPaper
+        </Stack>
+
+        {drop && (
+          <TabSwitch
+            sx={{ position: "relative", bottom: -16 }}
             tabs={[
               {
                 label: "Dropped by",
                 content: (
-                  <>
-                    {droppers.map(({ monster, drop }, index) => (
-                      <Fragment key={index}>
-                        <span>
-                          <Link
-                            to={router.monster().view({ id: monster.Id })}
-                            sx={{ whiteSpace: "noWrap" }}
-                          >
-                            {monster.Name}{" "}
-                          </Link>
-                          {drop ? `(${dropChanceString(drop.Rate)})` : ""}
-                        </span>
-                        {index !== droppedBy.length - 1 && ", "}
-                      </Fragment>
-                    ))}
-                    {droppers.length === 0 && "None"}
-                  </>
+                  <MonsterGrid
+                    sx={{ flex: 1, display: "flex" }}
+                    filter={{
+                      Id: { value: drop.DroppedBy, matcher: "oneOfN" },
+                    }}
+                  />
                 ),
               },
             ]}
           />
-        </Stack>
+        )}
       </Stack>
     </>
   );

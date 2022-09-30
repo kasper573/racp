@@ -10,7 +10,7 @@ import { MonsterSpawnGrid } from "../grids/MonsterSpawnGrid";
 import { TabSwitch } from "../components/TabSwitch";
 import { TabbedPaper } from "../components/TabbedPaper";
 import { KVTable } from "../components/KVTable";
-import { MonsterDropGrid } from "../grids/MonsterDropGrid";
+import { ItemDropGrid } from "../grids/ItemDropGrid";
 import { TooltipText } from "../components/TooltipText";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 import { LoadingPage } from "./LoadingPage";
@@ -23,7 +23,6 @@ export default function MonsterViewPage(): ReactElement {
     limit: 1,
   });
   const monster = data?.entities[0];
-  const drops = monster ? [...monster.Drops, ...monster.MvpDrops] : [];
 
   if (isLoading) {
     return <LoadingPage />;
@@ -113,7 +112,11 @@ export default function MonsterViewPage(): ReactElement {
               {
                 id: "drops",
                 label: "Drops",
-                content: <MonsterDropGrid drops={drops} />,
+                content: (
+                  <ItemDropGrid
+                    filter={{ DroppedBy: { value: id, matcher: "includes" } }}
+                  />
+                ),
               },
             ]}
           />
