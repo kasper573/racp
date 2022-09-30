@@ -39,5 +39,6 @@ jobs:
             export log=verbose
 
             yarn app:build
+            yarn api:build
 
             pm2 restart ecosystem.config.json
