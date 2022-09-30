@@ -4,11 +4,13 @@ import {
   styled,
   Switch,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { useMemo, useState } from "react";
 import { useHistory } from "react-router";
 import { Directions, PestControlRodent } from "@mui/icons-material";
 import { groupBy } from "lodash";
+import Xarrow, { Xwrapper } from "react-xarrows";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
 import { router } from "../router";
@@ -28,10 +30,18 @@ import {
 } from "../../api/services/monster/types";
 import { defined } from "../../lib/std/defined";
 import { createSwarms } from "../../lib/createSwarms";
-import { Area, center, distance, intersect, Point } from "../../lib/geometry";
+import {
+  Area,
+  center,
+  distance,
+  intersect,
+  isNear,
+  Point,
+} from "../../lib/geometry";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MapViewPage() {
+  const theme = useTheme();
   const history = useHistory();
   const [showWarpPins, setShowWarpPins] = useState(true);
   const [showMonsterPins, setShowMonsterPins] = useState(true);
@@ -68,6 +78,7 @@ export default function MapViewPage() {
   });
 
   const spawnSwarms = useMemo(() => createMonsterSwarms(spawns), [spawns]);
+  const warpConnections = useMemo(() => resolveWarpConnections(warps), [warps]);
 
   if (isLoading || isFetching) {
     return <LoadingPage />;
@@ -115,30 +126,42 @@ export default function MapViewPage() {
             />
           </Stack>
           <MapViewport imageUrl={map.imageUrl} bounds={map.bounds}>
-            {showWarpPins &&
-              warps.map((warp, index) => (
-                <MapPin
-                  data-testid="Map pin"
-                  key={index}
-                  x={warp.fromX}
-                  y={warp.fromY}
-                  highlight={warp === highlightedWarp}
-                  label={
-                    <LinkOnMap
-                      to={router.map().view({
-                        id: warp.toMap,
-                        x: warp.toX,
-                        y: warp.toY,
-                        tab,
-                      })}
-                    >
-                      <MapPinLabel color="white">{warp.toMap}</MapPinLabel>
-                    </LinkOnMap>
-                  }
-                >
-                  <Directions sx={mapPinIconCss} />
-                </MapPin>
-              ))}
+            {showWarpPins && (
+              <Xwrapper>
+                {warpConnections.map(([a, b], index) => (
+                  <Xarrow
+                    key={`arrow${index}`}
+                    start={xArrowId(a)}
+                    end={xArrowId(b)}
+                    showHead={false}
+                    color={theme.palette.primary.main}
+                  />
+                ))}
+                {warps.map((warp, index) => (
+                  <MapPin
+                    data-testid="Map pin"
+                    key={`warp${index}`}
+                    x={warp.fromX}
+                    y={warp.fromY}
+                    highlight={warp === highlightedWarp}
+                    label={
+                      <LinkOnMap
+                        to={router.map().view({
+                          id: warp.toMap,
+                          x: warp.toX,
+                          y: warp.toY,
+                          tab,
+                        })}
+                      >
+                        <MapPinLabel color="white">{warp.toMap}</MapPinLabel>
+                      </LinkOnMap>
+                    }
+                  >
+                    <MapPinIcon id={xArrowId(warp)} sx={mapPinIconCss} />
+                  </MapPin>
+                ))}
+              </Xwrapper>
+            )}
             {showMonsterPins &&
               spawnSwarms.map((swarm, index) => (
                 <MapPin
@@ -222,6 +245,8 @@ const LinkOnMap = styled(Link)`
   display: flex;
 `;
 
+const MapPinIcon = Directions;
+
 const MapPinLabel = styled(Typography)`
   line-height: 1em;
   font-size: ${(p) => p.theme.typography.caption.fontSize};
@@ -265,3 +290,27 @@ function definedPoint(point?: Partial<Point>) {
     ? { x: point.x, y: point.y }
     : undefined;
 }
+
+function resolveWarpConnections(warps: Warp[]) {
+  const connections: Array<[Warp, Warp]> = [];
+  const pool = warps.slice();
+  while (pool.length > 0) {
+    const source = pool.pop()!;
+    const destinationIndex = pool.findIndex(
+      (other) =>
+        other.fromMap === source.toMap &&
+        isNear(
+          { x: other.fromX, y: other.fromY },
+          { x: source.toX, y: source.toY },
+          10
+        )
+    );
+    if (destinationIndex !== -1) {
+      const destination = pool.splice(destinationIndex, 1)[0];
+      connections.push([source, destination]);
+    }
+  }
+  return connections;
+}
+
+const xArrowId = (warp: Warp) => `warp_arrow_${warp.npcEntityId}`;
