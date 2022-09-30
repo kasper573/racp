@@ -7,7 +7,7 @@ jobs:
       DEPLOY_ENABLED: ${{ secrets.DEPLOY_ENABLED == 'true' }}
     steps:
       - uses: appleboy/ssh-action@master
-        if: ${{ env.DEPLOY_ENABLED }}
+        if: ${{ env.DEPLOY_ENABLED == 'true' }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USERNAME }}
