@@ -65,7 +65,6 @@ const linker = createPublicFileLinker({
 });
 
 const user = createUserRepository({ yaml, ...args });
-const maps = createMapRepository({ files, linker, formatter, npc, logger });
 const items = createItemRepository({
   ...args,
   yaml,
@@ -80,6 +79,14 @@ const monsters = createMonsterRepository({
   npc,
   formatter,
   linker,
+  logger,
+});
+const maps = createMapRepository({
+  files,
+  linker,
+  formatter,
+  getSpawns: monsters.getSpawns,
+  npc,
   logger,
 });
 

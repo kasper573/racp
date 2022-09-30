@@ -1,3 +1,4 @@
+import { uniq } from "lodash";
 import { FileStore } from "../../../lib/fs/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
@@ -7,7 +8,8 @@ import { createImageRepository } from "../../common/createImageRepository";
 import { trimExtension } from "../../../lib/std/trimExtension";
 import { Logger } from "../../../lib/logger";
 import { gfs } from "../../util/gfs";
-import { createMemo } from "../../../lib/createMemo";
+import { createAsyncMemo } from "../../../lib/createMemo";
+import { MonsterSpawn } from "../monster/types";
 import {
   MapBoundsRegistry,
   mapBoundsRegistryType,
@@ -24,11 +26,13 @@ export function createMapRepository({
   linker,
   formatter,
   npc,
+  getSpawns,
   logger: parentLogger,
 }: {
   files: FileStore;
   linker: Linker;
   formatter: ImageFormatter;
+  getSpawns: () => Promise<MonsterSpawn[]>;
   npc: NpcDriver;
   logger: Logger;
 }) {
@@ -42,19 +46,41 @@ export function createMapRepository({
     mapBoundsRegistryType.safeParse(JSON.parse(str))
   );
 
-  const getMaps = createMemo(
-    () => [infoFile.data, boundsFile.data, imageRepository.urlMap] as const,
-    (infoRecord, bounds, urlMap) => {
+  const getMaps = createAsyncMemo(
+    async () =>
+      [
+        await getSpawns(),
+        infoFile.data,
+        boundsFile.data,
+        imageRepository.urlMap,
+      ] as const,
+    (spawns, infoRecord, bounds, urlMap) => {
       logger.log("Recomputing map repository");
-      return Object.entries(infoRecord ?? {}).reduce((all, [key, info]) => {
-        const id = trimExtension(key);
-        return all.set(id, {
-          ...info,
-          id,
-          bounds: bounds?.[id],
-          imageUrl: urlMap[mapImageName(id)],
-        });
-      }, new Map<MapId, MapInfo>());
+
+      // Resolve maps via info records
+      const maps = Object.entries(infoRecord ?? {}).reduce(
+        (all, [key, info]) => {
+          const id = trimExtension(key);
+          return all.set(id, { ...info, id });
+        },
+        new Map<MapId, MapInfo>()
+      );
+
+      // Resolve maps via monster spawn entries
+      const mapIdsFromSpawns = uniq(spawns.map((spawn) => spawn.map));
+      for (const id of mapIdsFromSpawns) {
+        if (!maps.has(id)) {
+          maps.set(id, mapInfoType.parse({ id, displayName: id }));
+        }
+      }
+
+      // Resolve map bounds and images
+      for (const map of Object.values(maps)) {
+        map.bounds = bounds?.[map.id];
+        map.imageUrl = urlMap[mapImageName(map.id)];
+      }
+
+      return maps;
     }
   );
 

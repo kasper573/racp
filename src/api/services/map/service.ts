@@ -24,7 +24,7 @@ export function createMapService(repo: MapRepository) {
     search: createSearchProcedure(
       mapInfoType,
       mapInfoFilter.type,
-      async () => Array.from(repo.getMaps().values()),
+      async () => Array.from((await repo.getMaps()).values()),
       (entity, payload) => mapInfoFilter.for(payload)(entity)
     ),
     searchWarps: createSearchProcedure(
@@ -36,8 +36,8 @@ export function createMapService(repo: MapRepository) {
     read: t.procedure
       .input(mapIdType)
       .output(mapInfoType)
-      .query(({ input: mapId }) => {
-        const item = repo.getMaps().get(mapId);
+      .query(async ({ input: mapId }) => {
+        const item = (await repo.getMaps()).get(mapId);
         if (!item) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Map not found" });
         }
@@ -54,7 +54,7 @@ export function createMapService(repo: MapRepository) {
     countInfo: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.number())
-      .query(() => repo.getMaps().size),
+      .query(async () => (await repo.getMaps()).size),
     uploadInfo: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(rpcFile)
@@ -73,9 +73,10 @@ export function createMapService(repo: MapRepository) {
       .use(access(UserAccessLevel.Admin))
       .output(zod.number())
       .query(
-        () =>
-          Array.from(repo.getMaps().values()).filter((map) => !!map.bounds)
-            .length
+        async () =>
+          Array.from((await repo.getMaps()).values()).filter(
+            (map) => !!map.bounds
+          ).length
       ),
     missingData: t.procedure
       .use(access(UserAccessLevel.Admin))
@@ -85,8 +86,8 @@ export function createMapService(repo: MapRepository) {
           bounds: zod.array(mapIdType),
         })
       )
-      .query(() => {
-        const maps = Array.from(repo.getMaps().values());
+      .query(async () => {
+        const maps = Array.from((await repo.getMaps()).values());
         const images = defined(
           maps.map(({ id, imageUrl }) => (!imageUrl ? id : undefined))
         );
