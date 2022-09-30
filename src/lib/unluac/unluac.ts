@@ -40,10 +40,9 @@ function spawnUnluac(inputFile: string, outputFile: string) {
     childProcess.once("exit", (code) => {
       if (code === 0) {
         resolve();
+      } else {
+        reject(code);
       }
-    });
-    childProcess.stderr?.once("data", (data) => {
-      reject(data);
     });
   });
 }

@@ -15,4 +15,4 @@ const { command } = yargs(process.argv.slice(2))
 const cwd = path.join(__dirname, "..");
 const cp = exec(command, { cwd });
 cp.stdout?.pipe(process.stdout);
-cp.stderr?.once("data", () => process.exit(1));
+cp.stderr?.pipe(process.stderr);
