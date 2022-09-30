@@ -92,7 +92,7 @@ export function useAssetUploader() {
     ]);
 
     await tracker.track(
-      fileChunks(images).map((partial) => ({
+      divide(images, 100).map((partial) => ({
         group: "Uploading map image packs",
         fn: () => uploadMapImages(partial),
       }))
@@ -137,7 +137,7 @@ export function useAssetUploader() {
     );
 
     await tracker.track(
-      fileChunks(monsterImages).map((partial) => ({
+      divide(monsterImages, 100).map((partial) => ({
         group: "Uploading monster image packs",
         fn: () => uploadMonsterImages(partial),
       }))
@@ -167,7 +167,7 @@ export function useAssetUploader() {
     );
 
     await tracker.track(
-      fileChunks(itemImages).map((partial) => ({
+      divide(itemImages, 100).map((partial) => ({
         group: "Uploading item image packs",
         fn: () => uploadItemImages(partial),
       }))
@@ -340,5 +340,5 @@ interface SpriteInfo {
 
 const mapImageCropColor: RGB = [255, 0, 255]; // Magenta
 
-// Upload files in chunks of an arbitrary small size to avoid memory issues
-const fileChunks = <T>(list: T[]): T[][] => chunk(list, 25);
+const divide = <T>(list: T[], parts: number): T[][] =>
+  chunk(list, Math.ceil(list.length / parts));
