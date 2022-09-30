@@ -28,9 +28,9 @@ import { imageDataToCanvas } from "../../../lib/image/imageDataToCanvas";
 export function useAssetUploader() {
   const { mutateAsync: uploadMapImages, ...mapImageUpload } =
     trpc.map.uploadImages.useMutation();
-  const { mutateAsync: uploadInfo, ...mapInfoUpload } =
+  const { mutateAsync: uploadMapInfo, ...mapInfoUpload } =
     trpc.map.uploadInfo.useMutation();
-  const { mutateAsync: updateBounds, ...mapBoundsUpdate } =
+  const { mutateAsync: updateMapBounds, ...mapBoundsUpdate } =
     trpc.map.updateBounds.useMutation();
   const { mutateAsync: updateItemInfo, ...itemInfoUpload } =
     trpc.item.uploadInfo.useMutation();
@@ -76,19 +76,29 @@ export function useAssetUploader() {
 
   const errors = [...serverErrors, ...trackerErrors];
 
-  async function uploadMapDataFromGRF(grf: GRF) {
-    const mapData = await tracker.track(createMapDataUnpackJobs(grf));
+  async function uploadMapData(grf: GRF, mapInfoFile: File) {
+    await tracker.track([
+      {
+        group: `Uploading map info`,
+        fn: () => toRpcFile(mapInfoFile).then(uploadMapInfo),
+      },
+    ]);
 
-    const images = defined(mapData.map(({ image }) => image));
-    const bounds = mapData.reduce((bounds: MapBoundsRegistry, { gat }) => {
-      if (gat) {
-        bounds[fileNameToMapName(gat.name)] = gat;
-      }
-      return bounds;
-    }, {});
+    const boundsAndImages = await tracker.track(createMapDataUnpackJobs(grf));
+
+    const images = defined(boundsAndImages.map(({ image }) => image));
+    const bounds = boundsAndImages.reduce(
+      (bounds: MapBoundsRegistry, { gat }) => {
+        if (gat) {
+          bounds[fileNameToMapName(gat.name)] = gat;
+        }
+        return bounds;
+      },
+      {}
+    );
 
     await tracker.track([
-      { group: `Uploading map bounds`, fn: () => updateBounds(bounds) },
+      { group: `Uploading map bounds`, fn: () => updateMapBounds(bounds) },
     ]);
 
     await tracker.track(
@@ -99,23 +109,7 @@ export function useAssetUploader() {
     );
   }
 
-  async function uploadMapInfoLubFiles(lubFile: File) {
-    await tracker
-      .track([
-        {
-          group: "Unpacking map info file",
-          id: lubFile.name,
-          fn: () => toRpcFile(lubFile),
-        },
-      ])
-      .then(([file]) =>
-        tracker.track([
-          { group: `Uploading map info file`, fn: () => uploadInfo(file) },
-        ])
-      );
-  }
-
-  async function uploadMonsterImagesFromGRF(grf: GRF) {
+  async function uploadMonsterData(grf: GRF) {
     const [monsterSpriteInfo = []] = await tracker.track([
       {
         group: "Locating monster images",
@@ -144,7 +138,7 @@ export function useAssetUploader() {
     );
   }
 
-  async function uploadItemInfoAndImages(grf: GRF, infoFile: File) {
+  async function uploadItemData(grf: GRF, infoFile: File) {
     const [resourceNames] = await tracker.track([
       {
         group: "Uploading item info",
@@ -189,15 +183,10 @@ export function useAssetUploader() {
       return;
     }
 
-    // Sequence instead of all in parallel to save memory (since we're dealing with huge GRF files)
-    await Promise.allSettled([
-      // Start item info upload in parallel because it has a potential huge delay on the server side
-      uploadItemInfoAndImages(grf, itemInfoFile),
-      uploadMapDataFromGRF(grf),
-    ]);
-
-    await uploadMapInfoLubFiles(mapInfoFile);
-    await uploadMonsterImagesFromGRF(grf);
+    // Sequence to save memory (since we're dealing with potentially several GB of data)
+    await uploadMapData(grf, mapInfoFile);
+    await uploadMonsterData(grf);
+    await uploadItemData(grf, itemInfoFile);
   }
 
   return {
