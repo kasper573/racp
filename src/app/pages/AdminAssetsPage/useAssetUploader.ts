@@ -156,22 +156,22 @@ export function useAssetUploader() {
       return;
     }
 
-    // const itemImages = flatten(
-    //   await tracker.track(
-    //     resolveSpriteInfo(grf, resourceNames).map((info) => ({
-    //       group: "Unpacking item images",
-    //       id: info.sourcePath,
-    //       fn: () => loadSpriteFromGRF(grf, info),
-    //     }))
-    //   )
-    // );
-    //
-    // await tracker.track(
-    //   divide(itemImages, 100).map((partial) => ({
-    //     group: "Uploading item image packs",
-    //     fn: () => uploadItemImages(partial),
-    //   }))
-    // );
+    const itemImages = flatten(
+      await tracker.track(
+        resolveSpriteInfo(grf, resourceNames).map((info) => ({
+          group: "Unpacking item images",
+          id: info.sourcePath,
+          fn: () => loadSpriteFromGRF(grf, info),
+        }))
+      )
+    );
+
+    await tracker.track(
+      divide(itemImages, 100).map((partial) => ({
+        group: "Uploading item image packs",
+        fn: () => uploadItemImages(partial),
+      }))
+    );
   }
 
   async function upload(mapInfoFile: File, itemInfoFile: File, grfFile: File) {
@@ -193,11 +193,11 @@ export function useAssetUploader() {
     await Promise.allSettled([
       // Start item info upload in parallel because it has a potential huge delay on the server side
       uploadItemInfoAndImages(grf, itemInfoFile),
-      //uploadMapDataFromGRF(grf),
+      uploadMapDataFromGRF(grf),
     ]);
 
     await uploadMapInfoLubFiles(mapInfoFile);
-    //await uploadMonsterImagesFromGRF(grf);
+    await uploadMonsterImagesFromGRF(grf);
   }
 
   return {

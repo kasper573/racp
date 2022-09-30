@@ -5,6 +5,7 @@ import { t } from "../../trpc";
 import { rpcFile } from "../../common/RpcFile";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
+import { bufferToLuaCode } from "../../common/parseLuaTableAs";
 import { itemFilter, itemIdType, itemType } from "./types";
 import { ItemRepository } from "./repository";
 
@@ -37,17 +38,17 @@ export function createItemService(repo: ItemRepository) {
       .use(access(UserAccessLevel.Admin))
       .input(rpcFile)
       .mutation(async ({ input }) => {
-        //const itemInfoAsLuaCode = bufferToLuaCode(Buffer.from(input.data));
-        return {};
-        // const { success } = repo.updateInfo(itemInfoAsLuaCode);
-        // if (!success) {
-        //   throw new TRPCError({
-        //     code: "BAD_REQUEST",
-        //     message: "File could not be parsed as item info.",
-        //   });
-        // }
-        //
-        //return repo.getResourceNames();
+        const itemInfoAsLuaCode = bufferToLuaCode(Buffer.from(input.data));
+        const { success } = repo.updateInfo(itemInfoAsLuaCode);
+
+        if (!success) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "File could not be parsed as item info.",
+          });
+        }
+
+        return repo.getResourceNames();
       }),
     countImages: t.procedure
       .use(access(UserAccessLevel.Admin))
