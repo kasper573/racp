@@ -45,6 +45,15 @@ To run RACP you will need the following software installed on your machine:
 
 ## Development
 
+- Clone this repository on a machine matching the [prerequisites](#prerequisites)
+- Open a terminal and navigate to the project root
+- Run `yarn install`
+- Run `yarn api:dev` to start the api in dev mode.
+- Run `yarn app:dev` to start the app in dev mode.
+- Visit `http://localhost:8080/` in your browser.
+
+### Developing against a custom rAthena instance
+
 - Install rAthena on the same machine as RACP.
 - Create a new file `.env.local` in the project root folder
 - Add the following to the file, but substitute `<path>` with the absolute path to your rAthena folder:
@@ -53,16 +62,20 @@ To run RACP you will need the following software installed on your machine:
 rAthenaPath=<path>
 ```
 
-- Open a terminal and navigate to the project root
-- Run `yarn api:dev` to start the api in dev mode.
-- Run `yarn app:dev` to start the app in dev mode.
-- Visit `http://localhost:8080/` in your browser.
-
 ## Deployment
 
 ### Manual
 
-This is a fairly standard React + Express.js application, so you can use the provided [scripts](package.json) to manually manage a production deployment if you have the technical experience to do so.
+This is a fairly standard React + Express.js application, so you can use the provided [scripts](package.json) to manually manage a production deployment if you have the technical experience to do so:
+
+- Clone this repository a server matching the [prerequisites](#prerequisites)
+- Run `yarn api:prod` to start the api in prod mode.
+- Run `yarn app:prod` to start the app in prod mode.
+
+You will need to provide the proper configuration options to the `api` and `app` commands, since only their `dev` variants come with all required configuration embedded. To see which configuration options are available: 
+
+- For the Api: run `yarn api:prod --help`. Options are set via CLI or environment variables.
+- For the App: check [webpack.config.ts](webpack.config.ts). Options are set via environment variables.
 
 ### Automatic
 
