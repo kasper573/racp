@@ -32,7 +32,7 @@ jobs:
             export apiPort=${{ secrets.DEPLOY_API_PORT }}
             export appPort=${{ secrets.DEPLOY_APP_PORT }}
             export apiBaseUrl=//${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_API_PORT }}
-            export rAthenaPath=./node_modules/rathena
+            export rAthenaPath=${{ secrets.DEPLOY_RATHENA_PATH }}
             export log=verbose
 
             yarn app:build
