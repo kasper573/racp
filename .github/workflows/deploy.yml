@@ -9,7 +9,6 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USERNAME }}
           password: ${{ secrets.DEPLOY_PASSWORD }}
-          script_stop: true
           script: |
             racpFolder=/opt/racp/
 
