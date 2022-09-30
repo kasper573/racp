@@ -1,5 +1,6 @@
-import { Header } from "../layout/Header";
+import { Redirect } from "react-typesafe-routes";
+import { router } from "../router";
 
 export default function HomePage() {
-  return <Header>Home</Header>;
+  return <Redirect to={router.item()} />;
 }
