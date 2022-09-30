@@ -11,24 +11,22 @@ import { TabbedPaper } from "../components/TabbedPaper";
 import { Script } from "../components/Script";
 import { resolveToggles } from "../../api/util/matcher";
 import { DataGridQueryFn } from "../components/DataGrid";
-import { itemNameString } from "../grids/ItemDropGrid";
+import { dropChanceString, itemNameString } from "../grids/ItemDropGrid";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 import { ItemDrop, ItemDropFilter } from "../../api/services/drop/types";
-import { MonsterGrid } from "../grids/MonsterGrid";
-import { TabSwitch } from "../components/TabSwitch";
+import { Link } from "../components/Link";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ItemViewPage(): ReactElement {
   const { id } = useRouteParams(router.item().view);
   const { data: item, isLoading, error } = trpc.item.read.useQuery(id);
-  const { data: { entities: [drop] = [] } = {} } = (
+  const { data: { entities: drops = [] } = {} } = (
     trpc.drop.search.useQuery as unknown as DataGridQueryFn<
       ItemDrop,
       ItemDropFilter
     >
   )({
     filter: { ItemId: { value: id, matcher: "=" } },
-    limit: 1,
   });
 
   if (isLoading) {
@@ -91,26 +89,33 @@ export default function ItemViewPage(): ReactElement {
               },
             ]}
           />
-        </Stack>
-
-        {drop && (
-          <TabSwitch
-            sx={{ position: "relative", bottom: -16 }}
+          <TabbedPaper
             tabs={[
               {
                 label: "Dropped by",
                 content: (
-                  <MonsterGrid
-                    sx={{ flex: 1, display: "flex" }}
-                    filter={{
-                      Id: { value: drop.DroppedBy, matcher: "oneOfN" },
-                    }}
-                  />
+                  <>
+                    {drops.map((drop, index) => (
+                      <Fragment key={drop.Id}>
+                        <span>
+                          <Link
+                            to={router.monster().view({ id: drop.MonsterId })}
+                            sx={{ whiteSpace: "noWrap" }}
+                          >
+                            {drop.MonsterName}{" "}
+                          </Link>
+                          {drop ? `(${dropChanceString(drop.Rate)})` : ""}
+                        </span>
+                        {index !== drops.length - 1 && ", "}
+                      </Fragment>
+                    ))}
+                    {drops.length === 0 && "None"}
+                  </>
                 ),
               },
             ]}
           />
-        )}
+        </Stack>
       </Stack>
     </>
   );

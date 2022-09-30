@@ -114,7 +114,7 @@ export default function MonsterViewPage(): ReactElement {
                 label: "Drops",
                 content: (
                   <ItemDropGrid
-                    filter={{ DroppedBy: { value: id, matcher: "includes" } }}
+                    filter={{ MonsterId: { value: id, matcher: "=" } }}
                   />
                 ),
               },

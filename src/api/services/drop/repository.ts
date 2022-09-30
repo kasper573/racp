@@ -1,6 +1,5 @@
 import { groupBy } from "lodash";
 import { createAsyncMemo } from "../../../lib/createMemo";
-import { ItemId } from "../item/types";
 import { MonsterRepository } from "../monster/repository";
 import { ItemRepository } from "../item/repository";
 import { Logger } from "../../../lib/logger";
@@ -27,28 +26,23 @@ export function createDropRepository({
       );
 
       let dropIdCounter = 0;
-      const drops = new Map<ItemId, ItemDrop>();
+      const drops: ItemDrop[] = [];
       for (const monster of monsters.values()) {
         for (const dropMetaData of [...monster.Drops, ...monster.MvpDrops]) {
           for (const item of itemsByAegisName[dropMetaData.Item] ?? []) {
-            let drop = drops.get(item.Id);
-            if (!drop) {
-              drop = {
-                ...item,
-                ...dropMetaData,
-                Id: dropIdCounter++,
-                ItemId: item.Id,
-                DroppedBy: [],
-              };
-              drops.set(item.Id, drop);
-            }
-            if (!drop.DroppedBy.includes(monster.Id)) {
-              drop.DroppedBy.push(monster.Id);
-            }
+            drops.push({
+              ...item,
+              ...dropMetaData,
+              Id: dropIdCounter++,
+              ItemId: item.Id,
+              ItemName: item.Name,
+              MonsterId: monster.Id,
+              MonsterName: monster.Name,
+            });
           }
         }
       }
-      return Array.from(drops.values());
+      return drops;
     }
   );
 

@@ -21,13 +21,13 @@ export const ItemDropGrid = DataGrid.define<
   >,
   id: (drop) => drop.Id,
   columns: {
-    Name: {
+    ItemName: {
       headerName: "Name",
       width: 200,
       renderCell({ row: item }) {
         return (
           <Link to={router.item().view({ id: item.ItemId })}>
-            {itemNameString(item.Name, item.Slots)}
+            {itemNameString(item.ItemName, item.Slots)}
           </Link>
         );
       },

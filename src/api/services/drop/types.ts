@@ -13,8 +13,10 @@ export const itemDropIdType = zod.number();
 export const itemDropType = zod.object({
   Id: itemDropIdType,
   ItemId: itemIdType,
-  DroppedBy: zod.array(monsterIdType),
-  ...itemType.pick({ Name: true, Slots: true }).shape,
+  MonsterId: monsterIdType,
+  ItemName: zod.string(),
+  MonsterName: zod.string(),
+  ...itemType.pick({ Slots: true }).shape,
   ...monsterDropType.omit({ Item: true }).shape,
 });
 

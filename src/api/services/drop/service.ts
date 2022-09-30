@@ -11,7 +11,13 @@ export function createDropService(drops: DropRepository) {
       itemDropType,
       itemDropFilter.type,
       drops.getDrops,
-      (entity, payload) => itemDropFilter.for(payload)(entity)
+      (entity, payload) => itemDropFilter.for(payload)(entity),
+      (numMatches, filter) =>
+        filter &&
+        Object.keys(filter).length === 1 &&
+        filter.ItemId !== undefined
+          ? numMatches // Allow listing all drops for a single item
+          : 50 // Otherwise, cap at 50
     ),
   });
 }
