@@ -97,6 +97,6 @@ describe("details", () => {
   it("can list droppers", () => {
     findDataCells("Name", "Doppelganger");
     findDataCells("Name", "Nightmare");
-    findDataCells("Name", "Acidus");
+    findDataCells("Name", "Dark Priest");
   });
 });
