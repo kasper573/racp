@@ -4,7 +4,7 @@ import { defined } from "../../../lib/std/defined";
 import { createSearchProcedure } from "../../common/search";
 import { bufferToLuaCode } from "../../common/parseLuaTableAs";
 import { t } from "../../trpc";
-import { rpcFile } from "../../common/RpcFile";
+import { decodeRpcFileData, rpcFile } from "../../common/RpcFile";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
 import { MapRepository } from "./repository";
@@ -59,7 +59,9 @@ export function createMapService(repo: MapRepository) {
       .use(access(UserAccessLevel.Admin))
       .input(rpcFile)
       .mutation(({ input: file }) => {
-        const res = repo.updateInfo(bufferToLuaCode(Buffer.from(file.data)));
+        const res = repo.updateInfo(
+          bufferToLuaCode(Buffer.from(decodeRpcFileData(file.data)))
+        );
         if (!res.success) {
           throw new Error("File could not be parsed as map info.");
         }

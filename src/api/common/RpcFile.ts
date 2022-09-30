@@ -1,24 +1,29 @@
 import * as zod from "zod";
+import { ZodType } from "zod";
+import { base64ToBytes, bytesToBase64 } from "byte-base64";
+
+/**
+ * A normalized file type since TRPC doesn't support regular file uploads
+ */
+export type RpcFile = zod.infer<typeof rpcFile>;
+
+/**
+ * Uint8Array encoded as base 64 string.
+ * A complex structure to avoid base64 strings being passed as normal strings by mistake
+ */
+type RpcFileData = {
+  $: "Base64String";
+};
 
 export const rpcFile = zod.object({
   name: zod.string(),
-  data: zod.array(zod.number()), // Uint8Array
+  data: zod.object({ $: zod.string() }) as ZodType<RpcFileData>,
 });
 
-// A normalized file type since TRPC doesn't support regular file uploads
-export type RpcFile = zod.infer<typeof rpcFile>;
-
-export async function toRpcFile(
-  file: File | { data: Uint8Array; name: string }
-): Promise<RpcFile> {
-  return {
-    name: file.name,
-    data: Array.from(
-      "data" in file ? file.data : new Uint8Array(await file.arrayBuffer())
-    ),
-  };
+export function decodeRpcFileData({ $ }: RpcFileData): Uint8Array {
+  return base64ToBytes($);
 }
 
-export function toBrowserFile(file: RpcFile): File {
-  return new File([new Uint8Array(file.data).buffer], file.name);
+export function encodeRpcFileData(arr: Uint8Array): RpcFileData {
+  return { $: bytesToBase64(arr) as "Base64String" };
 }

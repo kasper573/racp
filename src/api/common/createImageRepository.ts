@@ -6,7 +6,7 @@ import { ImageFormatter } from "../../lib/image/createImageFormatter";
 import { Linker } from "../../lib/fs/createPublicFileLinker";
 import { Logger } from "../../lib/logger";
 import { gfs } from "../util/gfs";
-import { RpcFile } from "./RpcFile";
+import { decodeRpcFileData, RpcFile } from "./RpcFile";
 
 export function createImageRepository(
   formatter: ImageFormatter,
@@ -45,7 +45,7 @@ export function createImageRepository(
         openFilesBottleneck.schedule(() =>
           formatter.write(
             linker.path(path.basename(file.name)),
-            Buffer.from(new Uint8Array(file.data))
+            Buffer.from(decodeRpcFileData(file.data))
           )
         )
       )

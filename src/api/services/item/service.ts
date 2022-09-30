@@ -2,7 +2,7 @@ import * as zod from "zod";
 import { TRPCError } from "@trpc/server";
 import { createSearchProcedure } from "../../common/search";
 import { t } from "../../trpc";
-import { rpcFile } from "../../common/RpcFile";
+import { decodeRpcFileData, rpcFile } from "../../common/RpcFile";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
 import { bufferToLuaCode } from "../../common/parseLuaTableAs";
@@ -38,7 +38,9 @@ export function createItemService(repo: ItemRepository) {
       .use(access(UserAccessLevel.Admin))
       .input(rpcFile)
       .mutation(async ({ input }) => {
-        const itemInfoAsLuaCode = bufferToLuaCode(Buffer.from(input.data));
+        const itemInfoAsLuaCode = bufferToLuaCode(
+          Buffer.from(decodeRpcFileData(input.data))
+        );
         const { success } = repo.updateInfo(itemInfoAsLuaCode);
 
         if (!success) {

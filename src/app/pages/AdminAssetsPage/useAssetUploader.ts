@@ -6,7 +6,7 @@ import {
   RGB,
 } from "../../../lib/image/cropSurroundingColors";
 import { trpc } from "../../state/client";
-import { RpcFile, toRpcFile } from "../../../api/common/RpcFile";
+import { encodeRpcFileData, RpcFile } from "../../../api/common/RpcFile";
 import { GRF } from "../../../lib/grf/types/GRF";
 import { GAT } from "../../../lib/grf/types/GAT";
 import { ReducedLuaTables } from "../../../api/services/util/types";
@@ -313,8 +313,8 @@ async function loadSpriteFromGRF(
   const spr = await new SPR(sprData);
   const frame = spr.compileFrame(0);
   const blob = await frameToBlob(frame);
-  const data = Array.from(new Uint8Array(await blob.arrayBuffer()));
-  return outputNames.map((name): RpcFile => ({ name, data }));
+  const data = encodeRpcFileData(new Uint8Array(await blob.arrayBuffer()));
+  return outputNames.map((name) => ({ name, data }));
 }
 
 async function frameToBlob(frame: RGBABitmap) {
@@ -342,3 +342,14 @@ const mapImageCropColor: RGB = [255, 0, 255]; // Magenta
 
 const divide = <T>(list: T[], parts: number): T[][] =>
   chunk(list, Math.ceil(list.length / parts));
+
+async function toRpcFile(
+  file: File | { data: Uint8Array; name: string }
+): Promise<RpcFile> {
+  const data =
+    "data" in file ? file.data : new Uint8Array(await file.arrayBuffer());
+  return {
+    name: file.name,
+    data: encodeRpcFileData(data),
+  };
+}
