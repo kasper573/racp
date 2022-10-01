@@ -36,6 +36,13 @@ jobs:
           MYSQL_DATABASE: ragnarok
           MYSQL_ROOT_PASSWORD: racp
           MYSQL_ROOT_HOST: "%"
+    env:
+      apiPort: 8081
+      appPort: 8080
+      apiBaseUrl: http://localhost:8081
+      rAthenaPath: ./node_modules/rathena
+      CYPRESS_BASE_URL: http://localhost:8080
+      CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v3
 
@@ -68,24 +75,12 @@ jobs:
       - name: E2E tests (1024x768)
         run: yarn e2e:ci:run
         env:
-          apiPort: 8081
-          appPort: 8080
-          apiBaseUrl: http://localhost:8081
-          rAthenaPath: ./node_modules/rathena
-          CYPRESS_BASE_URL: http://localhost:8080
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_VIEWPORT_WIDTH: 1024
           CYPRESS_VIEWPORT_HEIGHT: 768
 
       - name: E2E tests (428x926)
         run: yarn e2e:ci:run
         env:
-          apiPort: 8081
-          appPort: 8080
-          apiBaseUrl: http://localhost:8081
-          rAthenaPath: ./node_modules/rathena
-          CYPRESS_BASE_URL: http://localhost:8080
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_VIEWPORT_WIDTH: 428
           CYPRESS_VIEWPORT_HEIGHT: 926
 
