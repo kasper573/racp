@@ -7,9 +7,6 @@ export const CommonPageGrid = styled(Box)`
     width: 100%;
     grid-template-columns: 1fr;
     grid-auto-rows: auto;
-    .MuiDataGrid-root {
-      height: 50vh;
-    }
   }
   ${({ theme }) => theme.breakpoints.up("md")} {
     flex: 1;
