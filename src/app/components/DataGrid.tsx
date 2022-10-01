@@ -172,7 +172,7 @@ DataGrid.define = <Entity, Filter, Id extends GridRowId>(
 };
 
 const Grid = styled(MuiDataGrid)`
-  min-height: 266px; // Never falls below 4 rows
+  min-height: 370px; // Never falls below 6 rows
   .MuiDataGrid-cell,
   .MuiDataGrid-columnHeader {
     &:focus,
