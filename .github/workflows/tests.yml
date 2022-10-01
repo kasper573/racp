@@ -23,16 +23,23 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: yarn unit
 
-  e2e-desktop:
+  e2e-widescreen:
     uses: ./.github/workflows/e2e.reusable.yml
     with:
-      width: 1024
+      width: 1366
       height: 768
     secrets: inherit
 
-  e2e-mobile:
+  e2e-portrait:
     uses: ./.github/workflows/e2e.reusable.yml
     with:
       width: 428
       height: 926
+    secrets: inherit
+
+  e2e-landscape:
+    uses: ./.github/workflows/e2e.reusable.yml
+    with:
+      width: 926
+      height: 428
     secrets: inherit
