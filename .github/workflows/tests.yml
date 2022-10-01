@@ -26,6 +26,15 @@ jobs:
   e2e-test:
     runs-on: ubuntu-latest
     container: cypress/included:10.7.0
+    env:
+      NODE_ENV: production
+      apiPort: 8081
+      appPort: 8080
+      apiBaseUrl: http://localhost:8081
+      rAthenaPath: ./node_modules/rathena
+      log: verbose
+      CYPRESS_BASE_URL: http://localhost:8080
+      CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
     services:
       db:
         image: mariadb:latest
@@ -65,17 +74,17 @@ jobs:
           MYSQL_PASSWORD: ragnarok
           MYSQL_DATABASE: ragnarok
 
-      - run: yarn e2e:ci:run
+      - name: E2E tests (1024x768)
+        run: yarn e2e:ci:run
         env:
-          NODE_ENV: production
-          apiPort: 8081
-          appPort: 8080
-          apiBaseUrl: http://localhost:8081
-          rAthenaPath: ./node_modules/rathena
-          log: verbose
-          CYPRESS_BASE_URL: http://localhost:8080
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-          #CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          CYPRESS_VIEWPORT_WIDTH: 1024
+          CYPRESS_VIEWPORT_HEIGHT: 768
+
+      - name: E2E tests (428x926)
+        run: yarn e2e:ci:run
+        env:
+          CYPRESS_VIEWPORT_WIDTH: 428
+          CYPRESS_VIEWPORT_HEIGHT: 926
 
       - uses: actions/upload-artifact@v3
         if: failure()
