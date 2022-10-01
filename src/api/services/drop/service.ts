@@ -1,5 +1,5 @@
 import { t } from "../../trpc";
-import { createSearchProcedure } from "../../common/search";
+import { createSearchProcedure, noLimitForFilter } from "../../common/search";
 import { itemDropFilter, itemDropType } from "./types";
 import { DropRepository } from "./repository";
 
@@ -12,12 +12,7 @@ export function createDropService(drops: DropRepository) {
       itemDropFilter.type,
       drops.getDrops,
       (entity, payload) => itemDropFilter.for(payload)(entity),
-      (numMatches, filter) =>
-        filter &&
-        Object.keys(filter).length === 1 &&
-        filter.ItemId !== undefined
-          ? numMatches // Allow listing all drops for a single item
-          : 50 // Otherwise, cap at 50
+      noLimitForFilter((filter) => filter?.ItemId?.matcher === "=")
     ),
   });
 }

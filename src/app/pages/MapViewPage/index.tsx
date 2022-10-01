@@ -27,7 +27,7 @@ export default function MapViewPage() {
   const routePoint = definedPoint({ x, y });
 
   const { data: { entities: warps = [] } = {} } = trpc.map.searchWarps.useQuery(
-    { filter: { fromMap: { value: id, matcher: "equals" } }, limit: 50 }
+    { filter: { fromMap: { value: id, matcher: "equals" } } }
   );
 
   const { data: { entities: spawns = [] } = {} } =
@@ -37,7 +37,6 @@ export default function MapViewPage() {
         x: { value: 0, matcher: ">" },
         y: { value: 0, matcher: ">" },
       },
-      limit: 50,
     });
 
   if (isLoading || isFetching) {

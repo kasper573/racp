@@ -1,5 +1,5 @@
 import * as zod from "zod";
-import { createSearchProcedure } from "../../common/search";
+import { createSearchProcedure, noLimitForFilter } from "../../common/search";
 import { t } from "../../trpc";
 import { rpcFile } from "../../common/RpcFile";
 import { access } from "../../middlewares/access";
@@ -26,7 +26,8 @@ export function createMonsterService(repo: MonsterRepository) {
       monsterSpawnType,
       monsterSpawnFilter.type,
       repo.getSpawns,
-      (entity, payload) => monsterSpawnFilter.for(payload)(entity)
+      (entity, payload) => monsterSpawnFilter.for(payload)(entity),
+      noLimitForFilter((filter) => filter?.map?.matcher === "equals")
     ),
     uploadImages: t.procedure
       .use(access(UserAccessLevel.Admin))
