@@ -99,6 +99,7 @@ export default function MapViewPage() {
         </Stack>
         <Stack direction="column" sx={{ flex: 3 }}>
           <MapTabs
+            routeParams={{ id, x, y, tab }}
             setHighlightWarpId={setHighlightWarpId}
             setHighlightSpawnId={setHighlightSpawnId}
           />
