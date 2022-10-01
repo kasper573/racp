@@ -1,5 +1,5 @@
 export function openUserMenu() {
-  cy.findByTestId("user icon").click();
+  cy.findByRole("button", { name: "Open user menu" }).click();
   return cy.findByTestId("user menu");
 }
 

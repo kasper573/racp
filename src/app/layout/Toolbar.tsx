@@ -41,7 +41,11 @@ export function Toolbar({ children }: { children?: ReactNode }) {
             "data-testid": "user menu",
           }}
           trigger={(open) => (
-            <IconButton data-testid="user icon" sx={{ ml: 1 }} onClick={open}>
+            <IconButton
+              aria-label="Open user menu"
+              sx={{ ml: 1 }}
+              onClick={open}
+            >
               {profile ? (
                 <OnlineBadge>
                   <AccountCircle />

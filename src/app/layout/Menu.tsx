@@ -11,7 +11,7 @@ export function Menu({ onItemSelected }: { onItemSelected?: () => void }) {
   return (
     <>
       <RouteList
-        aria-label="Main menu"
+        aria-label="Public menu"
         routes={publicRoutes}
         onClick={onItemSelected}
       />

@@ -2,7 +2,7 @@ import { findRowById } from "./grid";
 import { waitForPageReady } from "./common";
 
 export function listMaps() {
-  cy.findByRole("menu", { name: "Main menu" }).findByText("Maps").click();
+  clickMainMenuItem("Maps");
   waitForPageReady();
 }
 
@@ -12,7 +12,7 @@ export function gotoMap(id: string) {
 }
 
 export function listMonsters() {
-  cy.findByRole("menu", { name: "Main menu" }).findByText("Monsters").click();
+  clickMainMenuItem("Monsters");
   waitForPageReady();
 }
 
@@ -22,13 +22,30 @@ export function gotoMonster(id: number) {
 }
 
 export function listItems() {
-  cy.findByRole("menu", { name: "Main menu" }).findByText("Items").click();
+  clickMainMenuItem("Items");
   waitForPageReady();
 }
 
 export function gotoItem(id: number) {
   listItems();
   searchByIdAndClickLink(id);
+}
+
+export function clickMainMenuItem(
+  itemName: string,
+  { menuName }: { menuName?: string } = {}
+) {
+  findMainMenu(menuName).findByText(itemName).click();
+}
+
+export function findMainMenu(name: string = "Public menu") {
+  return cy.get("body").then(($body) => {
+    const [menuTrigger] = $body.find(`button[aria-label="Open main menu"]`);
+    if (menuTrigger) {
+      menuTrigger.click();
+    }
+    return cy.findByRole("menu", { name });
+  });
 }
 
 function searchByIdAndClickLink(id: string | number) {
