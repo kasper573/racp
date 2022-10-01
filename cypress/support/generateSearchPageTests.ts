@@ -25,7 +25,7 @@ export function generateSearchPageTests({
         );
 
         // Reset to the first page before searching and filtering
-        cy.findByRole("button", { name: "Go to first page" }).click();
+        cy.findByRole("button", { name: "Go to previous page" }).click();
       });
     });
   });

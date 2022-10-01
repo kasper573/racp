@@ -1,11 +1,4 @@
-import {
-  Box,
-  Pagination,
-  styled,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, styled } from "@mui/material";
 import { MouseEvent, ComponentProps, useEffect, useState } from "react";
 import {
   DataGrid as MuiDataGrid,
@@ -51,8 +44,6 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
   onHoveredEntityChange,
   ...props
 }: DataGridProps<Entity, Filter, Id>) {
-  const theme = useTheme();
-  const isSmallDisplay = useMediaQuery(theme.breakpoints.down("sm"));
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(20);
   const [sort, setSort] = useState<SearchSort<Entity>>([]);
@@ -88,71 +79,47 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
   }
 
   return (
-    <Box
-      sx={{ height: "100%", display: "flex", flexDirection: "column", ...sx }}
-      {...props}
-    >
-      <Box sx={{ flex: 1 }}>
-        <Grid
-          disableColumnFilter
-          disableColumnSelector={gridProps?.columnVisibilityModel !== undefined}
-          columns={columnList}
-          rows={entities}
-          getRowId={(row) => id(row as Entity)}
-          sortingMode={gridMode}
-          paginationMode={gridMode}
-          autoPageSize={true}
-          page={pageIndex}
-          pageSize={pageSize}
-          // Effectively disable column buffering since it gets in the way of e2e testing.
-          // The optimization is negligible anyway.
-          columnBuffer={99}
-          onPageSizeChange={setPageSize}
-          components={{
-            LoadingOverlay,
-          }}
-          componentsProps={{
-            row: {
-              onMouseEnter: (e: MouseEvent<HTMLElement>) =>
-                emitHoverChange(e.currentTarget),
-              onMouseLeave: () => emitHoverChange(undefined),
-            },
-          }}
-          hideFooter
-          onSortModelChange={
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            setSort as any
-          }
-          sortModel={
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            sort as any
-          }
-          pagination
-          disableSelectionOnClick
-          rowCount={total}
-          loading={isFetching}
-          {...gridProps}
-        />
-      </Box>
-      <Box
-        sx={{
-          mt: 2,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
+    <Box sx={{ flex: 1, ...sx }} {...props}>
+      <Grid
+        disableColumnFilter
+        disableColumnSelector={gridProps?.columnVisibilityModel !== undefined}
+        columns={columnList}
+        rows={entities}
+        getRowId={(row) => id(row as Entity)}
+        sortingMode={gridMode}
+        paginationMode={gridMode}
+        autoPageSize={true}
+        page={pageIndex}
+        pageSize={pageSize}
+        onPageChange={setPageIndex}
+        // Effectively disable column buffering since it gets in the way of e2e testing.
+        // The optimization is negligible anyway.
+        columnBuffer={99}
+        onPageSizeChange={setPageSize}
+        components={{
+          LoadingOverlay,
         }}
-      >
-        <Typography variant="caption">{`${total} matches`}</Typography>
-        <Pagination
-          page={pageIndex + 1}
-          count={pageCount}
-          onChange={(e, page) => setPageIndex(page - 1)}
-          showFirstButton
-          showLastButton
-          boundaryCount={isSmallDisplay ? 0 : undefined}
-          siblingCount={isSmallDisplay ? 0 : undefined}
-        />
-      </Box>
+        componentsProps={{
+          row: {
+            onMouseEnter: (e: MouseEvent<HTMLElement>) =>
+              emitHoverChange(e.currentTarget),
+            onMouseLeave: () => emitHoverChange(undefined),
+          },
+        }}
+        onSortModelChange={
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          setSort as any
+        }
+        sortModel={
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          sort as any
+        }
+        pagination
+        disableSelectionOnClick
+        rowCount={total}
+        loading={isFetching}
+        {...gridProps}
+      />
     </Box>
   );
 }
