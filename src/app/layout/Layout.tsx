@@ -23,7 +23,7 @@ const title = process.env.appTitle;
 
 export function Layout({ children }: { children?: ReactNode }) {
   const theme = useTheme();
-  const isDrawerPermanent = useMediaQuery(theme.breakpoints.up("lg"));
+  const isDrawerPermanent = !useMediaQuery(theme.breakpoints.down("md"));
   const [isDrawerOpen, setDrawerOpen] = useState(isDrawerPermanent);
 
   useEffect(() => setDrawerOpen(isDrawerPermanent), [isDrawerPermanent]);
