@@ -179,12 +179,6 @@ const Grid = styled(MuiDataGrid)`
       outline: none;
     }
   }
-
-  // On small devices enforce a height.
-  // Lazy ugly solution but it works for all current cases.
-  ${({ theme }) => theme.breakpoints.down("md")} {
-    height: 50vh;
-  }
 `;
 
 type ColumnConventionEntry<Entity> =
