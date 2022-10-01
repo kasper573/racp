@@ -3,6 +3,7 @@ import {
   register,
   signIn,
   signOut,
+  updateProfile,
 } from "../support/actions/user";
 import { signInAsAdmin } from "../support/actions/admin";
 import { findMainMenu } from "../support/actions/nav";
@@ -25,11 +26,26 @@ describe("user", () => {
     assertSignedIn("registerTest");
   });
 
-  it("register and then sign in", () => {
+  it("can register and then sign in", () => {
     register("signInTest", "foobar", "sign@bar.com");
     signOut();
     signIn("signInTest", "foobar");
     assertSignedIn("signInTest");
+  });
+
+  it("can change their email", () => {
+    register("emailTest", "foobar", "first@email.com");
+    updateProfile({ email: "new@email.com" });
+    cy.reload(); // Reload to clear any potential form cache
+    cy.findByLabelText("Email").should("have.value", "new@email.com");
+  });
+
+  it("can change their password", () => {
+    register("pwdChange", "password1", "pwd@email.com");
+    updateProfile({ password: "password2" });
+    signOut();
+    signIn("pwdChange", "password2");
+    assertSignedIn("pwdChange");
   });
 
   it("does not have access to admin menu", () => {

@@ -1,4 +1,5 @@
 import { ignoreCase } from "../util";
+import { waitForPageReady } from "./common";
 
 export function openUserMenu() {
   cy.findByRole("button", { name: ignoreCase("open user menu") }).click();
@@ -21,6 +22,25 @@ export function register(username: string, password: string, email: string) {
   cy.findByLabelText("Password").type(password);
   cy.findByLabelText("Password (confirm)").type(password);
   cy.findByRole("button", { name: "Register" }).click();
+}
+
+export function updateProfile({
+  email,
+  password,
+}: {
+  email?: string;
+  password?: string;
+}) {
+  clickUserMenuItem("Settings");
+  if (email !== undefined) {
+    cy.findByLabelText("Email").clear().type(email);
+  }
+  if (password !== undefined) {
+    cy.findByLabelText("New password").clear().type(password);
+    cy.findByLabelText("New password (confirm)").clear().type(password);
+  }
+  cy.findByRole("button", { name: "Save" }).click();
+  waitForPageReady();
 }
 
 export function signIn(username: string, password: string) {
