@@ -36,6 +36,13 @@ jobs:
           MYSQL_DATABASE: ragnarok
           MYSQL_ROOT_PASSWORD: racp
           MYSQL_ROOT_HOST: "%"
+    env:
+      apiPort: 8081
+      appPort: 8080
+      apiBaseUrl: http://localhost:8081
+      rAthenaPath: ./node_modules/rathena
+      CYPRESS_BASE_URL: http://localhost:8080
+      CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v3
 
@@ -64,18 +71,6 @@ jobs:
           MYSQL_USER: ragnarok
           MYSQL_PASSWORD: ragnarok
           MYSQL_DATABASE: ragnarok
-
-      - name: Set shared E2E test environment variables
-        uses: allenevans/set-env@v2.0.0
-        with:
-          NODE_ENV: production
-          apiPort: 8081
-          appPort: 8080
-          apiBaseUrl: http://localhost:8081
-          rAthenaPath: ./node_modules/rathena
-          log: verbose
-          CYPRESS_BASE_URL: http://localhost:8080
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
 
       - name: E2E tests (1024x768)
         run: yarn e2e:ci:run
