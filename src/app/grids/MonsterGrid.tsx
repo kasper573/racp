@@ -1,5 +1,5 @@
 import { Stack } from "@mui/material";
-import { DataGrid, DataGridQueryFn } from "../components/DataGrid";
+import { DataGrid } from "../components/DataGrid";
 import { Monster, MonsterFilter } from "../../api/services/monster/types";
 import { trpc } from "../state/client";
 import { router } from "../router";
@@ -11,11 +11,7 @@ export const MonsterGrid = DataGrid.define<
   MonsterFilter,
   Monster["Id"]
 >({
-  // Without assertion typescript yields possibly infinite error
-  query: trpc.monster.search.useQuery as unknown as DataGridQueryFn<
-    Monster,
-    MonsterFilter
-  >,
+  query: trpc.monster.search.useQuery,
   id: (item) => item.Id,
   columns: {
     Name: {

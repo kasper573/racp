@@ -2,7 +2,7 @@ import { Link } from "../components/Link";
 import { router } from "../router";
 import { MonsterDrop } from "../../api/services/monster/types";
 import { trpc } from "../state/client";
-import { DataGrid, DataGridQueryFn } from "../components/DataGrid";
+import { DataGrid } from "../components/DataGrid";
 import {
   ItemDrop,
   ItemDropFilter,
@@ -14,11 +14,7 @@ export const ItemDropGrid = DataGrid.define<
   ItemDropFilter,
   ItemDropId
 >({
-  // Without assertion typescript yields possibly infinite error
-  query: trpc.drop.search.useQuery as unknown as DataGridQueryFn<
-    ItemDrop,
-    ItemDropFilter
-  >,
+  query: trpc.drop.search.useQuery,
   id: (drop) => drop.Id,
   columns: {
     ItemName: {

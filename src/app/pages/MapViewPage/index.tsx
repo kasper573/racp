@@ -4,13 +4,8 @@ import { Header } from "../../layout/Header";
 import { trpc } from "../../state/client";
 import { router } from "../../router";
 import { useRouteParams } from "../../../lib/hooks/useRouteParams";
-import { DataGridQueryFn } from "../../components/DataGrid";
-import { Warp, WarpFilter, WarpId } from "../../../api/services/map/types";
-import {
-  MonsterSpawn,
-  MonsterSpawnFilter,
-  MonsterSpawnId,
-} from "../../../api/services/monster/types";
+import { WarpId } from "../../../api/services/map/types";
+import { MonsterSpawnId } from "../../../api/services/monster/types";
 import { Point } from "../../../lib/geometry";
 import { LoadingPage } from "../LoadingPage";
 import { CommonPageGrid } from "../../components/CommonPageGrid";
@@ -31,26 +26,19 @@ export default function MapViewPage() {
   } = trpc.map.read.useQuery(id);
   const routePoint = definedPoint({ x, y });
 
-  const { data: { entities: warps = [] } = {} } = (
-    trpc.map.searchWarps.useQuery as unknown as DataGridQueryFn<
-      Warp,
-      WarpFilter
-    >
-  )({ filter: { fromMap: { value: id, matcher: "equals" } }, limit: 50 });
+  const { data: { entities: warps = [] } = {} } = trpc.map.searchWarps.useQuery(
+    { filter: { fromMap: { value: id, matcher: "equals" } }, limit: 50 }
+  );
 
-  const { data: { entities: spawns = [] } = {} } = (
-    trpc.monster.searchSpawns.useQuery as unknown as DataGridQueryFn<
-      MonsterSpawn,
-      MonsterSpawnFilter
-    >
-  )({
-    filter: {
-      map: { value: id, matcher: "equals" },
-      x: { value: 0, matcher: ">" },
-      y: { value: 0, matcher: ">" },
-    },
-    limit: 50,
-  });
+  const { data: { entities: spawns = [] } = {} } =
+    trpc.monster.searchSpawns.useQuery({
+      filter: {
+        map: { value: id, matcher: "equals" },
+        x: { value: 0, matcher: ">" },
+        y: { value: 0, matcher: ">" },
+      },
+      limit: 50,
+    });
 
   if (isLoading || isFetching) {
     return <LoadingPage />;
