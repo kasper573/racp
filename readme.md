@@ -1,6 +1,8 @@
 # rAthena Control Panel
 
-Not ready for public use. Use at your own risk.
+I got tired of most RO control panels and database websites being out of sync with the data of the server I was playing on, so I decided to create my own app that never goes out of sync.
+
+It's mostly a for-fun/practice project, but it turned out to be a useful app as well.
 
 [Demo](http://139.59.197.170)
 
@@ -51,6 +53,8 @@ To run RACP you will need the following software installed on your machine:
 - Run `yarn api:dev` to start the api in dev mode.
 - Run `yarn app:dev` to start the app in dev mode.
 - Visit `http://localhost:8080/` in your browser.
+- (Optional) Run `yarn unit` to run the unit tests (add `--watch` to keep the runner active).
+- (Optional) Run `yarn e2e:dev` to run open the E2E test development tool.
 
 ### Developing against a custom rAthena instance
 
@@ -61,6 +65,16 @@ To run RACP you will need the following software installed on your machine:
 ```
 rAthenaPath=<path>
 ```
+
+### Branching strategy
+
+All development happens in branches. The `main` branch gets deployed to the demo site listed above.
+No branch is allowed to merge unless all tests pass.
+
+### Testing practices
+
+All major features should be covered by E2E tests.
+As for unit tests, they are not required, but are encouraged for more complex units.
 
 ## Deployment
 
