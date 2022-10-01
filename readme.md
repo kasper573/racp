@@ -122,3 +122,11 @@ To use the automatic deployment:
   - `DEPLOY_RATHENA_PATH` - The absolute path to the rAthena folder on your server
   - `DEPLOY_ENABLED` - Set to true to enable automatic deployment
 - GitHub will now deploy automatically whenever you push changes to the main branch of your fork.
+
+## Assets
+
+Once you have RACP running in production, you will need to populate it with data for the best user experience.
+If you do not do this things like item descriptions, monster and map images, etc. will not be available.
+
+To do this, simply sign in to your admin account and go to the Assets page and use the asset uploader.
+Additional instructions are available on the page.
