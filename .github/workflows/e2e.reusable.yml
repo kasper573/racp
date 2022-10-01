@@ -1,0 +1,82 @@
+on:
+  workflow_call:
+    secrets:
+      CYPRESS_PROJECT_ID:
+        description: "Cypress project ID"
+        required: false
+    inputs:
+      width:
+        description: "Cypress viewport width"
+        required: true
+        type: number
+      height:
+        description: "Cypress viewport height"
+        required: true
+        type: number
+jobs:
+  reusable_workflow_job:
+    runs-on: ubuntu-latest
+    container: cypress/included:10.7.0
+    services:
+      db:
+        image: mariadb:latest
+        ports: [3306]
+        env:
+          MYSQL_USER: ragnarok
+          MYSQL_PASSWORD: ragnarok
+          MYSQL_DATABASE: ragnarok
+          MYSQL_ROOT_PASSWORD: racp
+          MYSQL_ROOT_HOST: "%"
+    env:
+      apiPort: 8081
+      appPort: 8080
+      apiBaseUrl: http://localhost:8081
+      rAthenaPath: ./node_modules/rathena
+      CYPRESS_BASE_URL: http://localhost:8080
+      CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: "17"
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "yarn"
+
+      - run: yarn install --frozen-lockfile
+
+      - name: Allow access to rathena and cypress directories
+        run: |
+          chmod -R a+rwX ./node_modules/rathena
+          chmod -R a+rwX ./cypress
+
+      - name: Configure rAthena
+        run: yarn configure-rathena
+        env:
+          MYSQL_PORT: 3306
+          MYSQL_HOST: db
+          MYSQL_USER: ragnarok
+          MYSQL_PASSWORD: ragnarok
+          MYSQL_DATABASE: ragnarok
+
+      - name: E2E tests (${{ inputs.width}}x${{ inputs.height }})
+        run: yarn e2e:ci:run
+        env:
+          CYPRESS_VIEWPORT_WIDTH: ${{ inputs.width }}
+          CYPRESS_VIEWPORT_HEIGHT: ${{ inputs.height }}
+
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: cypress-videos
+          path: cypress/videos
