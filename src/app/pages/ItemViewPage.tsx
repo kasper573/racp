@@ -10,10 +10,8 @@ import { ClientTextBlock } from "../components/ClientText/ClientText";
 import { TabbedPaper } from "../components/TabbedPaper";
 import { Script } from "../components/Script";
 import { resolveToggles } from "../../api/util/matcher";
-import { DataGridQueryFn } from "../components/DataGrid";
 import { dropChanceString, itemNameString } from "../grids/ItemDropGrid";
 import { ImageWithFallback } from "../components/ImageWithFallback";
-import { ItemDrop, ItemDropFilter } from "../../api/services/drop/types";
 import { Link } from "../components/Link";
 import { CommonPageGrid } from "../components/CommonPageGrid";
 import { LoadingPage } from "./LoadingPage";
@@ -21,12 +19,7 @@ import { LoadingPage } from "./LoadingPage";
 export default function ItemViewPage(): ReactElement {
   const { id } = useRouteParams(router.item().view);
   const { data: item, isLoading, error } = trpc.item.read.useQuery(id);
-  const { data: { entities: drops = [] } = {} } = (
-    trpc.drop.search.useQuery as unknown as DataGridQueryFn<
-      ItemDrop,
-      ItemDropFilter
-    >
-  )({
+  const { data: { entities: drops = [] } = {} } = trpc.drop.search.useQuery({
     filter: { ItemId: { value: id, matcher: "=" } },
     sort: [{ field: "Rate", sort: "desc" }],
   });
