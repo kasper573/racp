@@ -38,10 +38,10 @@ export default function MapViewPage() {
     trpc.monster.searchSpawns.useQuery({
       filter: {
         map: { value: id, matcher: "equals" },
-        x: { value: 0, matcher: ">" },
-        y: { value: 0, matcher: ">" },
       },
     });
+
+  const locatedSpawns = spawns.filter((spawn) => spawn.x && spawn.y);
 
   if (isLoading || isFetching) {
     return <LoadingPage />;
@@ -79,7 +79,7 @@ export default function MapViewPage() {
             map={map}
             tab={tab}
             warps={warps}
-            spawns={spawns}
+            spawns={locatedSpawns}
             routePoint={routePoint}
             highlightWarpId={highlightWarpId}
             highlightSpawnId={highlightSpawnId}
