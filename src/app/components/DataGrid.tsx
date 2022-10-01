@@ -46,7 +46,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
   ...props
 }: DataGridProps<Entity, Filter, Id>) {
   const theme = useTheme();
-  const isSmallDisplay = useMediaQuery(theme.breakpoints.down("lg"));
+  const isSmallDisplay = useMediaQuery(theme.breakpoints.down("sm"));
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(20);
   const [sort, setSort] = useState<SearchSort<Entity>>([]);
@@ -172,6 +172,7 @@ DataGrid.define = <Entity, Filter, Id extends GridRowId>(
 };
 
 const Grid = styled(MuiDataGrid)`
+  min-height: 370px; // Never falls below 6 rows
   .MuiDataGrid-cell,
   .MuiDataGrid-columnHeader {
     &:focus,
