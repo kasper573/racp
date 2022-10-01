@@ -13,6 +13,7 @@ import {
 } from "../../../api/services/monster/types";
 import { Point } from "../../../lib/geometry";
 import { LoadingPage } from "../LoadingPage";
+import { CommonPageGrid } from "../../components/CommonPageGrid";
 import { MapRender } from "./MapRender";
 import { MapTabs } from "./MapTabs";
 
@@ -61,7 +62,7 @@ export default function MapViewPage() {
   return (
     <>
       <Header back={router.map}>{map.displayName}</Header>
-      <Stack spacing={2} direction="row" sx={{ flex: 1 }}>
+      <CommonPageGrid>
         <Stack direction="column" sx={{ flex: 2 }}>
           <Stack direction="row" sx={{ height: 48 }}>
             <FormControlLabel
@@ -98,11 +99,12 @@ export default function MapViewPage() {
         </Stack>
         <Stack direction="column" sx={{ flex: 3 }}>
           <MapTabs
+            routeParams={{ id, x, y, tab }}
             setHighlightWarpId={setHighlightWarpId}
             setHighlightSpawnId={setHighlightSpawnId}
           />
         </Stack>
-      </Stack>
+      </CommonPageGrid>
     </>
   );
 }

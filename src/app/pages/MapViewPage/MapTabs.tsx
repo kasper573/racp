@@ -2,22 +2,27 @@ import { memo } from "react";
 import { useHistory } from "react-router";
 import { WarpId } from "../../../api/services/map/types";
 import { MonsterSpawnId } from "../../../api/services/monster/types";
-import { useRouteParams } from "../../../lib/hooks/useRouteParams";
 import { router } from "../../router";
 import { TabSwitch } from "../../components/TabSwitch";
 import { WarpGrid } from "../../grids/WarpGrid";
 import { MonsterSpawnGrid } from "../../grids/MonsterSpawnGrid";
 
+type RouteParams = ReturnType<
+  typeof router["map"]["children"]["view"]["parseParams"]
+>;
+
 export const MapTabs = memo(
   ({
+    routeParams: { id, x, y, tab },
     setHighlightWarpId,
     setHighlightSpawnId,
   }: {
+    routeParams: RouteParams;
     setHighlightWarpId: (warpId?: WarpId) => void;
     setHighlightSpawnId: (spawnId?: MonsterSpawnId) => void;
   }) => {
     const history = useHistory();
-    const { id, x, y, tab } = useRouteParams(router.map().view);
+
     return (
       <TabSwitch
         activeTabId={tab ?? "warps"}

@@ -15,6 +15,7 @@ import { dropChanceString, itemNameString } from "../grids/ItemDropGrid";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 import { ItemDrop, ItemDropFilter } from "../../api/services/drop/types";
 import { Link } from "../components/Link";
+import { CommonPageGrid } from "../components/CommonPageGrid";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ItemViewPage(): ReactElement {
@@ -71,7 +72,7 @@ export default function ItemViewPage(): ReactElement {
           ]}
         />
 
-        <Stack spacing={3} direction="row" sx={{ width: "100%" }}>
+        <CommonPageGrid>
           {scripts.length > 0 && (
             <TabbedPaper
               tabs={scripts.map(([label, script]) => ({
@@ -116,7 +117,7 @@ export default function ItemViewPage(): ReactElement {
               },
             ]}
           />
-        </Stack>
+        </CommonPageGrid>
       </Stack>
     </>
   );

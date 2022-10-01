@@ -1,4 +1,11 @@
-import { Box, Pagination, styled, Typography } from "@mui/material";
+import {
+  Box,
+  Pagination,
+  styled,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { MouseEvent, ComponentProps, useEffect, useState } from "react";
 import { DataGrid as MuiDataGrid, GridColumns } from "@mui/x-data-grid";
 import { GridRowId } from "@mui/x-data-grid/models/gridRows";
@@ -38,6 +45,8 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
   onHoveredEntityChange,
   ...props
 }: DataGridProps<Entity, Filter, Id>) {
+  const theme = useTheme();
+  const isSmallDisplay = useMediaQuery(theme.breakpoints.down("lg"));
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(20);
   const [sort, setSort] = useState<SearchSort<Entity>>([]);
@@ -134,6 +143,8 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
           onChange={(e, page) => setPageIndex(page - 1)}
           showFirstButton
           showLastButton
+          boundaryCount={isSmallDisplay ? 0 : undefined}
+          siblingCount={isSmallDisplay ? 0 : undefined}
         />
       </Box>
     </Box>

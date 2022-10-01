@@ -18,6 +18,7 @@ export function findDataCells(
   name: string,
   filter?: RegExp | string | number | ((textContent: string) => boolean)
 ) {
+  cy.log(`Finding cells for column "${name}" and filter "${filter}"`);
   return cy.findByRole("columnheader", { name }).then((header) => {
     const fieldName = header.attr(fieldAttribute);
     return cy.findAllByRole("cell", {

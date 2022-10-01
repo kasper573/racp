@@ -1,4 +1,5 @@
 import { signIn } from "./user";
+import { clickMainMenuItem } from "./nav";
 
 export function signInAsAdmin() {
   signIn(Cypress.env("ADMIN_USER"), Cypress.env("ADMIN_PASSWORD"));
@@ -6,7 +7,7 @@ export function signInAsAdmin() {
 
 export function uploadAssets() {
   const fixtures = Cypress.config("fixturesFolder");
-  cy.findByRole("menu", { name: "Admin" }).findByText("Assets").click();
+  clickMainMenuItem("Assets", { menuName: "Admin" });
   cy.selectFileByName("mapInfo", `${fixtures}/mapInfo_prontera.lub`);
   cy.selectFileByName("itemInfo", `${fixtures}/itemInfo_red-potion.lub`);
   cy.selectFileByName("data", `${fixtures}/prontera_poring_red-potion.grf`);

@@ -1,4 +1,12 @@
-import { ComponentProps, ReactElement, ReactNode, useState } from "react";
+import {
+  ComponentProps,
+  ReactElement,
+  ReactNode,
+  RefObject,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { Tab, Tabs } from "@mui/material";
 
 export interface TabItem {
@@ -20,14 +28,23 @@ export function TabSwitch({
   renderContent = (content) => content,
   ...tabsProps
 }: TabSwitchProps) {
-  const tabs = inputTabs.map((tab, index) => ({ ...tab, id: tab.id ?? index }));
+  const tabs = inputTabs.map((tab, index) => ({
+    ...tab,
+    id: tab.id ?? index,
+  }));
   const [localId, setLocalId] = useState(tabs[0]?.id);
   const activeId = inputId ?? localId;
   const activeTab = tabs.find(({ id }) => id === activeId);
+  const ref = useRef<HTMLButtonElement>(null);
+
+  // "scroll to" required to persist scroll position in some scenarios,
+  // due to some tabs being controlled by url changes, which resets scroll to top.
+  useScrollToOnChange(ref, activeId);
 
   return (
     <>
       <Tabs
+        ref={ref}
         value={activeId}
         onChange={(e, newId) => setLocalId(newId)}
         {...tabsProps}
@@ -41,4 +58,17 @@ export function TabSwitch({
         : undefined}
     </>
   );
+}
+
+function useScrollToOnChange(
+  ref: RefObject<HTMLElement>,
+  changeTrigger: unknown
+) {
+  useLayoutEffect(() => {
+    if (ref.current) {
+      const { top } = ref.current.getBoundingClientRect();
+      window.scrollTo({ top });
+      setTimeout(() => window.scrollTo({ top }), 0);
+    }
+  }, [ref, changeTrigger]);
 }

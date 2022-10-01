@@ -7,16 +7,24 @@ import { UserAccessLevel } from "../../api/services/user/types";
 const publicRoutes = [router.item, router.monster, router.map];
 const protectedRoutes = Object.values(router.admin.children);
 
-export function Menu() {
+export function Menu({ onItemSelected }: { onItemSelected?: () => void }) {
   return (
     <>
-      <RouteList aria-label="Main menu" routes={publicRoutes} />
+      <RouteList
+        aria-label="Public menu"
+        routes={publicRoutes}
+        onClick={onItemSelected}
+      />
       <Auth atLeast={UserAccessLevel.Admin}>
         <Typography id="admin-menu" sx={{ pl: 2 }}>
           Admin
         </Typography>
         <Divider />
-        <RouteList aria-labelledby="admin-menu" routes={protectedRoutes} />
+        <RouteList
+          aria-labelledby="admin-menu"
+          routes={protectedRoutes}
+          onClick={onItemSelected}
+        />
       </Auth>
     </>
   );

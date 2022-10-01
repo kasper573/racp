@@ -5,6 +5,7 @@ import {
   signOut,
 } from "../support/actions/user";
 import { signInAsAdmin } from "../support/actions/admin";
+import { findMainMenu } from "../support/actions/nav";
 
 beforeEach(() => {
   cy.visit("/");
@@ -14,7 +15,7 @@ describe("admin", () => {
   beforeEach(signInAsAdmin);
   it("can sign in", () => assertSignedIn());
   it("have access to admin menu once signed in", () => {
-    cy.findByRole("menu", { name: "Admin" }).should("exist");
+    findMainMenu("Admin").should("exist");
   });
 });
 
@@ -34,12 +35,12 @@ describe("user", () => {
   it("does not have access to admin menu", () => {
     register("noAdmin", "foobar", "no-admin@bar.com");
     assertSignedIn("noAdmin");
-    cy.findByRole("menu", { name: "Admin" }).should("not.exist");
+    findMainMenu("Admin").should("not.exist");
   });
 });
 
 describe("guest", () => {
   it("does not have access to admin menu", () => {
-    cy.findByRole("menu", { name: "Admin" }).should("not.exist");
+    findMainMenu("Admin").should("not.exist");
   });
 });

@@ -23,68 +23,16 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: yarn test
 
-  e2e-test:
-    runs-on: ubuntu-latest
-    container: cypress/included:10.7.0
-    services:
-      db:
-        image: mariadb:latest
-        ports: [3306]
-        env:
-          MYSQL_USER: ragnarok
-          MYSQL_PASSWORD: ragnarok
-          MYSQL_DATABASE: ragnarok
-          MYSQL_ROOT_PASSWORD: racp
-          MYSQL_ROOT_HOST: "%"
-    steps:
-      - uses: actions/checkout@v3
+  e2e-desktop:
+    uses: ./.github/workflows/e2e.reusable.yml
+    with:
+      width: 1024
+      height: 768
+    secrets: inherit
 
-      - uses: actions/setup-java@v3
-        with:
-          distribution: "zulu"
-          java-version: "17"
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: "16"
-          cache: "yarn"
-
-      - run: yarn install --frozen-lockfile
-
-      - name: Allow access to rathena and cypress directories
-        run: |
-          chmod -R a+rwX ./node_modules/rathena
-          chmod -R a+rwX ./cypress
-
-      - name: Configure rAthena
-        run: yarn configure-rathena
-        env:
-          MYSQL_PORT: 3306
-          MYSQL_HOST: db
-          MYSQL_USER: ragnarok
-          MYSQL_PASSWORD: ragnarok
-          MYSQL_DATABASE: ragnarok
-
-      - run: yarn e2e:ci:run
-        env:
-          NODE_ENV: production
-          apiPort: 8081
-          appPort: 8080
-          apiBaseUrl: http://localhost:8081
-          rAthenaPath: ./node_modules/rathena
-          log: verbose
-          CYPRESS_BASE_URL: http://localhost:8080
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-          #CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-
-      - uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: cypress-screenshots
-          path: cypress/screenshots
-
-      - uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: cypress-videos
-          path: cypress/videos
+  e2e-mobile:
+    uses: ./.github/workflows/e2e.reusable.yml
+    with:
+      width: 428
+      height: 926
+    secrets: inherit
