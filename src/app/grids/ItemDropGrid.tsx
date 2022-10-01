@@ -46,5 +46,5 @@ export function itemNameString(name: string, slots?: number) {
 }
 
 export function dropChanceString(drop: MonsterDrop["Rate"]) {
-  return `${drop / 1000}%`;
+  return `${drop / 100}%`;
 }
