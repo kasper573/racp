@@ -1,10 +1,21 @@
+import { ignoreCase } from "../util";
+import { waitForPageReady } from "./common";
+
 export function openUserMenu() {
-  cy.findByRole("button", { name: "Open user menu" }).click();
-  return cy.findByRole("menu", { name: "User menu" });
+  cy.findByRole("button", { name: ignoreCase("open user menu") }).click();
+  return cy.findByRole("menu", { name: ignoreCase("user menu") });
+}
+
+export function clickUserMenuItem(name: string) {
+  openUserMenu()
+    .findByRole((role) => /link|button|listitem|menuitem/i.test(role), {
+      name: ignoreCase(name),
+    })
+    .click();
 }
 
 export function register(username: string, password: string, email: string) {
-  openUserMenu().findByRole("link", { name: "Register" }).click();
+  clickUserMenuItem("register");
 
   cy.findByLabelText("Username").type(username);
   cy.findByLabelText("Email").type(email);
@@ -13,16 +24,34 @@ export function register(username: string, password: string, email: string) {
   cy.findByRole("button", { name: "Register" }).click();
 }
 
-export function signIn(username: string, password: string) {
-  openUserMenu().findByRole("link", { name: "Sign in" }).click();
+export function updateProfile({
+  email,
+  password,
+}: {
+  email?: string;
+  password?: string;
+}) {
+  clickUserMenuItem("Settings");
+  if (email !== undefined) {
+    cy.findByLabelText("Email").clear().type(email);
+  }
+  if (password !== undefined) {
+    cy.findByLabelText("New password").clear().type(password);
+    cy.findByLabelText("New password (confirm)").clear().type(password);
+  }
+  cy.findByRole("button", { name: "Save" }).click();
+  waitForPageReady();
+}
 
+export function signIn(username: string, password: string) {
+  clickUserMenuItem("Sign in");
   cy.findByLabelText("Username").type(username);
   cy.findByLabelText("Password").type(password);
   cy.findByRole("button", { name: "Sign in" }).click();
 }
 
 export function signOut() {
-  openUserMenu().findByRole("menuitem", { name: "Sign out" }).click();
+  clickUserMenuItem("Sign out");
 }
 
 export function assertSignedIn(username?: string) {

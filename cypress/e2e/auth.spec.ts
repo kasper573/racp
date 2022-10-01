@@ -3,6 +3,7 @@ import {
   register,
   signIn,
   signOut,
+  updateProfile,
 } from "../support/actions/user";
 import { signInAsAdmin } from "../support/actions/admin";
 import { findMainMenu } from "../support/actions/nav";
@@ -20,21 +21,37 @@ describe("admin", () => {
 });
 
 describe("user", () => {
-  it("can register and is signed in after", () => {
-    register("registerTest", "foobar", "reg@bar.com");
-    assertSignedIn("registerTest");
+  let user: TestUser;
+  beforeEach(() => {
+    user = nextTestUser();
+    register(user.name, user.password, user.email);
   });
 
-  it("register and then sign in", () => {
-    register("signInTest", "foobar", "sign@bar.com");
+  it("is signed in after registering", () => {
+    assertSignedIn(user.name);
+  });
+
+  it("can sign in", () => {
     signOut();
-    signIn("signInTest", "foobar");
-    assertSignedIn("signInTest");
+    signIn(user.name, user.password);
+    assertSignedIn(user.name);
+  });
+
+  it("can change their email", () => {
+    updateProfile({ email: "new@email.com" });
+    cy.reload(); // Reload to clear any potential form cache
+    cy.findByLabelText("Email").should("have.value", "new@email.com");
+  });
+
+  it("can change their password", () => {
+    updateProfile({ password: "password2" });
+    signOut();
+    signIn(user.name, "password2");
+    assertSignedIn(user.name);
   });
 
   it("does not have access to admin menu", () => {
-    register("noAdmin", "foobar", "no-admin@bar.com");
-    assertSignedIn("noAdmin");
+    assertSignedIn(user.name);
     findMainMenu("Admin").should("not.exist");
   });
 });
@@ -44,3 +61,14 @@ describe("guest", () => {
     findMainMenu("Admin").should("not.exist");
   });
 });
+
+type TestUser = ReturnType<typeof nextTestUser>;
+let testUserCount = 0;
+function nextTestUser() {
+  const id = testUserCount++;
+  return {
+    name: "test" + id,
+    password: "foobar",
+    email: `test${id}@users.com`,
+  };
+}

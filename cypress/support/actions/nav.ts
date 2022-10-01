@@ -1,8 +1,9 @@
+import { ignoreCase } from "../util";
 import { findRowById } from "./grid";
 import { waitForPageReady } from "./common";
 
 export function listMaps() {
-  clickMainMenuItem("Maps");
+  clickMainMenuItem("maps");
   waitForPageReady();
 }
 
@@ -12,7 +13,7 @@ export function gotoMap(id: string) {
 }
 
 export function listMonsters() {
-  clickMainMenuItem("Monsters");
+  clickMainMenuItem("monsters");
   waitForPageReady();
 }
 
@@ -22,7 +23,7 @@ export function gotoMonster(id: number) {
 }
 
 export function listItems() {
-  clickMainMenuItem("Items");
+  clickMainMenuItem("items");
   waitForPageReady();
 }
 
@@ -35,16 +36,16 @@ export function clickMainMenuItem(
   itemName: string,
   { menuName }: { menuName?: string } = {}
 ) {
-  findMainMenu(menuName).findByText(itemName).click();
+  findMainMenu(menuName).findByText(ignoreCase(itemName)).click();
 }
 
-export function findMainMenu(name: string = "Public menu") {
+export function findMainMenu(name: string = "public menu") {
   return cy.get("body").then(($body) => {
     const [menuTrigger] = $body.find(`button[aria-label="Open main menu"]`);
     if (menuTrigger) {
       menuTrigger.click();
     }
-    return cy.findByRole("menu", { name });
+    return cy.findByRole("menu", { name: ignoreCase(name) });
   });
 }
 
