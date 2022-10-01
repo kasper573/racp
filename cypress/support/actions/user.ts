@@ -1,10 +1,20 @@
+import { ignoreCase } from "../util";
+
 export function openUserMenu() {
-  cy.findByRole("button", { name: "Open user menu" }).click();
-  return cy.findByRole("menu", { name: "User menu" });
+  cy.findByRole("button", { name: ignoreCase("open user menu") }).click();
+  return cy.findByRole("menu", { name: ignoreCase("user menu") });
+}
+
+export function clickUserMenuItem(name: string) {
+  openUserMenu()
+    .findByRole((role) => /link|button|listitem|menuitem/i.test(role), {
+      name: ignoreCase(name),
+    })
+    .click();
 }
 
 export function register(username: string, password: string, email: string) {
-  openUserMenu().findByRole("link", { name: "Register" }).click();
+  clickUserMenuItem("register");
 
   cy.findByLabelText("Username").type(username);
   cy.findByLabelText("Email").type(email);
@@ -14,15 +24,14 @@ export function register(username: string, password: string, email: string) {
 }
 
 export function signIn(username: string, password: string) {
-  openUserMenu().findByRole("link", { name: "Sign in" }).click();
-
+  clickUserMenuItem("Sign in");
   cy.findByLabelText("Username").type(username);
   cy.findByLabelText("Password").type(password);
   cy.findByRole("button", { name: "Sign in" }).click();
 }
 
 export function signOut() {
-  openUserMenu().findByRole("menuitem", { name: "Sign out" }).click();
+  clickUserMenuItem("Sign out");
 }
 
 export function assertSignedIn(username?: string) {
