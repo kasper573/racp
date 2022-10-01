@@ -41,11 +41,8 @@ export function MapRender({
   const theme = useTheme();
 
   const spawnSwarms = useMemo(() => createMonsterSwarms(spawns), [spawns]);
-  const highlightedWarp = warps.find(
-    (warp) => warp.npcEntityId === highlightWarpId
-  );
-  const localWarps = warps.filter(
-    (warp) => warp.toMap === map.id && warp === highlightedWarp
+  const arrowWarp = warps.find(
+    (warp) => warp.toMap === map.id && warp.npcEntityId === highlightWarpId
   );
   const highlightedSwarm = spawnSwarms.find((swarm) =>
     swarm.all.some(
@@ -57,20 +54,20 @@ export function MapRender({
     <MapContainer imageUrl={map.imageUrl} bounds={map.bounds}>
       {showWarpPins && (
         <Xwrapper>
-          {localWarps.map((warp, index) => (
-            <Fragment key={index}>
+          {arrowWarp && (
+            <>
               <Xarrow
-                start={warpXArrowId(warp)}
-                end={pointXArrowId({ x: warp.toX, y: warp.toY })}
+                start={warpXArrowId(arrowWarp)}
+                end={pointXArrowId({ x: arrowWarp.toX, y: arrowWarp.toY })}
                 color={theme.palette.primary.main}
               />
               <MapCoordinate
-                id={pointXArrowId({ x: warp.toX, y: warp.toY })}
-                x={warp.toX}
-                y={warp.toY}
+                id={pointXArrowId({ x: arrowWarp.toX, y: arrowWarp.toY })}
+                x={arrowWarp.toX}
+                y={arrowWarp.toY}
               />
-            </Fragment>
-          ))}
+            </>
+          )}
           {warps.map((warp, index) => {
             const mouseBindings = {
               onMouseOver: () => setHighlightWarpId?.(warp.npcEntityId),
@@ -82,7 +79,7 @@ export function MapRender({
                 key={`warp${index}`}
                 x={warp.fromX}
                 y={warp.fromY}
-                highlight={warp === highlightedWarp}
+                highlight={warp.npcEntityId === highlightWarpId}
                 {...mouseBindings}
                 label={
                   <LinkOnMap
