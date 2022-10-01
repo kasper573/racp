@@ -1,13 +1,10 @@
 import { gotoMap, listMaps } from "../support/actions/nav";
 import { findDataCells, findRowById } from "../support/actions/grid";
 import { compareStrings } from "../support/util";
-import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
 import { generateSearchPageTests } from "../support/generateSearchPageTests";
 
 before(() => {
   cy.visit("/");
-  signInAsAdmin();
-  uploadAssets();
 });
 
 describe("search", () => {
