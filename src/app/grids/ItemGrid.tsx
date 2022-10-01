@@ -1,13 +1,11 @@
 import { Stack } from "@mui/material";
 import { DataGrid } from "../components/DataGrid";
-import { Item, ItemFilter } from "../../api/services/item/types";
 import { trpc } from "../state/client";
 import { router } from "../router";
 import { Link } from "../components/Link";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 
-export const ItemGrid = DataGrid.define<Item, ItemFilter, Item["Id"]>({
-  query: trpc.item.search.useQuery,
+export const ItemGrid = DataGrid.define(trpc.item.search.useQuery)({
   id: (item) => item.Id,
   columns: {
     Name: {

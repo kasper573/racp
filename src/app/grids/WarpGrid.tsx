@@ -1,11 +1,9 @@
 import { DataGrid } from "../components/DataGrid";
-import { Warp, WarpFilter, WarpId } from "../../api/services/map/types";
 import { trpc } from "../state/client";
 import { router } from "../router";
 import { Link } from "../components/Link";
 
-export const WarpGrid = DataGrid.define<Warp, WarpFilter, WarpId>({
-  query: trpc.map.searchWarps.useQuery,
+export const WarpGrid = DataGrid.define(trpc.map.searchWarps.useQuery)({
   id: (warp) => warp.npcEntityId,
   columns: {
     toMap: {

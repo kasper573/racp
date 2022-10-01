@@ -161,13 +161,20 @@ export type DataGridQueryFn<Entity = any, Filter = any> = (
 };
 
 type DefinedKeys = "query" | "link" | "id" | "columns";
-DataGrid.define = <Entity, Filter, Id extends GridRowId>(
-  definedProps: Pick<DataGridProps<Entity, Filter, Id>, DefinedKeys>
-) => {
-  return function SpecificDataGrid(
-    restProps: Omit<DataGridProps<Entity, Filter, Id>, DefinedKeys>
-  ) {
-    return <DataGrid {...definedProps} {...restProps} />;
+DataGrid.define = <QueryFn extends DataGridQueryFn>(query: QueryFn) => {
+  type Entity = QueryFn extends DataGridQueryFn<infer E> ? E : never;
+  type Filter = QueryFn extends DataGridQueryFn<Entity, infer F> ? F : never;
+  return <Id extends GridRowId>(
+    definedProps: Omit<
+      Pick<DataGridProps<Entity, Filter, Id>, DefinedKeys>,
+      "query"
+    >
+  ) => {
+    return function SpecificDataGrid(
+      restProps: Omit<DataGridProps<Entity, Filter, Id>, DefinedKeys>
+    ) {
+      return <DataGrid query={query} {...definedProps} {...restProps} />;
+    };
   };
 };
 

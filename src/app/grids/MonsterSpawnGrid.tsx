@@ -1,22 +1,15 @@
 import { Stack } from "@mui/material";
 import { DataGrid } from "../components/DataGrid";
-import {
-  MonsterSpawn,
-  MonsterSpawnFilter,
-  MonsterSpawnId,
-} from "../../api/services/monster/types";
+
 import { trpc } from "../state/client";
 import { router } from "../router";
 import { durationString } from "../../lib/std/durationString";
 import { Link } from "../components/Link";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 
-export const MonsterSpawnGrid = DataGrid.define<
-  MonsterSpawn,
-  MonsterSpawnFilter,
-  MonsterSpawnId
->({
-  query: trpc.monster.searchSpawns.useQuery,
+export const MonsterSpawnGrid = DataGrid.define(
+  trpc.monster.searchSpawns.useQuery
+)({
   id: (spawn) => spawn.npcEntityId,
   columns: {
     name: {
