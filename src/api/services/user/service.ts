@@ -117,7 +117,7 @@ export function createUserService({
           .where("email", "=", email)
           .first();
 
-        if (emailOwner?.account_id !== auth.id) {
+        if (emailOwner && emailOwner?.account_id !== auth.id) {
           throw new TRPCError({
             code: "CONFLICT",
             message: "Email already taken",
