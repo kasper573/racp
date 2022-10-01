@@ -1,4 +1,4 @@
-import { ReactNode, Suspense } from "react";
+import { CSSProperties, ReactNode, Suspense, useEffect, useState } from "react";
 import {
   AppBar,
   Box,
@@ -7,8 +7,12 @@ import {
   Container,
   Divider,
   styled,
+  useTheme,
+  useMediaQuery,
+  IconButton,
 } from "@mui/material";
 import { Helmet } from "react-helmet-async";
+import { Menu as MenuIcon } from "@mui/icons-material";
 import { LoadingPage } from "../pages/LoadingPage";
 import { globalStyles } from "./globalStyles";
 import { Logo } from "./Logo";
@@ -18,48 +22,71 @@ import { Menu } from "./Menu";
 const title = process.env.appTitle;
 
 export function Layout({ children }: { children?: ReactNode }) {
-  const width = 240;
-  const maxWidth = "xl" as const;
-  const contentBounds = {
-    width: `calc(100% - ${width}px)`,
-    ml: `${width}px`,
+  const theme = useTheme();
+  const isDrawerPermanent = useMediaQuery(theme.breakpoints.up("lg"));
+  const [isDrawerOpen, setDrawerOpen] = useState(isDrawerPermanent);
+
+  useEffect(() => setDrawerOpen(isDrawerPermanent), [isDrawerPermanent]);
+  function handleDrawerCloseRequest() {
+    if (!isDrawerPermanent) {
+      setDrawerOpen(false);
+    }
+  }
+
+  const drawerWidth = 240;
+  const maxContentWidth = "xl" as const;
+  const contentBounds: CSSProperties = {
+    width: isDrawerPermanent ? `calc(100% - ${drawerWidth}px)` : undefined,
+    marginLeft: isDrawerPermanent ? `${drawerWidth}px` : undefined,
     display: "flex",
     flexDirection: "column",
     flex: 1,
   };
+
   return (
     <>
       <Helmet>
         <title>{title}</title>
+        <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Helmet>
       {globalStyles}
       <AppBar position="fixed" sx={contentBounds}>
         <MuiToolbar disableGutters>
-          <Container maxWidth={maxWidth} sx={{ display: "flex" }}>
-            <Toolbar />
+          <Container maxWidth={maxContentWidth} sx={{ display: "flex" }}>
+            <Toolbar>
+              {!isDrawerPermanent && (
+                <IconButton
+                  aria-label="Open main menu"
+                  onClick={() => setDrawerOpen(true)}
+                >
+                  <MenuIcon />
+                </IconButton>
+              )}
+            </Toolbar>
           </Container>
         </MuiToolbar>
       </AppBar>
       <MuiDrawer
         role="menu"
-        variant="permanent"
+        variant={isDrawerPermanent ? "permanent" : "temporary"}
+        open={isDrawerOpen}
+        onClose={handleDrawerCloseRequest}
         sx={{
           "& .MuiDrawer-paper": {
             boxSizing: "border-box",
-            width,
+            width: drawerWidth,
           },
         }}
-        open
       >
         <MuiToolbar>
           <Logo>{title}</Logo>
         </MuiToolbar>
         <Divider />
-        <Menu />
+        <Menu onItemSelected={handleDrawerCloseRequest} />
       </MuiDrawer>
       <Box component="main" sx={contentBounds}>
         <MuiToolbar />
-        <ContentBounds maxWidth={maxWidth}>
+        <ContentBounds maxWidth={maxContentWidth}>
           <ContentSurface>
             <Suspense fallback={<LoadingPage />}>{children}</Suspense>
           </ContentSurface>
