@@ -107,8 +107,8 @@ describe("details", () => {
   it("can list spawns", () => {
     cy.findByRole("tab", { name: /spawns/i }).click();
     findDataCells("Map", /gef_fild00/i);
-    findDataCells("Map", /pay_fild04/i);
-    findDataCells("Map", /xmas_dun01/i);
+    findDataCells("Map", /pay_fild01/i);
+    findDataCells("Map", /sec_in02/i);
   });
 
   it("can list drops", () => {
