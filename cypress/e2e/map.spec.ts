@@ -36,8 +36,8 @@ describe("details", () => {
 
   it("can list warps", () => {
     cy.findByRole("tab", { name: /warps/i }).click();
-    findDataCells("Destination", /prt_fild02/i);
     findDataCells("Destination", /prt_maze01/i);
+    findDataCells("Destination", /prt_gld/i);
     findDataCells("Destination", /mjolnir_10/i);
   });
 
