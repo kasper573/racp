@@ -35,6 +35,13 @@ export function MenuOn<T extends Element>({
         transformOrigin={{ vertical: "top", horizontal: "right" }}
         keepMounted
         open={Boolean(anchor)}
+        MenuListProps={{
+          ...menuProps.MenuListProps,
+          onClick: concatFunctions(
+            menuProps.MenuListProps?.onClick,
+            closeOnMenuClicked ? close : undefined
+          ),
+        }}
         PaperProps={{
           sx: {
             overflow: "visible",
@@ -42,9 +49,7 @@ export function MenuOn<T extends Element>({
         }}
         onClose={concatFunctions(menuProps.onClose, close)}
       >
-        <div {...contentProps} onClick={closeOnMenuClicked ? close : undefined}>
-          {children}
-        </div>
+        {children}
       </Menu>
     </>
   );

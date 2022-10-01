@@ -37,8 +37,8 @@ export function Toolbar({ children }: { children?: ReactNode }) {
           </IconButton>
         </Tooltip>
         <MenuOn
-          contentProps={{
-            "data-testid": "user menu",
+          MenuListProps={{
+            "aria-label": "User menu",
           }}
           trigger={(open) => (
             <IconButton
