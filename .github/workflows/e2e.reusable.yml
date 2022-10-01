@@ -14,7 +14,7 @@ on:
         required: true
         type: number
 jobs:
-  reusable_workflow_job:
+  run:
     runs-on: ubuntu-latest
     container: cypress/included:10.7.0
     services:
