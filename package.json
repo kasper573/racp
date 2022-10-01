@@ -15,6 +15,7 @@
     "api:dev": "ts-node-dev --files src/api/server --apiPort 8081 --log truncated",
     "api:prod": "cross-env NODE_ENV=production ts-node --files src/api/server",
     "e2e:dev": "cross-env CYPRESS_BASE_URL=http://localhost:8080 cypress open",
+    "e2e:run": "cross-env CYPRESS_BASE_URL=http://localhost:8080 cypress run",
     "e2e:ci:dependencies": "concurrently \"yarn api:prod\" \"yarn app:prod\"",
     "e2e:ci:run": "cross-var npx start-server-and-test e2e:ci:dependencies $CYPRESS_BASE_URL 'cypress run'",
     "reset-data": "ts-node --files scripts/resetData.ts",
