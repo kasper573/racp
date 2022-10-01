@@ -15,6 +15,7 @@ on:
         type: number
 jobs:
   run:
+    name: ${{ inputs.width}}x${{ inputs.height }}
     runs-on: ubuntu-latest
     container: cypress/included:10.7.0
     services:
@@ -63,7 +64,7 @@ jobs:
           MYSQL_PASSWORD: ragnarok
           MYSQL_DATABASE: ragnarok
 
-      - name: E2E tests (${{ inputs.width}}x${{ inputs.height }})
+      - name: Run cypress
         run: yarn e2e:ci:run
         env:
           CYPRESS_VIEWPORT_WIDTH: ${{ inputs.width }}
