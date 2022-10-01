@@ -36,9 +36,7 @@ export default function MapViewPage() {
 
   const { data: { entities: spawns = [] } = {} } =
     trpc.monster.searchSpawns.useQuery({
-      filter: {
-        map: { value: id, matcher: "equals" },
-      },
+      filter: { map: { value: id, matcher: "equals" } },
     });
 
   const locatedSpawns = spawns.filter((spawn) => spawn.x && spawn.y);
