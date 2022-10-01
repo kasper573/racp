@@ -13,6 +13,7 @@ import { KVTable } from "../components/KVTable";
 import { ItemDropGrid } from "../grids/ItemDropGrid";
 import { TooltipText } from "../components/TooltipText";
 import { ImageWithFallback } from "../components/ImageWithFallback";
+import { CommonPageGrid } from "../components/CommonPageGrid";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MonsterViewPage(): ReactElement {
@@ -43,7 +44,7 @@ export default function MonsterViewPage(): ReactElement {
         <MonsterImage src={monster.ImageUrl} alt={monster.Name} />
       </Header>
 
-      <Stack spacing={2} direction="row" sx={{ flex: 1 }}>
+      <CommonPageGrid>
         <Box sx={{ flex: 1 }}>
           <TabbedPaper
             tabs={[
@@ -121,7 +122,7 @@ export default function MonsterViewPage(): ReactElement {
             ]}
           />
         </Stack>
-      </Stack>
+      </CommonPageGrid>
     </>
   );
 }
