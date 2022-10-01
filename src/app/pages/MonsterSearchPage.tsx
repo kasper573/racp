@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, styled } from "@mui/material";
+import { Button } from "@mui/material";
 import { Header } from "../layout/Header";
 import { MonsterFilter } from "../../api/services/monster/types";
 import { MonsterSearchFilterForm } from "../forms/MonsterSearchFilterForm";
@@ -20,14 +20,7 @@ export default function MonsterSearchPage() {
         </Button>
       </Header>
       <MonsterSearchFilterForm value={filter} onChange={setFilter} />
-      <ResponsiveMonsterGrid filter={filter} sx={{ mt: 1 }} />
+      <MonsterGrid filter={filter} sx={{ mt: 1 }} />
     </>
   );
 }
-
-const ResponsiveMonsterGrid = styled(MonsterGrid)`
-  // Set a fixed grid height whenever the screen size would make the grid too small
-  @media (max-height: 558px) {
-    height: 782px;
-  }
-`;

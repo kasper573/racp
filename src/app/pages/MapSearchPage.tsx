@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, styled } from "@mui/material";
+import { Button } from "@mui/material";
 import { Header } from "../layout/Header";
 import { MapInfoFilter } from "../../api/services/map/types";
 import { MapSearchFilterForm } from "../forms/MapSearchFilterForm";
@@ -20,14 +20,7 @@ export default function MapSearchPage() {
         </Button>
       </Header>
       <MapSearchFilterForm value={filter} onChange={setFilter} />
-      <ResponsiveMapGrid filter={filter} sx={{ mt: 1 }} />
+      <MapGrid filter={filter} sx={{ mt: 1 }} />
     </>
   );
 }
-
-const ResponsiveMapGrid = styled(MapGrid)`
-  // Set a fixed grid height whenever the screen size would make the grid too small
-  @media (max-height: 462px) {
-    height: 782px;
-  }
-`;
