@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "@mui/material";
+import { Button, styled } from "@mui/material";
 import { Header } from "../layout/Header";
 import { ItemFilter } from "../../api/services/item/types";
 import { ItemSearchFilterForm } from "../forms/ItemSearchFilterForm";
@@ -20,7 +20,14 @@ export default function ItemSearchPage() {
         </Button>
       </Header>
       <ItemSearchFilterForm value={filter} onChange={setFilter} />
-      <ItemGrid filter={filter} sx={{ mt: 1 }} />
+      <ResponsiveItemGrid filter={filter} sx={{ mt: 1 }} />
     </>
   );
 }
+
+const ResponsiveItemGrid = styled(ItemGrid)`
+  // Set a fixed grid height whenever the screen size would make the grid too small
+  @media (max-height: 558px) {
+    height: 782px;
+  }
+`;
