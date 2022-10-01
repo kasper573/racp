@@ -67,5 +67,5 @@ export const MonsterSpawnGrid = DataGrid.define(
 });
 
 function renderTime({ value }: { value?: number }) {
-  return value !== undefined ? durationString(value) : "-";
+  return value !== undefined ? durationString(value, 2) : "-";
 }

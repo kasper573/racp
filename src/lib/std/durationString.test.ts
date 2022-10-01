@@ -13,7 +13,7 @@ describe("durationString", () => {
     "10m": 10 * m,
     "10h": 10 * h,
     "10d": 10 * d,
-    "14h, 15m, 20s, 30ms": 0.5 * d + 2 * h + 15 * m + 20 * s + 30 * ms,
+    "14h 15m 20s 30ms": 0.5 * d + 2 * h + 15 * m + 20 * s + 30 * ms,
   };
   for (const [output, input] of Object.entries(expectations)) {
     it(`should return "${output}" for ${input}`, () => {

@@ -1,4 +1,4 @@
-export function durationString(ms: number) {
+export function durationString(ms: number, maxSteps?: number) {
   let value = ms;
   for (let i = 0; i < steps.length; i++) {
     const nextStep = steps[i + 1];
@@ -13,7 +13,7 @@ export function durationString(ms: number) {
           return floored !== 0 ? s.name(floored) : undefined;
         })
         .filter(Boolean);
-      return names.join(", ");
+      return names.slice(0, maxSteps).join(" ");
     }
     value /= nextStep.ratio;
   }
