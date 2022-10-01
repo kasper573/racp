@@ -7,7 +7,11 @@ import {
   useTheme,
 } from "@mui/material";
 import { MouseEvent, ComponentProps, useEffect, useState } from "react";
-import { DataGrid as MuiDataGrid, GridColumns } from "@mui/x-data-grid";
+import {
+  DataGrid as MuiDataGrid,
+  GridColumns,
+  GridFeatureMode,
+} from "@mui/x-data-grid";
 import { GridRowId } from "@mui/x-data-grid/models/gridRows";
 import { GridRenderCellParams } from "@mui/x-data-grid/models/params/gridCellParams";
 import {
@@ -27,6 +31,7 @@ export type DataGridProps<
   Omit<ComponentProps<typeof Box>, "id"> & {
     filter?: Filter;
     query: DataGridQueryFn<Entity, Filter>;
+    data?: Entity[];
     gridProps?: Pick<
       ComponentProps<typeof MuiDataGrid>,
       "rowHeight" | "columnVisibilityModel"
@@ -37,6 +42,7 @@ export type DataGridProps<
 export function DataGrid<Entity, Filter, Id extends GridRowId>({
   filter,
   query: useQuery,
+  data: manualEntities,
   columns,
   id,
   link,
@@ -50,6 +56,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(20);
   const [sort, setSort] = useState<SearchSort<Entity>>([]);
+  const gridMode: GridFeatureMode = manualEntities ? "client" : "server";
   const { data: result, isFetching } = useQuery(
     {
       filter,
@@ -57,9 +64,11 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
       offset: pageIndex * pageSize,
       limit: pageSize,
     },
-    { keepPreviousData: true }
+    { keepPreviousData: true, enabled: gridMode === "server" }
   );
-  const pageCount = Math.ceil((result?.total ?? 0) / pageSize);
+  const entities = manualEntities ?? result?.entities ?? [];
+  const total = manualEntities?.length ?? result?.total ?? 0;
+  const pageCount = Math.ceil((total ?? 0) / pageSize);
   const columnList = processColumnConvention({ columns, id, link });
 
   useEffect(() => {
@@ -71,7 +80,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
   function emitHoverChange(target?: HTMLElement) {
     const hovered =
       target !== undefined
-        ? result?.entities?.find(
+        ? entities?.find(
             (entity) => id(entity) === target?.getAttribute("data-id")
           )
         : undefined;
@@ -88,11 +97,10 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
           disableColumnFilter
           disableColumnSelector={gridProps?.columnVisibilityModel !== undefined}
           columns={columnList}
-          rows={result?.entities ?? []}
+          rows={entities}
           getRowId={(row) => id(row as Entity)}
-          filterMode="server"
-          sortingMode="server"
-          paginationMode="server"
+          sortingMode={gridMode}
+          paginationMode={gridMode}
           autoPageSize={true}
           page={pageIndex}
           pageSize={pageSize}
@@ -121,7 +129,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
           }
           pagination
           disableSelectionOnClick
-          rowCount={result?.total ?? 0}
+          rowCount={total}
           loading={isFetching}
           {...gridProps}
         />
@@ -134,9 +142,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
           justifyContent: "space-between",
         }}
       >
-        <Typography variant="caption">
-          {result && `${result.total} matches`}
-        </Typography>
+        <Typography variant="caption">{`${total} matches`}</Typography>
         <Pagination
           page={pageIndex + 1}
           count={pageCount}
@@ -154,7 +160,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type DataGridQueryFn<Entity = any, Filter = any> = (
   query: SearchQuery<Entity, Filter>,
-  options?: { keepPreviousData?: boolean }
+  options?: { keepPreviousData?: boolean; enabled?: boolean }
 ) => {
   data?: SearchResult<Entity>;
   isFetching: boolean;

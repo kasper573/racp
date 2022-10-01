@@ -1,5 +1,6 @@
 import { FormControlLabel, Stack, Switch } from "@mui/material";
 import { useState } from "react";
+import { useHistory } from "react-router";
 import { Header } from "../../layout/Header";
 import { trpc } from "../../state/client";
 import { router } from "../../router";
@@ -9,10 +10,13 @@ import { MonsterSpawnId } from "../../../api/services/monster/types";
 import { Point } from "../../../lib/geometry";
 import { LoadingPage } from "../LoadingPage";
 import { CommonPageGrid } from "../../components/CommonPageGrid";
+import { WarpGrid } from "../../grids/WarpGrid";
+import { MonsterSpawnGrid } from "../../grids/MonsterSpawnGrid";
+import { TabSwitch } from "../../components/TabSwitch";
 import { MapRender } from "./MapRender";
-import { MapTabs } from "./MapTabs";
 
 export default function MapViewPage() {
+  const history = useHistory();
   const [showWarpPins, setShowWarpPins] = useState(true);
   const [showMonsterPins, setShowMonsterPins] = useState(true);
   const [highlightSpawnId, setHighlightSpawnId] = useState<MonsterSpawnId>();
@@ -85,10 +89,38 @@ export default function MapViewPage() {
           />
         </Stack>
         <Stack direction="column" sx={{ flex: 3 }}>
-          <MapTabs
-            routeParams={{ id, x, y, tab }}
-            setHighlightWarpId={setHighlightWarpId}
-            setHighlightSpawnId={setHighlightSpawnId}
+          <TabSwitch
+            activeTabId={tab ?? "warps"}
+            onChange={(e, newTab) =>
+              history.replace(router.map().view({ id, tab: newTab, x, y }).$)
+            }
+            tabs={[
+              {
+                id: "warps",
+                label: "Warps",
+                content: (
+                  <WarpGrid
+                    data={warps}
+                    onHoveredEntityChange={(entity) =>
+                      setHighlightWarpId(entity?.npcEntityId)
+                    }
+                  />
+                ),
+              },
+              {
+                id: "monsters",
+                label: "Monsters",
+                content: (
+                  <MonsterSpawnGrid
+                    data={spawns}
+                    gridProps={{ columnVisibilityModel: { map: false } }}
+                    onHoveredEntityChange={(entity) =>
+                      setHighlightSpawnId(entity?.npcEntityId)
+                    }
+                  />
+                ),
+              },
+            ]}
           />
         </Stack>
       </CommonPageGrid>
