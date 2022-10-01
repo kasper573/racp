@@ -1,5 +1,5 @@
 import { ComponentProps, StrictMode, useMemo } from "react";
-import { ThemeProvider } from "@mui/material";
+import { CssBaseline, ThemeProvider } from "@mui/material";
 import { RouterSwitch } from "react-typesafe-routes";
 import { HelmetProvider } from "react-helmet-async";
 import { useStore } from "zustand";
@@ -31,6 +31,7 @@ export function App({
           <QueryClientProvider client={queryClient}>
             <HelmetProvider>
               <ThemeProvider theme={theme}>
+                <CssBaseline />
                 <Layout>
                   <RouterSwitch router={router} />
                 </Layout>

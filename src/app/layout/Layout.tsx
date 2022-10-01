@@ -7,7 +7,6 @@ import {
   Container,
   Divider,
   styled,
-  CssBaseline,
 } from "@mui/material";
 import { Helmet } from "react-helmet-async";
 import { LoadingPage } from "../pages/LoadingPage";
@@ -33,7 +32,6 @@ export function Layout({ children }: { children?: ReactNode }) {
       <Helmet>
         <title>{title}</title>
       </Helmet>
-      <CssBaseline />
       {globalStyles}
       <AppBar position="fixed" sx={contentBounds}>
         <MuiToolbar disableGutters>
