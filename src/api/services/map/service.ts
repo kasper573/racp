@@ -1,7 +1,7 @@
 import * as zod from "zod";
 import { TRPCError } from "@trpc/server";
 import { defined } from "../../../lib/std/defined";
-import { createSearchProcedure } from "../../common/search";
+import { createSearchProcedure, noLimitForFilter } from "../../common/search";
 import { bufferToLuaCode } from "../../common/parseLuaTableAs";
 import { t } from "../../trpc";
 import { decodeRpcFileData, rpcFile } from "../../common/RpcFile";
@@ -31,7 +31,8 @@ export function createMapService(repo: MapRepository) {
       warpType,
       warpFilter.type,
       () => repo.warps,
-      (entity, payload) => warpFilter.for(payload)(entity)
+      (entity, payload) => warpFilter.for(payload)(entity),
+      noLimitForFilter((filter) => filter?.fromMap?.matcher === "equals")
     ),
     read: t.procedure
       .input(mapIdType)

@@ -59,10 +59,26 @@ export function createSearchTypes<ET extends ZodType, FT extends ZodType>(
   return [queryType, resultType] as const;
 }
 
+// The default max limit is in place for when the client provides
+// no limit and a search controller has no explicit limit.
+// It's a safety measure to prevent the server from being overloaded.
+const defaultMaxLimit = 50;
+
+/**
+ * Creates a max limit fn that unlocks the limit when the filter matches.
+ * Using this will allow the client to retrieve all entities matching the filter.
+ *
+ * Important: This should only be used when the filter is trusted to produce a small result set.
+ */
+export const noLimitForFilter =
+  <Filter>(isNoLimitFilter: (filter?: Filter) => boolean) =>
+  (numMatches: number, filter?: Filter) =>
+    isNoLimitFilter(filter) ? numMatches : undefined;
+
 export function createSearchController<Entity, Filter>(
   getEntities: () => Promise<Entity[]>,
   isMatch: (item: Entity, filter: Filter) => boolean,
-  getMaxLimit: (numMatches: number, filter?: Filter) => number = () => 50
+  getMaxLimit?: (numMatches: number, filter?: Filter) => number | undefined
 ) {
   return async ({
     filter,
@@ -80,7 +96,11 @@ export function createSearchController<Entity, Filter>(
     }
 
     limit = limit ?? matches.length;
-    limit = clamp(limit, 0, getMaxLimit(matches.length, filter));
+    limit = clamp(
+      limit,
+      0,
+      getMaxLimit?.(matches.length, filter) ?? defaultMaxLimit
+    );
     offset = clamp(offset, 0, matches.length);
     const sliceEnd = offset + limit;
     const slice = matches.slice(offset, sliceEnd);
@@ -96,7 +116,10 @@ export function createSearchProcedure<ET extends ZodType, FT extends ZodType>(
   filterType: FT,
   getEntities: () => Promise<zod.infer<ET>[]>,
   isMatch: (item: zod.infer<ET>, filter: zod.infer<FT>) => boolean,
-  getMaxLimit?: (numMatches: number, filter?: zod.infer<FT>) => number
+  getMaxLimit?: (
+    numMatches: number,
+    filter?: zod.infer<FT>
+  ) => number | undefined
 ) {
   const [queryType, resultType] = createSearchTypes(entityType, filterType);
   const search = createSearchController(getEntities, isMatch, getMaxLimit);
