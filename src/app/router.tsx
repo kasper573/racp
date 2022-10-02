@@ -23,6 +23,8 @@ import { useLocation } from "react-router-dom";
 import { UserAccessLevel } from "../api/services/user/types";
 import { zodRouteParam } from "../lib/zod/zodRouteParam";
 import { itemFilter } from "../api/services/item/types";
+import { monsterFilter } from "../api/services/monster/types";
+import { mapInfoFilter } from "../api/services/map/types";
 import { RestrictedPage } from "./pages/RestrictedPage";
 import { trpc } from "./state/client";
 import { LoadingPage } from "./pages/LoadingPage";
@@ -40,7 +42,9 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
   }),
   user: route(
     "user",
-    { component: () => <Redirect to={router.user().settings()} /> },
+    {
+      component: () => <Redirect to={router.user().settings()} />,
+    },
     (route) => ({
       settings: route("settings", {
         component: lazy(() => import("./pages/UserSettingsPage")),
@@ -78,13 +82,16 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
   monster: route(
     "monster",
     {
-      component: lazy(() => import("./pages/MonsterSearchPage")),
+      component: () => <Redirect to={router.monster().search({})} />,
       options: { title: "Monsters", icon: <PestControlRodent /> },
     },
     (route) => ({
+      search: route("search/:filter?", {
+        component: lazy(() => import("./pages/MonsterSearchPage")),
+        params: { filter: zodRouteParam(monsterFilter.type.default({})) },
+      }),
       view: route("view/:id/:tab?", {
         component: lazy(() => import("./pages/MonsterViewPage")),
-        options: { title: "Monster", icon: <PestControlRodent /> },
         params: { id: intParser, tab: stringParser },
       }),
     })
@@ -92,10 +99,14 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
   map: route(
     "map",
     {
-      component: lazy(() => import("./pages/MapSearchPage")),
+      component: () => <Redirect to={router.map().search({})} />,
       options: { title: "Maps", icon: <Map /> },
     },
     (route) => ({
+      search: route("search/:filter?", {
+        component: lazy(() => import("./pages/MapSearchPage")),
+        params: { filter: zodRouteParam(mapInfoFilter.type.default({})) },
+      }),
       view: route("view/:id/:tab?&:x?&:y?", {
         component: lazy(() => import("./pages/MapViewPage")),
         options: { title: "Map", icon: <Map /> },
