@@ -30,7 +30,6 @@ export default function ItemViewPage(): ReactElement {
   if (!item || error) {
     return <Header>Item not found</Header>;
   }
-  const displayName = itemDisplayName(item);
 
   const jobs = resolveToggles(item.Jobs);
   const scripts = Object.entries(
@@ -40,7 +39,7 @@ export default function ItemViewPage(): ReactElement {
   return (
     <>
       <Header back={router.item}>
-        {itemDisplayName(item.Name, item.Slots)}&nbsp;
+        {itemDisplayName(item)}&nbsp;
         <ItemImage src={item.ImageUrl} alt={item.Name} />
       </Header>
 

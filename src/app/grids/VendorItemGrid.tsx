@@ -5,6 +5,7 @@ import { router } from "../router";
 import { Link } from "../components/Link";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 import { formatZeny } from "../util/formatZeny";
+import { itemDisplayName } from "../../api/services/item/util/itemDisplayName";
 
 export const VendorItemGrid = DataGrid.define(trpc.vendor.searchItems.useQuery)(
   {
@@ -22,7 +23,7 @@ export const VendorItemGrid = DataGrid.define(trpc.vendor.searchItems.useQuery)(
                 sx={{ width: 32 }}
               />
               <Link to={router.item().view({ id: item.itemId })}>
-                {item.name}
+                {itemDisplayName(item.name, item)}
               </Link>
             </Stack>
           );

@@ -70,6 +70,7 @@ export function createVendorService({
             id: createVendorItemId(raw.vendorId, raw.index),
             name: item ? itemDisplayName(item) : "Unknown item",
             imageUrl: item?.ImageUrl,
+            slots: item?.Slots,
             ...normalizeItemInstanceProperties(raw),
           });
         });

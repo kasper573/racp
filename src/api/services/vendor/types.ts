@@ -7,6 +7,7 @@ export type VendorItem = zod.infer<typeof vendorItemType>;
 export const vendorItemType = zod.object({
   id: zod.string(),
   itemId: itemIdType,
+  slots: zod.number().optional(),
   name: zod.string(),
   price: zod.number(),
   amount: zod.number(),

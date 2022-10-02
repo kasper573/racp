@@ -14,7 +14,7 @@ export const ItemDropGrid = DataGrid.define(trpc.drop.search.useQuery)({
       renderCell({ row: item }) {
         return (
           <Link to={router.item().view({ id: item.ItemId })}>
-            {itemDisplayName(item.ItemName, item.Slots)}
+            {itemDisplayName(item.ItemName, { slots: item.Slots })}
           </Link>
         );
       },
