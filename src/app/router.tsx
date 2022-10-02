@@ -18,6 +18,7 @@ import {
   PersonAdd,
   PestControlRodent,
   Redeem,
+  Storefront,
 } from "@mui/icons-material";
 import { useLocation } from "react-router-dom";
 import { UserAccessLevel } from "../api/services/user/types";
@@ -25,6 +26,7 @@ import { zodRouteParam } from "../lib/zod/zodRouteParam";
 import { itemFilter } from "../api/services/item/types";
 import { monsterFilter } from "../api/services/monster/types";
 import { mapInfoFilter } from "../api/services/map/types";
+import { vendorItemFilterType } from "../api/services/vendor/types";
 import { RestrictedPage } from "./pages/RestrictedPage";
 import { trpc } from "./state/client";
 import { LoadingPage } from "./pages/LoadingPage";
@@ -119,6 +121,11 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
       }),
     })
   ),
+  vendor: route("vendor/:filter?", {
+    component: lazy(() => import("./pages/VendorSearchPage")),
+    params: { filter: zodRouteParam(vendorItemFilterType.default({})) },
+    options: { title: "Vendor", icon: <Storefront /> },
+  }),
   admin: route(
     "admin",
     {
@@ -178,7 +185,7 @@ function requireAuth(requiredAccess = UserAccessLevel.User): RouteMiddleware {
 
 export type RouterOptions = typeof defaultOptions;
 
-export interface AnyRouteNode<Arg = void> {
+export interface AnyRouteNode<Arg = any> {
   (arg: Arg): { $: string };
   options: RouterOptions;
 }

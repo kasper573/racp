@@ -4,7 +4,7 @@ import { Auth } from "../components/Auth";
 import { RouteList } from "../components/RouteList";
 import { UserAccessLevel } from "../../api/services/user/types";
 
-const publicRoutes = [router.item, router.monster, router.map];
+const publicRoutes = [router.item, router.monster, router.map, router.vendor];
 const protectedRoutes = Object.values(router.admin.children);
 
 export function Menu({ onItemSelected }: { onItemSelected?: () => void }) {

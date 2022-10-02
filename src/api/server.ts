@@ -108,7 +108,7 @@ app.use(
       item: createItemService(items),
       monster: createMonsterService(monsters),
       drop: createDropService(drops),
-      vendor: createVendorService(),
+      vendor: createVendorService({ db, items }),
       map: createMapService(maps),
       meta: createMetaService({ items, monsters }),
     }),

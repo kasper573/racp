@@ -1,15 +1,23 @@
 import * as zod from "zod";
-import { createSearchTypes } from "../../common/search";
+import { itemIdType } from "../item/types";
 
 export type VendorItem = zod.infer<typeof vendorItemType>;
 
 export const vendorItemType = zod.object({
-  id: zod.number(),
+  id: zod.string(),
+  itemId: itemIdType,
+  name: zod.string(),
+  price: zod.number(),
+  amount: zod.number(),
+  imageUrl: zod.string().optional(),
+  vendorId: zod.number(),
+  vendorTitle: zod.string(),
+  map: zod.string(),
+  x: zod.number(),
+  y: zod.number(),
 });
 
-export const vendorItemFilterType = vendorItemType.partial();
+export const createVendorItemId = (vendorId: number, cartIndex: number) =>
+  `${vendorId}_${cartIndex}`;
 
-export const [vendorItemQueryType, vendorItemResultType] = createSearchTypes(
-  vendorItemType,
-  vendorItemFilterType
-);
+export const vendorItemFilterType = vendorItemType.partial();

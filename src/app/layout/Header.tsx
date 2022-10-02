@@ -23,7 +23,7 @@ export function Header<Arg>({
     backTo = route(routeArg);
   } else {
     backTitle = back.options.title;
-    backTo = back();
+    backTo = back({});
   }
 
   return (
