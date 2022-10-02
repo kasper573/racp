@@ -21,6 +21,8 @@ import {
 } from "@mui/icons-material";
 import { useLocation } from "react-router-dom";
 import { UserAccessLevel } from "../api/services/user/types";
+import { zodRouteParam } from "../lib/zod/zodRouteParam";
+import { itemFilter } from "../api/services/item/types";
 import { RestrictedPage } from "./pages/RestrictedPage";
 import { trpc } from "./state/client";
 import { LoadingPage } from "./pages/LoadingPage";
@@ -59,13 +61,16 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
   item: route(
     "item",
     {
-      component: lazy(() => import("./pages/ItemSearchPage")),
+      component: () => <Redirect to={router.item().search({})} />,
       options: { title: "Items", icon: <Redeem /> },
     },
     (route) => ({
+      search: route("search/:filter?", {
+        component: lazy(() => import("./pages/ItemSearchPage")),
+        params: { filter: zodRouteParam(itemFilter.type.default({})) },
+      }),
       view: route("view/:id", {
         component: lazy(() => import("./pages/ItemViewPage")),
-        options: { title: "Item", icon: <Redeem /> },
         params: { id: intParser },
       }),
     })
