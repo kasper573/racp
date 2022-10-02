@@ -7,11 +7,9 @@ It's mostly a for-fun/practice project, but it turned out to be a useful app as 
 ## Demo
 
 There is a [demo available](http://139.59.197.170) that showcase all the public portions of RACP.
-It's connected to the latest rAthena instance, however the rAthena servers are not online,
-so you cannot play on the server. The only purpose of the demo is to showcase RACP.
 
-Also, since RACP has very powerful admin features built-in, the demo has no admin account available,
-since I don't want to have to deal with curious visitors randomly messing around with the demo instance.
+The demo has no admin account available, since RACP has very powerful admin features built-in,
+and I don't want to have to deal with curious visitors randomly messing around with the demo instance.
 
 If you want to try out the admin features, clone the repo and run it locally.
 
