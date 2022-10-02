@@ -32,7 +32,7 @@ If you want to try out the admin features, clone the repo and run it locally.
 <details>
     <summary>Integration stability</summary>
 
-> Unit and E2E tests run on each commit and will run against the latest rathena version.
+> Unit and E2E tests run on each commit and tests run against a real rathena instance.
 
 </details>
 
