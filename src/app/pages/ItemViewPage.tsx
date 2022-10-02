@@ -13,7 +13,7 @@ import { dropChanceString } from "../grids/ItemDropGrid";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 import { Link } from "../components/Link";
 import { CommonPageGrid } from "../components/CommonPageGrid";
-import { itemDisplayName } from "../util/itemDisplayName";
+import { ItemDisplayName } from "../util/ItemDisplayName";
 import { TooltipText } from "../components/TooltipText";
 import { LoadingPage } from "./LoadingPage";
 
@@ -43,7 +43,8 @@ export default function ItemViewPage(): ReactElement {
   return (
     <>
       <Header back={router.item}>
-        {itemDisplayName(item.Name, { slots: item.Slots })}&nbsp;
+        <ItemDisplayName item={item} />
+        &nbsp;
         {hasDifferentClientName && (
           <TooltipText tooltip="Client display name" color="text.disabled">
             ({clientName})
