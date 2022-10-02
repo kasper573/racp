@@ -4,7 +4,7 @@ import { trpc } from "../state/client";
 import { router } from "../router";
 import { Link } from "../components/Link";
 import { ImageWithFallback } from "../components/ImageWithFallback";
-import { itemDisplayName } from "../../api/services/item/util/itemDisplayName";
+import { itemDisplayName } from "../util/itemDisplayName";
 
 export const ItemGrid = DataGrid.define(trpc.item.search.useQuery)({
   id: (item) => item.Id,

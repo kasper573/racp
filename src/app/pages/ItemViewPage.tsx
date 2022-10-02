@@ -13,7 +13,8 @@ import { dropChanceString } from "../grids/ItemDropGrid";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 import { Link } from "../components/Link";
 import { CommonPageGrid } from "../components/CommonPageGrid";
-import { itemDisplayName } from "../../api/services/item/util/itemDisplayName";
+import { itemDisplayName } from "../util/itemDisplayName";
+import { TooltipText } from "../components/TooltipText";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ItemViewPage(): ReactElement {
@@ -30,6 +31,9 @@ export default function ItemViewPage(): ReactElement {
   if (!item || error) {
     return <Header>Item not found</Header>;
   }
+  const clientName = item.Info?.identifiedDisplayName?.content;
+  const hasDifferentClientName =
+    clientName !== undefined && clientName !== item.Name;
 
   const jobs = resolveToggles(item.Jobs);
   const scripts = Object.entries(
@@ -39,7 +43,12 @@ export default function ItemViewPage(): ReactElement {
   return (
     <>
       <Header back={router.item}>
-        {itemDisplayName(item)}&nbsp;
+        {itemDisplayName(item.Name, { slots: item.Slots })}&nbsp;
+        {hasDifferentClientName && (
+          <TooltipText tooltip="Client display name" color="text.disabled">
+            ({clientName})
+          </TooltipText>
+        )}
         <ItemImage src={item.ImageUrl} alt={item.Name} />
       </Header>
 

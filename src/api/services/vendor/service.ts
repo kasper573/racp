@@ -2,7 +2,6 @@ import { t } from "../../trpc";
 import { ItemRepository } from "../item/repository";
 import { createSearchTypes } from "../../common/search";
 import { DatabaseDriver } from "../../rathena/DatabaseDriver";
-import { itemDisplayName } from "../item/util/itemDisplayName";
 import { normalizeItemInstanceProperties } from "../inventory/types";
 import {
   createVendorItemId,
@@ -68,7 +67,7 @@ export function createVendorService({
           return vendorItemType.parse({
             ...raw,
             id: createVendorItemId(raw.vendorId, raw.index),
-            name: item ? itemDisplayName(item) : "Unknown item",
+            name: item ? item.Name : "Unknown item",
             imageUrl: item?.ImageUrl,
             slots: item?.Slots,
             ...normalizeItemInstanceProperties(raw),

@@ -3,7 +3,7 @@ import { router } from "../router";
 import { MonsterDrop } from "../../api/services/monster/types";
 import { trpc } from "../state/client";
 import { DataGrid } from "../components/DataGrid";
-import { itemDisplayName } from "../../api/services/item/util/itemDisplayName";
+import { itemDisplayName } from "../util/itemDisplayName";
 
 export const ItemDropGrid = DataGrid.define(trpc.drop.search.useQuery)({
   id: (drop) => drop.Id,

@@ -5,7 +5,7 @@ import { router } from "../router";
 import { Link } from "../components/Link";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 import { formatZeny } from "../util/formatZeny";
-import { itemDisplayName } from "../../api/services/item/util/itemDisplayName";
+import { itemDisplayName } from "../util/itemDisplayName";
 
 export const VendorItemGrid = DataGrid.define(trpc.vendor.searchItems.useQuery)(
   {

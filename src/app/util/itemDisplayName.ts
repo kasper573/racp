@@ -1,4 +1,4 @@
-import { Item } from "../types";
+import { Item } from "../../api/services/item/types";
 
 export function itemDisplayName(
   item: string | Item,
@@ -12,7 +12,7 @@ export function itemDisplayName(
   if (typeof item === "string") {
     name = item;
   } else {
-    name = item.Info?.identifiedDisplayName?.content ?? item.Name;
+    name = item.Name;
     slots = item.Slots ?? 0;
   }
   if (refine > 0) {
