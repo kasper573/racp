@@ -5,15 +5,15 @@ import { useRouteParams } from "../../lib/hooks/useRouteParams";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
 import { router } from "../router";
-import { TooltipText } from "../components/TooltipText";
 import { ClientTextBlock } from "../components/ClientText/ClientText";
 import { TabbedPaper } from "../components/TabbedPaper";
 import { Script } from "../components/Script";
 import { resolveToggles } from "../../api/util/matcher";
-import { dropChanceString, itemNameString } from "../grids/ItemDropGrid";
+import { dropChanceString } from "../grids/ItemDropGrid";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 import { Link } from "../components/Link";
 import { CommonPageGrid } from "../components/CommonPageGrid";
+import { itemDisplayName } from "../../api/services/item/util/itemDisplayName";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ItemViewPage(): ReactElement {
@@ -30,9 +30,7 @@ export default function ItemViewPage(): ReactElement {
   if (!item || error) {
     return <Header>Item not found</Header>;
   }
-  const displayName = item.Info?.identifiedDisplayName?.content;
-  const hasDifferentDisplayName =
-    displayName !== undefined && displayName !== item.Name;
+  const displayName = itemDisplayName(item);
 
   const jobs = resolveToggles(item.Jobs);
   const scripts = Object.entries(
@@ -42,12 +40,7 @@ export default function ItemViewPage(): ReactElement {
   return (
     <>
       <Header back={router.item}>
-        {itemNameString(item.Name, item.Slots)}&nbsp;
-        {hasDifferentDisplayName && (
-          <TooltipText tooltip="Client display name" color="text.disabled">
-            ({itemNameString(displayName, item.Slots)})
-          </TooltipText>
-        )}
+        {itemDisplayName(item.Name, item.Slots)}&nbsp;
         <ItemImage src={item.ImageUrl} alt={item.Name} />
       </Header>
 

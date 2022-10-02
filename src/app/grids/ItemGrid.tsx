@@ -4,6 +4,7 @@ import { trpc } from "../state/client";
 import { router } from "../router";
 import { Link } from "../components/Link";
 import { ImageWithFallback } from "../components/ImageWithFallback";
+import { itemDisplayName } from "../../api/services/item/util/itemDisplayName";
 
 export const ItemGrid = DataGrid.define(trpc.item.search.useQuery)({
   id: (item) => item.Id,
@@ -17,7 +18,9 @@ export const ItemGrid = DataGrid.define(trpc.item.search.useQuery)({
               alt={item.Name}
               sx={{ width: 32 }}
             />
-            <Link to={router.item().view({ id: item.Id })}>{item.Name}</Link>
+            <Link to={router.item().view({ id: item.Id })}>
+              {itemDisplayName(item)}
+            </Link>
           </Stack>
         );
       },

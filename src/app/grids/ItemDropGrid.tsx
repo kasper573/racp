@@ -3,6 +3,7 @@ import { router } from "../router";
 import { MonsterDrop } from "../../api/services/monster/types";
 import { trpc } from "../state/client";
 import { DataGrid } from "../components/DataGrid";
+import { itemDisplayName } from "../../api/services/item/util/itemDisplayName";
 
 export const ItemDropGrid = DataGrid.define(trpc.drop.search.useQuery)({
   id: (drop) => drop.Id,
@@ -13,7 +14,7 @@ export const ItemDropGrid = DataGrid.define(trpc.drop.search.useQuery)({
       renderCell({ row: item }) {
         return (
           <Link to={router.item().view({ id: item.ItemId })}>
-            {itemNameString(item.ItemName, item.Slots)}
+            {itemDisplayName(item.ItemName, item.Slots)}
           </Link>
         );
       },
@@ -26,10 +27,6 @@ export const ItemDropGrid = DataGrid.define(trpc.drop.search.useQuery)({
     },
   },
 });
-
-export function itemNameString(name: string, slots?: number) {
-  return slots !== undefined ? `${name} [${slots}]` : name;
-}
 
 export function dropChanceString(drop: MonsterDrop["Rate"]) {
   return `${drop / 100}%`;
