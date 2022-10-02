@@ -3,6 +3,7 @@ import { ItemRepository } from "../item/repository";
 import { createSearchTypes } from "../../common/search";
 import { DatabaseDriver } from "../../rathena/DatabaseDriver";
 import { itemDisplayName } from "../item/util/itemDisplayName";
+import { normalizeItemInstanceProperties } from "../inventory/types";
 import {
   createVendorItemId,
   vendorItemFilterType,
@@ -40,13 +41,26 @@ export function createVendorService({
           .select(
             "index",
             "price",
+            "refine",
             "vendings.id as vendorId",
             "title as vendorTitle",
             "nameid as itemId",
             "vending_items.amount",
             "map",
             "x",
-            "y"
+            "y",
+            "card0",
+            "card1",
+            "card2",
+            "card3",
+            "option_id0",
+            "option_id1",
+            "option_id2",
+            "option_id3",
+            "option_val0",
+            "option_val1",
+            "option_val2",
+            "option_val3"
           );
 
         const entities = res.map((raw) => {
@@ -56,6 +70,7 @@ export function createVendorService({
             id: createVendorItemId(raw.vendorId, raw.index),
             name: item ? itemDisplayName(item) : "Unknown item",
             imageUrl: item?.ImageUrl,
+            ...normalizeItemInstanceProperties(raw),
           });
         });
 
