@@ -1,6 +1,7 @@
 import { useHistory } from "react-router";
 import { RouteNodeWithParams } from "react-typesafe-routes/dist/routeNode";
 import { useRouteParams } from "./useRouteParams";
+import { useIsMounted } from "./useIsMounted";
 
 export function useRouteState<
   Route extends AnyRouteNode,
@@ -11,8 +12,14 @@ export function useRouteState<
   const history = useHistory();
   const params = useRouteParams(route);
   const state = params[prop];
-  const setState = (value: State) =>
-    history.replace(route({ ...params, [prop]: value }).$);
+  const isMounted = useIsMounted();
+
+  function setState(value: State) {
+    if (isMounted()) {
+      history.replace(route({ ...params, [prop]: value }).$);
+    }
+  }
+
   return [state, setState] as const;
 }
 
