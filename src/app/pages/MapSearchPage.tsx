@@ -1,12 +1,12 @@
-import { useState } from "react";
 import { Button } from "@mui/material";
 import { Header } from "../layout/Header";
-import { MapInfoFilter } from "../../api/services/map/types";
 import { MapSearchFilterForm } from "../forms/MapSearchFilterForm";
 import { MapGrid } from "../grids/MapGrid";
+import { useRouteState } from "../../lib/hooks/useRouteState";
+import { router } from "../router";
 
 export default function MapSearchPage() {
-  const [filter, setFilter] = useState<MapInfoFilter>({});
+  const [filter = {}, setFilter] = useRouteState(router.map().search, "filter");
   return (
     <>
       <Header>

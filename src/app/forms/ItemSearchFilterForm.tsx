@@ -112,14 +112,15 @@ interface FormDataProps {
 function useSubTypeBehavior({ value, onChange }: FormDataProps) {
   const { data: meta } = trpc.meta.read.useQuery();
 
-  // Empty subtype filter whenever it's
+  // Empty subtype filter whenever primary type is emptied
   const latest = useLatest({ onChange, value });
+  const numSelectedTypes = count(value.Type?.value);
   useEffect(() => {
     const { onChange, value } = latest.current;
-    if (count(value.Type?.value) <= 1) {
+    if (numSelectedTypes <= 1) {
       onChange({ ...value, SubType: undefined });
     }
-  }, [value.Type, latest]);
+  }, [numSelectedTypes, latest]);
 
   if (!meta) {
     return ["Waiting for data"] as const;

@@ -1,12 +1,15 @@
-import { useState } from "react";
 import { Button } from "@mui/material";
 import { Header } from "../layout/Header";
-import { ItemFilter } from "../../api/services/item/types";
 import { ItemSearchFilterForm } from "../forms/ItemSearchFilterForm";
 import { ItemGrid } from "../grids/ItemGrid";
+import { router } from "../router";
+import { useRouteState } from "../../lib/hooks/useRouteState";
 
 export default function ItemSearchPage() {
-  const [filter, setFilter] = useState<ItemFilter>({});
+  const [filter = {}, setFilter] = useRouteState(
+    router.item().search,
+    "filter"
+  );
   return (
     <>
       <Header>
