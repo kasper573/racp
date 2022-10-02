@@ -35,6 +35,7 @@ import { timeColor } from "./common/timeColor";
 import { createApiRouter } from "./router";
 import { createDropRepository } from "./services/drop/repository";
 import { createDropService } from "./services/drop/service";
+import { createVendorService } from "./services/vendor/service";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -107,6 +108,7 @@ app.use(
       item: createItemService(items),
       monster: createMonsterService(monsters),
       drop: createDropService(drops),
+      vendor: createVendorService(),
       map: createMapService(maps),
       meta: createMetaService({ items, monsters }),
     }),
