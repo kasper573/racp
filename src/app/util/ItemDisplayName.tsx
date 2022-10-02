@@ -1,7 +1,18 @@
+import { Tooltip, Typography } from "@mui/material";
 import { Item } from "../../api/services/item/types";
+import { ItemRandomOption } from "../../api/services/inventory/types";
 
 export function ItemDisplayName(props: ItemDisplayNameProps) {
-  return <>{createItemDisplayName(props)}</>;
+  let displayName = <>{createItemDisplayName(props)}</>;
+  const tooltipContent = createTooltipContent(props);
+  if (tooltipContent) {
+    displayName = (
+      <Tooltip title={tooltipContent}>
+        <span>{displayName}</span>
+      </Tooltip>
+    );
+  }
+  return displayName;
 }
 
 export interface ItemDisplayNameProps {
@@ -9,7 +20,8 @@ export interface ItemDisplayNameProps {
   name?: string;
   slots?: number;
   refine?: number;
-  options?: number | any[];
+  options?: number | ItemRandomOption[];
+  cardIds?: number[];
 }
 
 export function createItemDisplayName({
@@ -36,4 +48,17 @@ export function createItemDisplayName({
     name = `${name} [${options} ea]`;
   }
   return name;
+}
+
+function createTooltipContent({ cardIds, options }: ItemDisplayNameProps) {
+  const rows: string[] = [];
+  if (cardIds?.length) {
+    rows.push(`Cards: ${cardIds.join(", ")}`);
+  }
+  if (Array.isArray(options)) {
+    rows.push(...options.map((option) => `${option.id}: ${option.value}`));
+  }
+  if (rows.length) {
+    return <Typography whiteSpace="pre">{rows.join("\n")}</Typography>;
+  }
 }
