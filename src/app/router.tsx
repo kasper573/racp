@@ -149,7 +149,7 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
   ),
 }));
 
-export const logoutRedirect = router.home().$;
+export const logoutRedirect = router.user().login({}).$;
 export const loginRedirect = router.user().$;
 
 function requireAuth(requiredAccess = UserAccessLevel.User): RouteMiddleware {
