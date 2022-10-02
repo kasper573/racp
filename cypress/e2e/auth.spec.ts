@@ -67,7 +67,7 @@ let testUserCount = 0;
 function nextTestUser() {
   const id = testUserCount++;
   return {
-    name: "test" + id,
+    name: "testUser" + id,
     password: "foobar",
     email: `test${id}@users.com`,
   };

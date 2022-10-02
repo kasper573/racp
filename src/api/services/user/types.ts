@@ -11,9 +11,9 @@ export enum UserAccessLevel {
 }
 
 export const userAccessLevelType = zod.nativeEnum(UserAccessLevel);
-export const usernameType = zod.string().min(4).max(12);
+export const usernameType = zod.string().min(6).max(12);
 export const emailType = zod.string().email();
-export const passwordType = zod.string().min(5);
+export const passwordType = zod.string().min(6);
 
 export type LoginPayload = zod.infer<typeof loginPayloadType>;
 export const loginPayloadType = zod.object({
