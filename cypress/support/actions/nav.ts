@@ -4,7 +4,6 @@ import { waitForPageReady } from "./common";
 
 export function listMaps() {
   clickMainMenuItem("maps");
-  waitForPageReady();
 }
 
 export function gotoMap(id: string) {
@@ -14,7 +13,6 @@ export function gotoMap(id: string) {
 
 export function listMonsters() {
   clickMainMenuItem("monsters");
-  waitForPageReady();
 }
 
 export function gotoMonster(id: number) {
@@ -24,7 +22,6 @@ export function gotoMonster(id: number) {
 
 export function listItems() {
   clickMainMenuItem("items");
-  waitForPageReady();
 }
 
 export function gotoItem(id: number) {
@@ -37,6 +34,7 @@ export function clickMainMenuItem(
   { menuName }: { menuName?: string } = {}
 ) {
   findMainMenu(menuName).findByText(ignoreCase(itemName)).click();
+  waitForPageReady();
 }
 
 export function findMainMenu(name: string = "public menu") {

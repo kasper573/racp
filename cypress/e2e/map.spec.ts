@@ -6,7 +6,6 @@ import {
 } from "../support/actions/grid";
 import { compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/generateSearchPageTests";
-import { waitForPageReady } from "../support/actions/common";
 import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
 
 before(() => {
@@ -38,18 +37,18 @@ describe("details", () => {
 
   it("can list warps", () => {
     cy.findByRole("tab", { name: /warps/i }).click();
-    waitForPageReady();
-    findTableColumn("Destination").contains(/prt_maze01/i);
-    findTableColumn("Destination").contains(/prt_gld/i);
-    findTableColumn("Destination").contains(/mjolnir_10/i);
+    findTableColumn("Destination")
+      .contains("contain", /prt_maze01/i)
+      .and("contain", /prt_gld/i)
+      .and("contain", /mjolnir_10/i);
   });
 
   it("can list monsters", () => {
     cy.findByRole("tab", { name: /monsters/i }).click();
-    waitForPageReady();
-    findTableColumn("Name").contains(/lunatic ringleader/i);
-    findTableColumn("Name").contains(/poring/i);
-    findTableColumn("Name").contains(/fabre/i);
+    findTableColumn("Name")
+      .should("contain", "Lunatic Ringleader")
+      .and("contain", "Poring")
+      .and("contain", "Fabre");
   });
 });
 

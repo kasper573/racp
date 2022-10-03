@@ -3,7 +3,6 @@ import { clickMainMenuItem } from "../support/actions/nav";
 import { resetData, signInAsAdmin } from "../support/actions/admin";
 import { expectTableColumn } from "../support/actions/grid";
 import { generateSearchPageTests } from "../support/generateSearchPageTests";
-import { waitForPageReady } from "../support/actions/common";
 import { compareNumeric, compareStrings } from "../support/util";
 import { VendorItem } from "../../src/api/services/vendor/types";
 
@@ -21,7 +20,6 @@ before(() => {
   );
 
   clickMainMenuItem("Vendors");
-  waitForPageReady();
 });
 
 generateSearchPageTests({
@@ -83,7 +81,6 @@ describe("assets", () => {
       })
     );
     cy.reload();
-    waitForPageReady();
     cy.findByLabelText("Item ID").type(`${itemId}`);
     expectTableColumn(
       "Item",

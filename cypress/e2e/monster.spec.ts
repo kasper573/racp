@@ -4,7 +4,7 @@ import {
   findRowById,
   findTableColumn,
 } from "../support/actions/grid";
-import { menuSlide, waitForPageReady } from "../support/actions/common";
+import { menuSlide } from "../support/actions/common";
 import { compareNumeric, compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/generateSearchPageTests";
 import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
@@ -128,18 +128,18 @@ describe("details", () => {
 
   it("can list spawns", () => {
     cy.findByRole("tab", { name: /spawns/i }).click();
-    waitForPageReady();
-    findTableColumn("Map").contains(/xmas_dun01/i);
-    findTableColumn("Map").contains(/prt_maze01/i);
-    findTableColumn("Map").contains(/sec_in02/i);
+    findTableColumn("Map")
+      .should("contain", "xmas_dun01")
+      .and("contain", "prt_maze01")
+      .and("contain", "sec_in02");
   });
 
   it("can list drops", () => {
     cy.findByRole("tab", { name: /drops/i }).click();
-    waitForPageReady();
-    findTableColumn("Name").contains(/jellopy/i);
-    findTableColumn("Name").contains(/knife/i);
-    findTableColumn("Name").contains(/sticky mucus/i);
+    findTableColumn("Name")
+      .should("contain", "Jellopy")
+      .and("contain", "Knife")
+      .and("contain", "Sticky Mucus");
   });
 });
 
