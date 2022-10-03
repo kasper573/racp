@@ -1,5 +1,9 @@
 import { gotoMap, listMaps } from "../support/actions/nav";
-import { findDataCells, findRowById } from "../support/actions/grid";
+import {
+  expectTableColumn,
+  findRowById,
+  findTableColumn,
+} from "../support/actions/grid";
 import { compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/generateSearchPageTests";
 
@@ -17,11 +21,7 @@ describe("search", () => {
       },
       name: {
         input: () => cy.findByLabelText("Name").type("prt_"),
-        verify: () =>
-          findDataCells("Name", (text) => !/prt_/i.test(text)).should(
-            "have.length",
-            0
-          ),
+        verify: () => expectTableColumn("Name", () => /prt_/i),
       },
     },
     sorts: {
@@ -36,15 +36,17 @@ describe("details", () => {
 
   it("can list warps", () => {
     cy.findByRole("tab", { name: /warps/i }).click();
-    findDataCells("Destination", /prt_maze01/i);
-    findDataCells("Destination", /prt_gld/i);
-    findDataCells("Destination", /mjolnir_10/i);
+
+    findTableColumn("Destination").contains(/prt_maze01/i);
+    findTableColumn("Destination").contains(/prt_gld/i);
+    findTableColumn("Destination").contains(/mjolnir_10/i);
   });
 
   it("can list monsters", () => {
     cy.findByRole("tab", { name: /monsters/i }).click();
-    findDataCells("Name", /lunatic ringleader/i);
-    findDataCells("Name", /poring/i);
-    findDataCells("Name", /fabre/i);
+
+    findTableColumn("Name").contains(/lunatic ringleader/i);
+    findTableColumn("Name").contains(/poring/i);
+    findTableColumn("Name").contains(/fabre/i);
   });
 });

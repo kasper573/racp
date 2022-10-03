@@ -1,6 +1,6 @@
 import { without } from "lodash";
 import { waitForPageReady } from "./actions/common";
-import { findDataCells, findDataRowIds, sortGridBy } from "./actions/grid";
+import { findDataRowIds, findTableColumn, sortGridBy } from "./actions/grid";
 import { CompareFn, invertCompareFn } from "./util";
 
 export function generateSearchPageTests({
@@ -53,12 +53,12 @@ export function generateSearchPageTests({
         it("asc", () => {
           sortGridBy(name, "asc");
           waitForPageReady();
-          findDataCells(name).shouldBeSortedBy(compareFn);
+          findTableColumn(name).shouldBeSortedBy(compareFn);
         });
         it("desc", () => {
           sortGridBy(name, "desc");
           waitForPageReady();
-          findDataCells(name).shouldBeSortedBy(invertCompareFn(compareFn));
+          findTableColumn(name).shouldBeSortedBy(invertCompareFn(compareFn));
         });
       });
     });
