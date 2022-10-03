@@ -1,3 +1,4 @@
+import * as zod from "zod";
 import { YamlDriver } from "../../rathena/YamlDriver";
 import { FileStore } from "../../../lib/fs/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
@@ -7,6 +8,7 @@ import { ImageFormatter } from "../../../lib/image/createImageFormatter";
 import { Logger } from "../../../lib/logger";
 import { gfs } from "../../util/gfs";
 import { createAsyncMemo } from "../../../lib/createMemo";
+import { zodJsonProtocol } from "../../../lib/zod/zodJsonProtocol";
 import { createItemResolver } from "./util/createItemResolver";
 import { Item, ItemId, itemInfoType } from "./types";
 
@@ -34,7 +36,10 @@ export function createItemRepository({
 
   const itemResolver = createItemResolver({ tradeScale });
   const itemsPromise = yaml.resolve("db/item_db.yml", itemResolver);
-  const infoFile = files.entry("itemInfo.lub", parseItemInfo);
+  const infoFile = files.entry(
+    "itemInfo.json",
+    zodJsonProtocol(zod.record(itemInfoType))
+  );
 
   const getItems = createAsyncMemo(
     async () =>
@@ -67,7 +72,9 @@ export function createItemRepository({
 
   return {
     getItems,
-    updateInfo: infoFile.update,
+    updateInfo(luaCode: string) {
+      return infoFile.assign(parseLuaTableAs(luaCode, itemInfoType));
+    },
     getResourceNames,
     countInfo: () => Object.keys(infoFile.data ?? {}).length,
     countImages: () =>
@@ -83,6 +90,3 @@ export function createItemRepository({
     },
   };
 }
-
-const parseItemInfo = (luaCode: string) =>
-  parseLuaTableAs(luaCode, itemInfoType);

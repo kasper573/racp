@@ -41,15 +41,7 @@ export function createItemService(repo: ItemRepository) {
         const itemInfoAsLuaCode = bufferToLuaCode(
           Buffer.from(decodeRpcFileData(input.data))
         );
-        const { success } = repo.updateInfo(itemInfoAsLuaCode);
-
-        if (!success) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "File could not be parsed as item info.",
-          });
-        }
-
+        repo.updateInfo(itemInfoAsLuaCode);
         return repo.getResourceNames();
       }),
     countImages: t.procedure

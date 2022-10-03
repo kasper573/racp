@@ -28,10 +28,11 @@ export function createUtilService() {
         );
         const decompiled = await Promise.all(compiled.map(unluac));
         const luaCodes = decompiled.map(bufferToLuaCode);
-        return luaCodes.reduce((reduction: ReducedLuaTables, luaCode) => {
-          const res = parseLuaTableAs(luaCode, zod.unknown(), reduction);
-          return res.success ? res.data : reduction;
-        }, {});
+        return luaCodes.reduce(
+          (reduction: ReducedLuaTables, luaCode) =>
+            parseLuaTableAs(luaCode, zod.unknown(), reduction),
+          {}
+        );
       }),
   });
 }
