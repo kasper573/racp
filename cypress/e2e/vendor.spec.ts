@@ -5,6 +5,7 @@ import { expectTableColumn } from "../support/actions/grid";
 import { generateSearchPageTests } from "../support/generateSearchPageTests";
 import { compareNumeric, compareStrings } from "../support/util";
 import { VendorItem } from "../../src/api/services/vendor/types";
+import { waitForPageReady } from "../support/actions/common";
 
 before(() => {
   resetData();
@@ -59,19 +60,21 @@ generateSearchPageTests({
   },
 });
 
-describe("assets", () => {
-  it("has correct card prefix/suffix", () => {
+describe("cards and enchants", () => {
+  before(() => {
     const viola = 4209;
     const wraith = 4190;
-    const itemId = 2501; // Hood
-    // prettier-ignore
+    const itemId = 1108; // Blade [4]
     const items = [
-      mockItem({ itemId, cardIds: [viola, wraith] }),
-      mockItem({ itemId, cardIds: [...new Array(2).fill(viola), ...new Array(2).fill(wraith)], }),
-      mockItem({ itemId, cardIds: [...new Array(3).fill(viola), ...new Array(1).fill(wraith)], }),
-      mockItem({ itemId, cardIds: [...new Array(4).fill(viola)], }),
-      mockItem({ itemId, cardIds: [viola, ...new Array(3).fill(wraith)], }),
-      mockItem({ itemId, cardIds: new Array(4).fill(wraith), }),
+      mockItem({
+        itemId,
+        cardIds: [viola, wraith],
+        options: [
+          { id: 1, value: 5 },
+          { id: 2, value: 5 },
+          { id: 3, value: 5 },
+        ],
+      }),
     ];
     cy.trpc((client) =>
       client?.vendor.insertItems.mutate({
@@ -82,22 +85,11 @@ describe("assets", () => {
     );
     cy.reload();
     cy.findByLabelText("Item ID").type(`${itemId}`);
-    expectTableColumn(
-      "Item",
-      (rowIndex) =>
-        ({
-          0: "Fiddler's Hood of Last Laugh",
-          1: "Double Fiddler's Hood of Double Last Laugh",
-          2: "Triple Fiddler's Hood of Last Laugh",
-          3: "Quadruple Fiddler's Hood",
-          4: "Fiddler's Hood of Triple Last Laugh",
-          5: "Hood of Quadruple Last Laugh",
-        }[rowIndex])
-    );
+    waitForPageReady();
   });
 
-  it("has correct card enchants", () => {
-    expect(true).to.equal(false);
+  it("are summarized in item name", () => {
+    expectTableColumn("Item", () => "Blade [2/4] [3 ea]");
   });
 });
 

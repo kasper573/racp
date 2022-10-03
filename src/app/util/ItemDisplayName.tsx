@@ -30,6 +30,7 @@ export function createItemDisplayName({
   slots = 0,
   refine = 0,
   options = 0,
+  cardIds = [],
 }: ItemDisplayNameProps) {
   if (item) {
     name = item.Name;
@@ -39,7 +40,10 @@ export function createItemDisplayName({
     name = `+${refine} ${name}`;
   }
   if (slots > 0) {
-    name = `${name} [${slots}]`;
+    name =
+      cardIds.length > 0
+        ? `${name} [${cardIds.length}/${slots}]`
+        : `${name} [${slots}]`;
   }
   if (Array.isArray(options)) {
     options = options.length;
