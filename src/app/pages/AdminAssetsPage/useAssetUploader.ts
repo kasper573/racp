@@ -142,7 +142,13 @@ export function useAssetUploader() {
     const [resourceNames] = await tracker.track([
       {
         group: "Uploading item info",
-        fn: async () => updateItemInfo(await toRpcFile(infoFile)),
+        fn: async () => {
+          const res = await updateItemInfo(await toRpcFile(infoFile));
+          if (!Object.keys(res).length) {
+            throw new Error("No resource names found in item info file");
+          }
+          return res;
+        },
       },
     ]);
 
