@@ -1,13 +1,14 @@
 import { ParamParser } from "react-typesafe-routes";
 import { ZodType } from "zod";
 import { isEmpty, isPlainObject, omitBy } from "lodash";
+import { base64encode, base64decode } from "byte-base64";
 
 export function zodRouteParam<T>(type: ZodType<T>): ParamParser<T> {
   return {
     parse: (s?: string) => {
       s = s?.trim();
       return type.parse(
-        isEmpty(s) ? undefined : JSON.parse(decodeURIComponent(s!))
+        isEmpty(s) ? undefined : parseUrlJson(decodeURIComponent(s!))
       );
     },
     serialize: (x: T) => {
@@ -17,7 +18,10 @@ export function zodRouteParam<T>(type: ZodType<T>): ParamParser<T> {
       }
       return isEmpty(payload)
         ? ""
-        : encodeURIComponent(JSON.stringify(payload));
+        : encodeURIComponent(stringifyUrlJson(payload));
     },
   };
 }
+
+const parseUrlJson = (s: string) => JSON.parse(base64decode(s));
+const stringifyUrlJson = (x: unknown) => base64encode(JSON.stringify(x));
