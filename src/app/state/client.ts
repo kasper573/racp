@@ -5,7 +5,7 @@ import { ApiRouter } from "../../api/router";
 export const trpc = createTRPCReact<ApiRouter>();
 
 export function createTRPCClientOptions(getToken: () => string | undefined) {
-  return ({
+  return {
     links: [
       httpBatchLink({
         url: process.env.apiBaseUrl!,
@@ -20,17 +20,20 @@ export function createTRPCClientOptions(getToken: () => string | undefined) {
         },
       }),
     ],
-  });
+  };
 }
-
 
 /**
  * Used to share client instance with e2e test runner.
  */
-export function exposeTRPCClientProxy(options: ReturnType<typeof createTRPCClientOptions>) {
-  window.trpcClientProxy = createTRPCProxyClient<ApiRouter>(options);
+export function exposeTRPCClientProxy(
+  options: ReturnType<typeof createTRPCClientOptions>
+) {
+  const proxy = createTRPCProxyClient<ApiRouter>(options);
+  window.trpcClientProxy = proxy;
+  return proxy;
 }
 
 export interface TRPCClientWindowExtension {
-  trpcClientProxy?: ReturnType<typeof createTRPCProxyClient<ApiRouter>>;
+  trpcClientProxy?: ReturnType<typeof exposeTRPCClientProxy>;
 }
