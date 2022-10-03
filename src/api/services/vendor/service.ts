@@ -10,11 +10,16 @@ import {
   createVendorItemId,
   parseVendorItemId,
   VendorItem,
-  vendorItemFilterType,
+  vendorItemFilter,
   vendorItemType,
 } from "./types";
 
 export type VendorService = ReturnType<typeof createVendorService>;
+
+const searchItemsTypes = createSearchTypes(
+  vendorItemType,
+  vendorItemFilter.type
+);
 
 export function createVendorService({
   db,
@@ -23,10 +28,6 @@ export function createVendorService({
   db: DatabaseDriver;
   items: ItemRepository;
 }) {
-  const [input, output] = createSearchTypes(
-    vendorItemType,
-    vendorItemFilterType
-  );
   return t.router({
     /**
      * Used from e2e test to populate the database with some data.
@@ -92,8 +93,8 @@ export function createVendorService({
         await Promise.all(items.map(upsertItem));
       }),
     searchItems: t.procedure
-      .input(input)
-      .output(output)
+      .input(searchItemsTypes.queryType)
+      .output(searchItemsTypes.resultType)
       .query(async () => {
         const items = await itemRepo.getItems();
 

@@ -26,7 +26,7 @@ import { zodRouteParam } from "../lib/zod/zodRouteParam";
 import { itemFilter } from "../api/services/item/types";
 import { monsterFilter } from "../api/services/monster/types";
 import { mapInfoFilter } from "../api/services/map/types";
-import { vendorItemFilterType } from "../api/services/vendor/types";
+import { vendorItemFilter } from "../api/services/vendor/types";
 import { RestrictedPage } from "./pages/RestrictedPage";
 import { trpc } from "./state/client";
 import { LoadingPage } from "./pages/LoadingPage";
@@ -123,7 +123,7 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
   ),
   vendor: route("vendor/:filter?", {
     component: lazy(() => import("./pages/VendorSearchPage")),
-    params: { filter: zodRouteParam(vendorItemFilterType.default({})) },
+    params: { filter: zodRouteParam(vendorItemFilter.type.default({})) },
     options: { title: "Vendor", icon: <Storefront /> },
   }),
   admin: route(

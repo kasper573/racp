@@ -56,7 +56,7 @@ export function createSearchTypes<ET extends ZodType, FT extends ZodType>(
     entities: zod.array(entityType),
   });
 
-  return [queryType, resultType] as const;
+  return { queryType, resultType };
 }
 
 // The default max limit is in place for when the client provides
@@ -121,7 +121,7 @@ export function createSearchProcedure<ET extends ZodType, FT extends ZodType>(
     filter?: zod.infer<FT>
   ) => number | undefined
 ) {
-  const [queryType, resultType] = createSearchTypes(entityType, filterType);
+  const { queryType, resultType } = createSearchTypes(entityType, filterType);
   const search = createSearchController(getEntities, isMatch, getMaxLimit);
   return t.procedure
     .input(queryType)

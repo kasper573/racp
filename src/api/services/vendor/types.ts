@@ -1,6 +1,8 @@
 import * as zod from "zod";
 import { itemIdType } from "../item/types";
 import { itemInstancePropertiesType } from "../inventory/types";
+import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
+import { matcher } from "../../util/matcher";
 
 export type VendorItem = zod.infer<typeof vendorItemType>;
 
@@ -32,4 +34,5 @@ export const parseVendorItemId = (str: string) => {
   return [vendorId, cartIndex] as const;
 };
 
-export const vendorItemFilterType = vendorItemType.partial();
+export type VendorItemFilter = zod.infer<typeof vendorItemFilter.type>;
+export const vendorItemFilter = createEntityFilter(matcher, vendorItemType);

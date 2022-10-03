@@ -3,6 +3,7 @@ import { Header } from "../layout/Header";
 import { router } from "../router";
 import { useRouteState } from "../../lib/hooks/useRouteState";
 import { VendorItemGrid } from "../grids/VendorItemGrid";
+import { VendorItemSearchFilterForm } from "../forms/VendorItemSearchFilterForm";
 
 export default function VendorSearchPage() {
   const [filter = {}, setFilter] = useRouteState(router.vendor, "filter");
@@ -18,6 +19,7 @@ export default function VendorSearchPage() {
           Clear filters
         </Button>
       </Header>
+      <VendorItemSearchFilterForm value={filter} onChange={setFilter} />
       <VendorItemGrid filter={filter} sx={{ mt: 1 }} />
     </>
   );
