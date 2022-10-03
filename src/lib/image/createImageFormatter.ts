@@ -12,19 +12,8 @@ export function createImageFormatter({
   return {
     fileExtension: extension,
     write(targetPath: string, data: Buffer) {
-      return Jimp.read(data).then(
-        (image) =>
-          new Promise<void>((resolve, reject) => {
-            image
-              .quality(quality)
-              .write(setExtension(targetPath, extension), (err) => {
-                if (err) {
-                  reject(err);
-                } else {
-                  resolve();
-                }
-              });
-          })
+      return Jimp.read(data).then((image) =>
+        image.quality(quality).writeAsync(setExtension(targetPath, extension))
       );
     },
   };
