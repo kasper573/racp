@@ -5,8 +5,10 @@ import {
   signOut,
   updateProfile,
 } from "../support/actions/user";
-import { signInAsAdmin } from "../support/actions/admin";
+import { resetData, signInAsAdmin } from "../support/actions/admin";
 import { findMainMenu } from "../support/actions/nav";
+
+before(resetData);
 
 beforeEach(() => {
   cy.visit("/");

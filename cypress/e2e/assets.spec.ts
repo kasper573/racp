@@ -1,7 +1,12 @@
 import { gotoItem, gotoMap, gotoMonster } from "../support/actions/nav";
-import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
+import {
+  resetData,
+  signInAsAdmin,
+  uploadAssets,
+} from "../support/actions/admin";
 
 before(() => {
+  resetData();
   cy.visit("/");
   signInAsAdmin();
   uploadAssets();

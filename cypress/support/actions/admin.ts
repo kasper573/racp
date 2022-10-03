@@ -1,6 +1,10 @@
 import { signIn } from "./user";
 import { clickMainMenuItem } from "./nav";
 
+export function resetData() {
+  cy.exec("yarn run reset-data");
+}
+
 export function signInAsAdmin() {
   signIn(Cypress.env("ADMIN_USER"), Cypress.env("ADMIN_PASSWORD"));
 }
