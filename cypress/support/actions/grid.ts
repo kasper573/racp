@@ -7,6 +7,22 @@ export function findRowById(id: string | number) {
   });
 }
 
+export function expectTableData(expected: string[][]) {
+  return cy
+    .findAllByRole("row", { name: (i, row) => row.hasAttribute(idAttribute) })
+    .each((row) => {
+      return cy
+        .wrap(row)
+        .findAllByRole("cell", {
+          name: (i, row) => row.hasAttribute(fieldAttribute),
+        })
+        .each((cell) => {
+          const expectedValue = expected[row.index()][cell.index()];
+          cy.wrap(cell).should("have.text", expectedValue);
+        });
+    });
+}
+
 export function findDataRowIds() {
   return cy.findAllByRole("row").then((rows) => {
     const ids = rows.map((i, row) => row.getAttribute(idAttribute));

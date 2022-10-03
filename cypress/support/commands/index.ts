@@ -5,3 +5,4 @@ import "./common";
 import "./select";
 import "./image";
 import "./slider";
+import "./trpc";

@@ -23,4 +23,13 @@ export const vendorItemType = zod.object({
 export const createVendorItemId = (vendorId: number, cartIndex: number) =>
   `${vendorId}_${cartIndex}`;
 
+export const parseVendorItemId = (str: string) => {
+  const numbers = str.split("_").map((x) => parseInt(x));
+  if (numbers.length !== 2) {
+    throw new Error("Invalid vendor item id");
+  }
+  const [vendorId, cartIndex] = numbers;
+  return [vendorId, cartIndex] as const;
+};
+
 export const vendorItemFilterType = vendorItemType.partial();
