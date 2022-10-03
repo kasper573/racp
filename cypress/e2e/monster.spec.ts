@@ -7,6 +7,7 @@ import {
 import { menuSlide, waitForPageReady } from "../support/actions/common";
 import { compareNumeric, compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/generateSearchPageTests";
+import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
 
 before(() => {
   cy.visit("/");
@@ -139,5 +140,19 @@ describe("details", () => {
     findTableColumn("Name").contains(/jellopy/i);
     findTableColumn("Name").contains(/knife/i);
     findTableColumn("Name").contains(/sticky mucus/i);
+  });
+});
+
+describe("assets", () => {
+  before(() => {
+    signInAsAdmin();
+    uploadAssets();
+    gotoMonster(1002);
+  });
+
+  it("exists", () => cy.contains("Poring"));
+
+  it("has image", () => {
+    cy.findByRole("img", { name: "Poring" }).isFixtureImage("poring.png");
   });
 });

@@ -103,4 +103,21 @@ describe("details", () => {
   });
 });
 
+describe("assets", () => {
+  before(() => gotoItem(501));
+
+  it("exists", () => cy.contains("Red Potion"));
+
+  it("has client texts", () => {
+    cy.contains("Red Potion Identified Display Name");
+    cy.contains("Red Potion Identified Description");
+  });
+
+  it("has image", () => {
+    cy.findByRole("img", { name: "Red Potion" }).isFixtureImage(
+      "red_potion.png"
+    );
+  });
+});
+
 const trimSlots = (str: string) => /^(.*?)\s*\[\d+]/.exec(str)?.[1] ?? str;

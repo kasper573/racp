@@ -7,6 +7,7 @@ import {
 import { compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/generateSearchPageTests";
 import { waitForPageReady } from "../support/actions/common";
+import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
 
 before(() => {
   cy.visit("/");
@@ -49,5 +50,23 @@ describe("details", () => {
     findTableColumn("Name").contains(/lunatic ringleader/i);
     findTableColumn("Name").contains(/poring/i);
     findTableColumn("Name").contains(/fabre/i);
+  });
+});
+
+describe("assets", () => {
+  before(() => {
+    signInAsAdmin();
+    uploadAssets();
+    gotoMap("prontera");
+  });
+
+  it("exists", () => cy.contains("Prontera"));
+
+  it("has pins", () => {
+    cy.findAllByTestId("Map pin").should("exist");
+  });
+
+  it("has image", () => {
+    cy.findByRole("img", { name: "Map" }).isFixtureImage("prontera.png");
   });
 });
