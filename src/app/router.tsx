@@ -124,7 +124,7 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
   vendor: route("vendor/:filter?", {
     component: lazy(() => import("./pages/VendorSearchPage")),
     params: { filter: zodRouteParam(vendorItemFilter.type.default({})) },
-    options: { title: "Vendor", icon: <Storefront /> },
+    options: { title: "Vendors", icon: <Storefront /> },
   }),
   admin: route(
     "admin",

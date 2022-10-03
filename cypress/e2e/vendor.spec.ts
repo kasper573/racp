@@ -21,7 +21,7 @@ describe("search", () => {
         accountId: 0,
       })
     );
-    clickMainMenuItem("Vendor");
+    clickMainMenuItem("Vendors");
     waitForPageReady();
   });
 
@@ -29,7 +29,7 @@ describe("search", () => {
     searches: {
       id: {
         input: () => cy.findByLabelText("Item ID").type("501"),
-        verify: () => expectTableColumn("Name", () => /red potion/i),
+        verify: () => expectTableColumn("Item", () => /red potion/i),
       },
       vendor: {
         input: () => cy.findByLabelText("Vendor").type("4"),

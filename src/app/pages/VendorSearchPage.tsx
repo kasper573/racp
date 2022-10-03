@@ -10,7 +10,7 @@ export default function VendorSearchPage() {
   return (
     <>
       <Header>
-        Vendor
+        Vendors
         <Button
           onClick={() => setFilter({})}
           size="small"
