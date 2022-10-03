@@ -101,6 +101,9 @@ app.use(
 );
 app.use(
   trpcExpress.createExpressMiddleware({
+    onError({ error, path }) {
+      logger.chain("trpc").error(`/${path}`, error.name, error.message);
+    },
     router: createApiRouter({
       util: createUtilService(),
       config: createConfigService(config),
