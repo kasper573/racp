@@ -46,14 +46,14 @@ export function createVendorService({
             amount: item.amount,
             equip: 0,
             refine: item.refine,
-            ...item.cardIds.reduce(
+            ...item.cardIds.slice(0, 4).reduce(
               (props, cardId, index) => ({
                 ...props,
                 [`card${index}`]: cardId,
               }),
               {}
             ),
-            ...item.options.reduce(
+            ...item.options.slice(0, 4).reduce(
               (props, option, index) => ({
                 ...props,
                 [`option_id${index}`]: option.id,
