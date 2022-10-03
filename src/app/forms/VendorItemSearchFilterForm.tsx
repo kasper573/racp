@@ -38,7 +38,11 @@ export function VendorItemSearchFilterForm({
         {...field("vendorTitle", "contains")}
       />
       <RangeFields size="small" label="Price" {...field("price", "between")} />
-      <RangeFields size="small" label="Amount" {...field("amount", "between")} />
+      <RangeFields
+        size="small"
+        label="Amount"
+        {...field("amount", "between")}
+      />
     </ControlGrid>
   );
 }
