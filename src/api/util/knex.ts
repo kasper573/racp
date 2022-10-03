@@ -1,5 +1,6 @@
 import { Knex } from "knex";
 import { SearchQuery, SearchResult, SearchSort } from "../common/search";
+import { Path } from "../../lib/zod/zodPath";
 
 export async function count<T extends Knex.QueryBuilder>(query: T) {
   const res = await query.clone().clearSelect().count().first();
@@ -17,16 +18,25 @@ export function filter<T extends Knex.QueryBuilder, Filter>(
   return builder.clone();
 }
 
-export function sort<T extends Knex.QueryBuilder, Entity>(
-  builder: T,
-  sort: SearchSort<Entity>
+export function sort<Entity>(
+  baseQuery: Knex.QueryBuilder,
+  sort: SearchSort<Entity>,
+  fieldToColumnName: Partial<Record<Path<Entity>, string>>
 ) {
-  return builder.clone();
+  let query = baseQuery.clone();
+  for (const { field, sort: direction } of Object.values(sort)) {
+    const columnName = fieldToColumnName[field];
+    if (columnName) {
+      query = query.orderBy(columnName, direction);
+    }
+  }
+  return query;
 }
 
 export async function search<T extends Knex.QueryBuilder, Entity, Filter>(
   selectionQuery: T,
   query: SearchQuery<Entity, Filter>,
+  fieldToColumnName: Partial<Record<Path<Entity>, string>>,
   parseEntity: (result: ValueOf<Awaited<T>>) => Entity
 ): Promise<SearchResult<Entity>> {
   let builder = selectionQuery.clone();
@@ -35,7 +45,7 @@ export async function search<T extends Knex.QueryBuilder, Entity, Filter>(
   }
   const countPromise = count(builder);
   if (query.sort) {
-    builder = sort(builder, query.sort);
+    builder = sort(builder, query.sort, fieldToColumnName);
   }
   if (query.offset !== undefined) {
     builder = builder.offset(query.offset);

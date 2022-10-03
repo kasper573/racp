@@ -33,7 +33,7 @@ export function VendorItemSearchFilterForm({
       />
       <TextField
         size="small"
-        label="Name"
+        label="Vendor"
         optional
         {...field("vendorTitle", "contains")}
       />

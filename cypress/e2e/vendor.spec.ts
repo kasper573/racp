@@ -31,9 +31,9 @@ describe("search", () => {
         input: () => cy.findByLabelText("ID").type("501"),
         verify: () => expectTableColumn("Name", () => /red potion/i),
       },
-      name: {
-        input: () => cy.findByLabelText("Name").type("red"),
-        verify: () => expectTableColumn("Name", () => /red/i),
+      vendor: {
+        input: () => cy.findByLabelText("Vendor").type("4"),
+        verify: () => expectTableColumn("Vendor", () => /4/i),
       },
       price: {
         input: () => {
@@ -56,7 +56,6 @@ describe("search", () => {
       },
     },
     sorts: {
-      Name: compareStrings,
       Price: compareNumeric,
       Amount: compareNumeric,
       Vendor: compareStrings,

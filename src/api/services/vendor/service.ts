@@ -98,7 +98,13 @@ export function createVendorService({
           .join("vendings", "vendings.id", "vending_items.vending_id")
           .select("index", "price", "refine", "vendings.id as vendorId", "title as vendorTitle", "nameid as itemId", "vending_items.amount", "map", "x", "y", "card0", "card1", "card2", "card3", "option_id0", "option_id1", "option_id2", "option_id3", "option_val0", "option_val1", "option_val2", "option_val3")
 
-        return search(query, input, (raw) => {
+        const columns = {
+          vendorTitle: "title",
+          price: "price",
+          amount: "amount",
+        } as const;
+
+        return search(query, input, columns, (raw) => {
           const item = items.get(raw.itemId);
           return vendorItemType.parse({
             ...raw,
