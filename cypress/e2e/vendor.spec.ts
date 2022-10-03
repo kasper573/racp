@@ -10,20 +10,21 @@ before(() => {
   resetData();
   cy.visit("/");
   signInAsAdmin();
-  clickMainMenuItem("Vendor");
-  waitForPageReady();
 });
 
 describe("search", () => {
-  before(() =>
+  before(() => {
     cy.trpc((client) =>
       client?.vendor.insertItems.mutate({
         items: range(0, 50).map(() => mockVendorItem()),
         charId: 0,
         accountId: 0,
       })
-    )
-  );
+    );
+    clickMainMenuItem("Vendor");
+    waitForPageReady();
+  });
+
   generateSearchPageTests({
     searches: {
       id: {

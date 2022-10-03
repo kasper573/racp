@@ -6,6 +6,7 @@ import { DatabaseDriver } from "../../rathena/DatabaseDriver";
 import { normalizeItemInstanceProperties } from "../inventory/types";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
+import { count } from "../../util/knex";
 import {
   createVendorItemId,
   parseVendorItemId,
@@ -91,13 +92,28 @@ export function createVendorService({
         const items = await itemRepo.getItems();
 
         // prettier-ignore
-        const res = await db.map
+        const baseQuery = db.map
           .table("vending_items")
           .join("cart_inventory", "cart_inventory.id", "vending_items.cartinventory_id")
           .join("vendings", "vendings.id", "vending_items.vending_id")
+
+        // prettier-ignore
+        let resultQuery = baseQuery.clone()
           .select("index", "price", "refine", "vendings.id as vendorId", "title as vendorTitle", "nameid as itemId", "vending_items.amount", "map", "x", "y", "card0", "card1", "card2", "card3", "option_id0", "option_id1", "option_id2", "option_id3", "option_val0", "option_val1", "option_val2", "option_val3");
 
-        const entities = res.map((raw) => {
+        if (input.offset !== undefined) {
+          resultQuery = resultQuery.offset(input.offset);
+        }
+        if (input.limit !== undefined) {
+          resultQuery = resultQuery.limit(input.limit);
+        }
+
+        const [result, total] = await Promise.all([
+          resultQuery,
+          count(baseQuery),
+        ]);
+
+        const entities = result.map((raw) => {
           const item = items.get(raw.itemId);
           return vendorItemType.parse({
             ...raw,
@@ -109,7 +125,7 @@ export function createVendorService({
           });
         });
 
-        return { total: entities.length, entities };
+        return { total, entities };
       }),
   });
 }
