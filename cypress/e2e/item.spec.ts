@@ -77,7 +77,8 @@ describe("search", () => {
       },
     },
     sorts: {
-      Name: compareStrings,
+      // Expect name sorting to be done ignoring slots
+      Name: (a, b) => compareStrings(trimSlots(a), trimSlots(b)),
       Buy: compareNumeric,
       Sell: compareNumeric,
       Weight: compareNumeric,
@@ -101,3 +102,5 @@ describe("details", () => {
       .and("contain.text", "Acidus");
   });
 });
+
+const trimSlots = (str: string) => /^(.*?)\s*\[\d+]/.exec(str)?.[1] ?? str;
