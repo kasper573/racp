@@ -6,6 +6,7 @@ import {
 } from "../support/actions/grid";
 import { compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/generateSearchPageTests";
+import { waitForPageReady } from "../support/actions/common";
 
 before(() => {
   cy.visit("/");
@@ -36,7 +37,7 @@ describe("details", () => {
 
   it("can list warps", () => {
     cy.findByRole("tab", { name: /warps/i }).click();
-
+    waitForPageReady();
     findTableColumn("Destination").contains(/prt_maze01/i);
     findTableColumn("Destination").contains(/prt_gld/i);
     findTableColumn("Destination").contains(/mjolnir_10/i);
@@ -44,7 +45,7 @@ describe("details", () => {
 
   it("can list monsters", () => {
     cy.findByRole("tab", { name: /monsters/i }).click();
-
+    waitForPageReady();
     findTableColumn("Name").contains(/lunatic ringleader/i);
     findTableColumn("Name").contains(/poring/i);
     findTableColumn("Name").contains(/fabre/i);

@@ -4,7 +4,7 @@ import {
   findRowById,
   findTableColumn,
 } from "../support/actions/grid";
-import { menuSlide } from "../support/actions/common";
+import { menuSlide, waitForPageReady } from "../support/actions/common";
 import { compareNumeric, compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/generateSearchPageTests";
 
@@ -127,6 +127,7 @@ describe("details", () => {
 
   it("can list spawns", () => {
     cy.findByRole("tab", { name: /spawns/i }).click();
+    waitForPageReady();
     findTableColumn("Map").contains(/xmas_dun01/i);
     findTableColumn("Map").contains(/prt_maze01/i);
     findTableColumn("Map").contains(/sec_in02/i);
@@ -134,6 +135,7 @@ describe("details", () => {
 
   it("can list drops", () => {
     cy.findByRole("tab", { name: /drops/i }).click();
+    waitForPageReady();
     findTableColumn("Name").contains(/jellopy/i);
     findTableColumn("Name").contains(/knife/i);
     findTableColumn("Name").contains(/sticky mucus/i);
