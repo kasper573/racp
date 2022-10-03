@@ -1,41 +1,84 @@
+import { range } from "lodash";
 import { clickMainMenuItem } from "../support/actions/nav";
 import { resetData, signInAsAdmin } from "../support/actions/admin";
-import { expectTableData } from "../support/actions/grid";
+import { expectTableColumn } from "../support/actions/grid";
+import { generateSearchPageTests } from "../support/generateSearchPageTests";
+import { waitForPageReady } from "../support/actions/common";
+import { compareNumeric, compareStrings } from "../support/util";
 
-beforeEach(() => {
+before(() => {
   resetData();
   cy.visit("/");
   signInAsAdmin();
+  clickMainMenuItem("Vendor");
+  waitForPageReady();
 });
 
-it("can list vendor items", () => {
-  cy.trpc((client) =>
-    client?.vendor.insertItems.mutate({
-      items: [
-        {
-          id: "1_1",
-          price: 777,
-          amount: 2,
-          refine: 4,
-          itemId: 501,
-          vendorId: 1,
-          vendorTitle: "Title",
-          identified: true,
-          map: "prontera",
-          options: [],
-          cardIds: [],
-          name: "Red Potion",
-          x: 123,
-          y: 321,
-        },
-      ],
-      cartId: 1,
-      charId: 1,
-      accountId: 1,
-    })
+describe("search", () => {
+  before(() =>
+    cy.trpc((client) =>
+      client?.vendor.insertItems.mutate({
+        items: range(0, 50).map(() => mockVendorItem()),
+        charId: 0,
+        accountId: 0,
+      })
+    )
   );
-  clickMainMenuItem("Vendor");
-  expectTableData([
-    ["+4 Red Potion", "777z", "2", "Title", "prontera (123, 321)"],
-  ]);
+  generateSearchPageTests({
+    searches: {
+      id: {
+        input: () => cy.findByLabelText("ID").type("501"),
+        verify: () => expectTableColumn("Name", () => /red potion/i),
+      },
+      name: {
+        input: () => cy.findByLabelText("Name").type("red"),
+        verify: () => expectTableColumn("Name", () => /red/i),
+      },
+      price: {
+        input: () => {
+          cy.findByLabelText("Price (min)").type("300");
+          cy.findByLabelText("Price (max)").type("600");
+        },
+        verify: () =>
+          expectTableColumn(
+            "Price",
+            () => (text) => +text >= 300 && +text <= 600
+          ),
+      },
+      amount: {
+        input: () => {
+          cy.findByLabelText("Amount (min)").type("3");
+          cy.findByLabelText("Amount (max)").type("6");
+        },
+        verify: () =>
+          expectTableColumn("Amount", () => (text) => +text >= 3 && +text <= 6),
+      },
+    },
+    sorts: {
+      Name: compareStrings,
+      Price: compareNumeric,
+      Amount: compareNumeric,
+      Vendor: compareStrings,
+    },
+  });
 });
+
+let idCounter = 0;
+function mockVendorItem(seed = idCounter++) {
+  return {
+    id: `${seed}_${seed}`,
+    price: seed * 100,
+    amount: seed,
+    refine: seed,
+    itemId: 501 + seed,
+    vendorId: seed,
+    vendorTitle: `Title ${seed}`,
+    identified: seed % 2 === 0,
+    map: "prontera",
+    options: [],
+    cardIds: [],
+    name: "",
+    x: seed,
+    y: seed,
+  };
+}
