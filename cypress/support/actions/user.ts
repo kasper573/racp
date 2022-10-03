@@ -48,6 +48,7 @@ export function signIn(username: string, password: string) {
   cy.findByLabelText("Username").type(username);
   cy.findByLabelText("Password").type(password);
   cy.findByRole("button", { name: "Sign in" }).click();
+  waitForPageReady();
 }
 
 export function signOut() {

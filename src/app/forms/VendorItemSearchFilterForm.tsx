@@ -26,7 +26,7 @@ export function VendorItemSearchFilterForm({
     <ControlGrid>
       <TextField
         size="small"
-        label="ID"
+        label="Item ID"
         type="number"
         optional
         {...field("itemId", "=")}

@@ -17,7 +17,6 @@ export type ItemInstanceProperties = zod.infer<
 
 export const itemInstancePropertiesType = zod.object({
   cardIds: zod.array(zod.number()),
-  identified: zod.boolean(),
   options: zod.array(itemRandomOptionType),
   refine: zod.number(),
 });
@@ -27,7 +26,6 @@ export function normalizeItemInstanceProperties(
 ): ItemInstanceProperties {
   return {
     cardIds: [item.card0, item.card1, item.card2, item.card3].filter(Boolean),
-    identified: Boolean(item.identify),
     options: [
       { id: item.option_id0, value: item.option_val0 },
       { id: item.option_id1, value: item.option_val1 },

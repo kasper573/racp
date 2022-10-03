@@ -28,7 +28,7 @@ describe("search", () => {
   generateSearchPageTests({
     searches: {
       id: {
-        input: () => cy.findByLabelText("ID").type("501"),
+        input: () => cy.findByLabelText("Item ID").type("501"),
         verify: () => expectTableColumn("Name", () => /red potion/i),
       },
       vendor: {

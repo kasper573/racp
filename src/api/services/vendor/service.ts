@@ -6,7 +6,7 @@ import { DatabaseDriver } from "../../rathena/DatabaseDriver";
 import { normalizeItemInstanceProperties } from "../inventory/types";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
-import { search } from "../../util/knex";
+import { count, knexMatcher } from "../../util/knex";
 import {
   createVendorItemId,
   parseVendorItemId,
@@ -45,7 +45,6 @@ export function createVendorService({
             nameid: item.itemId,
             amount: item.amount,
             equip: 0,
-            identify: item.identified ? 1 : 0,
             refine: item.refine,
             ...item.cardIds.reduce(
               (props, cardId, index) => ({
@@ -92,29 +91,35 @@ export function createVendorService({
         const items = await itemRepo.getItems();
 
         // prettier-ignore
-        const query = db.map
+        let query = db.map
           .table("vending_items")
           .join("cart_inventory", "cart_inventory.id", "vending_items.cartinventory_id")
           .join("vendings", "vendings.id", "vending_items.vending_id")
           .select("index", "price", "refine", "vendings.id as vendorId", "title as vendorTitle", "nameid as itemId", "vending_items.amount", "map", "x", "y", "card0", "card1", "card2", "card3", "option_id0", "option_id1", "option_id2", "option_id3", "option_val0", "option_val1", "option_val2", "option_val3")
 
-        const columns = {
+        query = knexMatcher.search(query, input, {
+          itemId: "nameid",
           vendorTitle: "title",
           price: "price",
-          amount: "amount",
-        } as const;
-
-        return search(query, input, columns, (raw) => {
-          const item = items.get(raw.itemId);
-          return vendorItemType.parse({
-            ...raw,
-            id: createVendorItemId(raw.vendorId, raw.index),
-            name: item ? item.Name : "Unknown item",
-            imageUrl: item?.ImageUrl,
-            slots: item?.Slots,
-            ...normalizeItemInstanceProperties(raw),
-          });
+          amount: "vending_items.amount",
         });
+
+        const [result, total] = await Promise.all([query, count(query)]);
+
+        return {
+          total,
+          entities: result.map((raw: any) => {
+            const item = items.get(raw.itemId);
+            return vendorItemType.parse({
+              ...raw,
+              id: createVendorItemId(raw.vendorId, raw.index),
+              name: item ? item.Name : "Unknown item",
+              imageUrl: item?.ImageUrl,
+              slots: item?.Slots,
+              ...normalizeItemInstanceProperties(raw),
+            });
+          }),
+        };
       }),
   });
 }
