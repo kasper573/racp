@@ -1,11 +1,9 @@
-import { Stack } from "@mui/material";
 import { DataGrid } from "../components/DataGrid";
 import { trpc } from "../state/client";
 import { router } from "../router";
 import { Link } from "../components/Link";
-import { ImageWithFallback } from "../components/ImageWithFallback";
 import { formatZeny } from "../util/formatZeny";
-import { ItemDisplayName } from "../util/ItemDisplayName";
+import { ItemIdentifier } from "../components/ItemIdentifier";
 
 export const VendorItemGrid = DataGrid.define(trpc.vendor.searchItems.useQuery)(
   {
@@ -16,18 +14,7 @@ export const VendorItemGrid = DataGrid.define(trpc.vendor.searchItems.useQuery)(
         headerName: "Item",
         width: 250,
         renderCell({ row: item }) {
-          return (
-            <Stack direction="row" spacing={1} alignItems="center">
-              <ImageWithFallback
-                src={item.imageUrl}
-                alt={item.name}
-                sx={{ width: 32 }}
-              />
-              <Link to={router.item().view({ id: item.itemId })}>
-                <ItemDisplayName {...item} />
-              </Link>
-            </Stack>
-          );
+          return <ItemIdentifier vendorItem={item} />;
         },
       },
       price: {
