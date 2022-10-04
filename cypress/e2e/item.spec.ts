@@ -4,7 +4,11 @@ import {
   findRowById,
   findTableColumn,
 } from "../support/actions/grid";
-import { compareNumeric, compareStrings } from "../support/util";
+import {
+  compareNumeric,
+  compareStrings,
+  compareThousands,
+} from "../support/util";
 import { menuSlide } from "../support/actions/common";
 import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
 import { generateSearchPageTests } from "../support/actions/search";
@@ -103,8 +107,8 @@ describe("search", () => {
     sorts: {
       // Expect name sorting to be done ignoring slots
       Name: (a, b) => compareStrings(trimSlots(a), trimSlots(b)),
-      Buy: compareNumeric,
-      Sell: compareNumeric,
+      Buy: compareThousands,
+      Sell: compareThousands,
       Weight: compareNumeric,
       Atk: compareNumeric,
       MAtk: compareNumeric,
