@@ -24,6 +24,10 @@ export function listItems() {
   clickMainMenuItem("items");
 }
 
+export function listVendings() {
+  clickMainMenuItem("vendings");
+}
+
 export function gotoItem(id: number) {
   listItems();
   searchByIdAndClickLink(id);

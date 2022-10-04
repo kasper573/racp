@@ -5,12 +5,12 @@ import { useRouteState } from "../../lib/hooks/useRouteState";
 import { VendorItemGrid } from "../grids/VendorItemGrid";
 import { VendorItemSearchFilterForm } from "../forms/VendorItemSearchFilterForm";
 
-export default function VendorSearchPage() {
+export default function VendorItemSearchPage() {
   const [filter = {}, setFilter] = useRouteState(router.vendor, "filter");
   return (
     <>
       <Header>
-        Vendors
+        Vendings
         <Button
           onClick={() => setFilter({})}
           size="small"

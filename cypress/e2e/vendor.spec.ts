@@ -1,5 +1,5 @@
 import { range } from "lodash";
-import { clickMainMenuItem } from "../support/actions/nav";
+import { listVendings } from "../support/actions/nav";
 import {
   resetData,
   signInAsAdmin,
@@ -25,7 +25,7 @@ before(() => {
     })
   );
 
-  clickMainMenuItem("Vendors");
+  listVendings();
 });
 
 generateSearchPageTests({
@@ -86,7 +86,7 @@ describe("assets", () => {
         accountId: 0,
       })
     );
-    clickMainMenuItem("Vendors");
+    listVendings();
     cy.findByLabelText("Item ID").type("1108");
     waitForPageReady();
   });
