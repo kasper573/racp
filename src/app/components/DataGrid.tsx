@@ -11,9 +11,11 @@ import {
   GridColDef,
   GridEnrichedColDef,
 } from "@mui/x-data-grid/models/colDef/gridColDef";
+import { isDeepEqual } from "@mui/x-data-grid/internals";
 import { typedKeys } from "../../lib/std/typedKeys";
 import { SearchQuery, SearchResult, SearchSort } from "../../api/common/search";
 import { useWindowSize, WindowSize } from "../../lib/hooks/useWindowSize";
+import { useOnChange } from "../../lib/hooks/useOnChange";
 import { Link } from "./Link";
 import { LoadingSpinner } from "./LoadingSpinner";
 
@@ -69,6 +71,8 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
       setPageIndex(Math.max(0, pageCount - 1));
     }
   }, [pageIndex, pageCount]);
+
+  useOnChange(filter, isDeepEqual, () => setPageIndex(0));
 
   function emitHoverChange(target?: HTMLElement) {
     const hovered =
