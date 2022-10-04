@@ -1,19 +1,21 @@
 import { Fragment, ReactElement } from "react";
-import { Stack, styled } from "@mui/material";
+import { Stack } from "@mui/material";
 import { pick } from "lodash";
 import { useRouteParams } from "../../lib/hooks/useRouteParams";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
 import { router } from "../router";
-import { TooltipText } from "../components/TooltipText";
 import { ClientTextBlock } from "../components/ClientText/ClientText";
 import { TabbedPaper } from "../components/TabbedPaper";
 import { Script } from "../components/Script";
 import { resolveToggles } from "../../api/util/matcher";
-import { dropChanceString, itemNameString } from "../grids/ItemDropGrid";
+import { dropChanceString } from "../grids/ItemDropGrid";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 import { Link } from "../components/Link";
 import { CommonPageGrid } from "../components/CommonPageGrid";
+import { TooltipText } from "../components/TooltipText";
+import { ItemDisplayName } from "../components/ItemIdentifier";
+import { Spaceless } from "../components/Spaceless";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ItemViewPage(): ReactElement {
@@ -30,9 +32,9 @@ export default function ItemViewPage(): ReactElement {
   if (!item || error) {
     return <Header>Item not found</Header>;
   }
-  const displayName = item.Info?.identifiedDisplayName?.content;
-  const hasDifferentDisplayName =
-    displayName !== undefined && displayName !== item.Name;
+  const clientName = item.Info?.identifiedDisplayName?.content;
+  const hasDifferentClientName =
+    clientName !== undefined && clientName !== item.Name;
 
   const jobs = resolveToggles(item.Jobs);
   const scripts = Object.entries(
@@ -42,13 +44,20 @@ export default function ItemViewPage(): ReactElement {
   return (
     <>
       <Header back={router.item}>
-        {itemNameString(item.Name, item.Slots)}&nbsp;
-        {hasDifferentDisplayName && (
+        <ItemDisplayName name={item.Name} slots={item.Slots} />
+        &nbsp;
+        {hasDifferentClientName && (
           <TooltipText tooltip="Client display name" color="text.disabled">
-            ({itemNameString(displayName, item.Slots)})
+            ({clientName})
           </TooltipText>
         )}
-        <ItemImage src={item.ImageUrl} alt={item.Name} />
+        <Spaceless offset={{ top: -10, left: 16 }}>
+          <ImageWithFallback
+            sx={{ maxHeight: 75 }}
+            src={item.ImageUrl}
+            alt={item.Name}
+          />
+        </Spaceless>
       </Header>
 
       <Stack spacing={2} sx={{ flex: 1 }} direction="column">
@@ -115,9 +124,3 @@ export default function ItemViewPage(): ReactElement {
     </>
   );
 }
-
-const ItemImage = styled(ImageWithFallback)`
-  position: absolute;
-  margin-left: 12px;
-  max-height: 75px;
-`;

@@ -1,8 +1,7 @@
 import * as lua from "luaparse";
 import * as zod from "zod";
 import { ZodType } from "zod";
-import { MemberExpression } from "luaparse";
-import { parseLuaTable } from "../../lib/parseLuaTable";
+import { LuaRefResolver, parseLuaTable } from "../../lib/parseLuaTable";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const legacy = require("legacy-encoding");
@@ -11,13 +10,8 @@ export function parseLuaTableAs<ValueType extends ZodType>(
   luaCode: string,
   valueType: ValueType,
   references?: Record<string, unknown>
-): LuaParseResult<Record<string | number, zod.infer<ValueType>>> {
-  let root: lua.Chunk;
-  try {
-    root = lua.parse(luaCode);
-  } catch (error) {
-    return { success: false, error };
-  }
+): Record<string | number, zod.infer<ValueType>> {
+  let root = lua.parse(luaCode);
 
   const rootTable = find(root.body, (st) =>
     st.type === "AssignmentStatement" &&
@@ -27,11 +21,11 @@ export function parseLuaTableAs<ValueType extends ZodType>(
   );
 
   if (!rootTable) {
-    return { success: false, error: "Lua script did not contain a table" };
+    throw new Error("Lua script did not contain a table");
   }
 
-  const ref = references
-    ? (ref: MemberExpression) => {
+  const ref: LuaRefResolver | undefined = references
+    ? (ref) => {
         if (Object.hasOwn(references, ref.identifier.name)) {
           return references[ref.identifier.name];
         }
@@ -39,11 +33,7 @@ export function parseLuaTableAs<ValueType extends ZodType>(
       }
     : undefined;
 
-  try {
-    return zod.record(valueType).safeParse(parseLuaTable(rootTable, ref));
-  } catch (error) {
-    return { success: false, error };
-  }
+  return zod.record(valueType).parse(parseLuaTable(rootTable, ref));
 }
 
 function find<T, V>(list: T[], select: (item: T) => V | undefined) {

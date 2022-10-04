@@ -1,10 +1,11 @@
 import { createTRPCReact, httpBatchLink } from "@trpc/react";
+import { createTRPCProxyClient } from "@trpc/client";
 import { ApiRouter } from "../../api/router";
 
 export const trpc = createTRPCReact<ApiRouter>();
 
-export function createTRPCClient(getToken: () => string | undefined) {
-  return trpc.createClient({
+export function createTRPCClientOptions(getToken: () => string | undefined) {
+  return {
     links: [
       httpBatchLink({
         url: process.env.apiBaseUrl!,
@@ -19,5 +20,20 @@ export function createTRPCClient(getToken: () => string | undefined) {
         },
       }),
     ],
-  });
+  };
+}
+
+/**
+ * Used to share client instance with e2e test runner.
+ */
+export function exposeTRPCClientProxy(
+  options: ReturnType<typeof createTRPCClientOptions>
+) {
+  const proxy = createTRPCProxyClient<ApiRouter>(options);
+  window.trpcClientProxy = proxy;
+  return proxy;
+}
+
+export interface TRPCClientWindowExtension {
+  trpcClientProxy?: ReturnType<typeof exposeTRPCClientProxy>;
 }

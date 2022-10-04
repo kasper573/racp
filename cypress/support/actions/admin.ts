@@ -1,6 +1,10 @@
 import { signIn } from "./user";
 import { clickMainMenuItem } from "./nav";
 
+export function resetData() {
+  cy.exec("yarn run reset-data");
+}
+
 export function signInAsAdmin() {
   signIn(Cypress.env("ADMIN_USER"), Cypress.env("ADMIN_PASSWORD"));
 }
@@ -15,5 +19,6 @@ export function uploadAssets() {
 
   // For some reason there is flakiness in how long the upload takes only in cypress.
   // Most of the time it's fast, but for the off chance that it's slow we raise the timeout.
-  cy.contains("Upload complete", { timeout: 60000 });
+  cy.contains("Upload completed", { timeout: 60000 });
+  cy.contains("Errors during upload").should("not.exist");
 }

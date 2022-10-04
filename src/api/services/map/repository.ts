@@ -1,4 +1,5 @@
 import { flatten, uniq } from "lodash";
+import * as zod from "zod";
 import { FileStore } from "../../../lib/fs/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
@@ -10,8 +11,8 @@ import { Logger } from "../../../lib/logger";
 import { gfs } from "../../util/gfs";
 import { createAsyncMemo } from "../../../lib/createMemo";
 import { MonsterSpawn } from "../monster/types";
+import { zodJsonProtocol } from "../../../lib/zod/zodJsonProtocol";
 import {
-  MapBoundsRegistry,
   mapBoundsRegistryType,
   MapId,
   MapInfo,
@@ -42,9 +43,13 @@ export function createMapRepository({
   const imageRepository = createImageRepository(formatter, imageLinker, logger);
 
   const warpsPromise = npc.resolve("scripts_warps.conf", warpType);
-  const infoFile = files.entry("mapInfo.lub", parseMapInfo);
-  const boundsFile = files.entry("mapBounds.json", (str) =>
-    mapBoundsRegistryType.safeParse(JSON.parse(str))
+  const infoFile = files.entry(
+    "mapInfo.json",
+    zodJsonProtocol(zod.record(mapInfoType))
+  );
+  const boundsFile = files.entry(
+    "mapBounds.json",
+    zodJsonProtocol(mapBoundsRegistryType)
   );
 
   const getMaps = createAsyncMemo(
@@ -92,18 +97,14 @@ export function createMapRepository({
 
   return {
     getMaps,
-    updateInfo: infoFile.update,
+    updateInfo(luaCode: string) {
+      return infoFile.assign(parseLuaTableAs(luaCode, mapInfoType));
+    },
     countImages: () =>
       gfs.readdir(imageLinker.directory).then((dirs) => dirs.length),
     warps: warpsPromise,
     updateImages: imageRepository.update,
-    async updateBounds(registryChanges: MapBoundsRegistry) {
-      const updatedRegistry = {
-        ...(boundsFile.data ?? {}),
-        ...registryChanges,
-      };
-      boundsFile.update(JSON.stringify(updatedRegistry, null, 2));
-    },
+    updateBounds: boundsFile.assign,
     destroy: () => {
       infoFile.close();
       boundsFile.close();
@@ -111,5 +112,3 @@ export function createMapRepository({
     },
   };
 }
-
-const parseMapInfo = (luaCode: string) => parseLuaTableAs(luaCode, mapInfoType);

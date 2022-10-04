@@ -16,7 +16,7 @@ export function RouteList({
   return (
     <List role="menu" {...props}>
       {routes.map((route, index) => (
-        <LinkListItem to={route()} key={index} onClick={onItemSelected}>
+        <LinkListItem to={route({})} key={index} onClick={onItemSelected}>
           <ListItemIcon>{route.options.icon}</ListItemIcon>
           <ListItemText primary={route.options.title} />
         </LinkListItem>

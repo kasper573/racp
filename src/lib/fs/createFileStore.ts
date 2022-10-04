@@ -13,107 +13,93 @@ export function createFileStore(directory: string, parentLogger: Logger) {
     directory,
     entry<Data>(
       relativeFilename: string,
-      parseFileContent: ContentParser<Data>
+      { parse, serialize }: FileStoreProtocol<Data>
     ): FileStoreEntry<Data> {
       const entryLogger = logger.chain(relativeFilename);
       const filename = path.resolve(directory, relativeFilename);
 
-      let isAutoLoadEnabled = true;
+      let isWriting = false;
       const watcher = watchFileInDirectory(directory, relativeFilename, () => {
-        if (isAutoLoadEnabled) {
-          loadFileContent();
+        if (!isWriting) {
+          load();
         }
       });
 
       let currentData: Data | undefined;
-      let currentFileContent: string | undefined;
 
-      function setFileContent(
-        fileContent?: string
-      ): FileParseResult<Data | undefined> | "unchanged" {
-        if (fileContent === currentFileContent) {
-          return "unchanged";
+      function load() {
+        let fileContent: string | undefined;
+        try {
+          fileContent = fs.readFileSync(filename, "utf-8");
+        } catch {
+          // File missing = content undefined
         }
-
         if (fileContent !== undefined) {
-          const res = parseFileContent(fileContent);
+          const res = parse(fileContent);
           if (res.success) {
             currentData = res.data;
-            currentFileContent = fileContent;
           } else {
             entryLogger.error(
               `Could not parse file content. Received error: ${res.error}`
             );
-            return res;
+            return;
           }
         } else {
           currentData = undefined;
-          currentFileContent = undefined;
         }
-
-        entryLogger.log("updated, new size:", currentFileContent?.length ?? 0);
-        return { success: true, data: currentData };
+        entryLogger.log("Loaded. New size:", fileContent?.length ?? 0);
       }
 
-      function loadFileContent() {
-        let loadedContent: string | undefined;
+      function write(data?: Data) {
         try {
-          loadedContent = fs.readFileSync(filename, "utf-8");
-        } catch {
-          // File missing = content undefined
-        }
-        setFileContent(loadedContent);
-      }
-
-      function writeFileContent(
-        newContent?: string
-      ): FileParseResult<Data | undefined> {
-        const res = setFileContent(newContent);
-        if (res === "unchanged") {
-          return { success: true, data: currentData };
-        }
-
-        if (!res.success) {
-          return res;
-        }
-
-        try {
-          if (newContent === undefined) {
+          isWriting = true;
+          if (data === undefined) {
+            entryLogger.log("Removing file");
             fs.rmSync(filename);
           } else {
-            fs.writeFileSync(filename, newContent, "utf-8");
+            const newFileContent = serialize(data);
+            entryLogger.log("Writing. New size:", newFileContent.length);
+            fs.writeFileSync(filename, newFileContent, "utf-8");
           }
-          return res;
+          currentData = data;
         } catch (error) {
           entryLogger.error(`Could not update file "${filename}": ${error}`);
-          return { success: false, error };
+        } finally {
+          isWriting = false;
         }
       }
 
-      loadFileContent();
+      function assign(data: Data) {
+        write({ ...currentData, ...data });
+        return currentData;
+      }
+
+      load();
 
       return {
         get data() {
           return currentData;
         },
-        update: writeFileContent,
+        write,
+        assign,
         close: () => watcher.close(),
       };
     },
   };
 }
 
+export interface FileStoreProtocol<Data> {
+  parse: (fileContent: string) => FileStoreParseResult<Data>;
+  serialize: (data: Data) => string;
+}
+
 export interface FileStoreEntry<Data> {
   get data(): Data | undefined;
-  update(fileContent?: string): FileParseResult<Data | undefined>;
+  write(data?: Data): void;
+  assign(data: Data): Data | undefined;
   close(): void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ContentParser<T = any> = (
-  fileContent: string
-) => FileParseResult<T>;
-
-export type FileParseResult<T> =
+export type FileStoreParseResult<T> =
   | { success: true; data: T }
   | { success: false; error: unknown };

@@ -36,6 +36,7 @@ export function createDropRepository({
               Id: dropIdCounter++,
               ItemId: item.Id,
               ItemName: item.Name,
+              ImageUrl: item.ImageUrl,
               MonsterId: monster.Id,
               MonsterName: monster.Name,
             });

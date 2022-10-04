@@ -60,13 +60,10 @@ export function createMapService(repo: MapRepository) {
       .use(access(UserAccessLevel.Admin))
       .input(rpcFile)
       .mutation(({ input: file }) => {
-        const res = repo.updateInfo(
+        const infoRecord = repo.updateInfo(
           bufferToLuaCode(Buffer.from(decodeRpcFileData(file.data)))
         );
-        if (!res.success) {
-          throw new Error("File could not be parsed as map info.");
-        }
-        return Object.values(res.data ?? {}).map((map) => map.id);
+        return infoRecord ? Object.values(infoRecord).map((map) => map.id) : [];
       }),
     updateBounds: t.procedure
       .use(access(UserAccessLevel.Admin))

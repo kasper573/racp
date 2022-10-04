@@ -18,20 +18,27 @@ export function createUtilService() {
   });
 
   return t.router({
-    decompileLuaTableFiles: t.procedure
+    reduceLuaTableFiles: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(zod.array(rpcFile))
       .output(reducedLuaTables)
       .mutation(async ({ input: files }) => {
-        const compiled = files.map((file) =>
+        const possiblyCompiled = files.map((file) =>
           Buffer.from(decodeRpcFileData(file.data))
         );
-        const decompiled = await Promise.all(compiled.map(unluac));
+        const settled = await Promise.allSettled(possiblyCompiled.map(unluac));
+        const decompiled = settled.map(
+          (result, index) =>
+            result.status === "fulfilled"
+              ? result.value // Decompile successful
+              : possiblyCompiled[index] // Decompile failed, assume original is already decompiled
+        );
         const luaCodes = decompiled.map(bufferToLuaCode);
-        return luaCodes.reduce((reduction: ReducedLuaTables, luaCode) => {
-          const res = parseLuaTableAs(luaCode, zod.unknown(), reduction);
-          return res.success ? res.data : reduction;
-        }, {});
+        return luaCodes.reduce(
+          (reduction: ReducedLuaTables, luaCode) =>
+            parseLuaTableAs(luaCode, zod.unknown(), reduction),
+          {}
+        );
       }),
   });
 }

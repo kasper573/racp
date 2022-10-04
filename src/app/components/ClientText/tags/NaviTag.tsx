@@ -9,7 +9,10 @@ export const NaviTag: ClientTextTag = ({ node }) => {
     info: [{ content: infoString }],
     content,
   } = useNodeInfo(node);
-  const link = useMemo(() => parseLinkInfoString(infoString), [infoString]);
+  const link = useMemo(
+    () => parseLinkInfoString(infoString, content),
+    [infoString, content]
+  );
   return link ? (
     <Link to={link}>{content}</Link>
   ) : (
@@ -17,10 +20,10 @@ export const NaviTag: ClientTextTag = ({ node }) => {
   );
 };
 
-function parseLinkInfoString(infoString?: string) {
+function parseLinkInfoString(infoString?: string, title?: string) {
   const values = infoString ? /^(\w+),(\d+),(\d+)/.exec(infoString) : undefined;
   if (values) {
     const [, id, x, y] = values;
-    return router.map().view({ id, x: +x, y: +y });
+    return router.map().view({ id, x: +x, y: +y, title });
   }
 }

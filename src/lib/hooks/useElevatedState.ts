@@ -11,7 +11,7 @@ export interface UseElevatedStateProps<T> {
 export function useElevatedState<T>({
   value: inputValue,
   onChange,
-  updateDelay = 250,
+  updateDelay = 200,
 }: UseElevatedStateProps<T>) {
   const [currentValue, setCurrentValue] = useState(inputValue);
   const elevateChange = useDebouncedCallback(onChange, updateDelay);

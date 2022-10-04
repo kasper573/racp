@@ -7,20 +7,21 @@ import { AssetErrorList } from "./AssetErrorList";
 import { AssetFilePickers, AssetFiles } from "./AssetFilePickers";
 
 export const AssetUploader = memo(function () {
-  const [message, setMessage] = useState<string>();
+  const [showCompletedMessage, setShowCompletedMessage] =
+    useState<boolean>(false);
   const [files, setFiles] = useState<AssetFiles>({});
   const uploader = useAssetUploader();
   const isReadyToUpload = !!(files.mapInfo && files.itemInfo && files.data);
 
   async function uploadFiles() {
-    setMessage(undefined);
+    setShowCompletedMessage(false);
     try {
       if (isReadyToUpload) {
         await uploader.upload(files.mapInfo!, files.itemInfo!, files.data!);
       }
     } finally {
       setFiles({});
-      setMessage("Upload complete");
+      setShowCompletedMessage(true);
     }
   }
 
@@ -37,7 +38,10 @@ export const AssetUploader = memo(function () {
         isPending={uploader.isPending}
       />
 
-      <Tooltip title={isReadyToUpload ? "" : "Please select all files"}>
+      <Tooltip
+        placement="top"
+        title={isReadyToUpload ? "" : "Please select all files"}
+      >
         <Box sx={{ margin: "0 auto", marginBottom: 2 }}>
           <ProgressButton
             variant="contained"
@@ -50,9 +54,14 @@ export const AssetUploader = memo(function () {
         </Box>
       </Tooltip>
 
-      {message && (
-        <Typography color="green" sx={{ textAlign: "center", marginBottom: 2 }}>
-          {message}
+      {showCompletedMessage && (
+        <Typography
+          color={uploader.errors.length ? "orange" : "green"}
+          sx={{ textAlign: "center", marginBottom: 2 }}
+        >
+          {uploader.errors.length
+            ? "Upload completed with errors"
+            : "Upload completed"}
         </Typography>
       )}
 

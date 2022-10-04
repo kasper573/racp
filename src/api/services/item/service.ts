@@ -6,7 +6,7 @@ import { decodeRpcFileData, rpcFile } from "../../common/RpcFile";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
 import { bufferToLuaCode } from "../../common/parseLuaTableAs";
-import { itemFilter, itemIdType, itemType } from "./types";
+import { itemFilter, itemIdType, itemOptionTextsType, itemType } from "./types";
 import { ItemRepository } from "./repository";
 
 export type ItemService = ReturnType<typeof createItemService>;
@@ -41,16 +41,14 @@ export function createItemService(repo: ItemRepository) {
         const itemInfoAsLuaCode = bufferToLuaCode(
           Buffer.from(decodeRpcFileData(input.data))
         );
-        const { success } = repo.updateInfo(itemInfoAsLuaCode);
-
-        if (!success) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "File could not be parsed as item info.",
-          });
-        }
-
+        repo.updateInfo(itemInfoAsLuaCode);
         return repo.getResourceNames();
+      }),
+    uploadOptionTexts: t.procedure
+      .use(access(UserAccessLevel.Admin))
+      .input(itemOptionTextsType)
+      .mutation(({ input }) => {
+        repo.updateOptionTexts(input);
       }),
     countImages: t.procedure
       .use(access(UserAccessLevel.Admin))
@@ -67,5 +65,8 @@ export function createItemService(repo: ItemRepository) {
         const itemsWithMissingImages = await repo.missingImages();
         return itemsWithMissingImages.map((m) => m.Id);
       }),
+    getOptionTexts: t.procedure
+      .output(itemOptionTextsType)
+      .query(() => repo.getOptionTexts()),
   });
 }

@@ -23,7 +23,7 @@ export function Header<Arg>({
     backTo = route(routeArg);
   } else {
     backTitle = back.options.title;
-    backTo = back();
+    backTo = back({});
   }
 
   return (
@@ -31,7 +31,13 @@ export function Header<Arg>({
       <Link underline="hover" to={backTo} color="inherit">
         {backTitle}
       </Link>
-      <Typography color="text.primary">{children}</Typography>
+      <Typography
+        color="text.primary"
+        component="div"
+        sx={{ display: "flex", alignItems: "center" }}
+      >
+        {children}
+      </Typography>
     </Breadcrumbs>
   );
 }

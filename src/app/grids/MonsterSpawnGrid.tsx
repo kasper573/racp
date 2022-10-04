@@ -1,11 +1,10 @@
-import { Stack } from "@mui/material";
 import { DataGrid } from "../components/DataGrid";
 
 import { trpc } from "../state/client";
 import { router } from "../router";
 import { durationString } from "../../lib/std/durationString";
 import { Link } from "../components/Link";
-import { ImageWithFallback } from "../components/ImageWithFallback";
+import { IconWithLabel } from "../components/IconWithLabel";
 
 export const MonsterSpawnGrid = DataGrid.define(
   trpc.monster.searchSpawns.useQuery
@@ -17,16 +16,11 @@ export const MonsterSpawnGrid = DataGrid.define(
       width: 180,
       renderCell({ row: spawn }) {
         return (
-          <Stack direction="row" spacing={1} alignItems="center">
-            <ImageWithFallback
-              src={spawn.imageUrl}
-              alt={spawn.name}
-              sx={{ width: 32 }}
-            />
+          <IconWithLabel alt={spawn.name} src={spawn.imageUrl}>
             <Link to={router.monster().view({ id: spawn.id })}>
               {spawn.name}
             </Link>
-          </Stack>
+          </IconWithLabel>
         );
       },
     },

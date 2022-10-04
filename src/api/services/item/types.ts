@@ -2,6 +2,7 @@ import * as zod from "zod";
 import { matcher, toggleRecordType } from "../../util/matcher";
 import { clientTextType } from "../../common/clientTextType";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
+import { zodNominalString } from "../../../lib/zod/zodNominalString";
 import { itemScriptType } from "./util/itemScriptType";
 
 export type Item = zod.infer<typeof itemType>;
@@ -119,3 +120,17 @@ export const itemType = zod.object({
 
 export type ItemFilter = zod.infer<typeof itemFilter.type>;
 export const itemFilter = createEntityFilter(matcher, itemType);
+
+export type ItemOptionName = zod.infer<typeof itemOptionNameType>;
+export const itemOptionNameType = zodNominalString<"ItemOption">();
+
+export type ItemOption = zod.infer<typeof itemOptionType>;
+export const itemOptionIdType = zod.number();
+export const itemOptionType = zod.object({
+  Id: itemOptionIdType,
+  Option: itemOptionNameType,
+  Script: zod.string(),
+});
+
+export type ItemOptionTexts = zod.infer<typeof itemOptionTextsType>;
+export const itemOptionTextsType = zod.record(zod.string()); // By option id

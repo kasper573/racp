@@ -21,7 +21,8 @@ export default function MapViewPage() {
   const [showMonsterPins, setShowMonsterPins] = useState(true);
   const [highlightSpawnId, setHighlightSpawnId] = useState<MonsterSpawnId>();
   const [highlightWarpId, setHighlightWarpId] = useState<WarpId>();
-  const { id, x, y, tab } = useRouteParams(router.map().view);
+  const routeParams = useRouteParams(router.map().view);
+  const { id, x, y, tab, title: routePointTitle } = routeParams;
   const {
     data: map,
     isFetching,
@@ -79,6 +80,7 @@ export default function MapViewPage() {
             warps={warps}
             spawns={locatedSpawns}
             routePoint={routePoint}
+            routePointTitle={routePointTitle}
             highlightWarpId={highlightWarpId}
             highlightSpawnId={highlightSpawnId}
             setHighlightWarpId={setHighlightWarpId}
@@ -89,8 +91,8 @@ export default function MapViewPage() {
         <Stack direction="column" sx={{ flex: 3 }}>
           <TabSwitch
             activeTabId={tab ?? "warps"}
-            onChange={(e, newTab) =>
-              history.replace(router.map().view({ id, tab: newTab, x, y }).$)
+            onChange={(e, tab) =>
+              history.replace(router.map().view({ ...routeParams, tab }).$)
             }
             tabs={[
               {

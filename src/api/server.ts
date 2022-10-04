@@ -35,6 +35,7 @@ import { timeColor } from "./common/timeColor";
 import { createApiRouter } from "./router";
 import { createDropRepository } from "./services/drop/repository";
 import { createDropService } from "./services/drop/service";
+import { createVendorService } from "./services/vendor/service";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -100,6 +101,9 @@ app.use(
 );
 app.use(
   trpcExpress.createExpressMiddleware({
+    onError({ error, path }) {
+      logger.chain("trpc").error(`/${path}`, error.name, error.message);
+    },
     router: createApiRouter({
       util: createUtilService(),
       config: createConfigService(config),
@@ -107,6 +111,7 @@ app.use(
       item: createItemService(items),
       monster: createMonsterService(monsters),
       drop: createDropService(drops),
+      vendor: createVendorService({ db, items }),
       map: createMapService(maps),
       meta: createMetaService({ items, monsters }),
     }),

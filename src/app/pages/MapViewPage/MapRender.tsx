@@ -24,6 +24,7 @@ export function MapRender({
   highlightSpawnId,
   setHighlightWarpId,
   routePoint,
+  routePointTitle,
   showWarpPins,
   showMonsterPins,
 }: {
@@ -35,6 +36,7 @@ export function MapRender({
   setHighlightWarpId?: (id?: WarpId) => void;
   highlightSpawnId?: MonsterSpawnId;
   routePoint?: Point;
+  routePointTitle?: string;
   showWarpPins?: boolean;
   showMonsterPins?: boolean;
 }) {
@@ -130,7 +132,9 @@ export function MapRender({
         ))}
       {routePoint && (
         <MapCoordinate x={routePoint.x} y={routePoint.y}>
-          <Tooltip title="The warp you selected leads here">
+          <Tooltip
+            title={routePointTitle ?? "The warp you selected leads here"}
+          >
             <Place
               sx={{ ...mapPinIconCss, fill: theme.palette.success.main }}
             />

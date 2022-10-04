@@ -18,6 +18,7 @@ import {
   PersonAdd,
   PestControlRodent,
   Redeem,
+  Storefront,
 } from "@mui/icons-material";
 import { useLocation } from "react-router-dom";
 import { UserAccessLevel } from "../api/services/user/types";
@@ -25,6 +26,7 @@ import { zodRouteParam } from "../lib/zod/zodRouteParam";
 import { itemFilter } from "../api/services/item/types";
 import { monsterFilter } from "../api/services/monster/types";
 import { mapInfoFilter } from "../api/services/map/types";
+import { vendorItemFilter } from "../api/services/vendor/types";
 import { RestrictedPage } from "./pages/RestrictedPage";
 import { trpc } from "./state/client";
 import { LoadingPage } from "./pages/LoadingPage";
@@ -107,18 +109,24 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
         component: lazy(() => import("./pages/MapSearchPage")),
         params: { filter: zodRouteParam(mapInfoFilter.type.default({})) },
       }),
-      view: route("view/:id/:tab?&:x?&:y?", {
+      view: route("view/:id/:tab?&:x?&:y?&:title?", {
         component: lazy(() => import("./pages/MapViewPage")),
         options: { title: "Map", icon: <Map /> },
         params: {
           id: stringParser,
           x: intParser,
           y: intParser,
+          title: stringParser,
           tab: stringParser,
         },
       }),
     })
   ),
+  vendor: route("vending/:filter?", {
+    component: lazy(() => import("./pages/VendorItemSearchPage")),
+    params: { filter: zodRouteParam(vendorItemFilter.type.default({})) },
+    options: { title: "Vendings", icon: <Storefront /> },
+  }),
   admin: route(
     "admin",
     {
@@ -178,7 +186,7 @@ function requireAuth(requiredAccess = UserAccessLevel.User): RouteMiddleware {
 
 export type RouterOptions = typeof defaultOptions;
 
-export interface AnyRouteNode<Arg = void> {
+export interface AnyRouteNode<Arg = any> {
   (arg: Arg): { $: string };
   options: RouterOptions;
 }

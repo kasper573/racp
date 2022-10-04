@@ -16,7 +16,7 @@ export const itemDropType = zod.object({
   MonsterId: monsterIdType,
   ItemName: zod.string(),
   MonsterName: zod.string(),
-  ...itemType.pick({ Slots: true }).shape,
+  ...itemType.pick({ Slots: true, ImageUrl: true }).shape,
   ...monsterDropType.omit({ Item: true }).shape,
 });
 
