@@ -1,4 +1,5 @@
 import {
+  Badge,
   Box,
   Button,
   Drawer,
@@ -39,6 +40,7 @@ export function FilterMenu<T extends AnyFilter>({
   const close = () => setAnchor(null);
   const isMenuOpen = Boolean(anchor);
   const isSmallDevice = useMediaQuery(theme.breakpoints.down("md"));
+  const numFilters = Object.keys(filter).length;
 
   let content = (
     <Box sx={{ padding: 2, paddingTop: 0 }}>
@@ -90,7 +92,14 @@ export function FilterMenu<T extends AnyFilter>({
         onClick={concatFunctions(open, onClick)}
         {...props}
       >
-        <FilterList />
+        <Badge
+          overlap="circular"
+          color="info"
+          badgeContent={numFilters}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <FilterList />
+        </Badge>
       </IconButton>
       {content}
     </>
