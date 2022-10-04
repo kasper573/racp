@@ -1,34 +1,43 @@
-import { Stack, styled } from "@mui/material";
-import { ReactNode } from "react";
+import { Box, Stack, styled } from "@mui/material";
+import { ComponentProps } from "react";
 import { ImageWithFallback } from "./ImageWithFallback";
 
-export interface IconWithLabelProps {
+export interface IconWithLabelProps extends ComponentProps<typeof Stack> {
   src?: string;
   alt: string;
-  children: ReactNode;
 }
 
-export function IconWithLabel({ src, alt, children }: IconWithLabelProps) {
+export function IconWithLabel({
+  src,
+  alt,
+  children,
+  ...props
+}: IconWithLabelProps) {
   return (
-    <Stack direction="row" spacing={1} alignItems="center">
-      <IconContainer>
-        <Icon src={src} alt={alt} />
-      </IconContainer>
-      <span>{children}</span>
-    </Stack>
+    <Root {...props}>
+      <Icon src={src} alt={alt} />
+      <Label>{children}</Label>
+    </Root>
   );
 }
 
-const IconContainer = styled("div")`
-  height: 20px;
-  width: 20px;
+const Root = styled(Box)`
+  display: inline-flex;
   position: relative;
 `;
 
+const iconSize = "1.25em";
+
 const Icon = styled(ImageWithFallback)`
-  width: 100%;
+  font-size: ${iconSize};
+  height: ${iconSize};
+  width: ${iconSize};
   position: absolute;
   top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  left: 0;
+  transform: translateY(-50%);
+`;
+
+const Label = styled(Box)`
+  padding-left: calc(${iconSize} + 9px);
 `;
