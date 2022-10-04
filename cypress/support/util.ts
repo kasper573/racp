@@ -1,8 +1,8 @@
 export const compareStrings: CompareFn<string> = (a, b) => a.localeCompare(b);
 
 export const compareNumeric: CompareFn<string> = (a, b) => {
-  const aNum = isNumeric(a) ? parseInt(a) : undefined;
-  const bNum = isNumeric(b) ? parseInt(b) : undefined;
+  const aNum = parseFloat(a);
+  const bNum = parseFloat(b);
   if (aNum === bNum) {
     return 0;
   }
@@ -13,10 +13,6 @@ export const compareNumeric: CompareFn<string> = (a, b) => {
     return -1;
   }
   return aNum - bNum;
-};
-
-const isNumeric = (value: string) => {
-  return /^[\d.,]+$/.test(value);
 };
 
 export function invertCompareFn<T>(compareFn: CompareFn<T>): CompareFn<T> {
