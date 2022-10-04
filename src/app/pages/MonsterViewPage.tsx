@@ -1,5 +1,5 @@
 import { ReactElement } from "react";
-import { Box, Stack, styled } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { pick } from "lodash";
 import { useHistory } from "react-router";
 import { useRouteParams } from "../../lib/hooks/useRouteParams";
@@ -12,8 +12,9 @@ import { TabbedPaper } from "../components/TabbedPaper";
 import { KVTable } from "../components/KVTable";
 import { ItemDropGrid } from "../grids/ItemDropGrid";
 import { TooltipText } from "../components/TooltipText";
-import { ImageWithFallback } from "../components/ImageWithFallback";
 import { CommonPageGrid } from "../components/CommonPageGrid";
+import { ImageWithFallback } from "../components/ImageWithFallback";
+import { Spaceless } from "../components/Spaceless";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MonsterViewPage(): ReactElement {
@@ -41,7 +42,13 @@ export default function MonsterViewPage(): ReactElement {
             ({monster.AegisName})
           </TooltipText>
         )}
-        <MonsterImage src={monster.ImageUrl} alt={monster.Name} />
+        <Spaceless offset={{ top: -24, left: 16 }}>
+          <ImageWithFallback
+            sx={{ maxHeight: 75 }}
+            src={monster.ImageUrl}
+            alt={monster.Name}
+          />
+        </Spaceless>
       </Header>
 
       <CommonPageGrid>
@@ -126,9 +133,3 @@ export default function MonsterViewPage(): ReactElement {
     </>
   );
 }
-
-const MonsterImage = styled(ImageWithFallback)`
-  position: absolute;
-  margin-left: 12px;
-  max-height: 75px;
-`;

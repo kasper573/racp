@@ -12,7 +12,9 @@ import { trpc } from "../state/client";
 import { Link } from "./Link";
 import { IconWithLabel } from "./IconWithLabel";
 
-export type ItemIdentifierProps = { link?: boolean } & (
+export type ItemIdentifierProps = {
+  link?: boolean;
+} & (
   | ({ item: Item } & Omit<ItemDisplayNameProps, "name" | "slots">)
   | ({ drop: ItemDrop } & Omit<ItemDisplayNameProps, "name" | "slots">)
   | { vendorItem: VendorItem }
@@ -36,7 +38,7 @@ export function ItemIdentifier({ link = true, ...input }: ItemIdentifierProps) {
     props = input.vendorItem;
   }
 
-  let displayName = <span>{createItemDisplayName(props)}</span>;
+  let displayName = <ItemDisplayName {...props} />;
   if (link) {
     displayName = <Link to={router.item().view({ id })}>{displayName}</Link>;
   }
@@ -112,18 +114,7 @@ function TooltipContent({
   );
 }
 
-function resolveItemOption(
-  texts: ItemOptionTexts,
-  instance: ItemOptionInstance
-) {
-  const text = texts[instance.id];
-  if (!text) {
-    return "Unknown option";
-  }
-  return text.replace("%d", instance.value.toString()).replace("%%", "%");
-}
-
-export function createItemDisplayName({
+export function ItemDisplayName({
   name,
   slots = 0,
   refine = 0,
@@ -142,7 +133,18 @@ export function createItemDisplayName({
   if (options.length > 0) {
     name = `${name} [${options.length} ea]`;
   }
-  return name;
+  return <>{name}</>;
+}
+
+function resolveItemOption(
+  texts: ItemOptionTexts,
+  instance: ItemOptionInstance
+) {
+  const text = texts[instance.id];
+  if (!text) {
+    return "Unknown option";
+  }
+  return text.replace("%d", instance.value.toString()).replace("%%", "%");
 }
 
 export interface ItemDisplayNameProps extends Partial<ItemInstanceProperties> {

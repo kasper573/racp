@@ -1,5 +1,5 @@
 import { Fragment, ReactElement } from "react";
-import { Stack, styled } from "@mui/material";
+import { Stack } from "@mui/material";
 import { pick } from "lodash";
 import { useRouteParams } from "../../lib/hooks/useRouteParams";
 import { Header } from "../layout/Header";
@@ -14,7 +14,8 @@ import { ImageWithFallback } from "../components/ImageWithFallback";
 import { Link } from "../components/Link";
 import { CommonPageGrid } from "../components/CommonPageGrid";
 import { TooltipText } from "../components/TooltipText";
-import { ItemIdentifier } from "../components/ItemIdentifier";
+import { ItemDisplayName } from "../components/ItemIdentifier";
+import { Spaceless } from "../components/Spaceless";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ItemViewPage(): ReactElement {
@@ -43,13 +44,20 @@ export default function ItemViewPage(): ReactElement {
   return (
     <>
       <Header back={router.item}>
-        <ItemIdentifier item={item} link={false} />
+        <ItemDisplayName name={item.Name} slots={item.Slots} />
         &nbsp;
         {hasDifferentClientName && (
           <TooltipText tooltip="Client display name" color="text.disabled">
             ({clientName})
           </TooltipText>
         )}
+        <Spaceless offset={{ top: -10, left: 16 }}>
+          <ImageWithFallback
+            sx={{ maxHeight: 75 }}
+            src={item.ImageUrl}
+            alt={item.Name}
+          />
+        </Spaceless>
       </Header>
 
       <Stack spacing={2} sx={{ flex: 1 }} direction="column">
@@ -116,9 +124,3 @@ export default function ItemViewPage(): ReactElement {
     </>
   );
 }
-
-const ItemImage = styled(ImageWithFallback)`
-  position: absolute;
-  margin-left: 12px;
-  max-height: 75px;
-`;
