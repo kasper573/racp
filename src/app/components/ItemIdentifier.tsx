@@ -3,7 +3,7 @@ import { router } from "../router";
 import { Item } from "../../api/services/item/types";
 import { ItemDrop } from "../../api/services/drop/types";
 import { VendorItem } from "../../api/services/vendor/types";
-import { ItemRandomOption } from "../../api/services/inventory/types";
+import { ItemInstanceProperties } from "../../api/services/inventory/types";
 import { trpc } from "../state/client";
 import { Link } from "./Link";
 import { IconWithLabel } from "./IconWithLabel";
@@ -52,12 +52,9 @@ export function ItemIdentifier({ link = true, ...input }: ItemIdentifierProps) {
   );
 }
 
-export interface ItemDisplayNameProps {
+export interface ItemDisplayNameProps extends Partial<ItemInstanceProperties> {
   name: string;
   slots?: number;
-  refine?: number;
-  options?: ItemRandomOption[];
-  cards?: number[];
 }
 
 export function createItemDisplayName({
@@ -65,15 +62,15 @@ export function createItemDisplayName({
   slots = 0,
   refine = 0,
   options = [],
-  cards = [],
+  cardIds = [],
 }: ItemDisplayNameProps) {
   if (refine > 0) {
     name = `+${refine} ${name}`;
   }
   if (slots > 0) {
     name =
-      cards.length > 0
-        ? `${name} [${cards.length}/${slots}]`
+      cardIds.length > 0
+        ? `${name} [${cardIds.length}/${slots}]`
         : `${name} [${slots}]`;
   }
   if (options.length > 0) {
@@ -85,10 +82,7 @@ export function createItemDisplayName({
 function useTooltipContent({
   cardIds = [],
   options = [],
-}: {
-  cardIds?: number[];
-  options?: ItemRandomOption[];
-}) {
+}: Pick<ItemDisplayNameProps, "cardIds" | "options">) {
   const { data: { entities: cards = [] } = {} } = trpc.item.search.useQuery(
     {
       filter: { Id: { value: cardIds, matcher: "oneOfN" } },

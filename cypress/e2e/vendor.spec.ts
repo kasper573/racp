@@ -1,11 +1,12 @@
 import { range } from "lodash";
 import { clickMainMenuItem } from "../support/actions/nav";
 import { resetData, signInAsAdmin } from "../support/actions/admin";
-import { expectTableColumn } from "../support/actions/grid";
+import { expectTableColumn, findTableColumn } from "../support/actions/grid";
 import { generateSearchPageTests } from "../support/generateSearchPageTests";
 import { compareNumeric, compareStrings } from "../support/util";
 import { VendorItem } from "../../src/api/services/vendor/types";
 import { waitForPageReady } from "../support/actions/common";
+import { testItemIdentifier } from "./item.actions";
 
 before(() => {
   resetData();
@@ -60,17 +61,14 @@ generateSearchPageTests({
   },
 });
 
-describe("cards and enchants", () => {
+describe("assets", () => {
   before(() => {
-    const viola = 4209;
-    const wraith = 4190;
-    const itemId = 1108; // Blade [4]
     const items = [
       mockItem({
-        itemId,
-        cardIds: [viola, wraith],
+        itemId: 1108,
+        cardIds: [4209, 4190],
         options: [
-          { id: 1, value: 5 },
+          { id: 1, value: 100 },
           { id: 2, value: 5 },
           { id: 3, value: 5 },
         ],
@@ -84,12 +82,15 @@ describe("cards and enchants", () => {
       })
     );
     cy.reload();
-    cy.findByLabelText("Item ID").type(`${itemId}`);
+    cy.findByLabelText("Item ID").type("1108");
     waitForPageReady();
   });
 
-  it("are summarized in item name", () => {
-    expectTableColumn("Item", () => "Blade [2/4] [3 ea]");
+  testItemIdentifier(() => findTableColumn("Item"), {
+    name: "Blade",
+    slots: 4,
+    cards: ["Violy Card", "Wraith Card"],
+    enchants: ["+100 ATK", "+5% ASPD", "+5% CRIT"],
   });
 });
 
