@@ -1,4 +1,3 @@
-import { Box, styled } from "@mui/material";
 import { TextField } from "../controls/TextField";
 import { matcher } from "../../api/util/matcher";
 import { useZodMatcherForm } from "../../lib/zod/useZodMatcherForm";
@@ -23,7 +22,7 @@ export function VendorItemSearchFilterForm({
   });
 
   return (
-    <ControlGrid>
+    <>
       <TextField
         size="small"
         label="Item ID"
@@ -49,18 +48,6 @@ export function VendorItemSearchFilterForm({
         label="Amount"
         {...field("amount", "between")}
       />
-    </ControlGrid>
+    </>
   );
 }
-
-const ControlGrid = styled(Box)`
-  display: grid;
-  grid-gap: 8px;
-  grid-auto-rows: auto;
-  ${({ theme }) => theme.breakpoints.down("md")} {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-  ${({ theme }) => theme.breakpoints.up("md")} {
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-  }
-`;

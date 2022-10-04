@@ -39,11 +39,11 @@ export function SliderMenu({
       transitionDuration={0}
       disablePortal
       closeOnMenuClicked={false}
-      trigger={(open) => (
+      trigger={({ toggle }) => (
         <TextField
           name={name}
           size={size}
-          onClick={open}
+          onClick={toggle}
           value={valueToString(value)}
           label={label}
           inputProps={{ readOnly: true }}

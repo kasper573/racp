@@ -1,9 +1,9 @@
-import { Button } from "@mui/material";
 import { Header } from "../layout/Header";
 import { MapSearchFilterForm } from "../forms/MapSearchFilterForm";
 import { MapGrid } from "../grids/MapGrid";
 import { useRouteState } from "../../lib/hooks/useRouteState";
 import { router } from "../router";
+import { FilterMenu } from "../components/FilterMenu";
 
 export default function MapSearchPage() {
   const [filter = {}, setFilter] = useRouteState(router.map().search, "filter");
@@ -11,15 +11,13 @@ export default function MapSearchPage() {
     <>
       <Header>
         Maps
-        <Button
-          onClick={() => setFilter({})}
-          size="small"
+        <FilterMenu
           sx={{ position: "absolute", right: 0 }}
-        >
-          Clear filters
-        </Button>
+          filter={filter}
+          setFilter={setFilter}
+          fields={MapSearchFilterForm}
+        />
       </Header>
-      <MapSearchFilterForm value={filter} onChange={setFilter} />
       <MapGrid filter={filter} sx={{ mt: 1 }} />
     </>
   );

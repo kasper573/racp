@@ -5,7 +5,7 @@ import {
   findTableColumn,
 } from "../support/actions/grid";
 import { compareStrings } from "../support/util";
-import { generateSearchPageTests } from "../support/generateSearchPageTests";
+import { generateSearchPageTests } from "../support/actions/search";
 import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
 
 before(() => {

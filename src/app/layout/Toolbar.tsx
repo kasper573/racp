@@ -40,11 +40,11 @@ export function Toolbar({ children }: { children?: ReactNode }) {
           MenuListProps={{
             "aria-label": "User menu",
           }}
-          trigger={(open) => (
+          trigger={({ toggle }) => (
             <IconButton
               aria-label="Open user menu"
               sx={{ ml: 1 }}
-              onClick={open}
+              onClick={toggle}
             >
               {profile ? (
                 <OnlineBadge>

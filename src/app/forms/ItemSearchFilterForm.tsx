@@ -24,7 +24,7 @@ export function ItemSearchFilterForm({ value, onChange }: FormDataProps) {
   });
 
   return (
-    <ControlGrid>
+    <>
       <TextField
         size="small"
         label="ID"
@@ -100,7 +100,7 @@ export function ItemSearchFilterForm({ value, onChange }: FormDataProps) {
         max={meta?.maxSlots}
         {...field("Slots", "between")}
       />
-    </ControlGrid>
+    </>
   );
 }
 

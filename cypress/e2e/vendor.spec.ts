@@ -6,7 +6,7 @@ import {
   uploadAssets,
 } from "../support/actions/admin";
 import { expectTableColumn, findTableColumn } from "../support/actions/grid";
-import { generateSearchPageTests } from "../support/generateSearchPageTests";
+import { generateSearchPageTests } from "../support/actions/search";
 import { compareNumeric, compareStrings } from "../support/util";
 import { VendorItem } from "../../src/api/services/vendor/types";
 import { waitForPageReady } from "../support/actions/common";

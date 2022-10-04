@@ -1,4 +1,3 @@
-import { Box, styled } from "@mui/material";
 import { TextField } from "../controls/TextField";
 import { MonsterFilter, monsterFilter } from "../../api/services/monster/types";
 import { useZodMatcherForm } from "../../lib/zod/useZodMatcherForm";
@@ -26,7 +25,7 @@ export function MonsterSearchFilterForm({
   });
 
   return (
-    <ControlGrid>
+    <>
       <TextField
         size="small"
         label="ID"
@@ -109,19 +108,6 @@ export function MonsterSearchFilterForm({
         options={meta?.monsterModes}
         {...field("Modes", "enabled")}
       />
-    </ControlGrid>
+    </>
   );
 }
-
-const ControlGrid = styled(Box)`
-  display: grid;
-  grid-gap: 8px;
-  ${({ theme }) => theme.breakpoints.down("md")} {
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-auto-rows: auto;
-  }
-  ${({ theme }) => theme.breakpoints.up("md")} {
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-    grid-auto-rows: auto;
-  }
-`;

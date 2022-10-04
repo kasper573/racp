@@ -1,7 +1,15 @@
 import { without } from "lodash";
-import { waitForPageReady } from "./actions/common";
-import { findDataRowIds, findTableColumn, sortGridBy } from "./actions/grid";
-import { CompareFn, invertCompareFn } from "./util";
+import { CompareFn, invertCompareFn } from "../util";
+import { waitForPageReady } from "./common";
+import { findDataRowIds, findTableColumn, sortGridBy } from "./grid";
+
+const clearFilters = () => cy.findByRole("button", { name: /clear/i }).click();
+
+export const withFilterMenu = (fn: () => void) => {
+  cy.findByRole("button", { name: /show filters/i }).click();
+  fn();
+  cy.findByRole("button", { name: /close/i }).click();
+};
 
 export function generateSearchPageTests({
   searches,
@@ -30,15 +38,13 @@ export function generateSearchPageTests({
     });
   });
 
-  const clearFilters = () =>
-    cy.findByRole("button", { name: "Clear filters" }).click();
-
   describe("can search by", () => {
-    beforeEach(clearFilters);
-
     Object.entries(searches).forEach(([name, { input, verify }]) => {
       it(name, () => {
-        input();
+        withFilterMenu(() => {
+          clearFilters();
+          input();
+        });
         waitForPageReady();
         verify();
       });
@@ -46,7 +52,7 @@ export function generateSearchPageTests({
   });
 
   describe("can sort by", () => {
-    before(clearFilters);
+    before(() => withFilterMenu(clearFilters));
 
     Object.entries(sorts).forEach(([name, compareFn]) => {
       describe(name, () => {
