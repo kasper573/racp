@@ -15,6 +15,11 @@ export const compareNumeric: CompareFn<string> = (a, b) => {
   return aNum - bNum;
 };
 
+export const compareThousands: CompareFn<string> = (a, b) => {
+  const remove = /[\d.,]/gm;
+  return compareNumeric(a.replaceAll(remove, ""), b.replaceAll(remove, ""));
+};
+
 const isNumeric = (value: string) => {
   return /^[\d.,]+$/.test(value);
 };

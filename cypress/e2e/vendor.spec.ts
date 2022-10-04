@@ -10,7 +10,11 @@ import {
   generateSearchPageTests,
   withFilterMenu,
 } from "../support/actions/search";
-import { compareNumeric, compareStrings } from "../support/util";
+import {
+  compareNumeric,
+  compareStrings,
+  compareThousands,
+} from "../support/util";
 import { VendorItem } from "../../src/api/services/vendor/types";
 import { waitForPageReady } from "../support/actions/common";
 import { testItemIdentifier } from "./item.actions";
@@ -53,7 +57,7 @@ generateSearchPageTests({
       verify: () =>
         expectTableColumn(
           "Price",
-          () => (text) => +text >= 300 && +text <= 600
+          () => (text) => parseFloat(text) >= 300 && parseFloat(text) <= 600
         ),
     },
     amount: {
@@ -66,7 +70,7 @@ generateSearchPageTests({
     },
   },
   sorts: {
-    Price: compareNumeric,
+    Price: compareThousands,
     Amount: compareNumeric,
     Vendor: compareStrings,
   },
