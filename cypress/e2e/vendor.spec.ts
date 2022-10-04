@@ -34,6 +34,10 @@ generateSearchPageTests({
       input: () => cy.findByLabelText("Item ID").type("501"),
       verify: () => expectTableColumn("Item", () => /red potion/i),
     },
+    name: {
+      input: () => cy.findByLabelText("Item name").type("potion"),
+      verify: () => expectTableColumn("Item", () => /potion/i),
+    },
     vendor: {
       input: () => cy.findByLabelText("Vendor").type("4"),
       verify: () => expectTableColumn("Vendor", () => /4/i),

@@ -7,6 +7,7 @@ import { normalizeItemInstanceProperties } from "../inventory/types";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
 import { count, knexMatcher } from "../../util/knex";
+import { itemFilter } from "../item/types";
 import {
   createVendorItemId,
   parseVendorItemId,
@@ -96,6 +97,15 @@ export function createVendorService({
           .join("cart_inventory", "cart_inventory.id", "vending_items.cartinventory_id")
           .join("vendings", "vendings.id", "vending_items.vending_id")
           .select("index", "price", "refine", "vendings.id as vendorId", "title as vendorTitle", "nameid as itemId", "vending_items.amount", "map", "x", "y", "card0", "card1", "card2", "card3", "option_id0", "option_id1", "option_id2", "option_id3", "option_val0", "option_val1", "option_val2", "option_val3")
+
+        // Manual join since sql database doesn't contain item names
+        if (input.filter?.name) {
+          const idsForGivenNameFilter = Array.from(items.values())
+            .filter(itemFilter.for({ Name: input.filter.name }))
+            .map((item) => item.Id);
+          delete input.filter["name"];
+          query = query.whereIn("nameid", idsForGivenNameFilter);
+        }
 
         query = knexMatcher.search(query, input, {
           itemId: "nameid",

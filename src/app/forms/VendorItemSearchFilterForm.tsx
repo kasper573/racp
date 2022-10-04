@@ -33,6 +33,12 @@ export function VendorItemSearchFilterForm({
       />
       <TextField
         size="small"
+        label="Item name"
+        optional
+        {...field("name", "contains")}
+      />
+      <TextField
+        size="small"
         label="Vendor"
         optional
         {...field("vendorTitle", "contains")}
@@ -55,6 +61,6 @@ const ControlGrid = styled(Box)`
     grid-template-columns: 1fr 1fr 1fr;
   }
   ${({ theme }) => theme.breakpoints.up("md")} {
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
   }
 `;
