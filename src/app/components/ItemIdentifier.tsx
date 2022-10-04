@@ -13,15 +13,24 @@ import { Link } from "./Link";
 import { IconWithLabel } from "./IconWithLabel";
 import { LoadingSpinner } from "./LoadingSpinner";
 
-export type ItemIdentifierProps = {
+export type ItemIdentifierProps = Pick<
+  ComponentProps<typeof IconWithLabel>,
+  "sx" | "style" | "className"
+> & {
   link?: boolean;
 } & (
-  | ({ item: Item } & Omit<ItemDisplayNameProps, "name" | "slots">)
-  | ({ drop: ItemDrop } & Omit<ItemDisplayNameProps, "name" | "slots">)
-  | { vendorItem: VendorItem }
-);
+    | ({ item: Item } & Omit<ItemDisplayNameProps, "name" | "slots">)
+    | ({ drop: ItemDrop } & Omit<ItemDisplayNameProps, "name" | "slots">)
+    | { vendorItem: VendorItem }
+  );
 
-export function ItemIdentifier({ link = true, ...input }: ItemIdentifierProps) {
+export function ItemIdentifier({
+  link = true,
+  sx,
+  style,
+  className,
+  ...input
+}: ItemIdentifierProps) {
   let id: number;
   let imageUrl: string | undefined;
   let props: ItemDisplayNameProps;
@@ -57,7 +66,11 @@ export function ItemIdentifier({ link = true, ...input }: ItemIdentifierProps) {
   }
 
   return (
-    <IconWithLabel src={imageUrl} alt={props.name}>
+    <IconWithLabel
+      src={imageUrl}
+      alt={props.name}
+      {...{ sx, style, className }}
+    >
       {displayName}
     </IconWithLabel>
   );
