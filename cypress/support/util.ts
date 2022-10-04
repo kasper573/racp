@@ -16,7 +16,7 @@ export const compareNumeric: CompareFn<string> = (a, b) => {
 };
 
 const isNumeric = (value: string) => {
-  return /^\d+$/.test(value);
+  return /^[\d.,]+$/.test(value);
 };
 
 export function invertCompareFn<T>(compareFn: CompareFn<T>): CompareFn<T> {
