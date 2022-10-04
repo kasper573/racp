@@ -78,21 +78,25 @@ function TooltipContent({
   ...props
 }: ComponentProps<typeof Paper> &
   Pick<ItemDisplayNameProps, "cardIds" | "options">) {
+  const itemQueryEnabled = cardIds.length > 0;
   const itemQuery = trpc.item.search.useQuery(
     {
       filter: { Id: { value: cardIds, matcher: "oneOfN" } },
       limit: cardIds.length,
     },
-    { enabled: cardIds.length > 0 }
+    { enabled: itemQueryEnabled }
   );
 
+  const textsQueryEnabled = options.length > 0;
   const textsQuery = trpc.item.getOptionTexts.useQuery(undefined, {
-    enabled: options.length > 0,
+    enabled: textsQueryEnabled,
   });
 
   const { data: { entities: cards = [] } = {} } = itemQuery;
   const { data: optionTexts = {} } = textsQuery;
-  const isLoading = itemQuery.isLoading || textsQuery.isLoading;
+  const isLoading =
+    (itemQueryEnabled && itemQuery.isLoading) ||
+    (textsQueryEnabled && textsQuery.isLoading);
 
   return (
     <Paper
