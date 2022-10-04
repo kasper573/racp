@@ -1,4 +1,4 @@
-import { Box, Tooltip, Typography } from "@mui/material";
+import { Tooltip, Typography } from "@mui/material";
 import { router } from "../router";
 import { Item } from "../../api/services/item/types";
 import { ItemDrop } from "../../api/services/drop/types";
@@ -102,7 +102,7 @@ function useTooltipContent({
   }
 
   return (
-    <Box aria-label="Item tooltip">
+    <Typography variant="body1" aria-label="Item tooltip" component="div">
       {cards.map((item, index) => (
         <ItemIdentifier key={`card${index}`} item={item} />
       ))}
@@ -111,6 +111,6 @@ function useTooltipContent({
           {option.id}: {option.value}
         </Typography>
       ))}
-    </Box>
+    </Typography>
   );
 }

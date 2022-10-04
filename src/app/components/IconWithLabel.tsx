@@ -13,7 +13,7 @@ export function IconWithLabel({
 }) {
   return (
     <Stack direction="row" spacing={1} alignItems="center">
-      <ImageWithFallback src={src} alt={alt} sx={{ width: 32 }} />
+      <ImageWithFallback src={src} alt={alt} sx={{ height: 17 }} />
       {children}
     </Stack>
   );
