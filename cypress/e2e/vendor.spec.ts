@@ -95,7 +95,7 @@ describe("assets", () => {
     waitForPageReady();
   });
 
-  testItemIdentifier(() => findTableColumn("Item"), {
+  testItemIdentifier(() => findTableColumn("Item").findByRole("link"), {
     name: "Blade",
     slots: 4,
     cards: ["Violy Card", "Wraith Card"],
