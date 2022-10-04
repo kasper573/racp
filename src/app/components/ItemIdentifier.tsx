@@ -1,5 +1,5 @@
 import { Paper, Tooltip, Typography } from "@mui/material";
-import { ComponentProps } from "react";
+import { ComponentProps, forwardRef, HTMLAttributes } from "react";
 import { router } from "../router";
 import { Item, ItemOptionTexts } from "../../api/services/item/types";
 import { ItemDrop } from "../../api/services/drop/types";
@@ -45,7 +45,7 @@ export function ItemIdentifier({ link = true, ...input }: ItemIdentifierProps) {
   if (cardIds?.length || options?.length) {
     displayName = (
       <Tooltip
-        components={{ Tooltip: "div" }}
+        components={{ Tooltip: Blank }}
         title={<TooltipContent cardIds={cardIds} options={options} />}
       >
         <span>{displayName}</span>
@@ -60,32 +60,14 @@ export function ItemIdentifier({ link = true, ...input }: ItemIdentifierProps) {
   );
 }
 
-export interface ItemDisplayNameProps extends Partial<ItemInstanceProperties> {
-  name: string;
-  slots?: number;
-}
-
-export function createItemDisplayName({
-  name,
-  slots = 0,
-  refine = 0,
-  options = [],
-  cardIds = [],
-}: ItemDisplayNameProps) {
-  if (refine > 0) {
-    name = `+${refine} ${name}`;
-  }
-  if (slots > 0) {
-    name =
-      cardIds.length > 0
-        ? `${name} [${cardIds.length}/${slots}]`
-        : `${name} [${slots}]`;
-  }
-  if (options.length > 0) {
-    name = `${name} [${options.length} ea]`;
-  }
-  return name;
-}
+// Clears the default tooltip container
+const Blank = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ children, style, className }, ref) => (
+    <div ref={ref} style={style} className={className}>
+      {children}
+    </div>
+  )
+);
 
 function TooltipContent({
   cardIds = [],
@@ -103,9 +85,7 @@ function TooltipContent({
 
   const { data: optionTexts = {} } = trpc.item.getOptionTexts.useQuery(
     undefined,
-    {
-      enabled: options.length > 0,
-    }
+    { enabled: options.length > 0 }
   );
 
   return (
@@ -141,4 +121,31 @@ function resolveItemOption(
     return "Unknown option";
   }
   return text.replace("%d", instance.value.toString()).replace("%%", "%");
+}
+
+export function createItemDisplayName({
+  name,
+  slots = 0,
+  refine = 0,
+  options = [],
+  cardIds = [],
+}: ItemDisplayNameProps) {
+  if (refine > 0) {
+    name = `+${refine} ${name}`;
+  }
+  if (slots > 0) {
+    name =
+      cardIds.length > 0
+        ? `${name} [${cardIds.length}/${slots}]`
+        : `${name} [${slots}]`;
+  }
+  if (options.length > 0) {
+    name = `${name} [${options.length} ea]`;
+  }
+  return name;
+}
+
+export interface ItemDisplayNameProps extends Partial<ItemInstanceProperties> {
+  name: string;
+  slots?: number;
 }
