@@ -72,6 +72,9 @@ export function FilterMenu<T extends AnyFilter>({
       <Menu
         anchorEl={anchor}
         open={isMenuOpen}
+        keepMounted
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
         onClose={close}
         MenuListProps={{ sx: { padding: 0 } }}
       >
