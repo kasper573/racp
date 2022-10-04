@@ -65,7 +65,7 @@ generateSearchPageTests({
   },
 });
 
-describe.only("assets", () => {
+describe("assets", () => {
   before(() => {
     const items = [
       mockItem({

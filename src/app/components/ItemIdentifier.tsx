@@ -11,6 +11,7 @@ import {
 import { trpc } from "../state/client";
 import { Link } from "./Link";
 import { IconWithLabel } from "./IconWithLabel";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 export type ItemIdentifierProps = {
   link?: boolean;
@@ -77,7 +78,7 @@ function TooltipContent({
   ...props
 }: ComponentProps<typeof Paper> &
   Pick<ItemDisplayNameProps, "cardIds" | "options">) {
-  const { data: { entities: cards = [] } = {} } = trpc.item.search.useQuery(
+  const itemQuery = trpc.item.search.useQuery(
     {
       filter: { Id: { value: cardIds, matcher: "oneOfN" } },
       limit: cardIds.length,
@@ -85,10 +86,13 @@ function TooltipContent({
     { enabled: cardIds.length > 0 }
   );
 
-  const { data: optionTexts = {} } = trpc.item.getOptionTexts.useQuery(
-    undefined,
-    { enabled: options.length > 0 }
-  );
+  const textsQuery = trpc.item.getOptionTexts.useQuery(undefined, {
+    enabled: options.length > 0,
+  });
+
+  const { data: { entities: cards = [] } = {} } = itemQuery;
+  const { data: optionTexts = {} } = textsQuery;
+  const isLoading = itemQuery.isLoading || textsQuery.isLoading;
 
   return (
     <Paper
@@ -102,14 +106,20 @@ function TooltipContent({
       elevation={1}
       {...props}
     >
-      {cards.map((item, index) => (
-        <ItemIdentifier key={`card${index}`} item={item} />
-      ))}
-      {options.map((option, index) => (
-        <Typography key={`option${index}`}>
-          {resolveItemOption(optionTexts, option)}
-        </Typography>
-      ))}
+      {isLoading ? (
+        <LoadingSpinner />
+      ) : (
+        <>
+          {cards.map((item, index) => (
+            <ItemIdentifier key={`card${index}`} item={item} />
+          ))}
+          {options.map((option, index) => (
+            <Typography key={`option${index}`}>
+              {resolveItemOption(optionTexts, option)}
+            </Typography>
+          ))}
+        </>
+      )}
     </Paper>
   );
 }
