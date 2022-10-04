@@ -20,8 +20,8 @@ export function IconWithLabel({ src, alt, children }: IconWithLabelProps) {
 }
 
 const IconContainer = styled("div")`
-  height: 1em;
-  width: 1em;
+  height: 20px;
+  width: 20px;
   position: relative;
 `;
 
