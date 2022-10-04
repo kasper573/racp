@@ -77,7 +77,7 @@ export function createItemDisplayName({
         : `${name} [${slots}]`;
   }
   if (options.length > 0) {
-    name = `${name} [${options} ea]`;
+    name = `${name} [${options.length} ea]`;
   }
   return name;
 }
