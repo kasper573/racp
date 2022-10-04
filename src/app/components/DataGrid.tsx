@@ -13,6 +13,7 @@ import {
 } from "@mui/x-data-grid/models/colDef/gridColDef";
 import { typedKeys } from "../../lib/std/typedKeys";
 import { SearchQuery, SearchResult, SearchSort } from "../../api/common/search";
+import { useWindowSize, WindowSize } from "../../lib/hooks/useWindowSize";
 import { Link } from "./Link";
 import { LoadingSpinner } from "./LoadingSpinner";
 
@@ -44,6 +45,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
   onHoveredEntityChange,
   ...props
 }: DataGridProps<Entity, Filter, Id>) {
+  const windowSize = useWindowSize();
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(20);
   const [sort, setSort] = useState<SearchSort<Entity>>([]);
@@ -60,7 +62,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
   const entities = manualEntities ?? result?.entities ?? [];
   const total = manualEntities?.length ?? result?.total ?? 0;
   const pageCount = Math.ceil((total ?? 0) / pageSize);
-  const columnList = processColumnConvention({ columns, id, link });
+  const columnList = processColumnConvention({ columns, id, link, windowSize });
 
   useEffect(() => {
     if (pageIndex >= pageCount) {
@@ -171,12 +173,14 @@ interface ColumnConventionProps<Entity, Id extends GridRowId> {
   columns: Partial<Record<keyof Entity, ColumnConventionEntry<Entity>>>;
   id: (entity: Entity) => Id;
   link?: (id: Id, entity: Entity) => { $: string };
+  windowSize?: WindowSize;
 }
 
 function processColumnConvention<Entity, Id extends GridRowId>({
   columns,
   id,
   link,
+  windowSize,
 }: ColumnConventionProps<Entity, Id>): GridColumns {
   const [firstColumn, ...restColumns] = typedKeys(columns).map(
     (field): GridEnrichedColDef<Entity> => {
@@ -192,8 +196,9 @@ function processColumnConvention<Entity, Id extends GridRowId>({
   );
   return [
     {
+      flex: 2,
+      minWidth: Math.max(200, (windowSize?.width ?? 0) / 7),
       ...firstColumn,
-      width: firstColumn.width ?? 180,
       renderCell:
         firstColumn.renderCell ??
         (({ value, row }: GridRenderCellParams) => {
@@ -201,6 +206,8 @@ function processColumnConvention<Entity, Id extends GridRowId>({
         }),
     },
     ...restColumns.map((column) => ({
+      flex: 1,
+      minWidth: 75,
       ...column,
       renderCell:
         column.renderCell ??

@@ -13,7 +13,6 @@ export const MonsterSpawnGrid = DataGrid.define(
   columns: {
     name: {
       headerName: "Name",
-      width: 180,
       renderCell({ row: spawn }) {
         return (
           <IconWithLabel alt={spawn.name} src={spawn.imageUrl}>
@@ -49,12 +48,10 @@ export const MonsterSpawnGrid = DataGrid.define(
     amount: "Amount",
     spawnDelay: {
       headerName: "Spawn time",
-      width: 120,
       renderCell: renderTime,
     },
     spawnWindow: {
       headerName: "Spawn window",
-      width: 140,
       renderCell: renderTime,
     },
   },

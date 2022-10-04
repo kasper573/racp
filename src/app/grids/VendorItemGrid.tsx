@@ -12,7 +12,6 @@ export const VendorItemGrid = DataGrid.define(trpc.vendor.searchItems.useQuery)(
       name: {
         sortable: false,
         headerName: "Item",
-        width: 350,
         renderCell({ row: item }) {
           return <ItemIdentifier vendorItem={item} />;
         },
@@ -26,12 +25,10 @@ export const VendorItemGrid = DataGrid.define(trpc.vendor.searchItems.useQuery)(
       amount: "Amount",
       vendorTitle: {
         headerName: "Vendor",
-        width: 150,
       },
       map: {
         sortable: false,
         headerName: "Location",
-        width: 150,
         renderCell({ row: item }) {
           return (
             <Link

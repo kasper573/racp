@@ -8,7 +8,6 @@ export const ItemDropGrid = DataGrid.define(trpc.drop.search.useQuery)({
   columns: {
     ItemName: {
       headerName: "Name",
-      width: 200,
       renderCell({ row: drop }) {
         return <ItemIdentifier drop={drop} />;
       },
