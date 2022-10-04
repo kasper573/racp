@@ -53,7 +53,7 @@ generateSearchPageTests({
       verify: () =>
         expectTableColumn(
           "Price",
-          () => (text) => +text >= 300 && +text <= 600
+          () => (text) => parseFloat(text) >= 300 && parseFloat(text) <= 600
         ),
     },
     amount: {
