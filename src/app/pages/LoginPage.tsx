@@ -31,7 +31,7 @@ export default function LoginPage() {
           onChange={setLoginPayload}
           onSubmit={submit}
           isLoading={isLoading}
-          error={error}
+          error={error?.data}
         />
 
         <Typography sx={{ textAlign: "right" }}>

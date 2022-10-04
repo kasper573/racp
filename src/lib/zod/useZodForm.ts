@@ -1,5 +1,5 @@
 import * as zod from "zod";
-import { ZodError, ZodType } from "zod";
+import { ZodType } from "zod";
 import { get, set } from "lodash";
 import produce from "immer";
 import {
@@ -7,6 +7,7 @@ import {
   UseElevatedStateProps,
 } from "../hooks/useElevatedState";
 import { Path, PathValue } from "./zodPath";
+import { isZodError } from "./isZodError";
 
 export type ZodFormError = any;
 
@@ -21,12 +22,11 @@ export function useZodForm<Schema extends ZodType>({
   function createFieldProps<P extends Path<Entity>>(
     path: P
   ): ZodFormRegistration<PathValue<Entity, P>> {
-    const issues =
-      error instanceof ZodError
-        ? error?.issues
-            .filter((issue) => issue.path.join(".") === path)
-            .map((issue) => issue.message)
-        : undefined;
+    const issues = isZodError(error)
+      ? error?.issues
+          .filter((issue) => issue.path.join(".") === path)
+          .map((issue) => issue.message)
+      : undefined;
     return {
       issues,
       value: get(value, path),
