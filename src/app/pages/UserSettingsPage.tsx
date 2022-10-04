@@ -42,7 +42,7 @@ export default function UserSettingsPage() {
       <Header>Settings</Header>
       <CenteredContent>
         <UserProfileForm
-          error={error}
+          error={error?.data}
           profile={profile}
           value={profileMutation}
           onChange={setProfileMutation}

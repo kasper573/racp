@@ -1,7 +1,7 @@
 import { Box, Stack } from "@mui/material";
 import { HTMLAttributes, ReactNode } from "react";
-import { ZodError } from "zod";
 import { ZodFormError } from "../../lib/zod/useZodForm";
+import { isZodError } from "../../lib/zod/isZodError";
 import { ErrorMessage } from "./ErrorMessage";
 import { ProgressButton } from "./ProgressButton";
 
@@ -28,7 +28,7 @@ export function CommonForm({
             {
               // Display all errors except zod issues,
               // since fields will be handling their own errors.
-              error && !(error instanceof ZodError) ? (
+              error && !isZodError(error) ? (
                 <ErrorMessage error={error} />
               ) : undefined
             }

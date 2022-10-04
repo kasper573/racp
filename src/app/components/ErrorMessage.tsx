@@ -1,6 +1,6 @@
 import { Typography } from "@mui/material";
 import { ComponentProps } from "react";
-import { ZodError } from "zod";
+import { isZodError } from "../../lib/zod/isZodError";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ErrorLike = any;
@@ -32,7 +32,7 @@ export function getErrorMessage(error?: ErrorLike): string | undefined {
   if (typeof error !== "object") {
     return;
   }
-  if (error instanceof ZodError) {
+  if (isZodError(error)) {
     return error.issues
       .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
       .join(", ");

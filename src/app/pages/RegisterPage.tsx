@@ -35,7 +35,7 @@ export default function RegisterPage() {
       <Header>Register</Header>
       <CenteredContent>
         <UserRegisterForm
-          error={error}
+          error={error?.data}
           value={registerPayload}
           onChange={setRegisterPayload}
           onSubmit={submit}
