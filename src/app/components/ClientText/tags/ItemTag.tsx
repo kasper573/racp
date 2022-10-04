@@ -1,8 +1,7 @@
 import { ClientTextTag } from "../ClientTextTag";
-import { Link } from "../../Link";
-import { router } from "../../../router";
 import { useNodeInfo } from "../useNodeInfo";
 import { trpc } from "../../../state/client";
+import { ItemIdentifier } from "../../ItemIdentifier";
 
 export const ItemTag: ClientTextTag = ({ node }) => {
   const { content } = useNodeInfo(node);
@@ -23,9 +22,9 @@ export const ItemTag: ClientTextTag = ({ node }) => {
   );
 
   // Link to item if one was found
-  const id = data?.entities[0]?.Id;
-  if (id !== undefined) {
-    return <Link to={router.item().view({ id })}>{content}</Link>;
+  const item = data?.entities[0];
+  if (item !== undefined) {
+    return <ItemIdentifier item={item} />;
   }
 
   // Unknown item, cannot link
