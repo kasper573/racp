@@ -11,7 +11,7 @@ import { TabSwitch } from "../components/TabSwitch";
 import { TabbedPaper } from "../components/TabbedPaper";
 import { KVTable } from "../components/KVTable";
 import { ItemDropGrid } from "../grids/ItemDropGrid";
-import { TooltipText } from "../components/TooltipText";
+import { InfoTooltip } from "../components/InfoTooltip";
 import { CommonPageGrid } from "../components/CommonPageGrid";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 import { Spaceless } from "../components/Spaceless";
@@ -38,9 +38,7 @@ export default function MonsterViewPage(): ReactElement {
       <Header back={router.monster}>
         {monster.Name}&nbsp;
         {monster.AegisName !== monster.Name && (
-          <TooltipText tooltip="Aegis name" color="text.disabled">
-            ({monster.AegisName})
-          </TooltipText>
+          <InfoTooltip title="Aegis name">({monster.AegisName})</InfoTooltip>
         )}
         <Spaceless offset={{ top: -24, left: 16 }}>
           <ImageWithFallback

@@ -13,7 +13,7 @@ import { dropChanceString } from "../grids/ItemDropGrid";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 import { Link } from "../components/Link";
 import { CommonPageGrid } from "../components/CommonPageGrid";
-import { TooltipText } from "../components/TooltipText";
+import { InfoTooltip } from "../components/InfoTooltip";
 import { ItemDisplayName } from "../components/ItemIdentifier";
 import { Spaceless } from "../components/Spaceless";
 import { LoadingPage } from "./LoadingPage";
@@ -47,9 +47,7 @@ export default function ItemViewPage(): ReactElement {
         <ItemDisplayName name={item.Name} slots={item.Slots} />
         &nbsp;
         {hasDifferentClientName && (
-          <TooltipText tooltip="Client display name" color="text.disabled">
-            ({clientName})
-          </TooltipText>
+          <InfoTooltip title="Client display name">({clientName})</InfoTooltip>
         )}
         <Spaceless offset={{ top: -10, left: 16 }}>
           <ImageWithFallback

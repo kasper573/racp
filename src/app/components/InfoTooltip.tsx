@@ -3,15 +3,16 @@ import { InfoRounded } from "@mui/icons-material";
 import { ComponentProps } from "react";
 
 export interface TooltipTextProps extends ComponentProps<typeof Typography> {
-  tooltip: string;
+  title: string;
 }
 
-export function TooltipText({ children, tooltip, ...props }: TooltipTextProps) {
+export function InfoTooltip({ children, title, ...props }: TooltipTextProps) {
   return (
-    <Tooltip title={tooltip}>
+    <Tooltip title={title}>
       <Typography
         component="span"
         style={{ display: "inline-flex" }}
+        color="text.disabled"
         {...props}
       >
         {children} <SmallInfo />
