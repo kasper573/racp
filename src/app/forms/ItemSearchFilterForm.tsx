@@ -9,6 +9,7 @@ import { TextField } from "../controls/TextField";
 import { useLatest } from "../../lib/hooks/useLatest";
 import { matcher } from "../../api/util/matcher";
 import { useZodMatcherForm } from "../../lib/zod/useZodMatcherForm";
+import { RangeFields } from "../controls/RangeFields";
 
 export function ItemSearchFilterForm({ value, onChange }: FormDataProps) {
   const field = useZodMatcherForm({
@@ -99,6 +100,16 @@ export function ItemSearchFilterForm({ value, onChange }: FormDataProps) {
         label="Slots"
         max={meta?.maxSlots}
         {...field("Slots", "between")}
+      />
+      <RangeFields
+        size="small"
+        label="Buy Price"
+        {...field("Buy", "between")}
+      />
+      <RangeFields
+        size="small"
+        label="Sell Price"
+        {...field("Sell", "between")}
       />
     </>
   );
