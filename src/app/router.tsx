@@ -109,13 +109,14 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
         component: lazy(() => import("./pages/MapSearchPage")),
         params: { filter: zodRouteParam(mapInfoFilter.type.default({})) },
       }),
-      view: route("view/:id/:tab?&:x?&:y?", {
+      view: route("view/:id/:tab?&:x?&:y?&:title?", {
         component: lazy(() => import("./pages/MapViewPage")),
         options: { title: "Map", icon: <Map /> },
         params: {
           id: stringParser,
           x: intParser,
           y: intParser,
+          title: stringParser,
           tab: stringParser,
         },
       }),

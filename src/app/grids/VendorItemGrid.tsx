@@ -12,7 +12,7 @@ export const VendorItemGrid = DataGrid.define(trpc.vendor.searchItems.useQuery)(
       name: {
         sortable: false,
         headerName: "Item",
-        width: 250,
+        width: 350,
         renderCell({ row: item }) {
           return <ItemIdentifier vendorItem={item} />;
         },
@@ -35,7 +35,12 @@ export const VendorItemGrid = DataGrid.define(trpc.vendor.searchItems.useQuery)(
         renderCell({ row: item }) {
           return (
             <Link
-              to={router.map().view({ id: item.map, x: item.x, y: item.y })}
+              to={router.map().view({
+                id: item.map,
+                x: item.x,
+                y: item.y,
+                title: `Vendor: ${item.vendorTitle}`,
+              })}
             >
               {item.map} ({item.x}, {item.y})
             </Link>
