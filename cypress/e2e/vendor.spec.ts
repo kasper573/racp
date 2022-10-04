@@ -1,6 +1,10 @@
 import { range } from "lodash";
 import { clickMainMenuItem } from "../support/actions/nav";
-import { resetData, signInAsAdmin } from "../support/actions/admin";
+import {
+  resetData,
+  signInAsAdmin,
+  uploadAssets,
+} from "../support/actions/admin";
 import { expectTableColumn, findTableColumn } from "../support/actions/grid";
 import { generateSearchPageTests } from "../support/generateSearchPageTests";
 import { compareNumeric, compareStrings } from "../support/util";
@@ -61,7 +65,7 @@ generateSearchPageTests({
   },
 });
 
-describe("assets", () => {
+describe.only("assets", () => {
   before(() => {
     const items = [
       mockItem({
@@ -69,11 +73,12 @@ describe("assets", () => {
         cardIds: [4209, 4190],
         options: [
           { id: 1, value: 100 },
-          { id: 2, value: 5 },
-          { id: 3, value: 5 },
+          { id: 2, value: 50 },
+          { id: 10, value: 15 },
         ],
       }),
     ];
+    uploadAssets();
     cy.trpc((client) =>
       client?.vendor.insertItems.mutate({
         items,
@@ -81,7 +86,7 @@ describe("assets", () => {
         accountId: 0,
       })
     );
-    cy.reload();
+    clickMainMenuItem("Vendors");
     cy.findByLabelText("Item ID").type("1108");
     waitForPageReady();
   });
@@ -90,7 +95,7 @@ describe("assets", () => {
     name: "Blade",
     slots: 4,
     cards: ["Violy Card", "Wraith Card"],
-    enchants: ["+100 ATK", "+5% ASPD", "+5% CRIT"],
+    enchants: ["Health Points +100", "Spell Points +50", "Movement Speed +15%"],
   });
 });
 

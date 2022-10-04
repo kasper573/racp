@@ -10,7 +10,7 @@ import { gfs } from "../../util/gfs";
 import { createAsyncMemo } from "../../../lib/createMemo";
 import { zodJsonProtocol } from "../../../lib/zod/zodJsonProtocol";
 import { createItemResolver } from "./util/createItemResolver";
-import { Item, ItemId, itemInfoType } from "./types";
+import { Item, ItemId, itemInfoType, itemOptionTextsType } from "./types";
 
 export type ItemRepository = ReturnType<typeof createItemRepository>;
 
@@ -33,6 +33,11 @@ export function createItemRepository({
   const imageLinker = linker.chain("items");
   const imageName = (item: Item) => `${item.Id}${formatter.fileExtension}`;
   const imageRepository = createImageRepository(formatter, imageLinker, logger);
+
+  const optionTextsFile = files.entry(
+    "itemOptionTexts.json",
+    zodJsonProtocol(itemOptionTextsType)
+  );
 
   const itemResolver = createItemResolver({ tradeScale });
   const itemsPromise = yaml.resolve("db/item_db.yml", itemResolver);
@@ -72,6 +77,8 @@ export function createItemRepository({
 
   return {
     getItems,
+    getOptionTexts: () => optionTextsFile.data ?? {},
+    updateOptionTexts: optionTextsFile.assign,
     updateInfo(luaCode: string) {
       return infoFile.assign(parseLuaTableAs(luaCode, itemInfoType));
     },

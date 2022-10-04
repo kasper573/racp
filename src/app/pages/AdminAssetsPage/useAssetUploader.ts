@@ -34,12 +34,14 @@ export function useAssetUploader() {
     trpc.map.updateBounds.useMutation();
   const { mutateAsync: updateItemInfo, ...itemInfoUpload } =
     trpc.item.uploadInfo.useMutation();
-  const { mutateAsync: uploadMonsterImages, ...monsterImageUpload } =
-    trpc.monster.uploadImages.useMutation();
   const { mutateAsync: uploadItemImages, ...itemImageUpload } =
     trpc.item.uploadImages.useMutation();
-  const { mutateAsync: decompileLuaTables } =
-    trpc.util.decompileLuaTableFiles.useMutation();
+  const { mutateAsync: uploadMonsterImages, ...monsterImageUpload } =
+    trpc.monster.uploadImages.useMutation();
+  const { mutateAsync: uploadItemOptionTexts } =
+    trpc.item.uploadOptionTexts.useMutation();
+  const { mutateAsync: reduceLuaTableFiles } =
+    trpc.util.reduceLuaTableFiles.useMutation();
 
   const tracker = useTaskScheduler();
 
@@ -114,7 +116,7 @@ export function useAssetUploader() {
       {
         group: "Locating monster images",
         fn: () =>
-          determineMonsterSpriteNames(grf, decompileLuaTables).then((names) =>
+          loadMonsterSpriteNames(grf, reduceLuaTableFiles).then((names) =>
             resolveSpriteInfo(grf, names)
           ),
       },
@@ -139,6 +141,16 @@ export function useAssetUploader() {
   }
 
   async function uploadItemData(grf: GRF, infoFile: File) {
+    await tracker.track([
+      {
+        group: "Uploading item option texts",
+        fn: () =>
+          loadItemOptionTexts(grf, reduceLuaTableFiles).then(
+            uploadItemOptionTexts
+          ),
+      },
+    ]);
+
     const [resourceNames] = await tracker.track([
       {
         group: "Uploading item info",
@@ -247,9 +259,9 @@ function createMapDataUnpackJobs<Stream>(
     }));
 }
 
-async function determineMonsterSpriteNames(
+async function loadMonsterSpriteNames(
   grf: GRF,
-  decompileLuaTables: (files: RpcFile[]) => Promise<ReducedLuaTables>
+  reduceLuaTableFiles: (files: RpcFile[]) => Promise<ReducedLuaTables>
 ): Promise<Record<number, string>> {
   const identityFile = await grf
     .getEntry("data\\lua files\\datainfo\\npcidentity.lub")
@@ -259,7 +271,24 @@ async function determineMonsterSpriteNames(
     .getEntry("data\\lua files\\datainfo\\jobname.lub")
     .then(toRpcFile);
 
-  const table = await decompileLuaTables([identityFile, nameFile]);
+  const table = await reduceLuaTableFiles([identityFile, nameFile]);
+
+  return zod.record(zod.string()).parse(table);
+}
+
+async function loadItemOptionTexts(
+  grf: GRF,
+  reduceLuaTableFiles: (files: RpcFile[]) => Promise<ReducedLuaTables>
+): Promise<Record<number, string>> {
+  const enumVarFile = await grf
+    .getEntry("data\\lua files\\datainfo\\enumvar.lub")
+    .then(toRpcFile);
+
+  const nameTableFile = await grf
+    .getEntry("data\\lua files\\datainfo\\addrandomoptionnametable.lub")
+    .then(toRpcFile);
+
+  const table = await reduceLuaTableFiles([enumVarFile, nameTableFile]);
 
   return zod.record(zod.string()).parse(table);
 }

@@ -3,11 +3,12 @@ import {
   CartInventoryEntity,
   InventoryEntity,
 } from "../../rathena/DatabaseDriver.types";
+import { itemOptionIdType } from "../item/types";
 
-export type ItemRandomOption = zod.infer<typeof itemRandomOptionType>;
+export type ItemOptionInstance = zod.infer<typeof itemOptionInstanceType>;
 
-export const itemRandomOptionType = zod.object({
-  id: zod.number(),
+export const itemOptionInstanceType = zod.object({
+  id: itemOptionIdType,
   value: zod.number(),
 });
 
@@ -17,7 +18,7 @@ export type ItemInstanceProperties = zod.infer<
 
 export const itemInstancePropertiesType = zod.object({
   cardIds: zod.array(zod.number()),
-  options: zod.array(itemRandomOptionType),
+  options: zod.array(itemOptionInstanceType),
   refine: zod.number(),
 });
 

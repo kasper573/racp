@@ -1,9 +1,13 @@
-import { Tooltip, Typography } from "@mui/material";
+import { Paper, Tooltip, Typography } from "@mui/material";
+import { ComponentProps } from "react";
 import { router } from "../router";
-import { Item } from "../../api/services/item/types";
+import { Item, ItemOptionTexts } from "../../api/services/item/types";
 import { ItemDrop } from "../../api/services/drop/types";
 import { VendorItem } from "../../api/services/vendor/types";
-import { ItemInstanceProperties } from "../../api/services/inventory/types";
+import {
+  ItemInstanceProperties,
+  ItemOptionInstance,
+} from "../../api/services/inventory/types";
 import { trpc } from "../state/client";
 import { Link } from "./Link";
 import { IconWithLabel } from "./IconWithLabel";
@@ -32,17 +36,21 @@ export function ItemIdentifier({ link = true, ...input }: ItemIdentifierProps) {
     props = input.vendorItem;
   }
 
-  let displayName = <>{createItemDisplayName(props)}</>;
-  const tooltipContent = useTooltipContent(props);
-  if (tooltipContent) {
+  let displayName = <span>{createItemDisplayName(props)}</span>;
+  if (link) {
+    displayName = <Link to={router.item().view({ id })}>{displayName}</Link>;
+  }
+
+  const { cardIds, options } = props;
+  if (cardIds?.length || options?.length) {
     displayName = (
-      <Tooltip title={tooltipContent}>
+      <Tooltip
+        components={{ Tooltip: "div" }}
+        title={<TooltipContent cardIds={cardIds} options={options} />}
+      >
         <span>{displayName}</span>
       </Tooltip>
     );
-  }
-  if (link) {
-    displayName = <Link to={router.item().view({ id })}>{displayName}</Link>;
   }
 
   return (
@@ -79,10 +87,12 @@ export function createItemDisplayName({
   return name;
 }
 
-function useTooltipContent({
+function TooltipContent({
   cardIds = [],
   options = [],
-}: Pick<ItemDisplayNameProps, "cardIds" | "options">) {
+  ...props
+}: ComponentProps<typeof Paper> &
+  Pick<ItemDisplayNameProps, "cardIds" | "options">) {
   const { data: { entities: cards = [] } = {} } = trpc.item.search.useQuery(
     {
       filter: { Id: { value: cardIds, matcher: "oneOfN" } },
@@ -91,20 +101,44 @@ function useTooltipContent({
     { enabled: cardIds.length > 0 }
   );
 
-  if (cards.length === 0 && options.length === 0) {
-    return null;
-  }
+  const { data: optionTexts = {} } = trpc.item.getOptionTexts.useQuery(
+    undefined,
+    {
+      enabled: options.length > 0,
+    }
+  );
 
   return (
-    <Typography variant="body1" aria-label="Item tooltip" component="div">
+    <Paper
+      aria-label="Item tooltip"
+      sx={{
+        padding: 1,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+      elevation={1}
+      {...props}
+    >
       {cards.map((item, index) => (
         <ItemIdentifier key={`card${index}`} item={item} />
       ))}
       {options.map((option, index) => (
         <Typography key={`option${index}`}>
-          {option.id}: {option.value}
+          {resolveItemOption(optionTexts, option)}
         </Typography>
       ))}
-    </Typography>
+    </Paper>
   );
+}
+
+function resolveItemOption(
+  texts: ItemOptionTexts,
+  instance: ItemOptionInstance
+) {
+  const text = texts[instance.id];
+  if (!text) {
+    return "Unknown option";
+  }
+  return text.replace("%d", instance.value.toString()).replace("%%", "%");
 }

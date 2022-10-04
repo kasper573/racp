@@ -1,8 +1,7 @@
 import * as lua from "luaparse";
 import * as zod from "zod";
 import { ZodType } from "zod";
-import { MemberExpression } from "luaparse";
-import { parseLuaTable } from "../../lib/parseLuaTable";
+import { LuaRefResolver, parseLuaTable } from "../../lib/parseLuaTable";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const legacy = require("legacy-encoding");
@@ -25,8 +24,8 @@ export function parseLuaTableAs<ValueType extends ZodType>(
     throw new Error("Lua script did not contain a table");
   }
 
-  const ref = references
-    ? (ref: MemberExpression) => {
+  const ref: LuaRefResolver | undefined = references
+    ? (ref) => {
         if (Object.hasOwn(references, ref.identifier.name)) {
           return references[ref.identifier.name];
         }

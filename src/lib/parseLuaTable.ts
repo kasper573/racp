@@ -7,7 +7,7 @@ import { trimQuotes } from "./std/trimQuotes";
 
 export function parseLuaTable(
   table: TableConstructorExpression,
-  ref: (exp: MemberExpression) => unknown = () => {
+  ref: LuaRefResolver = () => {
     throw new Error("References not supported");
   }
 ) {
@@ -47,7 +47,9 @@ export function parseLuaTable(
   return record;
 }
 
-function resolve(exp: Expression, ref: (exp: MemberExpression) => unknown) {
+export type LuaRefResolver = (exp: MemberExpression) => unknown;
+
+function resolve(exp: Expression, ref: LuaRefResolver) {
   switch (exp.type) {
     case "Identifier":
       return exp.name;
@@ -61,6 +63,17 @@ function resolve(exp: Expression, ref: (exp: MemberExpression) => unknown) {
       return parseLuaTable(exp, ref);
     case "MemberExpression":
       return ref(exp);
+    case "IndexExpression": {
+      const base = resolve(exp.base, ref) as
+        | Record<string, unknown>
+        | undefined;
+      const index: unknown = resolve(exp.index, ref);
+      return base?.[
+        typeof index === "number"
+          ? index - 1 // Convert from LUA index to JS index
+          : `${index}`
+      ];
+    }
   }
   throw new Error(`Cannot resolve ${exp.type}`);
 }
