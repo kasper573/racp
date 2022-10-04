@@ -6,7 +6,10 @@ import {
   uploadAssets,
 } from "../support/actions/admin";
 import { expectTableColumn, findTableColumn } from "../support/actions/grid";
-import { generateSearchPageTests } from "../support/actions/search";
+import {
+  generateSearchPageTests,
+  withFilterMenu,
+} from "../support/actions/search";
 import { compareNumeric, compareStrings } from "../support/util";
 import { VendorItem } from "../../src/api/services/vendor/types";
 import { waitForPageReady } from "../support/actions/common";
@@ -91,7 +94,7 @@ describe("assets", () => {
       })
     );
     listVendings();
-    cy.findByLabelText("Item ID").type("1108");
+    withFilterMenu(() => cy.findByLabelText("Item ID").type("1108"));
     waitForPageReady();
   });
 
