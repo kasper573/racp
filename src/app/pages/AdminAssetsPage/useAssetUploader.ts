@@ -263,15 +263,10 @@ async function loadMonsterSpriteNames(
   grf: GRF,
   reduceLuaTableFiles: (files: RpcFile[]) => Promise<ReducedLuaTables>
 ): Promise<Record<number, string>> {
-  const identityFile = await grf
-    .getEntry("data\\lua files\\datainfo\\npcidentity.lub")
-    .then(toRpcFile);
-
-  const nameFile = await grf
-    .getEntry("data\\lua files\\datainfo\\jobname.lub")
-    .then(toRpcFile);
-
-  const table = await reduceLuaTableFiles([identityFile, nameFile]);
+  const table = await reduceLuaTableFiles([
+    await getDataInfo(grf, "npcidentity.lub").then(toRpcFile),
+    await getDataInfo(grf, "jobname.lub").then(toRpcFile),
+  ]);
 
   return zod.record(zod.string()).parse(table);
 }
@@ -280,17 +275,24 @@ async function loadItemOptionTexts(
   grf: GRF,
   reduceLuaTableFiles: (files: RpcFile[]) => Promise<ReducedLuaTables>
 ): Promise<Record<number, string>> {
-  const enumVarFile = await grf
-    .getEntry("data\\lua files\\datainfo\\enumvar.lub")
-    .then(toRpcFile);
-
-  const nameTableFile = await grf
-    .getEntry("data\\lua files\\datainfo\\addrandomoptionnametable.lub")
-    .then(toRpcFile);
-
-  const table = await reduceLuaTableFiles([enumVarFile, nameTableFile]);
+  const table = await reduceLuaTableFiles([
+    await getDataInfo(grf, "enumvar.lub").then(toRpcFile),
+    await getDataInfo(grf, "addrandomoptionnametable.lub").then(toRpcFile),
+  ]);
 
   return zod.record(zod.string()).parse(table);
+}
+
+function getDataInfo(grf: GRF, filename: string) {
+  return getLuaFile(grf, `datainfo\\${filename}`);
+}
+
+async function getLuaFile(grf: GRF, localPath: string) {
+  try {
+    return await grf.getEntry(`data\\LuaFiles514\\lua files\\${localPath}`);
+  } catch {
+    return await grf.getEntry(`data\\lua files\\${localPath}`);
+  }
 }
 
 function resolveSpriteInfo(
