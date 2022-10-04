@@ -2,8 +2,8 @@ import { DataGrid } from "../components/DataGrid";
 import { trpc } from "../state/client";
 import { router } from "../router";
 import { Link } from "../components/Link";
-import { formatZeny } from "../util/formatZeny";
 import { ItemIdentifier } from "../components/ItemIdentifier";
+import { Zeny } from "../components/Zeny";
 
 export const VendorItemGrid = DataGrid.define(trpc.vendor.searchItems.useQuery)(
   {
@@ -20,7 +20,7 @@ export const VendorItemGrid = DataGrid.define(trpc.vendor.searchItems.useQuery)(
       price: {
         headerName: "Price",
         renderCell({ value }) {
-          return formatZeny(value);
+          return <Zeny variant="body2" value={value} />;
         },
       },
       amount: "Amount",
