@@ -1,4 +1,3 @@
-import { Box, styled } from "@mui/material";
 import { TextField } from "../controls/TextField";
 import { useZodMatcherForm } from "../../lib/zod/useZodMatcherForm";
 import { matcher } from "../../api/util/matcher";
@@ -21,7 +20,7 @@ export function MapSearchFilterForm({
   });
 
   return (
-    <ControlGrid>
+    <>
       <TextField size="small" label="ID" optional {...field("id", "equals")} />
       <TextField
         size="small"
@@ -29,13 +28,6 @@ export function MapSearchFilterForm({
         optional
         {...field("displayName", "contains")}
       />
-    </ControlGrid>
+    </>
   );
 }
-
-const ControlGrid = styled(Box)`
-  display: grid;
-  grid-gap: 8px;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  grid-auto-rows: auto;
-`;

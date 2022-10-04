@@ -1,9 +1,9 @@
-import { Button } from "@mui/material";
 import { Header } from "../layout/Header";
 import { MonsterSearchFilterForm } from "../forms/MonsterSearchFilterForm";
 import { MonsterGrid } from "../grids/MonsterGrid";
 import { useRouteState } from "../../lib/hooks/useRouteState";
 import { router } from "../router";
+import { FilterMenu } from "../components/FilterMenu";
 
 export default function MonsterSearchPage() {
   const [filter = {}, setFilter] = useRouteState(
@@ -14,15 +14,13 @@ export default function MonsterSearchPage() {
     <>
       <Header>
         Monsters
-        <Button
-          onClick={() => setFilter({})}
-          size="small"
+        <FilterMenu
           sx={{ position: "absolute", right: 0 }}
-        >
-          Clear filters
-        </Button>
+          filter={filter}
+          setFilter={setFilter}
+          fields={MonsterSearchFilterForm}
+        />
       </Header>
-      <MonsterSearchFilterForm value={filter} onChange={setFilter} />
       <MonsterGrid filter={filter} sx={{ mt: 1 }} />
     </>
   );

@@ -18,7 +18,11 @@ export function RangeFields({
   label,
   ...props
 }: RangeFieldsProps) {
-  const [a, b] = value ?? ([undefined, undefined] as const);
+  let [a, b] = value ?? ([undefined, undefined] as const);
+
+  // Ensure no nulls for runtime safety
+  a = a ?? undefined;
+  b = b ?? undefined;
 
   const emit = (range: Range) => onChange(flatten(range));
 

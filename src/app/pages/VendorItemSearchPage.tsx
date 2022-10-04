@@ -1,9 +1,9 @@
-import { Button } from "@mui/material";
 import { Header } from "../layout/Header";
 import { router } from "../router";
 import { useRouteState } from "../../lib/hooks/useRouteState";
 import { VendorItemGrid } from "../grids/VendorItemGrid";
 import { VendorItemSearchFilterForm } from "../forms/VendorItemSearchFilterForm";
+import { FilterMenu } from "../components/FilterMenu";
 
 export default function VendorItemSearchPage() {
   const [filter = {}, setFilter] = useRouteState(router.vendor, "filter");
@@ -11,15 +11,13 @@ export default function VendorItemSearchPage() {
     <>
       <Header>
         Vendings
-        <Button
-          onClick={() => setFilter({})}
-          size="small"
+        <FilterMenu
           sx={{ position: "absolute", right: 0 }}
-        >
-          Clear filters
-        </Button>
+          filter={filter}
+          setFilter={setFilter}
+          fields={VendorItemSearchFilterForm}
+        />
       </Header>
-      <VendorItemSearchFilterForm value={filter} onChange={setFilter} />
       <VendorItemGrid filter={filter} sx={{ mt: 1 }} />
     </>
   );

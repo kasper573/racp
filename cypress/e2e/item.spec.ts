@@ -7,7 +7,7 @@ import {
 import { compareNumeric, compareStrings } from "../support/util";
 import { menuSlide } from "../support/actions/common";
 import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
-import { generateSearchPageTests } from "../support/generateSearchPageTests";
+import { generateSearchPageTests } from "../support/actions/search";
 
 // Some searches require assets to function
 before(() => {

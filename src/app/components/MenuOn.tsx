@@ -10,7 +10,12 @@ import { concatFunctions } from "../../lib/std/concatFunctions";
 
 export interface MenuOnProps<T extends Element>
   extends Omit<ComponentProps<typeof Menu>, "open"> {
-  trigger: (openMenu: (e: MouseEvent<T>) => void) => ReactNode;
+  trigger: (controls: {
+    open: (e: MouseEvent<T>) => void;
+    close: () => void;
+    toggle: (e: MouseEvent<T>) => void;
+    isOpen: boolean;
+  }) => ReactNode;
   closeOnMenuClicked?: boolean;
   contentProps?: HTMLAttributes<HTMLDivElement> & { "data-testid"?: string };
 }
@@ -23,11 +28,13 @@ export function MenuOn<T extends Element>({
   ...menuProps
 }: MenuOnProps<T>) {
   const [anchor, setAnchor] = useState<null | T>(null);
+  const isOpen = !!anchor;
   const open = (event: MouseEvent<T>) => setAnchor(event.currentTarget);
+  const toggle = (event: MouseEvent<T>) => (isOpen ? close() : open(event));
   const close = () => setAnchor(null);
   return (
     <>
-      {trigger(open)}
+      {trigger({ open, close, toggle, isOpen })}
       <Menu
         {...menuProps}
         anchorEl={anchor}
