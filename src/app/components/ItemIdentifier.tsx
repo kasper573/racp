@@ -28,11 +28,11 @@ export function ItemIdentifier({ link = true, ...input }: ItemIdentifierProps) {
   if ("item" in input) {
     id = input.item.Id;
     imageUrl = input.item.ImageUrl;
-    props = { name: input.item.Name, ...input.item };
+    props = { name: input.item.Name, slots: input.item.Slots };
   } else if ("drop" in input) {
     id = input.drop.ItemId;
     imageUrl = input.drop.ImageUrl;
-    props = { name: input.drop.ItemName, ...input.drop };
+    props = { name: input.drop.ItemName, slots: input.drop.Slots };
   } else {
     id = input.vendorItem.itemId;
     imageUrl = input.vendorItem.imageUrl;
