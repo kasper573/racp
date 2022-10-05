@@ -50,7 +50,7 @@ export function FilterMenu<T extends AnyFilter>({
   let content = (
     <Box sx={{ padding: 2, paddingTop: 0 }}>
       <Stack
-        sx={{ flex: 1, mb: 1, mt: 1 }}
+        sx={{ flex: 1, py: 1 }}
         spacing={2}
         direction="row"
         alignItems="center"
@@ -85,7 +85,15 @@ export function FilterMenu<T extends AnyFilter>({
         onClose={close}
         MenuListProps={{ sx: { padding: 0 } }}
       >
-        {content}
+        <div
+          onKeyDown={
+            // Disables built-in keyboard events for menu items that
+            // would be triggered when typing in the form controls
+            (e) => e.stopPropagation()
+          }
+        >
+          {content}
+        </div>
       </Menu>
     );
   }
