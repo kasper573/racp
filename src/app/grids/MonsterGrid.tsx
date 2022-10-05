@@ -1,21 +1,19 @@
 import { DataGrid } from "../components/DataGrid";
 import { trpc } from "../state/client";
-import { router } from "../router";
-import { Link } from "../components/Link";
-import { IconWithLabel } from "../components/IconWithLabel";
+import { MonsterIdentifier } from "../components/MonsterIdentifier";
 
 export const MonsterGrid = DataGrid.define(trpc.monster.search.useQuery)({
   emptyComponent: () => <>No monsters found</>,
-  id: (item) => item.Id,
+  id: (monster) => monster.Id,
   columns: {
     Name: {
       renderCell({ row: monster }) {
         return (
-          <IconWithLabel alt={monster.Name} src={monster.ImageUrl}>
-            <Link to={router.monster().view({ id: monster.Id })}>
-              {monster.Name}
-            </Link>
-          </IconWithLabel>
+          <MonsterIdentifier
+            name={monster.Name}
+            imageUrl={monster.ImageUrl}
+            id={monster.Id}
+          />
         );
       },
     },
