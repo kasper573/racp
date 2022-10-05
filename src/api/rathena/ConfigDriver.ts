@@ -105,9 +105,11 @@ function format(config: Record<string, unknown>) {
 }
 
 function parse(config: string) {
-  const matches = config.matchAll(/^\s*(\w+):\s*(.*)\s*(\/\/)?/gm);
+  const matches = config
+    .replaceAll(/\/\/.*$/gm, "")
+    .matchAll(/^([\w_]+):(.*)/gm);
   return Array.from(matches).reduce((record, [, key, value]) => {
-    record[key] = value;
+    record[key.trim()] = value.trim();
     return record;
   }, {} as Record<string, string>);
 }
