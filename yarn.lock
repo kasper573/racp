@@ -4257,6 +4257,11 @@ cachedir@^2.3.0:
   resolved "https://registry.yarnpkg.com/cachedir/-/cachedir-2.3.0.tgz#0c75892a052198f0b21c7c1804d8331edfcae0e8"
   integrity sha512-A+Fezp4zxnit6FanDmv9EqXNAi3vt9DWp51/71UEhXukb7QUuvtv9344h91dyAxuTLoSYJFU299qzR3tzwPAhw==
 
+calculate-text-width@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/calculate-text-width/-/calculate-text-width-0.0.3.tgz#40c527309861fd38023230a1cb0b0acbe8d94447"
+  integrity sha512-ImXNWbIxHX6NoQ8Ao5toWmqUNDTZ6nM+ATtTdxY2tRE/S2QWZK+nG77JO2XfWkRUCSOyT2kxPjtB7DLMns79+A==
+
 call-bind@^1.0.0, call-bind@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/call-bind/-/call-bind-1.0.2.tgz#b1d4e89e688119c3c9a903ad30abb2f6a919be3c"

@@ -19,6 +19,7 @@ import {
   GridEnrichedColDef,
 } from "@mui/x-data-grid/models/colDef/gridColDef";
 import { isDeepEqual } from "@mui/x-data-grid/internals";
+import calculateTextWidth from "calculate-text-width";
 import { typedKeys } from "../../lib/std/typedKeys";
 import { SearchQuery, SearchResult, SearchSort } from "../../api/common/search";
 import { useWindowSize, WindowSize } from "../../lib/hooks/useWindowSize";
@@ -40,6 +41,7 @@ export type DataGridProps<
       ComponentProps<typeof MuiDataGrid>,
       "rowHeight" | "columnVisibilityModel"
     >;
+    id: (entity: Entity) => Id;
     emptyComponent?: ComponentType;
     onHoveredEntityChange?: (entity?: Entity) => void;
   };
@@ -74,7 +76,16 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
   const entities = manualEntities ?? result?.entities ?? [];
   const total = manualEntities?.length ?? result?.total ?? 0;
   const pageCount = Math.ceil((total ?? 0) / pageSize);
-  const columnList = processColumnConvention({ columns, id, link, windowSize });
+  const latest = useLatest({ link });
+  const columnList = useMemo(
+    () =>
+      processColumnConvention({
+        columns,
+        link: (...args) => latest.current?.link?.(...args),
+        windowWidth: windowSize?.width,
+      }),
+    [columns, latest, windowSize?.width]
+  );
 
   useEffect(() => {
     if (pageIndex >= pageCount) {
@@ -192,16 +203,14 @@ type ColumnConventionEntry<Entity> =
 
 interface ColumnConventionProps<Entity, Id extends GridRowId> {
   columns: Partial<Record<keyof Entity, ColumnConventionEntry<Entity>>>;
-  id: (entity: Entity) => Id;
-  link?: (id: Id, entity: Entity) => { $: string };
-  windowSize?: WindowSize;
+  link?: (entity: Entity) => { $: string } | undefined;
+  windowWidth?: WindowSize["width"];
 }
 
 function processColumnConvention<Entity, Id extends GridRowId>({
   columns,
-  id,
   link,
-  windowSize,
+  windowWidth = 0,
 }: ColumnConventionProps<Entity, Id>): GridColumns {
   const [firstColumn, ...restColumns] = typedKeys(columns).map(
     (field): GridEnrichedColDef<Entity> => {
@@ -218,22 +227,30 @@ function processColumnConvention<Entity, Id extends GridRowId>({
   return [
     {
       flex: 2,
-      minWidth: Math.max(200, (windowSize?.width ?? 0) / 7),
+      minWidth: Math.max(200, windowWidth / 7),
       ...firstColumn,
       renderCell:
         firstColumn.renderCell ??
         (({ value, row }: GridRenderCellParams) => {
-          return link ? <Link to={link(id(row), row)}>{value}</Link> : value;
+          const linkTo = link?.(row);
+          return linkTo ? <Link to={linkTo}>{value}</Link> : value;
         }),
     },
-    ...restColumns.map((column) => ({
-      flex: 1,
-      minWidth: 75,
-      ...column,
-      renderCell:
-        column.renderCell ??
-        (({ value }: GridRenderCellParams) => value ?? "-"),
-    })),
+    ...restColumns.map((column) => {
+      const minWidth =
+        // Based on the default font of DataGrid column headers
+        calculateTextWidth(column.headerName ?? "", "normal 500 14px Roboto") +
+        24; // Make room for the built-in DataGrid 12px padding on each side
+      console.log(column.headerName, minWidth);
+      return {
+        flex: 1,
+        minWidth,
+        ...column,
+        renderCell:
+          column.renderCell ??
+          (({ value }: GridRenderCellParams) => value ?? "-"),
+      };
+    }),
   ];
 }
 
