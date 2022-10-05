@@ -241,7 +241,6 @@ function processColumnConvention<Entity, Id extends GridRowId>({
         // Based on the default font of DataGrid column headers
         calculateTextWidth(column.headerName ?? "", "normal 500 14px Roboto") +
         24; // Make room for the built-in DataGrid 12px padding on each side
-      console.log(column.headerName, minWidth);
       return {
         flex: 1,
         minWidth,
