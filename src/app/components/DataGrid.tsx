@@ -19,6 +19,7 @@ import {
   GridEnrichedColDef,
 } from "@mui/x-data-grid/models/colDef/gridColDef";
 import { isDeepEqual } from "@mui/x-data-grid/internals";
+import calculateTextWidth from "calculate-text-width";
 import { typedKeys } from "../../lib/std/typedKeys";
 import { SearchQuery, SearchResult, SearchSort } from "../../api/common/search";
 import { useWindowSize, WindowSize } from "../../lib/hooks/useWindowSize";
@@ -235,14 +236,21 @@ function processColumnConvention<Entity, Id extends GridRowId>({
           return linkTo ? <Link to={linkTo}>{value}</Link> : value;
         }),
     },
-    ...restColumns.map((column) => ({
-      flex: 1,
-      minWidth: 75,
-      ...column,
-      renderCell:
-        column.renderCell ??
-        (({ value }: GridRenderCellParams) => value ?? "-"),
-    })),
+    ...restColumns.map((column) => {
+      const minWidth =
+        // Based on the default font of DataGrid column headers
+        calculateTextWidth(column.headerName ?? "", "normal 500 14px Roboto") +
+        24; // Make room for the built-in DataGrid 12px padding on each side
+      console.log(column.headerName, minWidth);
+      return {
+        flex: 1,
+        minWidth,
+        ...column,
+        renderCell:
+          column.renderCell ??
+          (({ value }: GridRenderCellParams) => value ?? "-"),
+      };
+    }),
   ];
 }
 
