@@ -7,12 +7,7 @@ import { Linker } from "../../../lib/fs/createPublicFileLinker";
 import { createImageRepository } from "../../common/createImageRepository";
 import { Logger } from "../../../lib/logger";
 import { createAsyncMemo } from "../../../lib/createMemo";
-import {
-  BossEntry,
-  createBossEntryId,
-  Monster,
-  monsterSpawnType,
-} from "./types";
+import { MVP, createMVPId, Monster, monsterSpawnType } from "./types";
 import { createMonsterResolver } from "./util/createMonsterResolver";
 
 export type MonsterRepository = ReturnType<typeof createMonsterRepository>;
@@ -67,7 +62,7 @@ export function createMonsterRepository({
     }
   );
 
-  const getBosses = createAsyncMemo(
+  const getMVPs = createAsyncMemo(
     () => Promise.all([getMonsters(), getMonsterSpawns()]),
     (monsters, spawns) => {
       const bosses = Array.from(monsters.values()).filter(
@@ -75,11 +70,11 @@ export function createMonsterRepository({
       );
 
       const spawnsById = groupBy(spawns, (s) => s.id);
-      const entries: Record<string, BossEntry> = {};
+      const entries: Record<string, MVP> = {};
       for (const bossMonster of bosses) {
         const bossSpawns = spawnsById[bossMonster.Id] ?? [];
         for (const spawn of bossSpawns) {
-          const bossId = createBossEntryId(bossMonster, spawn);
+          const bossId = createMVPId(bossMonster, spawn);
           if (!entries[bossId]) {
             entries[bossId] = {
               id: bossId,
@@ -100,7 +95,7 @@ export function createMonsterRepository({
   return {
     getSpawns: getMonsterSpawns,
     getMonsters,
-    getBosses,
+    getMVPs,
     updateImages: imageRepository.update,
     missingImages: () =>
       getMonsters().then((map) =>

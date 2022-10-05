@@ -10,6 +10,7 @@ import {
   AccountCircle,
   AdminPanelSettings,
   Article,
+  EmojiEvents,
   Home,
   Image,
   Login,
@@ -81,6 +82,10 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
       }),
     })
   ),
+  mvps: route("mvps", {
+    component: lazy(() => import("./pages/MVPSearchPage")),
+    options: { title: "MVP board", icon: <EmojiEvents /> },
+  }),
   monster: route(
     "monster",
     {

@@ -108,29 +108,30 @@ export const monsterSpawnType = createSegmentedObject()
 export type MonsterSpawnFilter = zod.infer<typeof monsterSpawnFilter.type>;
 export const monsterSpawnFilter = createEntityFilter(matcher, monsterSpawnType);
 
-export type BossStatus = zod.infer<typeof bossStatusType>;
-export const bossStatusType = zod.object({
+export type MVPStatus = zod.infer<typeof mvpStatusType>;
+export const mvpStatusType = zod.object({
   isAlive: zod.boolean(),
   killedBy: zod.string().optional(),
   killedAt: zod.date().optional(),
 });
 
-export const createBossEntryId = (monster: Monster, spawn: MonsterSpawn) =>
+export const createMVPId = (monster: Monster, spawn: MonsterSpawn) =>
   `${monster.Id}-${spawn.map}`;
 
-export type BossEntry = zod.infer<typeof bossEntryType>;
-export const bossEntryType = zod.object({
-  id: zod.string(),
+export type MVP = zod.infer<typeof mvpType>;
+export const mvpId = zod.string();
+export const mvpType = zod.object({
+  id: mvpId,
   monsterId: monsterIdType,
   name: zod.string(),
   imageUrl: zod.string().optional(),
   mapId: mapIdType,
   mapName: zod.string(),
-  status: bossStatusType.optional(),
+  status: mvpStatusType.optional(),
 });
 
-export type BossEntryFilter = zod.infer<typeof bossEntryFilter.type>;
-export const bossEntryFilter = createEntityFilter(matcher, bossEntryType);
+export type MVPFilter = zod.infer<typeof mvpFilter.type>;
+export const mvpFilter = createEntityFilter(matcher, mvpType);
 
 function trimZero(value?: number) {
   return value === 0 ? undefined : value;

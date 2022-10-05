@@ -6,10 +6,10 @@ import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
 import { DatabaseDriver } from "../../rathena/DatabaseDriver";
 import {
-  BossEntry,
-  bossEntryFilter,
-  bossEntryType,
-  BossStatus,
+  MVP,
+  mvpFilter,
+  mvpType,
+  MVPStatus,
   monsterFilter,
   monsterSpawnFilter,
   monsterSpawnType,
@@ -29,22 +29,22 @@ export function createMonsterService({
   exposeBossStatuses?: boolean;
 }) {
   return t.router({
-    searchBosses: createSearchProcedure(
-      bossEntryType,
-      bossEntryFilter.type,
+    searchMVPs: createSearchProcedure(
+      mvpType,
+      mvpFilter.type,
       async () => {
-        const bosses = await repo.getBosses();
+        const mvps = await repo.getMVPs();
         if (exposeBossStatuses) {
           const statuses = await Promise.all(
-            bosses.map((boss) => getBossStatus(db, boss))
+            mvps.map((boss) => getBossStatus(db, boss))
           );
-          for (let i = 0; i < bosses.length; i++) {
-            bosses[i].status = statuses[i];
+          for (let i = 0; i < mvps.length; i++) {
+            mvps[i].status = statuses[i];
           }
         }
-        return Object.values(bosses);
+        return mvps;
       },
-      (entity, payload) => bossEntryFilter.for(payload)(entity)
+      (entity, payload) => mvpFilter.for(payload)(entity)
     ),
     search: createSearchProcedure(
       monsterType,
@@ -75,7 +75,7 @@ export function createMonsterService({
 
 async function getBossStatus(
   db: DatabaseDriver,
-  boss: BossEntry
-): Promise<BossStatus> {
+  boss: MVP
+): Promise<MVPStatus> {
   return { isAlive: true };
 }
