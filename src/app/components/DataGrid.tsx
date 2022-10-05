@@ -40,6 +40,7 @@ export type DataGridProps<
       ComponentProps<typeof MuiDataGrid>,
       "rowHeight" | "columnVisibilityModel"
     >;
+    id: (entity: Entity) => Id;
     emptyComponent?: ComponentType;
     onHoveredEntityChange?: (entity?: Entity) => void;
   };
@@ -74,7 +75,16 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
   const entities = manualEntities ?? result?.entities ?? [];
   const total = manualEntities?.length ?? result?.total ?? 0;
   const pageCount = Math.ceil((total ?? 0) / pageSize);
-  const columnList = processColumnConvention({ columns, id, link, windowSize });
+  const latest = useLatest({ link });
+  const columnList = useMemo(
+    () =>
+      processColumnConvention({
+        columns,
+        link: (...args) => latest.current?.link?.(...args),
+        windowWidth: windowSize?.width,
+      }),
+    [columns, latest, windowSize?.width]
+  );
 
   useEffect(() => {
     if (pageIndex >= pageCount) {
@@ -192,16 +202,14 @@ type ColumnConventionEntry<Entity> =
 
 interface ColumnConventionProps<Entity, Id extends GridRowId> {
   columns: Partial<Record<keyof Entity, ColumnConventionEntry<Entity>>>;
-  id: (entity: Entity) => Id;
-  link?: (id: Id, entity: Entity) => { $: string };
-  windowSize?: WindowSize;
+  link?: (entity: Entity) => { $: string } | undefined;
+  windowWidth?: WindowSize["width"];
 }
 
 function processColumnConvention<Entity, Id extends GridRowId>({
   columns,
-  id,
   link,
-  windowSize,
+  windowWidth = 0,
 }: ColumnConventionProps<Entity, Id>): GridColumns {
   const [firstColumn, ...restColumns] = typedKeys(columns).map(
     (field): GridEnrichedColDef<Entity> => {
@@ -218,12 +226,13 @@ function processColumnConvention<Entity, Id extends GridRowId>({
   return [
     {
       flex: 2,
-      minWidth: Math.max(200, (windowSize?.width ?? 0) / 7),
+      minWidth: Math.max(200, windowWidth / 7),
       ...firstColumn,
       renderCell:
         firstColumn.renderCell ??
         (({ value, row }: GridRenderCellParams) => {
-          return link ? <Link to={link(id(row), row)}>{value}</Link> : value;
+          const linkTo = link?.(row);
+          return linkTo ? <Link to={linkTo}>{value}</Link> : value;
         }),
     },
     ...restColumns.map((column) => ({
