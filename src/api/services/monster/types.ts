@@ -3,6 +3,7 @@ import { createSegmentedObject } from "../../../lib/zod/ZodSegmentedObject";
 import { zodNumeric } from "../../../lib/zod/zodNumeric";
 import { matcher, toggleRecordType } from "../../util/matcher";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
+import { mapIdType } from "../map/types";
 
 export type MonsterDrop = zod.infer<typeof monsterDropType>;
 export const monsterDropType = zod.object({
@@ -106,6 +107,30 @@ export const monsterSpawnType = createSegmentedObject()
 
 export type MonsterSpawnFilter = zod.infer<typeof monsterSpawnFilter.type>;
 export const monsterSpawnFilter = createEntityFilter(matcher, monsterSpawnType);
+
+export type BossStatus = zod.infer<typeof bossStatusType>;
+export const bossStatusType = zod.object({
+  isAlive: zod.boolean(),
+  killedBy: zod.string().optional(),
+  killedAt: zod.date().optional(),
+});
+
+export const createBossEntryId = (monster: Monster, spawn: MonsterSpawn) =>
+  `${monster.Id}-${spawn.map}`;
+
+export type BossEntry = zod.infer<typeof bossEntryType>;
+export const bossEntryType = zod.object({
+  id: zod.string(),
+  monsterId: monsterIdType,
+  name: zod.string(),
+  imageUrl: zod.string().optional(),
+  mapId: mapIdType,
+  mapName: zod.string(),
+  status: bossStatusType.optional(),
+});
+
+export type BossEntryFilter = zod.infer<typeof bossEntryFilter.type>;
+export const bossEntryFilter = createEntityFilter(matcher, bossEntryType);
 
 function trimZero(value?: number) {
   return value === 0 ? undefined : value;

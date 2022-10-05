@@ -109,7 +109,7 @@ app.use(
       config: createConfigService(config),
       user: createUserService({ db, user, sign, ...args }),
       item: createItemService(items),
-      monster: createMonsterService(monsters),
+      monster: createMonsterService({ db, repo: monsters }),
       drop: createDropService(drops),
       vendor: createVendorService({ db, items }),
       map: createMapService(maps),
