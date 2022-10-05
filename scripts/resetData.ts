@@ -1,6 +1,6 @@
 import * as path from "path";
 import * as fs from "fs";
-import { pick } from "lodash";
+import { omit, pick } from "lodash";
 import recursiveReadDir = require("recursive-readdir");
 import * as mysql from "mysql";
 import { readCliArgs } from "../src/api/util/cli";
@@ -46,7 +46,8 @@ async function resetData() {
     "utf-8"
   );
 
-  for (const driver of [db.login, db.map, db.char]) {
+  const drivers = Object.values(omit(db, "destroy"));
+  for (const driver of drivers) {
     await driver.useConnection(async (conn) => {
       try {
         const { database } = await driver.dbInfo;

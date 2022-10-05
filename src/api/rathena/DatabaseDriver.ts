@@ -16,6 +16,7 @@ export function createDatabaseDriver(cfg: ConfigDriver) {
     login: () => driverForDB(cfg, "login_server"),
     map: () => driverForDB(cfg, "map_server"),
     char: () => driverForDB(cfg, "char_server"),
+    log: () => driverForDB(cfg, "log_db"),
     destroy: () => destroy,
   });
 
