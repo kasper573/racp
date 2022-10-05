@@ -7,6 +7,7 @@ import { Zeny } from "../components/Zeny";
 
 export const VendorItemGrid = DataGrid.define(trpc.vendor.searchItems.useQuery)(
   {
+    emptyComponent: () => <>No one is vending anything at the moment</>,
     id: (item) => item.id,
     columns: {
       name: {

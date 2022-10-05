@@ -5,6 +5,7 @@ import { Link } from "../components/Link";
 import { IconWithLabel } from "../components/IconWithLabel";
 
 export const MonsterGrid = DataGrid.define(trpc.monster.search.useQuery)({
+  emptyComponent: () => <>No monsters found</>,
   id: (item) => item.Id,
   columns: {
     Name: {

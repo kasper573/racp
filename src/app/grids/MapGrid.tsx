@@ -4,6 +4,7 @@ import { router } from "../router";
 import { MapId } from "../../api/services/map/types";
 
 export const MapGrid = DataGrid.define(trpc.map.search.useQuery)({
+  emptyComponent: () => <>No maps found</>,
   link: (id: MapId) => router.map().view({ id }),
   id: (map) => map.id,
   columns: {

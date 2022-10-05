@@ -1,5 +1,12 @@
 import { Box, styled } from "@mui/material";
-import { MouseEvent, ComponentProps, useEffect, useState } from "react";
+import {
+  MouseEvent,
+  ComponentProps,
+  useEffect,
+  useState,
+  ComponentType,
+  useMemo,
+} from "react";
 import {
   DataGrid as MuiDataGrid,
   GridColumns,
@@ -16,6 +23,7 @@ import { typedKeys } from "../../lib/std/typedKeys";
 import { SearchQuery, SearchResult, SearchSort } from "../../api/common/search";
 import { useWindowSize, WindowSize } from "../../lib/hooks/useWindowSize";
 import { useOnChange } from "../../lib/hooks/useOnChange";
+import { useLatest } from "../../lib/hooks/useLatest";
 import { Link } from "./Link";
 import { LoadingSpinner } from "./LoadingSpinner";
 
@@ -32,6 +40,7 @@ export type DataGridProps<
       ComponentProps<typeof MuiDataGrid>,
       "rowHeight" | "columnVisibilityModel"
     >;
+    emptyComponent?: ComponentType;
     onHoveredEntityChange?: (entity?: Entity) => void;
   };
 
@@ -45,6 +54,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
   sx,
   gridProps,
   onHoveredEntityChange,
+  emptyComponent: EmptyComponent,
   ...props
 }: DataGridProps<Entity, Filter, Id>) {
   const windowSize = useWindowSize();
@@ -104,6 +114,13 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
         onPageSizeChange={setPageSize}
         components={{
           LoadingOverlay,
+          NoRowsOverlay: EmptyComponent
+            ? () => (
+                <Center>
+                  <EmptyComponent />
+                </Center>
+              )
+            : undefined,
         }}
         componentsProps={{
           row: {
@@ -139,7 +156,7 @@ export type DataGridQueryFn<Entity = any, Filter = any> = (
   isFetching: boolean;
 };
 
-type DefinedKeys = "query" | "link" | "id" | "columns";
+type DefinedKeys = "query" | "link" | "id" | "columns" | "emptyComponent";
 DataGrid.define = <QueryFn extends DataGridQueryFn>(query: QueryFn) => {
   type Entity = QueryFn extends DataGridQueryFn<infer E> ? E : never;
   type Filter = QueryFn extends DataGridQueryFn<Entity, infer F> ? F : never;

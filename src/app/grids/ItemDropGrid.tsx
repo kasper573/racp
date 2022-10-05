@@ -4,6 +4,7 @@ import { DataGrid } from "../components/DataGrid";
 import { ItemIdentifier } from "../components/ItemIdentifier";
 
 export const ItemDropGrid = DataGrid.define(trpc.drop.search.useQuery)({
+  emptyComponent: () => <>No drops found</>,
   id: (drop) => drop.Id,
   columns: {
     ItemName: {

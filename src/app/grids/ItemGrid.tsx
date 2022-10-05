@@ -4,6 +4,7 @@ import { ItemIdentifier } from "../components/ItemIdentifier";
 import { Zeny } from "../components/Zeny";
 
 export const ItemGrid = DataGrid.define(trpc.item.search.useQuery)({
+  emptyComponent: () => <>No items found</>,
   id: (item) => item.Id,
   columns: {
     Name: {
