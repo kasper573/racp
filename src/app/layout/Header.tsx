@@ -1,19 +1,18 @@
 import { Breadcrumbs, Typography } from "@mui/material";
-import { ComponentProps } from "react";
+import { ReactNode } from "react";
 import { Link } from "../components/Link";
 import { AnyRouteNode } from "../router";
 
 export function Header<Arg>({
   back,
   children = "",
-  sx: inputSx,
-  ...rest
 }: {
   back?: AnyRouteNode | [AnyRouteNode<Arg>, Arg];
-} & ComponentProps<typeof Breadcrumbs>) {
-  const props = { sx: { height: 24, mb: 2, ...inputSx }, ...rest };
+  children?: ReactNode;
+}) {
+  const style = { height: 24, mb: 2 };
   if (!back) {
-    return <Typography {...props}>{children}</Typography>;
+    return <Typography sx={style}>{children}</Typography>;
   }
 
   let backTitle: string;
@@ -28,7 +27,7 @@ export function Header<Arg>({
   }
 
   return (
-    <Breadcrumbs {...props}>
+    <Breadcrumbs sx={style}>
       <Link underline="hover" to={backTo} color="inherit">
         {backTitle}
       </Link>

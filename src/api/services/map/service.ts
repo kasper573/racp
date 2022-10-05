@@ -10,7 +10,6 @@ import { UserAccessLevel } from "../user/types";
 import { MapRepository } from "./repository";
 import {
   mapBoundsRegistryType,
-  MapId,
   mapIdType,
   mapInfoFilter,
   mapInfoType,
@@ -35,28 +34,6 @@ export function createMapService(repo: MapRepository) {
       (entity, payload) => warpFilter.for(payload)(entity),
       noLimitForFilter((filter) => filter?.fromMap?.matcher === "equals")
     ),
-    getNetwork: t.procedure
-      .output(
-        zod.object({
-          nodes: zod.array(zod.object({ id: mapIdType, name: zod.string() })),
-          links: zod.array(
-            zod.object({ source: mapIdType, target: mapIdType })
-          ),
-        })
-      )
-      .query(async () => {
-        const maps = await repo.getMaps();
-        const nodes = Array.from(maps.values()).map((map) => ({
-          id: map.id,
-          name: map.displayName,
-        }));
-        const warps = await repo.warps;
-        const links: Array<{ source: MapId; target: MapId }> = [];
-        for (const warp of warps) {
-          links.push({ source: warp.fromMap, target: warp.toMap });
-        }
-        return { nodes, links };
-      }),
     read: t.procedure
       .input(mapIdType)
       .output(mapInfoType)

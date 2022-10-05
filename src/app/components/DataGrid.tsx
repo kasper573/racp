@@ -1,11 +1,11 @@
 import { Box, styled } from "@mui/material";
 import {
-  ComponentProps,
-  ComponentType,
   MouseEvent,
+  ComponentProps,
   useEffect,
-  useMemo,
   useState,
+  ComponentType,
+  useMemo,
 } from "react";
 import {
   DataGrid as MuiDataGrid,
@@ -27,7 +27,6 @@ import { useOnChange } from "../../lib/hooks/useOnChange";
 import { useLatest } from "../../lib/hooks/useLatest";
 import { Link } from "./Link";
 import { LoadingSpinner } from "./LoadingSpinner";
-import { Center } from "./Center";
 
 export type DataGridProps<
   Entity,
@@ -261,3 +260,10 @@ function LoadingOverlay() {
     </Center>
   );
 }
+
+const Center = styled("div")`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+`;
