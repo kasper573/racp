@@ -105,6 +105,9 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
       options: { title: "Maps", icon: <Map /> },
     },
     (route) => ({
+      graph: route("network", {
+        component: lazy(() => import("./pages/MapNetworkPage")),
+      }),
       search: route("search/:filter?", {
         component: lazy(() => import("./pages/MapSearchPage")),
         params: { filter: zodRouteParam(mapInfoFilter.type.default({})) },
