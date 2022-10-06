@@ -10,7 +10,11 @@ import { createConfigDriver } from "../src/api/rathena/ConfigDriver";
 import { createYamlDriver } from "../src/api/rathena/YamlDriver";
 import { createUserRepository } from "../src/api/services/user/repository";
 import { createDatabaseDriver } from "../src/api/rathena/DatabaseDriver";
-import { adminAccountId, adminCharId } from "../cypress/support/vars";
+import {
+  adminAccountId,
+  adminCharId,
+  adminCharName,
+} from "../cypress/support/vars";
 
 async function resetData() {
   const logger = createLogger(console.log).chain("removeUGC");
@@ -79,7 +83,7 @@ async function resetData() {
   await db.char.table("char").insert({
     account_id: adminAccountId,
     char_id: adminCharId,
-    name: args.ADMIN_USER,
+    name: adminCharName,
   });
 
   await db.destroy();

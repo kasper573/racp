@@ -28,7 +28,7 @@ const normalizeString = (
 
 const stringNormalizer =
   (fn: (a: string, b: string) => boolean) =>
-  (target: string, text: string, options?: zod.infer<typeof stringOptions>) =>
+  (target = "", text = "", options?: zod.infer<typeof stringOptions>) =>
     fn(normalizeString(target, options), normalizeString(text, options));
 
 const item = zod.any();

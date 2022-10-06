@@ -6,6 +6,7 @@ import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
 import { DatabaseDriver } from "../../rathena/DatabaseDriver";
 import { typedAssign } from "../../../lib/std/typedAssign";
+import { MvplogEntityType } from "../../rathena/DatabaseDriver.types";
 import {
   monsterFilter,
   monsterSpawnFilter,
@@ -29,6 +30,25 @@ export function createMonsterService({
   exposeBossStatuses?: boolean;
 }) {
   return t.router({
+    /**
+     * Used from e2e test to prepare fixtures. Is locked behind admin access.
+     */
+    insertMvps: t.procedure
+      .use(access(UserAccessLevel.Admin))
+      .input(
+        zod.array(
+          MvplogEntityType.pick({
+            map: true,
+            monster_id: true,
+            kill_char_id: true,
+          })
+        )
+      )
+      .mutation(async ({ input: logEntries }) => {
+        await db.log
+          .table("mvplog")
+          .insert(logEntries.map((mvp) => ({ ...mvp, mvp_date: new Date() })));
+      }),
     searchMvps: createSearchProcedure(
       mvpType,
       mvpFilter.type,

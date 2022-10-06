@@ -2,13 +2,28 @@ import { clickMainMenuItem } from "../support/actions/nav";
 import { expectTableColumn, findTableColumn } from "../support/actions/grid";
 import { compareNumeric, compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/actions/search";
+import { resetData, signInAsAdmin } from "../support/actions/admin";
+import { adminCharId, adminCharName } from "../support/vars";
 
 before(() => {
+  resetData();
   cy.visit("/");
+  signInAsAdmin();
+
+  cy.trpc((client) =>
+    client?.monster.insertMvps.mutate([
+      {
+        map: "moc_pryd04",
+        monster_id: 1038, // Osiris
+        kill_char_id: adminCharId, // admin
+      },
+    ])
+  );
+
+  clickMainMenuItem("mvp board");
 });
 
 describe("search", () => {
-  before(() => clickMainMenuItem("mvp board"));
   generateSearchPageTests({
     searches: {
       monsterId: {
@@ -32,8 +47,8 @@ describe("search", () => {
         verify: () => findTableColumn("Monster").contains("Osiris"),
       },
       killedBy: {
-        input: () => cy.findByLabelText("Killed by").type("admin"),
-        verify: () => expectTableColumn("Killer", () => /admin/i),
+        input: () => cy.findByLabelText("Killed by").type(adminCharName),
+        verify: () => expectTableColumn("MVP", () => adminCharName),
       },
     },
     sorts: {
