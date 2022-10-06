@@ -1,10 +1,9 @@
 import { DataGrid } from "../components/DataGrid";
-
 import { trpc } from "../state/client";
 import { router } from "../router";
-import { durationString } from "../../lib/std/durationString";
 import { Link } from "../components/Link";
 import { IconWithLabel } from "../components/IconWithLabel";
+import { monsterSpawnTimeColumns } from "./common";
 
 export const MonsterSpawnGrid = DataGrid.define(
   trpc.monster.searchSpawns.useQuery
@@ -47,17 +46,6 @@ export const MonsterSpawnGrid = DataGrid.define(
       },
     },
     amount: "Amount",
-    spawnDelay: {
-      headerName: "Spawn time",
-      renderCell: renderTime,
-    },
-    spawnWindow: {
-      headerName: "Spawn window",
-      renderCell: renderTime,
-    },
+    ...monsterSpawnTimeColumns,
   },
 });
-
-function renderTime({ value }: { value?: number }) {
-  return value !== undefined ? durationString(value, 2) : "-";
-}
