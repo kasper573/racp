@@ -42,7 +42,7 @@ export function createMapRepository({
   const mapImageName = (mapId: string) => `${mapId}${formatter.fileExtension}`;
   const imageRepository = createImageRepository(formatter, imageLinker, logger);
 
-  const warpsPromise = npc.resolve("scripts_warps.conf", warpType);
+  const warpsPromise = npc.resolve(warpType);
   const infoFile = files.entry(
     "mapInfo.json",
     zodJsonProtocol(zod.record(mapInfoType))

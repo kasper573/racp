@@ -2,7 +2,6 @@ import * as path from "path";
 import * as zod from "zod";
 import { matchRecursive } from "xregexp";
 import { ZodObject, ZodString } from "zod";
-import { createSegmentedObject } from "../../lib/zod/ZodSegmentedObject";
 import { Logger } from "../../lib/logger";
 import { RAthenaMode } from "../options";
 import { gfs } from "../util/gfs";
@@ -19,51 +18,56 @@ export function createNpcDriver({
   logger: Logger;
 }) {
   const logger = parentLogger.chain("npc");
-  const npcFolder = path.resolve(rAthenaPath, "npc");
-  const modeFolder = path.resolve(npcFolder, modeFolderNames[rAthenaMode]);
+  const npcFilesPromise = logger.wrap(function load() {
+    return loadNpcFiles(rAthenaPath, rAthenaMode);
+  })();
 
   return {
     async resolve<ET extends AnyNpcEntityType>(
-      npcConfFile: string,
       entityType: ET
     ): Promise<Array<zod.infer<ET>>> {
-      const loadEntities = logger.wrap(
-        createNpcLoader(rAthenaPath, entityType)
-      );
-
-      async function loadViaConfFile(npcConfFile: string) {
-        const files = await loadNpcConfFile(npcConfFile, rAthenaPath);
-        const entities = await Promise.all(files.map(loadEntities));
-        return entities.reduce((flattened, list) => {
-          flattened.push(...list);
-          return flattened;
-        }, []);
-      }
-
-      const [baseEntities, modeEntities] = await Promise.all([
-        loadViaConfFile(path.resolve(npcFolder, npcConfFile)),
-        loadViaConfFile(path.resolve(modeFolder, npcConfFile)),
-      ]);
-
-      return [...baseEntities, ...modeEntities];
+      const parseNpcFile = createNpcFileParser(entityType, logger);
+      const npcFiles = await npcFilesPromise;
+      const results = await Promise.all(npcFiles.map(parseNpcFile));
+      return results.flat();
     },
   };
 }
 
-const readFile = (file: string) => gfs.readFile(file, "utf-8");
-const createNpcEntityId = (rAthenaPath: string, file: string, index: number) =>
-  `${path.relative(rAthenaPath, file)}#${index}`;
+async function listFilesIn(folderPath: string, extension: string) {
+  const files = await gfs.readdir(folderPath);
+  return files
+    .filter((file) => file.endsWith(extension))
+    .map((file) => path.resolve(folderPath, file));
+}
 
-function createNpcLoader<ET extends AnyNpcEntityType>(
-  rAthenaPath: string,
-  entityType: ET
+const readFile = (file: string) => gfs.readFile(file, "utf-8");
+
+const createNpcEntityId = (file: string, index: number) => `${file}#${index}`;
+
+function createNpcFileParser<ET extends AnyNpcEntityType>(
+  entityType: ET,
+  parentLogger: Logger
 ) {
-  return async function loadNpc(file: string) {
-    const text = await readFile(file);
-    return parseTextEntities(text).reduce(
+  return async function parseNpcFile({
+    file,
+    content,
+  }: {
+    file: string;
+    content: string;
+  }) {
+    const logger = parentLogger.chain("parse").chain(file);
+    let textEntities;
+    try {
+      textEntities = parseTextEntities(content);
+    } catch (e) {
+      logger.warn("File skipped:", e instanceof Error ? e.message : e);
+      return [];
+    }
+    return textEntities.reduce(
       (entities: Array<zod.infer<ET>>, matrix, index) => {
         const res = entityType.safeParse([
-          [createNpcEntityId(rAthenaPath, file, index)],
+          [createNpcEntityId(file, index)],
           ...matrix,
         ]);
         if (res.success) {
@@ -74,6 +78,28 @@ function createNpcLoader<ET extends AnyNpcEntityType>(
       []
     );
   };
+}
+
+async function loadNpcFiles(rAthenaPath: string, rAthenaMode: RAthenaMode) {
+  const npcFolder = path.resolve(rAthenaPath, "npc");
+  const modeFolder = path.resolve(npcFolder, modeFolderNames[rAthenaMode]);
+  const confFileNames = await Promise.all([
+    listFilesIn(npcFolder, ".conf"),
+    listFilesIn(modeFolder, ".conf"),
+  ]);
+
+  const npcFileNames = (
+    await Promise.all(
+      confFileNames.flat().map((file) => loadNpcConfFile(file, rAthenaPath))
+    )
+  ).flat();
+
+  return Promise.all(
+    npcFileNames.map(async (file) => ({
+      file,
+      content: await readFile(file),
+    }))
+  );
 }
 
 async function loadNpcConfFile(npcConfFile: string, rAthenaPath: string) {
@@ -87,21 +113,15 @@ async function loadNpcConfFile(npcConfFile: string, rAthenaPath: string) {
     }
     throw e;
   }
-  const entities = parseTextEntities(text).map((matrix) =>
-    npcConfEntity.parse(matrix)
-  );
-  return entities.map((entity) =>
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    path.resolve(rAthenaPath, npcCommandRegex.exec(entity.content)![1])
-  );
+  try {
+    return parseTextEntities(text)
+      .map(([[content]]) => /^(npc|import):\s*(.*?)\s*$/.exec(content))
+      .filter(Boolean)
+      .map((res) => path.resolve(rAthenaPath, res![2]));
+  } catch (e) {
+    throw new Error(`Error parsing npc conf file: ${npcConfFile}: ${e}`);
+  }
 }
-
-const npcCommandRegex = /^npc:\s*(.*)$/;
-const npcConfEntity = createSegmentedObject()
-  .segment({
-    content: zod.string().regex(npcCommandRegex),
-  })
-  .build();
 
 /**
  * Parses npc text file content into an intermediate matrix data structure.
@@ -161,7 +181,8 @@ const scriptPlaceholder = (n: number) =>
 
 const nonEmptyLines = (s: string) => s.split(/[\r\n]+/).filter((l) => l.trim());
 
-const removeComments = (s: string) => s.replaceAll(/\/\/.*$/gm, "");
+const removeComments = (s: string) =>
+  s.replaceAll(/\/\/.*$/gm, "").replaceAll(/\/\*(.|[\r\n])*?\*\//gm, "");
 
 const modeFolderNames: Record<RAthenaMode, string> = {
   Renewal: "re",

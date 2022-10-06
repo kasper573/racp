@@ -33,7 +33,7 @@ export function createMonsterRepository({
   const imageRepository = createImageRepository(formatter, imageLinker, logger);
 
   const monsterResolver = createMonsterResolver(rAthenaMode);
-  const spawnsPromise = npc.resolve("scripts_monsters.conf", monsterSpawnType);
+  const spawnsPromise = npc.resolve(monsterSpawnType);
   const monstersPromise = yaml.resolve("db/mob_db.yml", monsterResolver);
 
   const getMonsters = createAsyncMemo(
