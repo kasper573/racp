@@ -30,7 +30,6 @@ const iconSize = "1.25em";
 
 const Icon = styled(ImageWithFallback)`
   font-size: ${iconSize};
-  height: ${iconSize};
   width: ${iconSize};
   position: absolute;
   top: 50%;
@@ -39,5 +38,5 @@ const Icon = styled(ImageWithFallback)`
 `;
 
 const Label = styled(Box)`
-  padding-left: calc(${iconSize} + 9px);
+  padding-left: calc(${iconSize} + 12px);
 `;
