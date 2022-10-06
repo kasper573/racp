@@ -8,7 +8,7 @@ import { ComponentProps, ReactNode, useMemo } from "react";
 
 export interface SelectPropsBase<Value>
   extends Omit<ComponentProps<typeof FormControl>, "onChange"> {
-  options?: string[];
+  options?: readonly string[];
   label?: ReactNode;
   empty?: ReactNode;
   autoSort?: boolean;

@@ -108,16 +108,12 @@ export const monsterSpawnType = createSegmentedObject()
 export type MonsterSpawnFilter = zod.infer<typeof monsterSpawnFilter.type>;
 export const monsterSpawnFilter = createEntityFilter(matcher, monsterSpawnType);
 
-export type MvpLifeStatus = zod.infer<typeof mvpLifeStatusType>;
-export const mvpLifeStatusType = zod.union([
-  zod.literal("alive"),
-  zod.literal("dead"),
-  zod.literal("spawning"),
-]);
+export const mvpLifeStatusOptions = ["alive", "dead", "spawning"] as const;
+export type MvpLifeStatus = typeof mvpLifeStatusOptions[number];
 
 export type MvpStatus = zod.infer<typeof mvpStatusType>;
 export const mvpStatusType = zod.object({
-  lifeStatus: mvpLifeStatusType,
+  lifeStatus: zod.string(), // TODO should be ZodType<MvpLifeStatus>. Only possible if ZodMatcher
   killedBy: zod.string().optional(),
   killedAt: zod.number().optional(), // Unit timestamp
 });

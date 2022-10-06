@@ -12,7 +12,7 @@ export const MvpGrid = DataGrid.define(trpc.monster.searchMvps.useQuery)({
   id: (mvp) => mvp.id,
   columns: {
     name: {
-      headerName: "Name",
+      headerName: "Monster",
       renderCell({ row: mvp }) {
         return (
           <MonsterIdentifier
@@ -33,14 +33,14 @@ export const MvpGrid = DataGrid.define(trpc.monster.searchMvps.useQuery)({
     },
     ...monsterSpawnTimeColumns,
     killedAt: {
-      headerName: "Killed at",
+      headerName: "Death time",
       renderCell({ row: mvp }) {
         return mvp.killedAt !== undefined
           ? durationString(Date.now() - mvp.killedAt, 2) + " ago"
           : undefined;
       },
     },
-    killedBy: "Killed by",
+    killedBy: "MVP",
     lifeStatus: {
       headerName: "Status",
       renderCell({ row }) {
