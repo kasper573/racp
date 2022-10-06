@@ -1,3 +1,4 @@
+import { memoize } from "lodash";
 import { createYamlResolver } from "../../../rathena/YamlDriver";
 import { RAthenaMode } from "../../../options";
 import { Monster, MonsterPostProcess, monsterType } from "../types";
@@ -5,7 +6,7 @@ import { typedAssign } from "../../../../lib/std/typedAssign";
 import { resolveMonsterModes } from "./resolveMonsterModes";
 
 export function createMonsterResolver(rAthenaMode: RAthenaMode) {
-  async function extract(monster: Monster): Promise<MonsterPostProcess> {
+  function extract(monster: Monster): MonsterPostProcess {
     const { Level, Agi, Luk, Dex, Attack, Attack2 } = monster;
     return {
       Flee: monster.Flee ?? 100 + (Level + Agi + Luk / 5),
@@ -17,14 +18,16 @@ export function createMonsterResolver(rAthenaMode: RAthenaMode) {
     };
   }
 
+  const memoizedModeResolver = memoize(resolveMonsterModes);
+
   return createYamlResolver(monsterType, {
     getKey: (monster) => monster.Id,
-    async postProcess(monster) {
-      typedAssign(monster, await extract(monster));
-      monster.Modes = {
-        ...resolveMonsterModes(monster.Ai, monster.Class),
-        ...monster.Modes,
-      };
+    postProcess(monster) {
+      typedAssign(monster, extract(monster));
+      typedAssign(
+        monster.Modes,
+        memoizedModeResolver(monster.Ai, monster.Class)
+      );
     },
   });
 }
