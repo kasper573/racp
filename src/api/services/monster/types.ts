@@ -14,6 +14,8 @@ export const monsterDropType = zod.object({
   Index: zod.number().optional(),
 });
 
+export const monsterModesType = toggleRecordType;
+
 export type MonsterPostProcess = zod.infer<typeof monsterPostProcessType>;
 export const monsterPostProcessType = zod.object({
   Flee: zod.number(),
@@ -63,8 +65,8 @@ export const monsterType = zod.object({
   DamageMotion: zod.number().default(0),
   DamageTaken: zod.number().default(100),
   Ai: zod.number().default(6),
-  Class: zod.string().optional(),
-  Modes: toggleRecordType,
+  Class: zod.string().default("Normal"),
+  Modes: monsterModesType,
   MvpDrops: zod.array(monsterDropType).default([]),
   Drops: zod.array(monsterDropType).default([]),
   ...monsterPostProcessType.partial().shape,

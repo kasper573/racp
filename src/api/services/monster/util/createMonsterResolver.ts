@@ -2,6 +2,7 @@ import { createYamlResolver } from "../../../rathena/YamlDriver";
 import { RAthenaMode } from "../../../options";
 import { Monster, MonsterPostProcess, monsterType } from "../types";
 import { typedAssign } from "../../../../lib/std/typedAssign";
+import { resolveMonsterModes } from "./resolveMonsterModes";
 
 export function createMonsterResolver(rAthenaMode: RAthenaMode) {
   async function extract(monster: Monster): Promise<MonsterPostProcess> {
@@ -20,6 +21,10 @@ export function createMonsterResolver(rAthenaMode: RAthenaMode) {
     getKey: (monster) => monster.Id,
     async postProcess(monster) {
       typedAssign(monster, await extract(monster));
+      monster.Modes = {
+        ...resolveMonsterModes(monster.Ai, monster.Class),
+        ...monster.Modes,
+      };
     },
   });
 }
