@@ -1,6 +1,6 @@
 import * as path from "path";
 import * as fs from "fs";
-import { pick } from "lodash";
+import { groupBy, pick, uniq } from "lodash";
 import recursiveReadDir = require("recursive-readdir");
 import * as mysql from "mysql";
 import { readCliArgs } from "../src/api/util/cli";
@@ -9,7 +9,10 @@ import { createLogger } from "../src/lib/logger";
 import { createConfigDriver } from "../src/api/rathena/ConfigDriver";
 import { createYamlDriver } from "../src/api/rathena/YamlDriver";
 import { createUserRepository } from "../src/api/services/user/repository";
-import { createDatabaseDriver } from "../src/api/rathena/DatabaseDriver";
+import {
+  createDatabaseDriver,
+  DatabaseDriver,
+} from "../src/api/rathena/DatabaseDriver";
 import {
   adminAccountId,
   adminCharId,
@@ -41,37 +44,27 @@ async function resetData() {
   ]);
 
   // Reset databases
-  const yaml = createYamlDriver({ ...args, logger });
-  const user = createUserRepository({ ...args, yaml });
   const cfg = createConfigDriver({ ...args, logger });
   const db = createDatabaseDriver(cfg);
-
-  for (const one of db.all) {
-    await one.useConnection(async (conn) => {
-      const sqlFile = path.resolve(args.rAthenaPath, sqlFilesPerDb[one.name]);
-
-      let initializeDBSql: string;
-      try {
-        initializeDBSql = await fs.promises.readFile(sqlFile, "utf-8");
-      } catch (e) {
-        logger.warn(`Data not reset for driver ${one.name}: ${e}`);
-        return;
-      }
-
-      try {
-        const { database } = await one.dbInfo;
-        logger.log(`Truncating database for driver "${one.name}"`);
-        await runSqlQuery(conn, createTruncateDBQuery(database));
-        logger.log(
-          `Initializing DB for driver "${one.name}" using sql file "${sqlFile}"`
-        );
-        await runSqlQuery(conn, initializeDBSql);
-      } catch (e) {
-        logger.error(`Error initializing DB for driver "${one.name}": ${e}`);
+  for (const { driver, group } of await groupDatabaseDrivers(db)) {
+    await driver.useConnection(async (conn) => {
+      const { database } = await driver.dbInfo;
+      logger.log(`Truncating database for drivers: ${group}`);
+      await runSqlQuery(conn, createTruncateDBQuery(database));
+      const sqlFiles = uniq(
+        group.map((name) => path.resolve(args.rAthenaPath, sqlFilesPerDb[name]))
+      );
+      for (const sqlFile of sqlFiles) {
+        const sqlQuery = await fs.promises.readFile(sqlFile, "utf-8");
+        logger.log(`Executing sql file: ${sqlFile}`);
+        await runSqlQuery(conn, sqlQuery);
       }
     });
   }
 
+  // Insert admin account and character
+  const yaml = createYamlDriver({ ...args, logger });
+  const user = createUserRepository({ ...args, yaml });
   await db.login.table("login").insert({
     account_id: adminAccountId,
     userid: args.ADMIN_USER,
@@ -97,6 +90,19 @@ const sqlFilesPerDb: Record<string, string> = {
   char_server: "sql-files/main.sql",
   log_db: "sql-files/logs.sql",
 };
+
+async function groupDatabaseDrivers(db: DatabaseDriver) {
+  const dbInfos = await Promise.all(db.all.map((one) => one.dbInfo));
+  const ids = dbInfos.map((one) => `${one.host}:${one.port}:${one.database}`);
+  const lookup = Object.values(
+    groupBy(db.all, (one) => ids[db.all.indexOf(one)])
+  );
+  return Object.values(lookup).map((drivers) => {
+    const [driver] = drivers;
+    const group = drivers.map((g) => g.name);
+    return { driver, group };
+  });
+}
 
 async function recursiveRemoveFiles(path: string) {
   const files = await recursiveReadDir(path);
