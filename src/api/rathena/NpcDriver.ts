@@ -35,15 +35,6 @@ export function createNpcDriver({
   };
 }
 
-async function listFilesIn(folderPath: string, extension: string) {
-  const files = await gfs.readdir(folderPath);
-  return files
-    .filter((file) => file.endsWith(extension))
-    .map((file) => path.resolve(folderPath, file));
-}
-
-const readFile = (file: string) => gfs.readFile(file, "utf-8");
-
 const createNpcEntityId = (file: string, index: number) => `${file}#${index}`;
 
 async function loadAllNpcFiles(
@@ -95,7 +86,7 @@ function logNpcFileLoadResult(
 }
 
 async function loadNpcFile(file: string): Promise<ParsedNonTypesafeNpcFile> {
-  const entities = await readFile(file).then(parseTextEntities);
+  const entities = await gfs.readFile(file, "utf-8").then(parseTextEntities);
   return {
     file,
     entities,
