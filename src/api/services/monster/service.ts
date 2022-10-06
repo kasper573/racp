@@ -33,14 +33,12 @@ export function createMonsterService({
       mvpType,
       mvpFilter.type,
       async () => {
-        const mvps = await repo.getMvps();
+        let mvps = await repo.getMvps();
         if (exposeBossStatuses) {
           const statuses = await Promise.all(
             mvps.map((boss) => queryMvpStatus(db, boss))
           );
-          for (let i = 0; i < mvps.length; i++) {
-            typedAssign(mvps[i], statuses[i]);
-          }
+          mvps = mvps.map((mvp, i) => typedAssign({ ...mvp }, statuses[i]));
         }
         return mvps;
       },

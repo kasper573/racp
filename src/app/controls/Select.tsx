@@ -5,6 +5,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import { ComponentProps, ReactNode, useMemo } from "react";
+import { htmlId } from "../util/htmlId";
 
 export interface SelectPropsBase<Value>
   extends Omit<ComponentProps<typeof FormControl>, "onChange"> {
@@ -27,7 +28,7 @@ export function Select({
   value,
   onChange,
   sx,
-  id = typeof label === "string" ? label : undefined,
+  id = typeof label === "string" ? htmlId(label) : undefined,
   empty = "No options",
   autoSort = true,
   ...props

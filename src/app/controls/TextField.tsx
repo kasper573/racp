@@ -2,6 +2,7 @@ import { ComponentProps } from "react";
 import { TextField as MuiTextField } from "@mui/material";
 import { util } from "zod/lib/helpers/util";
 import MakePartial = util.MakePartial;
+import { htmlId } from "../util/htmlId";
 
 type TFVariant<Type extends string, Value, Optional extends boolean> = Omit<
   ComponentProps<typeof MuiTextField>,
@@ -27,7 +28,7 @@ export function TextField({
   optional,
   issues,
   label,
-  id = typeof label === "string" ? label : undefined,
+  id = typeof label === "string" ? htmlId(label) : undefined,
   ...props
 }: TextFieldProps) {
   const readOnly = onChange === undefined;
