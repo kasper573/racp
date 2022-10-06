@@ -12,5 +12,7 @@ export const monsterSpawnTimeColumns = {
 };
 
 export function renderDurationCell({ value }: { value?: number }) {
-  return value !== undefined ? durationString(value, 2) : undefined;
+  return value !== undefined && value > 0
+    ? durationString(value, 2)
+    : undefined;
 }

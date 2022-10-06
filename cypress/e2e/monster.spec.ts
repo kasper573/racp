@@ -100,8 +100,8 @@ describe("search", () => {
           ),
       },
       modes: {
-        input: () => cy.get("#Modes").select("CastSensorChase"),
-        verify: () => findTableColumn("Name").contains(/Archer Guardian/i),
+        input: () => cy.get("#Modes").select("RandomTarget"),
+        verify: () => findTableColumn("Name").contains(/cecil damon/i),
       },
     },
     sorts: {

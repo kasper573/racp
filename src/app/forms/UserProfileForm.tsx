@@ -6,7 +6,7 @@ import {
 } from "../../api/services/user/types";
 import { useZodForm } from "../../lib/zod/useZodForm";
 import { TextField } from "../controls/TextField";
-import { getEnumName } from "../../lib/std/getEnumValue";
+import { getEnumName } from "../../lib/std/enum";
 import { CommonForm, CommonFormProps } from "../components/CommonForm";
 
 export interface UserProfileFormProps extends CommonFormProps {

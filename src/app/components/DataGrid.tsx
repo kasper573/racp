@@ -233,7 +233,9 @@ function processColumnConvention<Entity, Id extends GridRowId>({
       ...firstColumn,
       renderCell(params: GridRenderCellParams) {
         if (firstColumn.renderCell) {
-          return firstColumn.renderCell(params) ?? emptyCellValue;
+          return (
+            firstColumn.renderCell(params) ?? params.value ?? emptyCellValue
+          );
         }
         const { row, value = emptyCellValue } = params;
         const linkTo = link?.(row);
