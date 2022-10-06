@@ -52,14 +52,14 @@ export function MvpSearchFilterForm({
         {...field("mapName", "contains")}
       />
       <Select
-        label="Life Status"
+        label="Status"
         multi
         options={mvpLifeStatusOptions}
         {...field("lifeStatus", "oneOf")}
       />
       <TextField
         size="small"
-        label="Killed by"
+        label="MVP"
         optional
         {...field("killedBy", "contains")}
       />

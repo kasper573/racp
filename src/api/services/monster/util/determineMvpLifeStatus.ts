@@ -9,15 +9,15 @@ export function determineMvpLifeStatus(
   }: { killedAt?: number; spawnWindow?: number; spawnDelay?: number }
 ): MvpLifeStatus {
   if (killedAt > now) {
-    return "alive";
+    return "Alive";
   }
   const spawnStart = killedAt + spawnDelay;
   const spawnEnd = spawnStart + spawnWindow;
   if (now > spawnEnd) {
-    return "alive";
+    return "Alive";
   }
   if (now < spawnStart) {
-    return "dead";
+    return "Dead";
   }
-  return "spawning";
+  return "Spawning";
 }

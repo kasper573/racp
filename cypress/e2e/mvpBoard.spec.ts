@@ -42,12 +42,12 @@ describe("search", () => {
         input: () => cy.findByLabelText("Map name").type("fild"),
         verify: () => expectTableColumn("Map", () => /fild/i),
       },
-      lifeStatus: {
-        input: () => cy.get("#LifeStatus").select("dead"),
+      status: {
+        input: () => cy.get("#Status").select("Dead"),
         verify: () => findTableColumn("Monster").contains("Osiris"),
       },
       killedBy: {
-        input: () => cy.findByLabelText("Killed by").type(adminCharName),
+        input: () => cy.findByLabelText("MVP").type(adminCharName),
         verify: () => expectTableColumn("MVP", () => adminCharName),
       },
     },

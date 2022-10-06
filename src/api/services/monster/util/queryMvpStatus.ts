@@ -15,7 +15,7 @@ export async function queryMvpStatus(
 
   const killedAt = logEntry?.mvp_date.getTime();
   const lifeStatus = determineMvpLifeStatus(Date.now(), { ...boss, killedAt });
-  if (lifeStatus === "alive") {
+  if (lifeStatus === "Alive") {
     return { lifeStatus };
   }
 
