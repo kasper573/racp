@@ -1,4 +1,4 @@
-import { groupBy, pick } from "lodash";
+import { pick } from "lodash";
 import { RAthenaMode } from "../../options";
 import { YamlDriver } from "../../rathena/YamlDriver";
 import { NpcDriver } from "../../rathena/NpcDriver";
@@ -65,27 +65,23 @@ export function createMonsterRepository({
   const getMvps = createAsyncMemo(
     () => Promise.all([getMonsters(), getMonsterSpawns()]),
     (monsters, spawns) => {
-      const bosses = Array.from(monsters.values()).filter(
-        (m) => m.Modes["Mvp"]
-      );
-
-      const spawnsById = groupBy(spawns, (s) => s.id);
       const entries: Record<string, Mvp> = {};
-      for (const bossMonster of bosses) {
-        const bossSpawns = spawnsById[bossMonster.Id] ?? [];
-        for (const spawn of bossSpawns) {
-          const bossId = createMvpId(bossMonster, spawn);
-          if (!entries[bossId]) {
-            entries[bossId] = {
-              id: bossId,
-              monsterId: bossMonster.Id,
-              name: bossMonster.Name,
-              imageUrl: bossMonster.ImageUrl,
-              mapId: spawn.map,
-              mapName: spawn.map,
-              ...pick(spawn, "spawnDelay", "spawnWindow"),
-            };
-          }
+      for (const spawn of spawns) {
+        const monster = monsters.get(spawn.id);
+        if (!monster?.Modes["Mvp"]) {
+          continue;
+        }
+        const bossId = createMvpId(monster, spawn);
+        if (!entries[bossId]) {
+          entries[bossId] = {
+            id: bossId,
+            monsterId: monster.Id,
+            name: monster.Name,
+            imageUrl: monster.ImageUrl,
+            mapId: spawn.map,
+            mapName: spawn.map,
+            ...pick(spawn, "spawnDelay", "spawnWindow"),
+          };
         }
       }
 
