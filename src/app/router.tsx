@@ -83,8 +83,8 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
     })
   ),
   mvps: route("mvps", {
-    component: lazy(() => import("./pages/MVPSearchPage")),
-    options: { title: "MVP board", icon: <EmojiEvents /> },
+    component: lazy(() => import("./pages/MvpSearchPage")),
+    options: { title: "Mvp board", icon: <EmojiEvents /> },
   }),
   monster: route(
     "monster",

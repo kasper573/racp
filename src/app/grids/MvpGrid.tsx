@@ -1,10 +1,13 @@
+import { capitalize } from "lodash";
 import { DataGrid } from "../components/DataGrid";
 import { trpc } from "../state/client";
 import { MonsterIdentifier } from "../components/MonsterIdentifier";
 import { Link } from "../components/Link";
 import { router } from "../router";
+import { durationString } from "../../lib/std/durationString";
+import { monsterSpawnTimeColumns } from "./common";
 
-export const MVPGrid = DataGrid.define(trpc.monster.searchMVPs.useQuery)({
+export const MvpGrid = DataGrid.define(trpc.monster.searchMvps.useQuery)({
   emptyComponent: () => <>No bosses found</>,
   id: (mvp) => mvp.id,
   columns: {
@@ -28,10 +31,20 @@ export const MVPGrid = DataGrid.define(trpc.monster.searchMVPs.useQuery)({
         );
       },
     },
-    status: {
-      headerName: "Status",
+    ...monsterSpawnTimeColumns,
+    killedAt: {
+      headerName: "Killed at",
       renderCell({ row: mvp }) {
-        return <>{JSON.stringify(mvp.status)}</>;
+        return mvp.killedAt !== undefined
+          ? durationString(Date.now() - mvp.killedAt, 2) + " ago"
+          : undefined;
+      },
+    },
+    killedBy: "Killed by",
+    lifeStatus: {
+      headerName: "Status",
+      renderCell({ row }) {
+        return capitalize(row.lifeStatus);
       },
     },
   },

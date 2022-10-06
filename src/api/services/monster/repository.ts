@@ -1,4 +1,4 @@
-import { groupBy } from "lodash";
+import { groupBy, pick } from "lodash";
 import { RAthenaMode } from "../../options";
 import { YamlDriver } from "../../rathena/YamlDriver";
 import { NpcDriver } from "../../rathena/NpcDriver";
@@ -7,7 +7,7 @@ import { Linker } from "../../../lib/fs/createPublicFileLinker";
 import { createImageRepository } from "../../common/createImageRepository";
 import { Logger } from "../../../lib/logger";
 import { createAsyncMemo } from "../../../lib/createMemo";
-import { MVP, createMVPId, Monster, monsterSpawnType } from "./types";
+import { Mvp, createMvpId, Monster, monsterSpawnType } from "./types";
 import { createMonsterResolver } from "./util/createMonsterResolver";
 
 export type MonsterRepository = ReturnType<typeof createMonsterRepository>;
@@ -62,7 +62,7 @@ export function createMonsterRepository({
     }
   );
 
-  const getMVPs = createAsyncMemo(
+  const getMvps = createAsyncMemo(
     () => Promise.all([getMonsters(), getMonsterSpawns()]),
     (monsters, spawns) => {
       const bosses = Array.from(monsters.values()).filter(
@@ -70,11 +70,11 @@ export function createMonsterRepository({
       );
 
       const spawnsById = groupBy(spawns, (s) => s.id);
-      const entries: Record<string, MVP> = {};
+      const entries: Record<string, Mvp> = {};
       for (const bossMonster of bosses) {
         const bossSpawns = spawnsById[bossMonster.Id] ?? [];
         for (const spawn of bossSpawns) {
-          const bossId = createMVPId(bossMonster, spawn);
+          const bossId = createMvpId(bossMonster, spawn);
           if (!entries[bossId]) {
             entries[bossId] = {
               id: bossId,
@@ -83,6 +83,7 @@ export function createMonsterRepository({
               imageUrl: bossMonster.ImageUrl,
               mapId: spawn.map,
               mapName: spawn.map,
+              ...pick(spawn, "spawnDelay", "spawnWindow"),
             };
           }
         }
@@ -95,7 +96,7 @@ export function createMonsterRepository({
   return {
     getSpawns: getMonsterSpawns,
     getMonsters,
-    getMVPs,
+    getMvps,
     updateImages: imageRepository.update,
     missingImages: () =>
       getMonsters().then((map) =>

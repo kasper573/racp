@@ -5,17 +5,17 @@ import { rpcFile } from "../../common/RpcFile";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
 import { DatabaseDriver } from "../../rathena/DatabaseDriver";
+import { typedAssign } from "../../../lib/std/typedAssign";
 import {
-  MVP,
-  mvpFilter,
-  mvpType,
-  MVPStatus,
   monsterFilter,
   monsterSpawnFilter,
   monsterSpawnType,
   monsterType,
+  mvpFilter,
+  mvpType,
 } from "./types";
 import { MonsterRepository } from "./repository";
+import { queryMvpStatus } from "./util/queryMvpStatus";
 
 export type MonsterService = ReturnType<typeof createMonsterService>;
 
@@ -29,17 +29,17 @@ export function createMonsterService({
   exposeBossStatuses?: boolean;
 }) {
   return t.router({
-    searchMVPs: createSearchProcedure(
+    searchMvps: createSearchProcedure(
       mvpType,
       mvpFilter.type,
       async () => {
-        const mvps = await repo.getMVPs();
+        const mvps = await repo.getMvps();
         if (exposeBossStatuses) {
           const statuses = await Promise.all(
-            mvps.map((boss) => getBossStatus(db, boss))
+            mvps.map((boss) => queryMvpStatus(db, boss))
           );
           for (let i = 0; i < mvps.length; i++) {
-            mvps[i].status = statuses[i];
+            typedAssign(mvps[i], statuses[i]);
           }
         }
         return mvps;
@@ -71,11 +71,4 @@ export function createMonsterService({
         return monstersWithMissingImages.map((m) => m.Id);
       }),
   });
-}
-
-async function getBossStatus(
-  db: DatabaseDriver,
-  boss: MVP
-): Promise<MVPStatus> {
-  return { isAlive: true };
 }
