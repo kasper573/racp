@@ -60,19 +60,19 @@ async function resetData() {
     });
   }
 
-  const newAccountIds = await db.login.table("login").insert({
+  const [account_id] = await db.login.table("login").insert({
     userid: args.ADMIN_USER,
     user_pass: args.ADMIN_PASSWORD,
     email: "admin@localhost",
     group_id: (await user.adminGroupIds)[0],
   });
 
-  await db.destroy();
+  await db.char.table("char").insert({
+    account_id,
+    name: args.ADMIN_USER,
+  });
 
-  if (!newAccountIds.length) {
-    logger.error("Failed to create admin account");
-    return 1;
-  }
+  await db.destroy();
 
   return 0;
 }
