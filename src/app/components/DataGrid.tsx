@@ -250,7 +250,7 @@ function processColumnConvention<Entity, Id extends GridRowId>({
         minWidth,
         ...column,
         renderCell(params: GridRenderCellParams) {
-          return column.renderCell?.(params) ?? emptyCellValue;
+          return column.renderCell?.(params) ?? params.value ?? emptyCellValue;
         },
       };
     }),
