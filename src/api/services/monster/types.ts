@@ -3,6 +3,7 @@ import { createSegmentedObject } from "../../../lib/zod/ZodSegmentedObject";
 import { zodNumeric } from "../../../lib/zod/zodNumeric";
 import { matcher, toggleRecordType } from "../../util/matcher";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
+import { mapIdType } from "../map/types";
 
 export type MonsterDrop = zod.infer<typeof monsterDropType>;
 export const monsterDropType = zod.object({
@@ -106,6 +107,36 @@ export const monsterSpawnType = createSegmentedObject()
 
 export type MonsterSpawnFilter = zod.infer<typeof monsterSpawnFilter.type>;
 export const monsterSpawnFilter = createEntityFilter(matcher, monsterSpawnType);
+
+export const mvpLifeStatusOptions = ["Alive", "Dead", "Spawning"] as const;
+export type MvpLifeStatus = typeof mvpLifeStatusOptions[number];
+
+export type MvpStatus = zod.infer<typeof mvpStatusType>;
+export const mvpStatusType = zod.object({
+  lifeStatus: zod.string(), // TODO should be ZodType<MvpLifeStatus>. Only possible if ZodMatcher
+  killedBy: zod.string().optional(),
+  killedAt: zod.number().optional(), // Unit timestamp
+});
+
+export const createMvpId = (monster: Monster, spawn: MonsterSpawn) =>
+  `${monster.Id}-${spawn.map}`;
+
+export type Mvp = zod.infer<typeof mvpType>;
+export const mvpId = zod.string();
+export const mvpType = zod.object({
+  id: mvpId,
+  monsterId: monsterIdType,
+  name: zod.string(),
+  imageUrl: zod.string().optional(),
+  mapId: mapIdType,
+  mapName: zod.string(),
+  ...mvpStatusType.partial().shape,
+  ...monsterSpawnType.pick({ spawnDelay: true, spawnWindow: true }).partial()
+    .shape,
+});
+
+export type MvpFilter = zod.infer<typeof mvpFilter.type>;
+export const mvpFilter = createEntityFilter(matcher, mvpType);
 
 function trimZero(value?: number) {
   return value === 0 ? undefined : value;

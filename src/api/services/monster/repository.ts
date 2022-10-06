@@ -1,3 +1,4 @@
+import { groupBy, pick } from "lodash";
 import { RAthenaMode } from "../../options";
 import { YamlDriver } from "../../rathena/YamlDriver";
 import { NpcDriver } from "../../rathena/NpcDriver";
@@ -6,7 +7,7 @@ import { Linker } from "../../../lib/fs/createPublicFileLinker";
 import { createImageRepository } from "../../common/createImageRepository";
 import { Logger } from "../../../lib/logger";
 import { createAsyncMemo } from "../../../lib/createMemo";
-import { Monster, monsterSpawnType } from "./types";
+import { Mvp, createMvpId, Monster, monsterSpawnType } from "./types";
 import { createMonsterResolver } from "./util/createMonsterResolver";
 
 export type MonsterRepository = ReturnType<typeof createMonsterRepository>;
@@ -61,9 +62,41 @@ export function createMonsterRepository({
     }
   );
 
+  const getMvps = createAsyncMemo(
+    () => Promise.all([getMonsters(), getMonsterSpawns()]),
+    (monsters, spawns) => {
+      const bosses = Array.from(monsters.values()).filter(
+        (m) => m.Modes["Mvp"]
+      );
+
+      const spawnsById = groupBy(spawns, (s) => s.id);
+      const entries: Record<string, Mvp> = {};
+      for (const bossMonster of bosses) {
+        const bossSpawns = spawnsById[bossMonster.Id] ?? [];
+        for (const spawn of bossSpawns) {
+          const bossId = createMvpId(bossMonster, spawn);
+          if (!entries[bossId]) {
+            entries[bossId] = {
+              id: bossId,
+              monsterId: bossMonster.Id,
+              name: bossMonster.Name,
+              imageUrl: bossMonster.ImageUrl,
+              mapId: spawn.map,
+              mapName: spawn.map,
+              ...pick(spawn, "spawnDelay", "spawnWindow"),
+            };
+          }
+        }
+      }
+
+      return Object.values(entries);
+    }
+  );
+
   return {
     getSpawns: getMonsterSpawns,
     getMonsters,
+    getMvps,
     updateImages: imageRepository.update,
     missingImages: () =>
       getMonsters().then((map) =>

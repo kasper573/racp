@@ -202,7 +202,9 @@ type ColumnConventionEntry<Entity> =
   | Omit<GridColDef<Entity>, "field">;
 
 interface ColumnConventionProps<Entity, Id extends GridRowId> {
-  columns: Partial<Record<keyof Entity, ColumnConventionEntry<Entity>>>;
+  columns:
+    | Partial<Record<keyof Entity, ColumnConventionEntry<Entity>>>
+    | Record<string, GridColDef<Entity>>;
   link?: (entity: Entity) => { $: string } | undefined;
   windowWidth?: WindowSize["width"];
 }
@@ -229,12 +231,14 @@ function processColumnConvention<Entity, Id extends GridRowId>({
       flex: 2,
       minWidth: Math.max(200, windowWidth / 7),
       ...firstColumn,
-      renderCell:
-        firstColumn.renderCell ??
-        (({ value, row }: GridRenderCellParams) => {
-          const linkTo = link?.(row);
-          return linkTo ? <Link to={linkTo}>{value}</Link> : value;
-        }),
+      renderCell(params: GridRenderCellParams) {
+        if (firstColumn.renderCell) {
+          return firstColumn.renderCell(params) ?? emptyCellValue;
+        }
+        const { row, value = emptyCellValue } = params;
+        const linkTo = link?.(row);
+        return linkTo ? <Link to={linkTo}>{value}</Link> : value;
+      },
     },
     ...restColumns.map((column) => {
       const minWidth =
@@ -245,13 +249,15 @@ function processColumnConvention<Entity, Id extends GridRowId>({
         flex: 1,
         minWidth,
         ...column,
-        renderCell:
-          column.renderCell ??
-          (({ value }: GridRenderCellParams) => value ?? "-"),
+        renderCell(params: GridRenderCellParams) {
+          return column.renderCell?.(params) ?? params.value ?? emptyCellValue;
+        },
       };
     }),
   ];
 }
+
+const emptyCellValue = "-";
 
 function LoadingOverlay() {
   return (

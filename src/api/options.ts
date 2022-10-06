@@ -19,6 +19,10 @@ export const options = {
     choices: ["verbose", "truncated"] as const,
     default: "verbose",
   },
+  exposeInternalErrors: {
+    type: "boolean",
+    default: false,
+  },
   jwtSecret: {
     type: "string",
     required: true,

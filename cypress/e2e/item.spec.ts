@@ -33,12 +33,12 @@ describe("search", () => {
         verify: () => expectTableColumn("Name", () => /potion/i),
       },
       "primary type": {
-        input: () => cy.get(`[id="Primary Type"]`).select("Weapon"),
+        input: () => cy.get(`#PrimaryType`).select("Weapon"),
         verify: () => findTableColumn("Name").contains("Sword"),
       },
       "sub type": {
         input: () => {
-          cy.get(`[id="Primary Type"]`).select("Weapon");
+          cy.get(`#PrimaryType`).select("Weapon");
           cy.get("#Subtype").select("Katar");
         },
         verify: () => findTableColumn("Name").contains("Jur"),

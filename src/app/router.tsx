@@ -10,6 +10,7 @@ import {
   AccountCircle,
   AdminPanelSettings,
   Article,
+  EmojiEvents,
   Home,
   Image,
   Login,
@@ -24,7 +25,7 @@ import { useLocation } from "react-router-dom";
 import { UserAccessLevel } from "../api/services/user/types";
 import { zodRouteParam } from "../lib/zod/zodRouteParam";
 import { itemFilter } from "../api/services/item/types";
-import { monsterFilter } from "../api/services/monster/types";
+import { monsterFilter, mvpFilter } from "../api/services/monster/types";
 import { mapInfoFilter } from "../api/services/map/types";
 import { vendorItemFilter } from "../api/services/vendor/types";
 import { RestrictedPage } from "./pages/RestrictedPage";
@@ -81,6 +82,11 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
       }),
     })
   ),
+  mvps: route("mvps/:filter?", {
+    component: lazy(() => import("./pages/MvpSearchPage")),
+    options: { title: "Mvp board", icon: <EmojiEvents /> },
+    params: { filter: zodRouteParam(mvpFilter.type.default({})) },
+  }),
   monster: route(
     "monster",
     {
