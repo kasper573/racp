@@ -1,13 +1,5 @@
 import { matchEnumBits } from "../../../../lib/std/enum";
 
-export function resolveMonsterModes(aiCode: number, className: string) {
-  return matchEnumBits(
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    MonsterMode,
-    (aiCodeToBits[aiCode] ?? 0) + (aegisClassToBits[className] ?? 0)
-  );
-}
-
 enum MonsterMode {
   CanMove = 0x0000001,
   Looter = 0x0000002,
@@ -68,3 +60,10 @@ const aiCodeToBits: Record<number, number> = {
   26: 0xb695,
   27: 0x8084,
 };
+
+export function resolveMonsterModes(aiCode: number, className: string) {
+  return {
+    ...matchEnumBits(MonsterMode, aegisClassToBits[className] ?? 0),
+    ...matchEnumBits(MonsterMode, aiCodeToBits[aiCode] ?? 0),
+  };
+}
