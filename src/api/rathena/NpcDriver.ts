@@ -82,17 +82,13 @@ function createNpcFileParser<ET extends AnyNpcEntityType>(
 
 async function loadNpcFiles(rAthenaPath: string, rAthenaMode: RAthenaMode) {
   const npcFolder = path.resolve(rAthenaPath, "npc");
-  const modeFolder = path.resolve(npcFolder, modeFolderNames[rAthenaMode]);
-  const confFileNames = await Promise.all([
-    listFilesIn(npcFolder, ".conf"),
-    listFilesIn(modeFolder, ".conf"),
-  ]);
+  const scriptMainFile = path.resolve(
+    npcFolder,
+    modeFolderNames[rAthenaMode],
+    "scripts_main.conf"
+  );
 
-  const npcFileNames = (
-    await Promise.all(
-      confFileNames.flat().map((file) => loadNpcConfFile(file, rAthenaPath))
-    )
-  ).flat();
+  const npcFileNames = await loadNpcConfFile(scriptMainFile, rAthenaPath);
 
   return Promise.all(
     npcFileNames.map(async (file) => ({
