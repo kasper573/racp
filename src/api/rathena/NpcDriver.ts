@@ -74,13 +74,15 @@ function logNpcFileLoadResult(
 ) {
   for (let i = 0; i < settled.length; i++) {
     const result = settled[i];
-    const fileLogger = logger.chain(files[i]);
+    const file = files[i];
     if (result.status === "rejected") {
-      fileLogger.warn(
+      logger.warn(
+        "Skipped",
+        file,
         result.reason instanceof Error ? result.reason.message : result.reason
       );
     } else {
-      fileLogger.log("Loaded");
+      logger.log("Loaded", file);
     }
   }
 }
