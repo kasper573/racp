@@ -102,7 +102,13 @@ app.use(
 app.use(
   trpcExpress.createExpressMiddleware({
     onError({ error, path }) {
-      logger.chain("trpc").error(`/${path}`, error.name, error.message);
+      logger
+        .chain("trpc")
+        .error(
+          `/${path}`,
+          error.name,
+          args.exposeInternalErrors ? error.message : "Internal Server Error"
+        );
     },
     router: createApiRouter({
       util: createUtilService(),
