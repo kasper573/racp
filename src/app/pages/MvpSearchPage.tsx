@@ -10,7 +10,7 @@ export default function MvpSearchPage() {
   return (
     <>
       <Header>
-        Mvp board
+        Mvps
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}
           filter={filter}

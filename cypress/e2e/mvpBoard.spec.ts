@@ -20,7 +20,7 @@ before(() => {
     ])
   );
 
-  clickMainMenuItem("mvp board");
+  clickMainMenuItem("Mvps");
 });
 
 describe("search", () => {
