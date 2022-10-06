@@ -1,6 +1,6 @@
 import * as path from "path";
 import * as fs from "fs";
-import { omit, pick } from "lodash";
+import { pick } from "lodash";
 import recursiveReadDir = require("recursive-readdir");
 import * as mysql from "mysql";
 import { readCliArgs } from "../src/api/util/cli";
@@ -46,17 +46,16 @@ async function resetData() {
     "utf-8"
   );
 
-  const drivers = Object.values(omit(db, "destroy"));
-  for (const driver of drivers) {
-    await driver.useConnection(async (conn) => {
+  for (const one of db.all) {
+    await one.useConnection(async (conn) => {
       try {
-        const { database } = await driver.dbInfo;
-        logger.log(`Truncating database for driver "${driver.name}"`);
+        const { database } = await one.dbInfo;
+        logger.log(`Truncating database for driver "${one.name}"`);
         await runSqlQuery(conn, createTruncateDBQuery(database));
-        logger.log(`Initializing DB for driver "${driver.name}"`);
+        logger.log(`Initializing DB for driver "${one.name}"`);
         await runSqlQuery(conn, initializeDBSql);
       } catch (e) {
-        logger.error(`Error initializing DB for driver "${driver.name}": ${e}`);
+        logger.error(`Error initializing DB for driver "${one.name}": ${e}`);
       }
     });
   }

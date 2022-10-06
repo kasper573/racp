@@ -18,6 +18,7 @@ export function createDatabaseDriver(cfg: ConfigDriver) {
     char: () => driverForDB(cfg, "char_server"),
     log: () => driverForDB(cfg, "log_db"),
     destroy: () => destroy,
+    all: (): DBDriver[] => [db.login, db.map, db.char, db.log],
   });
 
   function destroy() {
@@ -30,6 +31,7 @@ export function createDatabaseDriver(cfg: ConfigDriver) {
 
   const dbInfoConfig = cfg.load(dbInfoConfigName);
 
+  type DBDriver = ReturnType<typeof driverForDB>;
   function driverForDB(cfg: ConfigDriver, dbPrefix: string) {
     const dbInfo = dbInfoConfig.then((config) =>
       cfg.presets.createDBInfo(config, dbPrefix)
