@@ -22,6 +22,9 @@ export const ItemDropGrid = DataGrid.define(trpc.drop.search.useQuery)({
   },
 });
 
-export function dropChanceString(drop: MonsterDrop["Rate"]) {
-  return `${drop / 100}%`;
+export function dropChanceString(rate: MonsterDrop["Rate"]) {
+  const percentage = rate / 100;
+  return `${
+    percentage < 1 ? percentage.toPrecision(1) : Math.round(percentage)
+  }%`;
 }
