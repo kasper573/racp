@@ -41,18 +41,25 @@ async function resetData() {
   const cfg = createConfigDriver({ ...args, logger });
   const db = createDatabaseDriver(cfg);
 
-  const initializeDBSql = await fs.promises.readFile(
-    path.resolve(args.rAthenaPath, "sql-files", "main.sql"),
-    "utf-8"
-  );
-
   for (const one of db.all) {
     await one.useConnection(async (conn) => {
+      const sqlFile = path.resolve(args.rAthenaPath, sqlFilesPerDb[one.name]);
+
+      let initializeDBSql: string;
+      try {
+        initializeDBSql = await fs.promises.readFile(sqlFile, "utf-8");
+      } catch (e) {
+        logger.warn(`Data not reset for driver ${one.name}: ${e}`);
+        return;
+      }
+
       try {
         const { database } = await one.dbInfo;
         logger.log(`Truncating database for driver "${one.name}"`);
         await runSqlQuery(conn, createTruncateDBQuery(database));
-        logger.log(`Initializing DB for driver "${one.name}"`);
+        logger.log(
+          `Initializing DB for driver "${one.name}" using sql file "${sqlFile}"`
+        );
         await runSqlQuery(conn, initializeDBSql);
       } catch (e) {
         logger.error(`Error initializing DB for driver "${one.name}": ${e}`);
@@ -76,6 +83,13 @@ async function resetData() {
 
   return 0;
 }
+
+const sqlFilesPerDb: Record<string, string> = {
+  login_server: "sql-files/main.sql",
+  map_server: "sql-files/main.sql",
+  char_server: "sql-files/main.sql",
+  log_db: "sql-files/logs.sql",
+};
 
 async function recursiveRemoveFiles(path: string) {
   const files = await recursiveReadDir(path);
