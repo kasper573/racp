@@ -2,7 +2,7 @@ import { signIn } from "./user";
 import { clickMainMenuItem } from "./nav";
 
 export function resetData() {
-  cy.exec("yarn run reset-data");
+  cy.exec("yarn run reset-data", { log: true });
 }
 
 export function signInAsAdmin() {
