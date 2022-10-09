@@ -1,8 +1,6 @@
 # rAthena Control Panel
 
-I got tired of most RO control panels and database websites being out of sync with the data of the server I was playing on, so I decided to create my own app that never goes out of sync.
-
-It's mostly a for-fun/practice project, but it turned out to be a useful app as well.
+A web-based database and control panel for rAthena.
 
 ## Demo
 
