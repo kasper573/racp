@@ -4,6 +4,8 @@ on:
     paths-ignore:
       - "**.md"
       - ".gitignore"
+      - ".github/workflows/tests.yml"
+      - ".github/workflows/e2e.reusable.yml"
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -37,7 +39,7 @@ jobs:
           remote_key: ${{ secrets.DEPLOY_KEY }}
 
       - name: (Re)start services
-      - uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USERNAME }}
