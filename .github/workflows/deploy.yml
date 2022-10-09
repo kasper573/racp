@@ -43,6 +43,9 @@ jobs:
           username: ${{ secrets.DEPLOY_USERNAME }}
           key: ${{ secrets.DEPLOY_KEY }}
           script: |
+            # Make sure dependencies are installed
+            yarn install
+
             # Set API env vars
             export hostname=${{ secrets.DEPLOY_HOST }}
             export apiPort=${{ secrets.DEPLOY_API_PORT }}
