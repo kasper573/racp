@@ -16,7 +16,7 @@ jobs:
       DEPLOY_PATH: /opt/racp
     steps:
       - name: Abort if deploy not enabled
-        if: ${{ !env.DEPLOY_ENABLED }}
+        if: ${{ env.DEPLOY_ENABLED != 'true' }}
         run: exit 1
 
       - uses: actions/checkout@v3
