@@ -6,7 +6,7 @@ It's mostly a for-fun/practice project, but it turned out to be a useful app as 
 
 ## Demo
 
-There is a [demo available](http://139.59.197.170) that showcase all the public portions of RACP.
+There is a [demo available](http://178.128.142.2) that showcase all the public portions of RACP.
 
 The demo has no admin account available, since RACP has very powerful admin features built-in,
 and I don't want to have to deal with curious visitors randomly messing around with the demo instance.

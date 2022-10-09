@@ -6,41 +6,61 @@ on:
     paths-ignore:
       - "**.md"
       - ".gitignore"
+      - ".github/workflows/tests.yml"
+      - ".github/workflows/e2e.reusable.yml"
+env:
+  DEPLOY_ENABLED: ${{ secrets.DEPLOY_ENABLED }}
 jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
       DEPLOY_ENABLED: ${{ secrets.DEPLOY_ENABLED == 'true' }}
+      DEPLOY_PATH: /opt/racp
     steps:
-      - uses: appleboy/ssh-action@master
-        if: ${{ env.DEPLOY_ENABLED == 'true' }}
+      - name: Abort if deploy not enabled
+        if: ${{ env.DEPLOY_ENABLED != 'true' }}
+        run: exit 1
+
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "yarn"
+
+      - name: Build
+        env:
+          apiBaseUrl: //${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_API_PORT }}
+        run: |
+          yarn install --frozen-lockfile
+          NODE_ENV=production && yarn app:build
+
+      - name: Upload
+        uses: burnett01/rsync-deployments@5.2.1
+        with:
+          switches: -avzr --delete --exclude="node_modules"
+          remote_path: ${{ env.DEPLOY_PATH }}
+          remote_host: ${{ secrets.DEPLOY_HOST }}
+          remote_user: ${{ secrets.DEPLOY_USERNAME }}
+          remote_key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: (Re)start services
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USERNAME }}
-          password: ${{ secrets.DEPLOY_PASSWORD }}
+          key: ${{ secrets.DEPLOY_KEY }}
           script: |
-            racpFolder=/opt/racp/
+            cd ${{ env.DEPLOY_PATH }}
 
-            if [ ! -d $racpFolder ]
-              then
-                git clone https://github.com/${{ github.repository }}.git $racpFolder
-                cd $racpFolder
-                git checkout ${{github.sha}}
-              else
-                cd $racpFolder
-                git pull origin ${{github.sha}}
-            fi
-
+            # Make sure dependencies are installed on remote machine
             yarn install
 
-            export NODE_ENV=production
+            # Set API env vars
             export hostname=${{ secrets.DEPLOY_HOST }}
             export apiPort=${{ secrets.DEPLOY_API_PORT }}
             export appPort=${{ secrets.DEPLOY_APP_PORT }}
-            export apiBaseUrl=//${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_API_PORT }}
             export rAthenaPath=${{ secrets.DEPLOY_RATHENA_PATH }}
             export log=verbose
-
-            yarn app:build
 
             pm2 restart ecosystem.config.json
