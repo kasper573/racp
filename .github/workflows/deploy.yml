@@ -30,7 +30,7 @@ jobs:
       - name: Upload
         uses: burnett01/rsync-deployments@5.2.1
         with:
-          switches: -avzr --delete --exclude="node_modules, .git"
+          switches: -avzr --delete --exclude="node_modules"
           remote_path: ${{ env.DEPLOY_PATH }}
           remote_host: ${{ secrets.DEPLOY_HOST }}
           remote_user: ${{ secrets.DEPLOY_USERNAME }}
