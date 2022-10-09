@@ -30,7 +30,6 @@ jobs:
         uses: burnett01/rsync-deployments@5.2.1
         with:
           switches: --exclude="node_modules"
-          path: src/
           remote_path: /opt/racp/
           remote_host: ${{ secrets.DEPLOY_HOST }}
           remote_user: ${{ secrets.DEPLOY_USERNAME }}
