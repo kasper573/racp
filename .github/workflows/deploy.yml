@@ -9,8 +9,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ secrets.DEPLOY_ENABLED }} == true
+    if: ${{ env.DEPLOY_ENABLED }} == true
     env:
+      DEPLOY_ENABLED: ${{ secrets.DEPLOY_ENABLED }}
       DEPLOY_PATH: /opt/racp
     steps:
       - uses: actions/checkout@v3
