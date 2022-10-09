@@ -11,7 +11,6 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ env.DEPLOY_ENABLED }} == true
     env:
       DEPLOY_PATH: /opt/racp
     steps:
@@ -47,7 +46,7 @@ jobs:
           script: |
             cd ${{ env.DEPLOY_PATH }}
 
-            # Make sure dependencies are installed
+            # Make sure dependencies are installed on remote machine
             yarn install
 
             # Set API env vars
