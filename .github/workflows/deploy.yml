@@ -6,12 +6,13 @@ on:
       - ".gitignore"
       - ".github/workflows/tests.yml"
       - ".github/workflows/e2e.reusable.yml"
+env:
+  DEPLOY_ENABLED: ${{ secrets.DEPLOY_ENABLED }}
 jobs:
   deploy:
     runs-on: ubuntu-latest
     if: ${{ env.DEPLOY_ENABLED }} == true
     env:
-      DEPLOY_ENABLED: ${{ secrets.DEPLOY_ENABLED }}
       DEPLOY_PATH: /opt/racp
     steps:
       - uses: actions/checkout@v3
