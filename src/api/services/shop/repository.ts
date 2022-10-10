@@ -35,6 +35,14 @@ export function createShopRepository({
     () => Promise.all([internalShopsPromise, getItems()]),
     (internalShops, items): ShopItem[] => {
       return internalShops.reduce((shopItems, internalShop) => {
+        const shopMap =
+          internalShop.mapId && internalShop.mapX && internalShop.mapY
+            ? {
+                id: internalShop.mapId,
+                x: internalShop.mapX,
+                y: internalShop.mapY,
+              }
+            : undefined;
         for (const { itemId, price } of internalShop.items) {
           const item = items.get(itemId);
           shopItems.push({
@@ -44,6 +52,7 @@ export function createShopRepository({
             price: price === -1 ? item?.Buy ?? 0 : price,
             shopId: internalShop.npcEntityId,
             shopName: internalShop.name,
+            shopMap,
           });
         }
         return shopItems;

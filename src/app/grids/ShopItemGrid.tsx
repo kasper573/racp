@@ -13,7 +13,18 @@ export const ShopItemGrid = DataGrid.define(trpc.shop.searchItems.useQuery)({
       headerName: "Shop",
       renderCell({ row: item }) {
         return (
-          <Link to={router.shop({ id: item.shopId })}>{item.shopName}</Link>
+          <>
+            <Link to={router.shop({ id: item.shopId })}>{item.shopName}</Link>
+            {item.shopMap && (
+              <>
+                &nbsp; (
+                <Link to={router.map().view(item.shopMap)}>
+                  {item.shopMap.id}
+                </Link>
+                )
+              </>
+            )}
+          </>
         );
       },
     },

@@ -90,7 +90,7 @@ export const internalShopType = new ZodCustomObject(
       mapY: mapY !== undefined ? +mapY : undefined,
       npcEntityId,
       variant: variant as ShopVariant,
-      name,
+      name: name.replace(/#\w+/, ""), // The #<...> is a unique identifier that we don't need
       spriteId,
       discount,
       items,
@@ -108,6 +108,13 @@ export const shopItemType = zod.object({
   imageUrl: zod.string().optional(),
   shopId: shopIdType,
   shopName: zod.string(),
+  shopMap: zod
+    .object({
+      id: zod.string(),
+      x: zod.number(),
+      y: zod.number(),
+    })
+    .optional(),
   ...itemInstancePropertiesType.partial().shape,
 });
 
