@@ -8,7 +8,7 @@ import {
 import { Fragment, useMemo } from "react";
 import Xarrow, { Xwrapper } from "react-xarrows";
 import { Link } from "../../components/Link";
-import { intersect, Point } from "../../../lib/geometry";
+import { Point } from "../../../lib/geometry";
 import { MapInfo, Warp, WarpId } from "../../../api/services/map/types";
 import {
   MonsterSpawn,
@@ -21,54 +21,42 @@ import { MapCoordinate } from "./MapCoordinate";
 import { MapPin } from "./MapPin";
 import { createMonsterSwarms } from "./createMonsterSwarms";
 
+export interface MapRenderPins<T, Id> {
+  entities: T[];
+  show: boolean;
+  highlightId?: Id;
+  setHighlightId: (id?: Id) => void;
+}
+
 export function MapRender({
   map,
   tab,
   warps,
   spawns,
   shops,
-  highlightWarpId,
-  highlightSpawnId,
-  highlightShopId,
-  setHighlightWarpId,
-  setHighlightShopId,
   routePoint,
   routePointTitle,
-  showWarpPins,
-  showMonsterPins,
-  showShopPins,
 }: {
   map: MapInfo;
   tab?: string;
-  warps: Warp[];
-  spawns: MonsterSpawn[];
-  shops: Shop[];
-  highlightWarpId?: WarpId;
-  setHighlightWarpId?: (id?: WarpId) => void;
-  highlightSpawnId?: MonsterSpawnId;
-  highlightShopId?: ShopId;
-  setHighlightShopId?: (id?: ShopId) => void;
+  warps: MapRenderPins<Warp, WarpId>;
+  spawns: MapRenderPins<MonsterSpawn, MonsterSpawnId>;
+  shops: MapRenderPins<Shop, ShopId>;
   routePoint?: Point;
   routePointTitle?: string;
-  showWarpPins?: boolean;
-  showMonsterPins?: boolean;
-  showShopPins?: boolean;
 }) {
   const theme = useTheme();
 
-  const spawnSwarms = useMemo(() => createMonsterSwarms(spawns), [spawns]);
-  const arrowWarp = warps.find(
-    (warp) => warp.toMap === map.id && warp.npcEntityId === highlightWarpId
+  const spawnSwarms = useMemo(
+    () => createMonsterSwarms(spawns.entities),
+    [spawns.entities]
   );
-  const highlightedSwarm = spawnSwarms.find((swarm) =>
-    swarm.all.some(
-      (spawn) =>
-        spawn.npcEntityId === highlightSpawnId || intersect(spawn, routePoint)
-    )
+  const arrowWarp = warps.entities.find(
+    (warp) => warp.toMap === map.id && warp.npcEntityId === warps.highlightId
   );
   return (
     <MapContainer imageUrl={map.imageUrl} bounds={map.bounds}>
-      {showWarpPins && (
+      {warps.show && (
         <Xwrapper>
           {arrowWarp && (
             <>
@@ -84,10 +72,10 @@ export function MapRender({
               />
             </>
           )}
-          {warps.map((warp, index) => {
+          {warps.entities.map((warp, index) => {
             const mouseBindings = {
-              onMouseOver: () => setHighlightWarpId?.(warp.npcEntityId),
-              onMouseOut: () => setHighlightWarpId?.(undefined),
+              onMouseOver: () => warps.setHighlightId?.(warp.npcEntityId),
+              onMouseOut: () => warps.setHighlightId?.(undefined),
             };
             return (
               <MapPin
@@ -95,7 +83,7 @@ export function MapRender({
                 key={`warp${index}`}
                 x={warp.fromX}
                 y={warp.fromY}
-                highlight={warp.npcEntityId === highlightWarpId}
+                highlight={warp.npcEntityId === warps.highlightId}
                 {...mouseBindings}
                 label={
                   <LinkOnMap
@@ -118,13 +106,15 @@ export function MapRender({
           })}
         </Xwrapper>
       )}
-      {showMonsterPins &&
+      {spawns.show &&
         spawnSwarms.map((swarm, index) => (
           <MapPin
             key={`monster-swarm${index}`}
             x={swarm.x}
             y={swarm.y}
-            highlight={swarm === highlightedSwarm}
+            highlight={swarm.all.some(
+              (spawn) => spawn.npcEntityId === spawns.highlightId
+            )}
             label={
               <>
                 {swarm.groups.map((group, index) => (
@@ -144,19 +134,19 @@ export function MapRender({
             <PestControlRodent sx={{ ...mapPinIconCss, color: monsterColor }} />
           </MapPin>
         ))}
-      {showShopPins &&
-        shops.map((shop, index) => {
+      {shops.show &&
+        shops.entities.map((shop, index) => {
           if (shop.mapX !== undefined && shop.mapY !== undefined) {
             const mouseBindings = {
-              onMouseOver: () => setHighlightShopId?.(shop.npcEntityId),
-              onMouseOut: () => setHighlightShopId?.(undefined),
+              onMouseOver: () => shops.setHighlightId?.(shop.npcEntityId),
+              onMouseOut: () => shops.setHighlightId?.(undefined),
             };
             return (
               <MapPin
                 key={`shop${index}`}
                 x={shop.mapX}
                 y={shop.mapY}
-                highlight={shop.npcEntityId === highlightShopId}
+                highlight={shop.npcEntityId === shops.highlightId}
                 {...mouseBindings}
                 label={
                   <LinkOnMap

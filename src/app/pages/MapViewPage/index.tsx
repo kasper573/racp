@@ -103,19 +103,26 @@ export default function MapViewPage() {
           <MapRender
             map={map}
             tab={tab}
-            warps={warps}
-            shops={locatedShops}
-            spawns={locatedSpawns}
+            warps={{
+              entities: warps,
+              show: showWarpPins,
+              highlightId: highlightWarpId,
+              setHighlightId: setHighlightWarpId,
+            }}
+            spawns={{
+              entities: locatedSpawns,
+              show: showMonsterPins,
+              highlightId: highlightSpawnId,
+              setHighlightId: setHighlightSpawnId,
+            }}
+            shops={{
+              entities: locatedShops,
+              show: showShopPins,
+              highlightId: highlightShopId,
+              setHighlightId: setHighlightShopId,
+            }}
             routePoint={routePoint}
             routePointTitle={routePointTitle}
-            highlightWarpId={highlightWarpId}
-            highlightSpawnId={highlightSpawnId}
-            highlightShopId={highlightShopId}
-            setHighlightWarpId={setHighlightWarpId}
-            setHighlightShopId={setHighlightShopId}
-            showWarpPins={showWarpPins}
-            showMonsterPins={showMonsterPins}
-            showShopPins={showShopPins}
           />
         </Stack>
         <Stack direction="column" sx={{ flex: 3 }}>
