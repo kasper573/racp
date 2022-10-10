@@ -1,7 +1,8 @@
 import * as path from "path";
 import * as zod from "zod";
 import { matchRecursive } from "xregexp";
-import { ZodObject, ZodString } from "zod";
+import { ZodType } from "zod";
+import { ZodTypeDef } from "zod/lib/types";
 import { Logger } from "../../lib/logger";
 import { RAthenaMode } from "../options";
 import { gfs } from "../util/gfs";
@@ -190,10 +191,14 @@ const npcImportEntity = createSegmentedObject()
 
 export type TextMatrixEntry = string[][];
 
-export type AnyNpcEntityType = ZodObject<{
-  // Must be the first segment
-  npcEntityId: ZodString;
-}>;
+export type AnyNpcEntityType = ZodType<
+  {
+    // Must be the first segment of the input text matrix
+    npcEntityId: string;
+  },
+  ZodTypeDef,
+  TextMatrixEntry
+>;
 
 interface ParsedNonTypesafeNpcFile {
   file: string;

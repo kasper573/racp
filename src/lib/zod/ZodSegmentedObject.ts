@@ -1,14 +1,7 @@
-import * as zod from "zod";
-import {
-  addIssueToContext,
-  INVALID,
-  ParseInput,
-  ParseReturnType,
-  ZodObject,
-  ZodRawShape,
-} from "zod";
 import { isPlainObject } from "lodash";
-import { chainParse } from "./chainParse";
+import * as zod from "zod";
+import { ZodError, ZodIssue, ZodObject, ZodRawShape } from "zod";
+import { ZodCustomObject } from "./ZodCustomObject";
 
 const rawArrayEntity = zod.array(zod.array(zod.any()));
 
@@ -30,80 +23,40 @@ class SegmentBuilder<
   }
 
   build() {
-    return new ZodSegmentedObject(
-      zod.object(this.combined)._def,
-      this.segments
+    return new ZodCustomObject(
+      this.combined,
+      createSegmentParser<Combined, Segments>(this.segments)
     );
   }
 }
 
-class ZodSegmentedObject<
-  CombinedShape extends ZodRawShape,
+function createSegmentParser<
+  Combined extends ZodRawShape,
   Segments extends ZodRawShape[]
-> extends ZodObject<CombinedShape> {
-  constructor(
-    def: ZodObject<CombinedShape>["_def"],
-    private segments: Segments
-  ) {
-    super(def);
-  }
-
-  private getSegmentShape(segmentIndex: number): ZodRawShape {
-    return this.segments[segmentIndex];
-  }
-
-  _parse(input: ParseInput): ParseReturnType<this["_output"]> {
-    type Entity = zod.infer<this>;
-    const context = this._getOrReturnCtx(input);
+>(segments: Segments) {
+  type Entity = zod.infer<ZodObject<Combined>>;
+  return (matrix: string[][]): Entity => {
     const entity = {} as Entity;
 
     // If input is object we use the type shapes directly
-    if (isPlainObject(input.data)) {
-      for (
-        let segmentIndex = 0;
-        segmentIndex < this.segments.length;
-        segmentIndex++
-      ) {
-        const shape = this.getSegmentShape(segmentIndex);
-        const res = zod.object(shape).safeParse(input.data);
-        if (!res.success) {
-          for (const issue of res.error.issues) {
-            addIssueToContext(context, issue);
-          }
-        } else {
-          Object.assign(entity, res.data);
-        }
+    if (isPlainObject(matrix)) {
+      for (let i = 0; i < segments.length; i++) {
+        Object.assign(entity, zod.object(segments[i]).parse(matrix));
       }
-      if (context.common.issues.length) {
-        return INVALID;
-      }
-      return {
-        status: "valid",
-        value: entity,
-      };
+      return entity;
     }
 
     // Otherwise, we require a matrix
-    const array = chainParse(rawArrayEntity, this, input);
-    if (array.status !== "valid") {
-      return array as ParseReturnType<this["_output"]>;
+    if (matrix.length < segments.length) {
+      throw new Error(
+        `Array must contain at least ${segments.length} elements`
+      );
     }
 
-    if (array.value.length < this.segments.length) {
-      addIssueToContext(context, {
-        code: "custom",
-        message: `Array must contain at least ${this.segments.length} elements`,
-      });
-      return INVALID;
-    }
-
-    for (
-      let segmentIndex = 0;
-      segmentIndex < this.segments.length;
-      segmentIndex++
-    ) {
-      const shape = this.getSegmentShape(segmentIndex);
-      const shapeValues = array.value[segmentIndex];
+    const issues: ZodIssue[] = [];
+    for (let segmentIndex = 0; segmentIndex < segments.length; segmentIndex++) {
+      const shape = segments[segmentIndex];
+      const shapeValues = matrix[segmentIndex];
       const propTypes = Object.values(shape);
       const propNames = Object.keys(shape);
       for (const propIndex in propTypes) {
@@ -114,23 +67,20 @@ class ZodSegmentedObject<
         if (parseResult.success) {
           entity[propName] = parseResult.data;
         } else {
-          for (const issue of parseResult.error.issues) {
-            addIssueToContext(context, {
+          issues.push(
+            ...parseResult.error.issues.map((issue) => ({
               ...issue,
               path: [+segmentIndex, +propIndex],
-            });
-          }
+            }))
+          );
         }
       }
     }
 
-    if (context.common.issues.length) {
-      return INVALID;
+    if (issues.length) {
+      throw new ZodError(issues);
     }
 
-    return {
-      status: "valid",
-      value: entity,
-    };
-  }
+    return entity;
+  };
 }
