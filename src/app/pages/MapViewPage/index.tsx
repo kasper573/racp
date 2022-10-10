@@ -14,13 +14,16 @@ import { WarpGrid } from "../../grids/WarpGrid";
 import { MonsterSpawnGrid } from "../../grids/MonsterSpawnGrid";
 import { TabSwitch } from "../../components/TabSwitch";
 import { ShopGrid } from "../../grids/ShopGrid";
+import { ShopId } from "../../../api/services/shop/types";
 import { MapRender } from "./MapRender";
 
 export default function MapViewPage() {
   const history = useHistory();
   const [showWarpPins, setShowWarpPins] = useState(true);
   const [showMonsterPins, setShowMonsterPins] = useState(true);
+  const [showShopPins, setShowShopPins] = useState(true);
   const [highlightSpawnId, setHighlightSpawnId] = useState<MonsterSpawnId>();
+  const [highlightShopId, setHighlightShopId] = useState<ShopId>();
   const [highlightWarpId, setHighlightWarpId] = useState<WarpId>();
   const routeParams = useRouteParams(router.map().view);
   const { id, x, y, tab, title: routePointTitle } = routeParams;
@@ -46,6 +49,7 @@ export default function MapViewPage() {
   });
 
   const locatedSpawns = spawns.filter((spawn) => spawn.x && spawn.y);
+  const locatedShops = shops.filter((shop) => shop.mapX && shop.mapY);
 
   if (isLoading || isFetching) {
     return <LoadingPage />;
@@ -67,7 +71,7 @@ export default function MapViewPage() {
                   onChange={(e) => setShowWarpPins(e.target.checked)}
                 />
               }
-              label="Show Warps"
+              label="Warps"
             />
             <FormControlLabel
               control={
@@ -76,21 +80,34 @@ export default function MapViewPage() {
                   onChange={(e) => setShowMonsterPins(e.target.checked)}
                 />
               }
-              label="Show Monsters"
+              label="Monsters"
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={showShopPins}
+                  onChange={(e) => setShowShopPins(e.target.checked)}
+                />
+              }
+              label="Shops"
             />
           </Stack>
           <MapRender
             map={map}
             tab={tab}
             warps={warps}
+            shops={locatedShops}
             spawns={locatedSpawns}
             routePoint={routePoint}
             routePointTitle={routePointTitle}
             highlightWarpId={highlightWarpId}
             highlightSpawnId={highlightSpawnId}
+            highlightShopId={highlightShopId}
             setHighlightWarpId={setHighlightWarpId}
+            setHighlightShopId={setHighlightShopId}
             showWarpPins={showWarpPins}
             showMonsterPins={showMonsterPins}
+            showShopPins={showShopPins}
           />
         </Stack>
         <Stack direction="column" sx={{ flex: 3 }}>
@@ -106,8 +123,8 @@ export default function MapViewPage() {
                 content: (
                   <WarpGrid
                     data={warps}
-                    onHoveredEntityChange={(entity) =>
-                      setHighlightWarpId(entity?.npcEntityId)
+                    onHoveredEntityChange={(warp) =>
+                      setHighlightWarpId(warp?.npcEntityId)
                     }
                   />
                 ),
@@ -119,8 +136,8 @@ export default function MapViewPage() {
                   <MonsterSpawnGrid
                     data={spawns}
                     gridProps={{ columnVisibilityModel: { map: false } }}
-                    onHoveredEntityChange={(entity) =>
-                      setHighlightSpawnId(entity?.npcEntityId)
+                    onHoveredEntityChange={(spawn) =>
+                      setHighlightSpawnId(spawn?.npcEntityId)
                     }
                   />
                 ),
@@ -132,6 +149,9 @@ export default function MapViewPage() {
                   <ShopGrid
                     data={shops}
                     gridProps={{ columnVisibilityModel: { mapId: false } }}
+                    onHoveredEntityChange={(shop) =>
+                      setHighlightShopId(shop?.npcEntityId)
+                    }
                   />
                 ),
               },

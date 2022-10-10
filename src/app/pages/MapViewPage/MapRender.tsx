@@ -1,5 +1,10 @@
 import { styled, Tooltip, Typography, useTheme } from "@mui/material";
-import { Directions, PestControlRodent, Place } from "@mui/icons-material";
+import {
+  Directions,
+  MonetizationOn,
+  PestControlRodent,
+  Place,
+} from "@mui/icons-material";
 import { Fragment, useMemo } from "react";
 import Xarrow, { Xwrapper } from "react-xarrows";
 import { Link } from "../../components/Link";
@@ -10,6 +15,7 @@ import {
   MonsterSpawnId,
 } from "../../../api/services/monster/types";
 import { router } from "../../router";
+import { Shop, ShopId } from "../../../api/services/shop/types";
 import { MapContainer } from "./MapContainer";
 import { MapCoordinate } from "./MapCoordinate";
 import { MapPin } from "./MapPin";
@@ -20,25 +26,33 @@ export function MapRender({
   tab,
   warps,
   spawns,
+  shops,
   highlightWarpId,
   highlightSpawnId,
+  highlightShopId,
   setHighlightWarpId,
+  setHighlightShopId,
   routePoint,
   routePointTitle,
   showWarpPins,
   showMonsterPins,
+  showShopPins,
 }: {
   map: MapInfo;
   tab?: string;
   warps: Warp[];
   spawns: MonsterSpawn[];
+  shops: Shop[];
   highlightWarpId?: WarpId;
   setHighlightWarpId?: (id?: WarpId) => void;
   highlightSpawnId?: MonsterSpawnId;
+  highlightShopId?: ShopId;
+  setHighlightShopId?: (id?: ShopId) => void;
   routePoint?: Point;
   routePointTitle?: string;
   showWarpPins?: boolean;
   showMonsterPins?: boolean;
+  showShopPins?: boolean;
 }) {
   const theme = useTheme();
 
@@ -107,7 +121,7 @@ export function MapRender({
       {showMonsterPins &&
         spawnSwarms.map((swarm, index) => (
           <MapPin
-            key={index}
+            key={`monster-swarm${index}`}
             x={swarm.x}
             y={swarm.y}
             highlight={swarm === highlightedSwarm}
@@ -130,6 +144,37 @@ export function MapRender({
             <PestControlRodent sx={{ ...mapPinIconCss, color: monsterColor }} />
           </MapPin>
         ))}
+      {showShopPins &&
+        shops.map((shop, index) => {
+          if (shop.mapX !== undefined && shop.mapY !== undefined) {
+            const mouseBindings = {
+              onMouseOver: () => setHighlightShopId?.(shop.npcEntityId),
+              onMouseOut: () => setHighlightShopId?.(undefined),
+            };
+            return (
+              <MapPin
+                key={`shop${index}`}
+                x={shop.mapX}
+                y={shop.mapY}
+                highlight={shop.npcEntityId === highlightShopId}
+                {...mouseBindings}
+                label={
+                  <LinkOnMap
+                    to={router.shop({ id: shop.npcEntityId })}
+                    sx={{ lineHeight: "1em" }}
+                  >
+                    <MapPinLabel {...mouseBindings} color={shopColor}>
+                      {shop.name}
+                    </MapPinLabel>
+                  </LinkOnMap>
+                }
+              >
+                <MonetizationOn sx={{ ...mapPinIconCss, color: shopColor }} />
+              </MapPin>
+            );
+          }
+          return null;
+        })}
       {routePoint && (
         <MapCoordinate x={routePoint.x} y={routePoint.y}>
           <Tooltip
@@ -146,6 +191,7 @@ export function MapRender({
 }
 
 const monsterColor = "#ff7878";
+const shopColor = "#bbffbb";
 
 const mapPinIconCss = {
   color: "#fff",
