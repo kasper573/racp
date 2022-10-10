@@ -67,7 +67,9 @@ describe("details", () => {
     it("can show show items", () => {
       cy.findAllByRole("link", { name: /Fruit Gardener/i })
         .first()
+        .scrollIntoView()
         .click();
+
       findTableColumn("Name")
         .should("contain", "Apple")
         .and("contain", "Banana");
