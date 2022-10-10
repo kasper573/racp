@@ -1,4 +1,4 @@
-import { Box, styled } from "@mui/material";
+import { Box, Pagination, styled } from "@mui/material";
 import {
   MouseEvent,
   ComponentProps,
@@ -11,6 +11,7 @@ import {
   DataGrid as MuiDataGrid,
   GridColumns,
   GridFeatureMode,
+  GridFooterContainer,
 } from "@mui/x-data-grid";
 import { GridRowId } from "@mui/x-data-grid/models/gridRows";
 import { GridRenderCellParams } from "@mui/x-data-grid/models/params/gridCellParams";
@@ -132,6 +133,15 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
                 </Center>
               )
             : undefined,
+          Footer: () => (
+            <GridFooterContainer sx={{ justifyContent: "flex-end" }}>
+              <Pagination
+                page={pageIndex + 1}
+                count={pageCount}
+                onChange={(e, newPage) => setPageIndex(newPage - 1)}
+              />
+            </GridFooterContainer>
+          ),
         }}
         componentsProps={{
           row: {
@@ -148,7 +158,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           sort as any
         }
-        pagination
+        hideFooterPagination
         disableSelectionOnClick
         rowCount={total}
         loading={isFetching}
