@@ -16,30 +16,30 @@ export function createLogger(
   const error: LogFn = (...args) => log(...colorWrap(errorColor, args));
   const warn: LogFn = (...args) => log(...colorWrap(warnColor, args));
 
+  function track<T>(promise: Promise<T>, name: string, ...args: unknown[]) {
+    const startTime = Date.now();
+    return promise.then((value) => {
+      log(createFunctionLog(name, args, value, startTime, timeColor));
+      return value;
+    });
+  }
+
   return {
     log,
     error,
     warn,
     chain,
-    wrap(fn, functionName = fn.name, emitArgs) {
+    track,
+    wrap(fn, name = fn.name, emitArgs) {
       function wrapped(...args: unknown[]) {
-        const logFunction = createFunctionLogger(
-          functionName,
-          args,
-          log,
-          timeColor
-        );
         (emitArgs as any)?.(...args);
 
         const startTime = Date.now();
         const result = fn(...args);
         if (result instanceof Promise) {
-          return result.then((value) => {
-            logFunction(value, startTime);
-            return value;
-          });
+          return track(result, name, ...args);
         } else {
-          logFunction(result, startTime);
+          log(createFunctionLog(name, args, result, startTime, timeColor));
           return result;
         }
       }
@@ -53,22 +53,10 @@ function createNamedLogFn(logFn: LogFn, name: string): LogFn {
   return (...args) => logFn(`[${name}]`, ...args);
 }
 
-function createFunctionLogger(
-  functionName: string,
+function createFunctionLog(
+  name: string,
   args: unknown[],
-  log: LogFn,
-  timeColor?: TimeColorResolver
-) {
-  return (result: unknown, startTime: number) =>
-    log(
-      createFunctionLogPrefix(functionName, args, startTime, timeColor) +
-        stringifyResult(result)
-    );
-}
-
-export function createFunctionLogPrefix(
-  functionName: string,
-  args: unknown[],
+  result: unknown,
   startTime: number,
   getTimeColor?: TimeColorResolver
 ) {
@@ -78,7 +66,9 @@ export function createFunctionLogPrefix(
   if (timeColor !== undefined) {
     timeString = colorWrap(timeColor, [timeString]).join("");
   }
-  return `(${timeString}) ${functionName}(${stringifyArgs(args)}) -> `;
+  return `(${timeString}) ${name}(${stringifyArgs(args)}) -> ${stringifyResult(
+    result
+  )}`;
 }
 
 function stringifyArgs(args: unknown[]) {
@@ -153,6 +143,11 @@ export interface Logger {
     functionName?: string,
     emitArgs?: (...args: Parameters<Fn>) => void
   ) => Fn;
+  track: <T>(
+    promise: Promise<T>,
+    name: string,
+    ...args: unknown[]
+  ) => Promise<T>;
   chain: (name: string) => Logger;
 }
 
