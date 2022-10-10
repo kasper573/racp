@@ -24,7 +24,7 @@ export const shopItemType = zod.object({
 export type Shop = zod.infer<ZodObject<typeof shopTypeShape>>;
 const shopTypeShape = {
   npcEntityId: zod.string(),
-  variant: shopVariantType,
+  variant: zod.string(), // TODO should be shopVariantType. Refactor after this is fixed: https://github.com/ksandin/racp/issues/111
   name: zod.string(),
   spriteId: zod.string(),
   discount: zod.boolean(),
