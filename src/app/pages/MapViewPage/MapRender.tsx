@@ -23,7 +23,7 @@ import { createMonsterSwarms } from "./createMonsterSwarms";
 
 export interface MapRenderPins<T, Id> {
   entities: T[];
-  show: boolean;
+  show?: boolean;
   highlightId?: Id;
   setHighlightId: (id?: Id) => void;
 }

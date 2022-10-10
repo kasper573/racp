@@ -1,4 +1,4 @@
-import { FormControlLabel, Stack, Switch, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 import { useState } from "react";
 import { useHistory } from "react-router";
 import { Header } from "../../layout/Header";
@@ -15,13 +15,17 @@ import { MonsterSpawnGrid } from "../../grids/MonsterSpawnGrid";
 import { TabSwitch } from "../../components/TabSwitch";
 import { ShopGrid } from "../../grids/ShopGrid";
 import { ShopId } from "../../../api/services/shop/types";
+import { Select } from "../../controls/Select";
 import { MapRender } from "./MapRender";
+
+const defaultPins = ["Warps", "Monsters", "Shops"] as const;
+type PinName = typeof defaultPins[number];
 
 export default function MapViewPage() {
   const history = useHistory();
-  const [showWarpPins, setShowWarpPins] = useState(true);
-  const [showMonsterPins, setShowMonsterPins] = useState(true);
-  const [showShopPins, setShowShopPins] = useState(true);
+  const [pins, setPins] = useState<PinName[] | undefined>(
+    Array.from(defaultPins)
+  );
   const [highlightSpawnId, setHighlightSpawnId] = useState<MonsterSpawnId>();
   const [highlightShopId, setHighlightShopId] = useState<ShopId>();
   const [highlightWarpId, setHighlightWarpId] = useState<WarpId>();
@@ -63,61 +67,34 @@ export default function MapViewPage() {
       <Header back={router.map}>{map.displayName}</Header>
       <CommonPageGrid>
         <Stack direction="column" sx={{ flex: 2 }}>
-          <Stack
-            direction="row"
-            spacing={2}
-            alignItems="center"
-            sx={{ height: 48 }}
-          >
-            <Typography>Pins: </Typography>
-            <Stack direction="row" sx={{ flex: 1 }}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={showWarpPins}
-                    onChange={(e) => setShowWarpPins(e.target.checked)}
-                  />
-                }
-                label="Warps"
-              />
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={showMonsterPins}
-                    onChange={(e) => setShowMonsterPins(e.target.checked)}
-                  />
-                }
-                label="Monsters"
-              />
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={showShopPins}
-                    onChange={(e) => setShowShopPins(e.target.checked)}
-                  />
-                }
-                label="Shops"
-              />
-            </Stack>
+          <Stack direction="column" sx={{ height: 48 }}>
+            <Select
+              sx={{ alignSelf: "flex-end" }}
+              label="Pins"
+              options={defaultPins}
+              value={pins}
+              multi
+              onChange={setPins}
+            />
           </Stack>
           <MapRender
             map={map}
             tab={tab}
             warps={{
               entities: warps,
-              show: showWarpPins,
+              show: pins?.includes("Warps"),
               highlightId: highlightWarpId,
               setHighlightId: setHighlightWarpId,
             }}
             spawns={{
               entities: locatedSpawns,
-              show: showMonsterPins,
+              show: pins?.includes("Monsters"),
               highlightId: highlightSpawnId,
               setHighlightId: setHighlightSpawnId,
             }}
             shops={{
               entities: locatedShops,
-              show: showShopPins,
+              show: pins?.includes("Shops"),
               highlightId: highlightShopId,
               setHighlightId: setHighlightShopId,
             }}
