@@ -1,33 +1,102 @@
 import * as zod from "zod";
+import { ZodObject } from "zod";
 import { ZodCustomObject } from "../../../lib/zod/ZodCustomObject";
+import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
+import { matcher } from "../../util/matcher";
+
+export type ShopVariant = zod.infer<typeof shopVariantType>;
+export const shopVariantType = zod.union([
+  zod.literal("shop"),
+  zod.literal("cashshop"),
+  zod.literal("itemshop"),
+  zod.literal("pointshop"),
+  zod.literal("marketshop"),
+]);
+
+export const shopVariants = shopVariantType.options.map((v) => v.value);
+
+export type ShopItem = zod.infer<typeof shopItemType>;
+export const shopItemType = zod.object({
+  itemId: zod.number(),
+  price: zod.number(),
+});
+
+export type Shop = zod.infer<ZodObject<typeof shopTypeShape>>;
+const shopTypeShape = {
+  npcEntityId: zod.string(),
+  variant: shopVariantType,
+  name: zod.string(),
+  spriteId: zod.string(),
+  discount: zod.boolean(),
+  items: zod.array(shopItemType),
+  mapId: zod.string().optional(),
+  mapX: zod.number().optional(),
+  mapY: zod.number().optional(),
+  costItemId: zod.number().optional(),
+  costVariable: zod.number().optional(),
+};
 
 export const shopType = new ZodCustomObject(
-  {
-    npcEntityId: zod.string(),
-    name: zod.string(),
-    spriteId: zod.string(),
-    discount: zod.boolean(),
-    items: zod.array(
-      zod.object({
-        itemId: zod.number(),
-        price: zod.number(),
-      })
-    ),
-  },
-  (parts: string[][]) => {
-    const [[npcEntityId], [dash], [type], [name], tail] = parts;
-    if (dash !== "-" || type !== "shop") {
-      throw new Error("Not a shop type");
+  shopTypeShape,
+  (input: string[][]) => {
+    const [[npcEntityId], map, [variant], [name], [spriteId, ...tail]] = input;
+
+    if (!shopVariants.includes(variant as ShopVariant)) {
+      throw new Error(`Not a shop entry`);
     }
-    const [spriteId, ...rest] = tail;
+
+    const [mapId, mapX, mapY] =
+      map[0] === "-" ? [undefined, undefined, undefined] : map;
+
     let discount = false;
-    if (["yes", "no"].includes(rest[0])) {
-      discount = rest.shift() === "yes";
+    let costItemId: number | undefined;
+    let costVariable: number | undefined;
+
+    function readDiscount() {
+      if (["yes", "no"].includes(tail[0])) {
+        discount = tail.shift() === "yes";
+      }
     }
-    const items = rest.map((item) => {
-      const [itemId, price] = item.split(":");
-      return { itemId: +itemId, price: +price };
+
+    switch (variant as ShopVariant) {
+      case "pointshop":
+        costItemId = +tail.shift()!;
+        readDiscount();
+        break;
+      case "itemshop": {
+        costVariable = +tail.shift()!;
+        readDiscount();
+        break;
+      }
+      case "shop":
+        readDiscount();
+        break;
+    }
+
+    const items = tail.map((item) => {
+      const [itemId, price, stock] = item.split(":");
+      return {
+        itemId: +itemId,
+        price: +price,
+        stock: stock !== undefined ? +stock : undefined,
+      };
     });
-    return { npcEntityId, name, spriteId, discount, items };
+
+    return {
+      mapId,
+      mapX: mapX !== undefined ? +mapX : undefined,
+      mapY: mapY !== undefined ? +mapY : undefined,
+      npcEntityId,
+      variant: variant as ShopVariant,
+      name,
+      spriteId,
+      discount,
+      items,
+      costItemId,
+      costVariable,
+    };
   }
 );
+
+export type ShopFilter = zod.infer<typeof shopFilter.type>;
+export const shopFilter = createEntityFilter(matcher, shopType);

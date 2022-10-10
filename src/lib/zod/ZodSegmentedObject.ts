@@ -1,4 +1,3 @@
-import { isPlainObject } from "lodash";
 import * as zod from "zod";
 import { ZodError, ZodIssue, ZodObject, ZodRawShape } from "zod";
 import { ZodCustomObject } from "./ZodCustomObject";
@@ -37,14 +36,6 @@ function createSegmentParser<
   type Entity = zod.infer<ZodObject<Combined>>;
   return (matrix: string[][]): Entity => {
     const entity = {} as Entity;
-
-    // If input is object we use the type shapes directly
-    if (isPlainObject(matrix)) {
-      for (let i = 0; i < segments.length; i++) {
-        Object.assign(entity, zod.object(segments[i]).parse(matrix));
-      }
-      return entity;
-    }
 
     // Otherwise, we require a matrix
     if (matrix.length < segments.length) {

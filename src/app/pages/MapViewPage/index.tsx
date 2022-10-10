@@ -13,6 +13,7 @@ import { CommonPageGrid } from "../../components/CommonPageGrid";
 import { WarpGrid } from "../../grids/WarpGrid";
 import { MonsterSpawnGrid } from "../../grids/MonsterSpawnGrid";
 import { TabSwitch } from "../../components/TabSwitch";
+import { ShopGrid } from "../../grids/ShopGrid";
 import { MapRender } from "./MapRender";
 
 export default function MapViewPage() {
@@ -39,6 +40,10 @@ export default function MapViewPage() {
     trpc.monster.searchSpawns.useQuery({
       filter: { map: { value: id, matcher: "equals" } },
     });
+
+  const { data: { entities: shops = [] } = {} } = trpc.shop.search.useQuery({
+    filter: { mapId: { value: id, matcher: "equals" } },
+  });
 
   const locatedSpawns = spawns.filter((spawn) => spawn.x && spawn.y);
 
@@ -117,6 +122,16 @@ export default function MapViewPage() {
                     onHoveredEntityChange={(entity) =>
                       setHighlightSpawnId(entity?.npcEntityId)
                     }
+                  />
+                ),
+              },
+              {
+                id: "shops",
+                label: "Shops",
+                content: (
+                  <ShopGrid
+                    data={shops}
+                    gridProps={{ columnVisibilityModel: { mapId: false } }}
                   />
                 ),
               },

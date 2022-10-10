@@ -8,6 +8,7 @@ import { ItemService } from "./services/item/service";
 import { ConfigService } from "./services/config/service";
 import { DropService } from "./services/drop/service";
 import { VendorService } from "./services/vendor/service";
+import { ShopService } from "./services/shop/service";
 
 export function createApiRouter(services: ApiServices) {
   return t.router(services);
@@ -21,6 +22,7 @@ export type ApiServices = {
   monster: MonsterService;
   drop: DropService;
   vendor: VendorService;
+  shop: ShopService;
   map: MapService;
   meta: MetaService;
 };

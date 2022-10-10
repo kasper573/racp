@@ -36,6 +36,7 @@ import { createApiRouter } from "./router";
 import { createDropRepository } from "./services/drop/repository";
 import { createDropService } from "./services/drop/service";
 import { createVendorService } from "./services/vendor/service";
+import { createShopService } from "./services/shop/service";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -118,6 +119,7 @@ app.use(
       monster: createMonsterService({ db, repo: monsters }),
       drop: createDropService(drops),
       vendor: createVendorService({ db, items }),
+      shop: createShopService({ npc, logger }),
       map: createMapService(maps),
       meta: createMetaService({ items, monsters }),
     }),
