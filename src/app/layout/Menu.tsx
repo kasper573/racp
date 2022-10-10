@@ -8,7 +8,6 @@ const publicRoutes = [
   router.item,
   router.monster,
   router.map,
-  router.shop,
   router.vendor,
   router.mvps,
 ];

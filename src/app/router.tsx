@@ -16,7 +16,6 @@ import {
   Login,
   Map,
   ModeEdit,
-  MonetizationOn,
   PersonAdd,
   PestControlRodent,
   Redeem,
@@ -29,7 +28,6 @@ import { itemFilter } from "../api/services/item/types";
 import { monsterFilter, mvpFilter } from "../api/services/monster/types";
 import { mapInfoFilter } from "../api/services/map/types";
 import { vendorItemFilter } from "../api/services/vendor/types";
-import { shopFilter } from "../api/services/shop/types";
 import { RestrictedPage } from "./pages/RestrictedPage";
 import { trpc } from "./state/client";
 import { LoadingPage } from "./pages/LoadingPage";
@@ -84,23 +82,10 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
       }),
     })
   ),
-  shop: route(
-    "shop",
-    {
-      component: () => <Redirect to={router.shop().search({})} />,
-      options: { title: "Shops", icon: <MonetizationOn /> },
-    },
-    (route) => ({
-      search: route("search/:filter?", {
-        component: lazy(() => import("./pages/ShopSearchPage")),
-        params: { filter: zodRouteParam(shopFilter.type.default({})) },
-      }),
-      view: route("view/:id", {
-        component: lazy(() => import("./pages/ShopViewPage")),
-        params: { id: stringParser },
-      }),
-    })
-  ),
+  shop: route("shop/view/:id", {
+    component: lazy(() => import("./pages/ShopViewPage")),
+    params: { id: stringParser },
+  }),
   mvps: route("mvps/:filter?", {
     component: lazy(() => import("./pages/MvpSearchPage")),
     options: { title: "Mvps", icon: <EmojiEvents /> },

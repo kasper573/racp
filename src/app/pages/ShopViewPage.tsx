@@ -7,7 +7,7 @@ import { Link } from "../components/Link";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ShopViewPage() {
-  const { id } = useRouteParams(router.shop().view);
+  const { id } = useRouteParams(router.shop);
   const {
     data: { entities: [shop] = [] } = {},
     error,
