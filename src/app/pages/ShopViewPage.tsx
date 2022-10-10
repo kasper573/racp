@@ -27,7 +27,7 @@ export default function ShopViewPage() {
 
   return (
     <>
-      <Header back={router.item}>
+      <Header parent="Shops">
         {shop.name}
         {shop.mapId !== undefined && (
           <>
