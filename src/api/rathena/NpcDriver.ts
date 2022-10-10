@@ -3,6 +3,7 @@ import * as zod from "zod";
 import { matchRecursive } from "xregexp";
 import { ZodType } from "zod";
 import { ZodTypeDef } from "zod/lib/types";
+import { base64encode } from "byte-base64";
 import { Logger } from "../../lib/logger";
 import { RAthenaMode } from "../options";
 import { gfs } from "../util/gfs";
@@ -36,7 +37,8 @@ export function createNpcDriver({
   };
 }
 
-const createNpcEntityId = (file: string, index: number) => `${file}#${index}`;
+const createNpcEntityId = (file: string, index: number) =>
+  base64encode(`${file}#${index}`);
 
 async function loadAllNpcFiles(
   rAthenaPath: string,

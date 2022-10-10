@@ -11,7 +11,7 @@ export const ShopGrid = DataGrid.define(trpc.shop.search.useQuery)({
       headerName: "Name",
       renderCell({ row: shop }) {
         return (
-          <Link to={router.monster().view({ id: +shop.npcEntityId })}>
+          <Link to={router.shop().view({ id: shop.npcEntityId })}>
             {shop.name}
           </Link>
         );
