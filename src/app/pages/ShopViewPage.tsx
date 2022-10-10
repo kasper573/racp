@@ -43,6 +43,7 @@ export default function ShopViewPage() {
         )}
       </Header>
       <ShopItemGrid
+        gridProps={{ columnVisibilityModel: { shopName: false } }}
         filter={{
           shopId: { value: shop.npcEntityId, matcher: "equals" },
         }}

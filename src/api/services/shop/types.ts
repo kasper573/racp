@@ -107,6 +107,7 @@ export const shopItemType = zod.object({
   name: zod.string(),
   imageUrl: zod.string().optional(),
   shopId: shopIdType,
+  shopName: zod.string(),
   ...itemInstancePropertiesType.partial().shape,
 });
 
@@ -115,7 +116,7 @@ export const shopItemFilter = createEntityFilter(matcher, shopItemType);
 
 export type Shop = zod.infer<typeof shopType>;
 export const shopType = zod.object({
-  itemIds: zod.array(zod.number()),
+  itemIds: zod.array(itemIdType),
   ...internalShopType.omit({ items: true }).shape,
 });
 

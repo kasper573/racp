@@ -43,6 +43,7 @@ export function createShopRepository({
             imageUrl: item?.ImageUrl,
             price: price === -1 ? item?.Buy ?? 0 : price,
             shopId: internalShop.npcEntityId,
+            shopName: internalShop.name,
           });
         }
         return shopItems;

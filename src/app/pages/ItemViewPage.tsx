@@ -16,6 +16,7 @@ import { CommonPageGrid } from "../components/CommonPageGrid";
 import { InfoTooltip } from "../components/InfoTooltip";
 import { ItemDisplayName } from "../components/ItemIdentifier";
 import { Spaceless } from "../components/Spaceless";
+import { ShopItemGrid } from "../grids/ShopItemGrid";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ItemViewPage(): ReactElement {
@@ -25,6 +26,11 @@ export default function ItemViewPage(): ReactElement {
     filter: { ItemId: { value: id, matcher: "=" } },
     sort: [{ field: "Rate", sort: "desc" }],
   });
+
+  const { data: { entities: shopItems = [] } = {} } =
+    trpc.shop.searchItems.useQuery({
+      filter: { id: { value: id, matcher: "=" } },
+    });
 
   if (isLoading) {
     return <LoadingPage />;
@@ -114,6 +120,22 @@ export default function ItemViewPage(): ReactElement {
                     {drops.length === 0 && "None"}
                   </>
                 ),
+              },
+            ]}
+          />
+          <TabbedPaper
+            tabs={[
+              {
+                label: "Sold by",
+                content:
+                  shopItems.length > 0 ? (
+                    <ShopItemGrid
+                      data={shopItems}
+                      gridProps={{ columnVisibilityModel: { name: false } }}
+                    />
+                  ) : (
+                    <>None</>
+                  ),
               },
             ]}
           />
