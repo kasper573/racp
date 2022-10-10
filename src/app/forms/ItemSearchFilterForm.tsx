@@ -102,12 +102,7 @@ export function ItemSearchFilterForm({ value, onChange }: FormDataProps) {
       />
       <RangeFields
         size="small"
-        label="Buy Price"
-        {...field("Buy", "between")}
-      />
-      <RangeFields
-        size="small"
-        label="Sell Price"
+        label="Sell Value"
         {...field("Sell", "between")}
       />
     </>
