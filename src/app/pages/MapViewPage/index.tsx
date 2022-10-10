@@ -1,4 +1,4 @@
-import { FormControlLabel, Stack, Switch } from "@mui/material";
+import { FormControlLabel, Stack, Switch, Typography } from "@mui/material";
 import { useState } from "react";
 import { useHistory } from "react-router";
 import { Header } from "../../layout/Header";
@@ -63,34 +63,42 @@ export default function MapViewPage() {
       <Header back={router.map}>{map.displayName}</Header>
       <CommonPageGrid>
         <Stack direction="column" sx={{ flex: 2 }}>
-          <Stack direction="row" sx={{ height: 48 }}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={showWarpPins}
-                  onChange={(e) => setShowWarpPins(e.target.checked)}
-                />
-              }
-              label="Warps"
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={showMonsterPins}
-                  onChange={(e) => setShowMonsterPins(e.target.checked)}
-                />
-              }
-              label="Monsters"
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={showShopPins}
-                  onChange={(e) => setShowShopPins(e.target.checked)}
-                />
-              }
-              label="Shops"
-            />
+          <Stack
+            direction="row"
+            spacing={2}
+            alignItems="center"
+            sx={{ height: 48 }}
+          >
+            <Typography>Show on map: </Typography>
+            <Stack direction="row" sx={{ flex: 1 }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={showWarpPins}
+                    onChange={(e) => setShowWarpPins(e.target.checked)}
+                  />
+                }
+                label="Warps"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={showMonsterPins}
+                    onChange={(e) => setShowMonsterPins(e.target.checked)}
+                  />
+                }
+                label="Monsters"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={showShopPins}
+                    onChange={(e) => setShowShopPins(e.target.checked)}
+                  />
+                }
+                label="Shops"
+              />
+            </Stack>
           </Stack>
           <MapRender
             map={map}
