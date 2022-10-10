@@ -50,6 +50,29 @@ describe("details", () => {
       .and("contain", "Poring")
       .and("contain", "Fabre");
   });
+
+  describe("shop list", () => {
+    before(() => {
+      gotoMap("prontera");
+      cy.findByRole("tab", { name: /shops/i }).click();
+    });
+
+    it("contains the right shops", () => {
+      findTableColumn("Name")
+        .should("contain", "Vendor from Milk Ranch")
+        .and("contain", "Fruit Gardener")
+        .and("contain", "Butcher");
+    });
+
+    it("can show show items", () => {
+      cy.findAllByRole("link", { name: /Fruit Gardener/i })
+        .first()
+        .click();
+      findTableColumn("Name")
+        .should("contain", "Apple")
+        .and("contain", "Banana");
+    });
+  });
 });
 
 describe("assets", () => {
