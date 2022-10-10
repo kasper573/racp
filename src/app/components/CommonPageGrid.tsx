@@ -5,12 +5,12 @@ export const CommonPageGrid = styled(Box, {
 })<{ variant?: "dock" | "grow" }>`
   display: grid;
   grid-gap: 16px;
-  ${({ theme }) => theme.breakpoints.down("md")} {
+  @media (max-width: 1000px) {
     width: 100%;
     grid-template-columns: 1fr;
     grid-auto-rows: auto;
   }
-  ${({ theme }) => theme.breakpoints.up("md")} {
+  @media (min-width: 1000px) {
     flex: ${({ variant = "dock" }) => (variant === "dock" ? 1 : undefined)};
     grid-template-columns: 1fr 1fr;
     grid-auto-rows: auto;

@@ -69,7 +69,7 @@ export default function MapViewPage() {
             alignItems="center"
             sx={{ height: 48 }}
           >
-            <Typography>Show on map: </Typography>
+            <Typography>Pins: </Typography>
             <Stack direction="row" sx={{ flex: 1 }}>
               <FormControlLabel
                 control={
