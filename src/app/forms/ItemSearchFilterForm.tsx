@@ -1,4 +1,3 @@
-import { Box, styled } from "@mui/material";
 import { useEffect } from "react";
 import { ItemFilter, itemFilter } from "../../api/services/item/types";
 import { trpc } from "../state/client";
@@ -103,12 +102,7 @@ export function ItemSearchFilterForm({ value, onChange }: FormDataProps) {
       />
       <RangeFields
         size="small"
-        label="Buy Price"
-        {...field("Buy", "between")}
-      />
-      <RangeFields
-        size="small"
-        label="Sell Price"
+        label="Sell Value"
         {...field("Sell", "between")}
       />
     </>
@@ -151,18 +145,3 @@ function useSubTypeBehavior({ value, onChange }: FormDataProps) {
 }
 
 const count = (value: unknown) => (Array.isArray(value) ? value.length : 0);
-
-const ControlGrid = styled(Box)`
-  display: grid;
-  grid-gap: 8px;
-  grid-auto-rows: auto;
-  ${({ theme }) => theme.breakpoints.down("md")} {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
-  ${({ theme }) => theme.breakpoints.up("md")} {
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-  }
-  ${({ theme }) => theme.breakpoints.up("lg")} {
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
-  }
-`;

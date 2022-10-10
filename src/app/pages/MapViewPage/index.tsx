@@ -1,4 +1,4 @@
-import { FormControlLabel, Stack, Switch } from "@mui/material";
+import { Stack } from "@mui/material";
 import { useState } from "react";
 import { useHistory } from "react-router";
 import { Header } from "../../layout/Header";
@@ -13,13 +13,21 @@ import { CommonPageGrid } from "../../components/CommonPageGrid";
 import { WarpGrid } from "../../grids/WarpGrid";
 import { MonsterSpawnGrid } from "../../grids/MonsterSpawnGrid";
 import { TabSwitch } from "../../components/TabSwitch";
+import { ShopGrid } from "../../grids/ShopGrid";
+import { ShopId } from "../../../api/services/shop/types";
+import { Select } from "../../controls/Select";
 import { MapRender } from "./MapRender";
+
+const defaultPins = ["Warps", "Monsters", "Shops"] as const;
+type PinName = typeof defaultPins[number];
 
 export default function MapViewPage() {
   const history = useHistory();
-  const [showWarpPins, setShowWarpPins] = useState(true);
-  const [showMonsterPins, setShowMonsterPins] = useState(true);
+  const [pins, setPins] = useState<PinName[] | undefined>(
+    Array.from(defaultPins)
+  );
   const [highlightSpawnId, setHighlightSpawnId] = useState<MonsterSpawnId>();
+  const [highlightShopId, setHighlightShopId] = useState<ShopId>();
   const [highlightWarpId, setHighlightWarpId] = useState<WarpId>();
   const routeParams = useRouteParams(router.map().view);
   const { id, x, y, tab, title: routePointTitle } = routeParams;
@@ -40,7 +48,12 @@ export default function MapViewPage() {
       filter: { map: { value: id, matcher: "equals" } },
     });
 
+  const { data: { entities: shops = [] } = {} } = trpc.shop.search.useQuery({
+    filter: { mapId: { value: id, matcher: "equals" } },
+  });
+
   const locatedSpawns = spawns.filter((spawn) => spawn.x && spawn.y);
+  const locatedShops = shops.filter((shop) => shop.mapX && shop.mapY);
 
   if (isLoading || isFetching) {
     return <LoadingPage />;
@@ -54,38 +67,39 @@ export default function MapViewPage() {
       <Header back={router.map}>{map.displayName}</Header>
       <CommonPageGrid>
         <Stack direction="column" sx={{ flex: 2 }}>
-          <Stack direction="row" sx={{ height: 48 }}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={showWarpPins}
-                  onChange={(e) => setShowWarpPins(e.target.checked)}
-                />
-              }
-              label="Show Warps"
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={showMonsterPins}
-                  onChange={(e) => setShowMonsterPins(e.target.checked)}
-                />
-              }
-              label="Show Monsters"
+          <Stack direction="column" sx={{ height: 48 }}>
+            <Select
+              sx={{ alignSelf: "flex-end" }}
+              label="Pins"
+              options={defaultPins}
+              value={pins}
+              multi
+              onChange={setPins}
             />
           </Stack>
           <MapRender
             map={map}
             tab={tab}
-            warps={warps}
-            spawns={locatedSpawns}
+            warps={{
+              entities: warps,
+              show: pins?.includes("Warps"),
+              highlightId: highlightWarpId,
+              setHighlightId: setHighlightWarpId,
+            }}
+            spawns={{
+              entities: locatedSpawns,
+              show: pins?.includes("Monsters"),
+              highlightId: highlightSpawnId,
+              setHighlightId: setHighlightSpawnId,
+            }}
+            shops={{
+              entities: locatedShops,
+              show: pins?.includes("Shops"),
+              highlightId: highlightShopId,
+              setHighlightId: setHighlightShopId,
+            }}
             routePoint={routePoint}
             routePointTitle={routePointTitle}
-            highlightWarpId={highlightWarpId}
-            highlightSpawnId={highlightSpawnId}
-            setHighlightWarpId={setHighlightWarpId}
-            showWarpPins={showWarpPins}
-            showMonsterPins={showMonsterPins}
           />
         </Stack>
         <Stack direction="column" sx={{ flex: 3 }}>
@@ -101,8 +115,8 @@ export default function MapViewPage() {
                 content: (
                   <WarpGrid
                     data={warps}
-                    onHoveredEntityChange={(entity) =>
-                      setHighlightWarpId(entity?.npcEntityId)
+                    onHoveredEntityChange={(warp) =>
+                      setHighlightWarpId(warp?.npcEntityId)
                     }
                   />
                 ),
@@ -114,8 +128,21 @@ export default function MapViewPage() {
                   <MonsterSpawnGrid
                     data={spawns}
                     gridProps={{ columnVisibilityModel: { map: false } }}
-                    onHoveredEntityChange={(entity) =>
-                      setHighlightSpawnId(entity?.npcEntityId)
+                    onHoveredEntityChange={(spawn) =>
+                      setHighlightSpawnId(spawn?.npcEntityId)
+                    }
+                  />
+                ),
+              },
+              {
+                id: "shops",
+                label: "Shops",
+                content: (
+                  <ShopGrid
+                    data={shops}
+                    gridProps={{ columnVisibilityModel: { mapId: false } }}
+                    onHoveredEntityChange={(shop) =>
+                      setHighlightShopId(shop?.npcEntityId)
                     }
                   />
                 ),

@@ -7,9 +7,9 @@ import {
 import { ComponentProps, ReactNode, useMemo } from "react";
 import { htmlId } from "../util/htmlId";
 
-export interface SelectPropsBase<Value>
+export interface SelectPropsBase<Value, Option>
   extends Omit<ComponentProps<typeof FormControl>, "onChange"> {
-  options?: readonly string[];
+  options?: readonly Option[];
   label?: ReactNode;
   empty?: ReactNode;
   autoSort?: boolean;
@@ -17,12 +17,12 @@ export interface SelectPropsBase<Value>
   onChange?: (value?: Value) => void;
 }
 
-export type SelectProps =
-  | (SelectPropsBase<string> & { multi?: false })
-  | (SelectPropsBase<string[]> & { multi: true });
+export type SelectProps<Value extends string> =
+  | (SelectPropsBase<Value, Value> & { multi?: false })
+  | (SelectPropsBase<Value[], Value> & { multi: true });
 
-export function Select({
-  options = emptyStringList,
+export function Select<Value extends string>({
+  options = emptyStringList as Value[],
   multi,
   label,
   value,
@@ -32,7 +32,7 @@ export function Select({
   empty = "No options",
   autoSort = true,
   ...props
-}: SelectProps) {
+}: SelectProps<Value>) {
   const sortedOptions = useMemo(
     () => (autoSort ? options.slice().sort() : options),
     [options, autoSort]
@@ -49,10 +49,10 @@ export function Select({
         onChange={
           multi
             ? (e) => {
-                const values = e.target.value as string[];
+                const values = e.target.value as Value[];
                 onChange?.(values.length ? values : undefined);
               }
-            : (e) => onChange?.(e.target.value as string)
+            : (e) => onChange?.(e.target.value as Value)
         }
       >
         {sortedOptions.length === 0 ? (

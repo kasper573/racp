@@ -82,6 +82,10 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
       }),
     })
   ),
+  shop: route("shop/view/:id", {
+    component: lazy(() => import("./pages/ShopViewPage")),
+    params: { id: stringParser },
+  }),
   mvps: route("mvps/:filter?", {
     component: lazy(() => import("./pages/MvpSearchPage")),
     options: { title: "Mvps", icon: <EmojiEvents /> },
