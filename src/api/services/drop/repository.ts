@@ -39,6 +39,7 @@ export function createDropRepository({
               ImageUrl: item.ImageUrl,
               MonsterId: monster.Id,
               MonsterName: monster.Name,
+              MonsterImageUrl: monster.ImageUrl,
             });
           }
         }

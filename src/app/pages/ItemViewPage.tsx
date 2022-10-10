@@ -9,9 +9,8 @@ import { ClientTextBlock } from "../components/ClientText/ClientText";
 import { TabbedPaper } from "../components/TabbedPaper";
 import { Script } from "../components/Script";
 import { resolveToggles } from "../../api/util/matcher";
-import { dropChanceString } from "../grids/ItemDropGrid";
+import { ItemDropGrid } from "../grids/ItemDropGrid";
 import { ImageWithFallback } from "../components/ImageWithFallback";
-import { Link } from "../components/Link";
 import { CommonPageGrid } from "../components/CommonPageGrid";
 import { InfoTooltip } from "../components/InfoTooltip";
 import { ItemDisplayName } from "../components/ItemIdentifier";
@@ -101,25 +100,15 @@ export default function ItemViewPage(): ReactElement {
             tabs={[
               {
                 label: "Dropped by",
-                content: (
-                  <>
-                    {drops.map((drop, index) => (
-                      <Fragment key={drop.Id}>
-                        <span>
-                          <Link
-                            to={router.monster().view({ id: drop.MonsterId })}
-                            sx={{ whiteSpace: "noWrap" }}
-                          >
-                            {drop.MonsterName}{" "}
-                          </Link>
-                          {drop ? `(${dropChanceString(drop.Rate)})` : ""}
-                        </span>
-                        {index !== drops.length - 1 && ", "}
-                      </Fragment>
-                    ))}
-                    {drops.length === 0 && "None"}
-                  </>
-                ),
+                content:
+                  drops.length > 0 ? (
+                    <ItemDropGrid
+                      data={drops}
+                      gridProps={{ columnVisibilityModel: { ItemName: false } }}
+                    />
+                  ) : (
+                    <>None</>
+                  ),
               },
             ]}
           />
