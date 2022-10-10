@@ -15,7 +15,7 @@ export const shopType = new ZodCustomObject(
     ),
   },
   (parts: string[][]) => {
-    const [[dash], [type], [name], tail] = parts;
+    const [[npcEntityId], [dash], [type], [name], tail] = parts;
     if (dash !== "-" || type !== "shop") {
       throw new Error("Not a shop type");
     }
@@ -28,6 +28,6 @@ export const shopType = new ZodCustomObject(
       const [itemId, price] = item.split(":");
       return { itemId: +itemId, price: +price };
     });
-    return { npcEntityId: "", name, spriteId, discount, items };
+    return { npcEntityId, name, spriteId, discount, items };
   }
 );
