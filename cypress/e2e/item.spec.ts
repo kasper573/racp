@@ -95,7 +95,7 @@ describe("search", () => {
     sorts: {
       // Expect name sorting to be done ignoring slots
       Name: (a, b) => compareStrings(trimSlots(a), trimSlots(b)),
-      Sell: compareThousands,
+      "Sell Value": compareThousands,
       Weight: compareNumeric,
       Atk: compareNumeric,
       MAtk: compareNumeric,
