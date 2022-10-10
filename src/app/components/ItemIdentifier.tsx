@@ -1,7 +1,7 @@
 import { Paper, Tooltip, Typography } from "@mui/material";
 import { ComponentProps, forwardRef, HTMLAttributes } from "react";
 import { router } from "../router";
-import { Item, ItemOptionTexts } from "../../api/services/item/types";
+import { Item, ItemId, ItemOptionTexts } from "../../api/services/item/types";
 import { ItemDrop } from "../../api/services/drop/types";
 import { VendorItem } from "../../api/services/vendor/types";
 import {
@@ -9,18 +9,23 @@ import {
   ItemOptionInstance,
 } from "../../api/services/inventory/types";
 import { trpc } from "../state/client";
+import { ShopItem } from "../../api/services/shop/types";
 import { Link } from "./Link";
 import { IconWithLabel } from "./IconWithLabel";
 import { LoadingSpinner } from "./LoadingSpinner";
 
-export type ItemIdentifierProps = Pick<
+export type ItemIdentifierBaseProps = Pick<
   ComponentProps<typeof IconWithLabel>,
   "sx" | "style" | "className"
 > & {
   link?: boolean;
-} & (
+};
+
+export type ItemIdentifierProps = ItemIdentifierBaseProps &
+  (
     | ({ item: Item } & Omit<ItemDisplayNameProps, "name" | "slots">)
     | ({ drop: ItemDrop } & Omit<ItemDisplayNameProps, "name" | "slots">)
+    | { shopItem: ShopItem }
     | { vendorItem: VendorItem }
   );
 
@@ -42,6 +47,10 @@ export function ItemIdentifier({
     id = input.drop.ItemId;
     imageUrl = input.drop.ImageUrl;
     props = { name: input.drop.ItemName, slots: input.drop.Slots };
+  } else if ("shopItem" in input) {
+    id = input.shopItem.id;
+    imageUrl = input.shopItem.imageUrl;
+    props = input.shopItem;
   } else {
     id = input.vendorItem.itemId;
     imageUrl = input.vendorItem.imageUrl;
@@ -74,6 +83,17 @@ export function ItemIdentifier({
       {displayName}
     </IconWithLabel>
   );
+}
+
+export function ItemIdentifierById({
+  itemId,
+  ...props
+}: ItemIdentifierBaseProps & { itemId: ItemId }) {
+  const { data: item, error, isLoading } = trpc.item.read.useQuery(itemId);
+  if (item) {
+    return <ItemIdentifier item={item} {...props} />;
+  }
+  return null;
 }
 
 // Clears the default tooltip container

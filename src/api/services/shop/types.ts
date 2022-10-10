@@ -1,8 +1,9 @@
 import * as zod from "zod";
-import { ZodObject } from "zod";
 import { ZodCustomObject } from "../../../lib/zod/ZodCustomObject";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { matcher } from "../../util/matcher";
+import { itemInstancePropertiesType } from "../inventory/types";
+import { itemIdType } from "../item/types";
 
 export type ShopVariant = zod.infer<typeof shopVariantType>;
 export const shopVariantType = zod.union([
@@ -15,29 +16,29 @@ export const shopVariantType = zod.union([
 
 export const shopVariants = shopVariantType.options.map((v) => v.value);
 
-export type ShopItem = zod.infer<typeof shopItemType>;
-export const shopItemType = zod.object({
-  itemId: zod.number(),
-  price: zod.number(),
-});
+export type ShopId = zod.infer<typeof shopIdType>;
+export const shopIdType = zod.string();
 
-export type Shop = zod.infer<ZodObject<typeof shopTypeShape>>;
-const shopTypeShape = {
-  npcEntityId: zod.string(),
-  variant: zod.string(), // TODO should be shopVariantType. Refactor after this is fixed: https://github.com/ksandin/racp/issues/111
-  name: zod.string(),
-  spriteId: zod.string(),
-  discount: zod.boolean(),
-  items: zod.array(shopItemType),
-  mapId: zod.string().optional(),
-  mapX: zod.number().optional(),
-  mapY: zod.number().optional(),
-  costItemId: zod.number().optional(),
-  costVariable: zod.number().optional(),
-};
-
-export const shopType = new ZodCustomObject(
-  shopTypeShape,
+export type InternalShop = zod.infer<typeof internalShopType>;
+export const internalShopType = new ZodCustomObject(
+  {
+    npcEntityId: shopIdType,
+    variant: zod.string(), // TODO should be shopVariantType. Refactor after this is fixed: https://github.com/ksandin/racp/issues/111
+    name: zod.string(),
+    spriteId: zod.string(),
+    discount: zod.boolean(),
+    items: zod.array(
+      zod.object({
+        itemId: itemIdType,
+        price: zod.number(),
+      })
+    ),
+    mapId: zod.string().optional(),
+    mapX: zod.number().optional(),
+    mapY: zod.number().optional(),
+    costItemId: zod.number().optional(),
+    costVariable: zod.number().optional(),
+  },
   (input: string[][]) => {
     const [[npcEntityId], map, [variant], [name], [spriteId, ...tail]] = input;
 
@@ -79,6 +80,7 @@ export const shopType = new ZodCustomObject(
         itemId: +itemId,
         price: +price,
         stock: stock !== undefined ? +stock : undefined,
+        name: itemId,
       };
     });
 
@@ -97,6 +99,25 @@ export const shopType = new ZodCustomObject(
     };
   }
 );
+
+export type ShopItem = zod.infer<typeof shopItemType>;
+export const shopItemType = zod.object({
+  id: itemIdType,
+  price: zod.number(),
+  name: zod.string(),
+  imageUrl: zod.string().optional(),
+  shopId: shopIdType,
+  ...itemInstancePropertiesType.partial().shape,
+});
+
+export type ShopItemFilter = zod.infer<typeof shopItemFilter.type>;
+export const shopItemFilter = createEntityFilter(matcher, shopItemType);
+
+export type Shop = zod.infer<typeof shopType>;
+export const shopType = zod.object({
+  itemIds: zod.array(zod.number()),
+  ...internalShopType.omit({ items: true }).shape,
+});
 
 export type ShopFilter = zod.infer<typeof shopFilter.type>;
 export const shopFilter = createEntityFilter(matcher, shopType);

@@ -79,26 +79,14 @@ describe("search", () => {
         verify: () =>
           expectTableColumn("Slots", () => (text) => +text >= 2 && +text <= 2),
       },
-      buyPrice: {
-        input: () => {
-          cy.findByLabelText("Buy Price (min)").type("5000");
-          cy.findByLabelText("Buy Price (max)").type("10000");
-        },
-        verify: () =>
-          expectTableColumn(
-            "Buy",
-            () => (text) =>
-              parseFloat(text) >= 5000 && parseFloat(text) <= 10000
-          ),
-      },
       sellPrice: {
         input: () => {
-          cy.findByLabelText("Sell Price (min)").type("10000");
-          cy.findByLabelText("Sell Price (max)").type("20000");
+          cy.findByLabelText("Sell Value (min)").type("10000");
+          cy.findByLabelText("Sell Value (max)").type("20000");
         },
         verify: () =>
           expectTableColumn(
-            "Sell",
+            "Sell Value",
             () => (text) =>
               parseFloat(text) >= 10000 && parseFloat(text) <= 20000
           ),
@@ -107,7 +95,6 @@ describe("search", () => {
     sorts: {
       // Expect name sorting to be done ignoring slots
       Name: (a, b) => compareStrings(trimSlots(a), trimSlots(b)),
-      Buy: compareThousands,
       Sell: compareThousands,
       Weight: compareNumeric,
       Atk: compareNumeric,

@@ -37,6 +37,7 @@ import { createDropRepository } from "./services/drop/repository";
 import { createDropService } from "./services/drop/service";
 import { createVendorService } from "./services/vendor/service";
 import { createShopService } from "./services/shop/service";
+import { createShopRepository } from "./services/shop/repository";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -93,6 +94,7 @@ const maps = createMapRepository({
   logger,
 });
 const drops = createDropRepository({ items, monsters, logger });
+const shops = createShopRepository({ npc, logger, getItems: items.getItems });
 
 app.use(authenticator.middleware);
 app.use(cors());
@@ -119,7 +121,7 @@ app.use(
       monster: createMonsterService({ db, repo: monsters }),
       drop: createDropService(drops),
       vendor: createVendorService({ db, items }),
-      shop: createShopService({ npc, logger }),
+      shop: createShopService(shops),
       map: createMapService(maps),
       meta: createMetaService({ items, monsters }),
     }),
