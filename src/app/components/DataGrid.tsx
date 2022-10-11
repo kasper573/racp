@@ -61,7 +61,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
 }: DataGridProps<Entity, Filter, Id>) {
   const windowSize = useWindowSize();
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(3);
   const [sort, setSort] = useState<SearchSort<Entity>>([]);
   const gridMode: GridFeatureMode = manualEntities ? "client" : "server";
   const { data: result, isFetching } = useQuery(
@@ -117,7 +117,6 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
         paginationMode={gridMode}
         autoPageSize={true}
         page={pageIndex}
-        pageSize={pageSize}
         onPageChange={setPageIndex}
         // Effectively disable column buffering since it gets in the way of e2e testing.
         // The optimization is negligible anyway.
@@ -186,7 +185,7 @@ DataGrid.define = <QueryFn extends DataGridQueryFn>(query: QueryFn) => {
 };
 
 const Grid = styled(MuiDataGrid)`
-  min-height: 370px; // Never falls below 6 rows
+  min-height: 371px; // Never falls below 5 rows
   .MuiDataGrid-cell,
   .MuiDataGrid-columnHeader {
     &:focus,
