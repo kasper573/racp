@@ -4,6 +4,8 @@ import { matcher } from "../../util/matcher";
 import { ZodCustomObject } from "../../../lib/zod/ZodCustomObject";
 import { trimUniqueNpcName } from "../../rathena/ScriptDriver";
 
+export type NpcId = Npc["scriptId"];
+export type Npc = zod.infer<typeof npcType>;
 export const npcType = new ZodCustomObject(
   {
     scriptId: zod.string(),

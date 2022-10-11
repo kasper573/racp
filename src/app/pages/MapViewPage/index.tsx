@@ -5,8 +5,6 @@ import { Header } from "../../layout/Header";
 import { trpc } from "../../state/client";
 import { router } from "../../router";
 import { useRouteParams } from "../../../lib/hooks/useRouteParams";
-import { WarpId } from "../../../api/services/map/types";
-import { MonsterSpawnId } from "../../../api/services/monster/types";
 import { Point } from "../../../lib/geometry";
 import { LoadingPage } from "../LoadingPage";
 import { CommonPageGrid } from "../../components/CommonPageGrid";
@@ -14,22 +12,25 @@ import { WarpGrid } from "../../grids/WarpGrid";
 import { MonsterSpawnGrid } from "../../grids/MonsterSpawnGrid";
 import { TabSwitch } from "../../components/TabSwitch";
 import { ShopGrid } from "../../grids/ShopGrid";
-import { ShopId } from "../../../api/services/shop/types";
 import { Select } from "../../controls/Select";
 import { NpcGrid } from "../../grids/NpcGrid";
-import { MapRender } from "./MapRender";
+import { Warp, WarpId } from "../../../api/services/map/types";
+import {
+  MonsterSpawn,
+  MonsterSpawnId,
+} from "../../../api/services/monster/types";
+import { Shop, ShopId } from "../../../api/services/shop/types";
+import { Npc, NpcId } from "../../../api/services/npc/types";
+import { MapRender, MapRenderPins } from "./MapRender";
 
-const defaultPins = ["Warps", "Monsters", "Shops"] as const;
+const defaultPins = ["Warps", "Monsters", "Shops", "NPCs"] as const;
 type PinName = typeof defaultPins[number];
 
 export default function MapViewPage() {
   const history = useHistory();
-  const [pins, setPins] = useState<PinName[] | undefined>(
+  const [visiblePins, setVisiblePins] = useState<PinName[] | undefined>(
     Array.from(defaultPins)
   );
-  const [highlightSpawnId, setHighlightSpawnId] = useState<MonsterSpawnId>();
-  const [highlightShopId, setHighlightShopId] = useState<ShopId>();
-  const [highlightWarpId, setHighlightWarpId] = useState<WarpId>();
   const routeParams = useRouteParams(router.map().view);
   const { id, x, y, tab, title: routePointTitle } = routeParams;
   const {
@@ -57,6 +58,22 @@ export default function MapViewPage() {
     filter: { mapId: { value: id, matcher: "equals" } },
   });
 
+  const pins = {
+    warps: useMapRenderPins<Warp, WarpId>(
+      warps,
+      visiblePins?.includes("Warps")
+    ),
+    shops: useMapRenderPins<Shop, ShopId>(
+      shops,
+      visiblePins?.includes("Shops")
+    ),
+    spawns: useMapRenderPins<MonsterSpawn, MonsterSpawnId>(
+      spawns,
+      visiblePins?.includes("Monsters")
+    ),
+    npcs: useMapRenderPins<Npc, NpcId>(npcs, visiblePins?.includes("NPCs")),
+  };
+
   if (isLoading || isFetching) {
     return <LoadingPage />;
   }
@@ -74,34 +91,17 @@ export default function MapViewPage() {
               sx={{ alignSelf: "flex-end" }}
               label="Pins"
               options={defaultPins}
-              value={pins}
+              value={visiblePins}
               multi
-              onChange={setPins}
+              onChange={setVisiblePins}
             />
           </Stack>
           <MapRender
             map={map}
             tab={tab}
-            warps={{
-              entities: warps,
-              show: pins?.includes("Warps"),
-              highlightId: highlightWarpId,
-              setHighlightId: setHighlightWarpId,
-            }}
-            spawns={{
-              entities: spawns,
-              show: pins?.includes("Monsters"),
-              highlightId: highlightSpawnId,
-              setHighlightId: setHighlightSpawnId,
-            }}
-            shops={{
-              entities: shops,
-              show: pins?.includes("Shops"),
-              highlightId: highlightShopId,
-              setHighlightId: setHighlightShopId,
-            }}
             routePoint={routePoint}
             routePointTitle={routePointTitle}
+            {...pins}
           />
         </Stack>
         <Stack direction="column" sx={{ flex: 3 }}>
@@ -118,7 +118,7 @@ export default function MapViewPage() {
                   <WarpGrid
                     data={warps}
                     onHoveredEntityChange={(warp) =>
-                      setHighlightWarpId(warp?.scriptId)
+                      pins.warps.setHighlightId(warp?.scriptId)
                     }
                   />
                 ),
@@ -131,7 +131,7 @@ export default function MapViewPage() {
                     data={spawns}
                     gridProps={{ columnVisibilityModel: { map: false } }}
                     onHoveredEntityChange={(spawn) =>
-                      setHighlightSpawnId(spawn?.scriptId)
+                      pins.spawns.setHighlightId(spawn?.scriptId)
                     }
                   />
                 ),
@@ -144,7 +144,7 @@ export default function MapViewPage() {
                     data={shops}
                     gridProps={{ columnVisibilityModel: { mapId: false } }}
                     onHoveredEntityChange={(shop) =>
-                      setHighlightShopId(shop?.scriptId)
+                      pins.shops.setHighlightId(shop?.scriptId)
                     }
                   />
                 ),
@@ -160,6 +160,14 @@ export default function MapViewPage() {
       </CommonPageGrid>
     </>
   );
+}
+
+function useMapRenderPins<T, Id>(
+  entities: T[],
+  show: boolean = false
+): MapRenderPins<T, Id> {
+  const [highlightId, setHighlightId] = useState<Id>();
+  return { entities, show, highlightId, setHighlightId };
 }
 
 function definedPoint(point?: Partial<Point>) {

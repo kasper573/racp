@@ -17,6 +17,7 @@ import {
 import { router } from "../../router";
 import { Shop, ShopId } from "../../../api/services/shop/types";
 import { Memo } from "../../../lib/Memo";
+import { Npc, NpcId } from "../../../api/services/npc/types";
 import { MapContainer } from "./MapContainer";
 import { MapCoordinate } from "./MapCoordinate";
 import { MapPin } from "./MapPin";
@@ -43,6 +44,7 @@ export function MapRender({
   warps: MapRenderPins<Warp, WarpId>;
   spawns: MapRenderPins<MonsterSpawn, MonsterSpawnId>;
   shops: MapRenderPins<Shop, ShopId>;
+  npcs: MapRenderPins<Npc, NpcId>;
   routePoint?: Point;
   routePointTitle?: string;
 }) {
