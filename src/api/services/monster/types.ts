@@ -75,10 +75,10 @@ export const monsterType = zod.object({
 export type MonsterFilter = zod.infer<typeof monsterFilter.type>;
 export const monsterFilter = createEntityFilter(matcher, monsterType);
 
-export type MonsterSpawnId = MonsterSpawn["npcEntityId"];
+export type MonsterSpawnId = MonsterSpawn["scriptId"];
 export type MonsterSpawn = zod.infer<typeof monsterSpawnType>;
 export const monsterSpawnType = createSegmentedObject()
-  .segment({ npcEntityId: zod.string() })
+  .segment({ scriptId: zod.string() })
   .segment({
     map: zod.string(),
     x: zodNumeric().optional().transform(trimZero),

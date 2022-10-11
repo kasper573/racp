@@ -1,7 +1,7 @@
 import { pick } from "lodash";
 import { RAthenaMode } from "../../options";
 import { YamlDriver } from "../../rathena/YamlDriver";
-import { NpcDriver } from "../../rathena/NpcDriver";
+import { ScriptDriver } from "../../rathena/ScriptDriver";
 import { ImageFormatter } from "../../../lib/image/createImageFormatter";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
 import { createImageRepository } from "../../common/createImageRepository";
@@ -17,14 +17,14 @@ export function createMonsterRepository({
   linker,
   formatter,
   yaml,
-  npc,
+  script,
   logger: parentLogger,
 }: {
   linker: Linker;
   formatter: ImageFormatter;
   rAthenaMode: RAthenaMode;
   yaml: YamlDriver;
-  npc: NpcDriver;
+  script: ScriptDriver;
   logger: Logger;
 }) {
   const logger = parentLogger.chain("monster");
@@ -35,8 +35,8 @@ export function createMonsterRepository({
   const monsterResolver = createMonsterResolver(rAthenaMode);
   const monstersPromise = yaml.resolve("db/mob_db.yml", monsterResolver);
   const spawnsPromise = logger.track(
-    npc.resolve(monsterSpawnType),
-    "npc.resolve",
+    script.resolve(monsterSpawnType),
+    "script.resolve",
     "monsterSpawn"
   );
 

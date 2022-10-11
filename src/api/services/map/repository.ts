@@ -4,7 +4,7 @@ import { FileStore } from "../../../lib/fs/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
 import { ImageFormatter } from "../../../lib/image/createImageFormatter";
-import { NpcDriver } from "../../rathena/NpcDriver";
+import { ScriptDriver } from "../../rathena/ScriptDriver";
 import { createImageRepository } from "../../common/createImageRepository";
 import { trimExtension } from "../../../lib/std/trimExtension";
 import { Logger } from "../../../lib/logger";
@@ -26,7 +26,7 @@ export function createMapRepository({
   files,
   linker,
   formatter,
-  npc,
+  script,
   getSpawns,
   logger: parentLogger,
 }: {
@@ -34,7 +34,7 @@ export function createMapRepository({
   linker: Linker;
   formatter: ImageFormatter;
   getSpawns: () => Promise<MonsterSpawn[]>;
-  npc: NpcDriver;
+  script: ScriptDriver;
   logger: Logger;
 }) {
   const logger = parentLogger.chain("map");
@@ -43,8 +43,8 @@ export function createMapRepository({
   const imageRepository = createImageRepository(formatter, imageLinker, logger);
 
   const warpsPromise = logger.track(
-    npc.resolve(warpType),
-    "npc.resolve",
+    script.resolve(warpType),
+    "script.resolve",
     "warp"
   );
 

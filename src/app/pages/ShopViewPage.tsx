@@ -15,7 +15,7 @@ export default function ShopViewPage(): ReactElement {
     error,
     isLoading,
   } = trpc.shop.search.useQuery({
-    filter: { npcEntityId: { value: id, matcher: "equals" } },
+    filter: { scriptId: { value: id, matcher: "equals" } },
     limit: 1,
   });
 
@@ -53,7 +53,7 @@ export default function ShopViewPage(): ReactElement {
       <ShopItemGrid
         gridProps={{ columnVisibilityModel: { shopName: false } }}
         filter={{
-          shopId: { value: shop.npcEntityId, matcher: "equals" },
+          shopId: { value: shop.scriptId, matcher: "equals" },
         }}
       />
     </>

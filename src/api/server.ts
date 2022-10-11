@@ -24,7 +24,7 @@ import { createItemService } from "./services/item/service";
 import { readCliArgs } from "./util/cli";
 import { options } from "./options";
 import { createMonsterService } from "./services/monster/service";
-import { createNpcDriver } from "./rathena/NpcDriver";
+import { createScriptDriver } from "./rathena/ScriptDriver";
 import { createMetaService } from "./services/meta/service";
 import { createItemRepository } from "./services/item/repository";
 import { createMonsterRepository } from "./services/monster/repository";
@@ -38,6 +38,8 @@ import { createDropService } from "./services/drop/service";
 import { createVendorService } from "./services/vendor/service";
 import { createShopService } from "./services/shop/service";
 import { createShopRepository } from "./services/shop/repository";
+import { createNpcRepository } from "./services/npc/repository";
+import { createNpcService } from "./services/npc/service";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -58,10 +60,8 @@ const files = createFileStore(
   path.join(process.cwd(), args.dataFolder),
   logger
 );
-const npc = createNpcDriver({ ...args, logger });
-
+const script = createScriptDriver({ ...args, logger });
 const formatter = createImageFormatter({ extension: ".png", quality: 70 });
-
 const linker = createPublicFileLinker({
   directory: path.join(process.cwd(), args.publicFolder),
   hostname: args.hostname,
@@ -80,7 +80,7 @@ const items = createItemRepository({
 const monsters = createMonsterRepository({
   ...args,
   yaml,
-  npc,
+  script,
   formatter,
   linker,
   logger,
@@ -90,11 +90,16 @@ const maps = createMapRepository({
   linker,
   formatter,
   getSpawns: monsters.getSpawns,
-  npc,
+  script,
   logger,
 });
+const npcs = createNpcRepository({ script, logger });
 const drops = createDropRepository({ items, monsters, logger });
-const shops = createShopRepository({ npc, logger, getItems: items.getItems });
+const shops = createShopRepository({
+  script,
+  logger,
+  getItems: items.getItems,
+});
 
 app.use(authenticator.middleware);
 app.use(cors());
@@ -122,6 +127,7 @@ app.use(
       drop: createDropService(drops),
       vendor: createVendorService({ db, items }),
       shop: createShopService(shops),
+      npc: createNpcService(npcs),
       map: createMapService(maps),
       meta: createMetaService({ items, monsters }),
     }),
