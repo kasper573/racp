@@ -93,7 +93,7 @@ let router: ApiRouter;
     npc: createNpcService(npcs),
     map: createMapService(maps),
     meta: createMetaService({ items, monsters }),
-    settings: createAdminSettingsService()
+    settings: createAdminSettingsService(files)
   })
 }
 

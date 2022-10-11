@@ -10,21 +10,23 @@ import {
   useTheme,
   useMediaQuery,
   IconButton,
+  Collapse,
 } from "@mui/material";
 import { Helmet } from "react-helmet-async";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { LoadingPage } from "../pages/LoadingPage";
+import { trpc } from "../state/client";
+import { LoadingSpinner } from "../components/LoadingSpinner";
 import { globalStyles } from "./globalStyles";
-import { Logo } from "./Logo";
 import { Toolbar } from "./Toolbar";
 import { Menu } from "./Menu";
-
-const title = process.env.appTitle;
+import { Logo } from "./Logo";
 
 export function Layout({ children }: { children?: ReactNode }) {
   const theme = useTheme();
   const isDrawerPermanent = !useMediaQuery(theme.breakpoints.down("md"));
   const [isDrawerOpen, setDrawerOpen] = useState(isDrawerPermanent);
+  const { data: settings } = trpc.settings.readPublic.useQuery();
 
   useEffect(() => setDrawerOpen(isDrawerPermanent), [isDrawerPermanent]);
   function handleDrawerCloseRequest() {
@@ -46,7 +48,7 @@ export function Layout({ children }: { children?: ReactNode }) {
   return (
     <>
       <Helmet>
-        <title>{title}</title>
+        <title>{settings?.appTitle}</title>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Helmet>
       {globalStyles}
@@ -79,7 +81,10 @@ export function Layout({ children }: { children?: ReactNode }) {
         }}
       >
         <MuiToolbar>
-          <Logo>{title}</Logo>
+          <Collapse orientation="horizontal" in={!!settings?.appTitle}>
+            <Logo>{settings?.appTitle}</Logo>
+          </Collapse>
+          {!settings?.appTitle && <LoadingSpinner sx={{ margin: "auto" }} />}
         </MuiToolbar>
         <Divider />
         <Menu onItemSelected={handleDrawerCloseRequest} />
