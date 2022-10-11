@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
+import { useStore } from "zustand";
 import { UserAccessLevel, UserProfile } from "../../api/services/user/types";
-import { trpc } from "../state/client";
+import { authStore } from "../state/auth";
 
 type AuthPropsBase = {
   children: ReactNode | ((user?: UserProfile) => ReactNode);
@@ -16,7 +17,7 @@ export type AuthProps =
  * Renders children only when the user has the required access level
  */
 export function Auth({ children, fallback, ...props }: AuthProps) {
-  const { data: profile } = trpc.user.getMyProfile.useQuery();
+  const { profile } = useStore(authStore);
   const accessLevel = profile?.access ?? UserAccessLevel.Guest;
 
   let allowAccess = false;

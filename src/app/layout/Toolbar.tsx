@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { useStore } from "zustand";
 import { ReactNode } from "react";
-import { useLogout } from "../state/auth";
+import { authStore, useLogout } from "../state/auth";
 import { MenuOn } from "../components/MenuOn";
 import { themeStore } from "../state/theme";
 import { Auth } from "../components/Auth";
@@ -19,12 +19,11 @@ import { UserAccessLevel } from "../../api/services/user/types";
 import { LinkMenuItem } from "../components/Link";
 import { router } from "../router";
 import { OnlineBadge } from "../components/OnlineBadge";
-import { trpc } from "../state/client";
 
 export function Toolbar({ children }: { children?: ReactNode }) {
   const logout = useLogout();
   const { mode, setMode } = useStore(themeStore);
-  const { data: profile } = trpc.user.getMyProfile.useQuery();
+  const { profile } = useStore(authStore);
   const inverseMode = mode === "dark" ? "light" : "dark";
   const modeSwitch = modeSwitches[inverseMode];
   return (
