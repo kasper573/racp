@@ -1,5 +1,5 @@
 import * as zod from "zod";
-import { ZodObject, ZodType } from "zod";
+import { ZodEffects, ZodObject, ZodType } from "zod";
 
 export function zodPath<Schema extends ZodType>(obj: Schema) {
   return zod.string().refine(
@@ -24,6 +24,9 @@ export function getZodType<
   const steps = String(path).split(".");
   let node: ZodType = root;
   for (const step of steps) {
+    if (node instanceof ZodEffects) {
+      node = node.innerType();
+    }
     if (node instanceof ZodObject) {
       node = node.shape[step];
     } else {

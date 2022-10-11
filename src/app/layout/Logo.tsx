@@ -6,10 +6,12 @@ import { router } from "../router";
 export function Logo({
   children,
   to = router.home(),
+  icon = true,
   ...props
-}: Partial<ComponentProps<typeof Link>>) {
+}: { icon?: boolean } & Partial<ComponentProps<typeof Link>>) {
   return (
     <Link
+      role="heading"
       variant="h6"
       noWrap
       sx={{
@@ -25,7 +27,7 @@ export function Logo({
       to={to}
       {...props}
     >
-      <SettingsSuggest sx={{ display: "flex", mr: 1 }} />
+      {icon && <SettingsSuggest sx={{ display: "flex", mr: 1 }} />}
       {children}
     </Link>
   );

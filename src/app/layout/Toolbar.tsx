@@ -31,7 +31,10 @@ export function Toolbar({ children }: { children?: ReactNode }) {
       <Box>{children}</Box>
       <Box sx={{ ml: "auto" }}>
         <Tooltip title={modeSwitch.title}>
-          <IconButton onClick={() => setMode(inverseMode)}>
+          <IconButton
+            aria-label={modeSwitch.title}
+            onClick={() => setMode(inverseMode)}
+          >
             {modeSwitch.icon}
           </IconButton>
         </Tooltip>

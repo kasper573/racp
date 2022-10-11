@@ -6,8 +6,8 @@ import { router } from "../router";
 import { Header } from "../layout/Header";
 import { LoadingPage } from "./LoadingPage";
 
-export default function AdminConfigEditPage() {
-  const { configName } = useRouteParams(router.admin().config().edit);
+export default function AdminServerConfigEditPage() {
+  const { configName } = useRouteParams(router.admin().serverConfig().edit);
   const {
     data: value,
     error: queryError,
@@ -23,7 +23,7 @@ export default function AdminConfigEditPage() {
 
   return (
     <>
-      <Header back={router.admin().config}>{configName}</Header>
+      <Header back={router.admin().serverConfig}>{configName}</Header>
       <ErrorMessage error={queryError} />
       <ErrorMessage error={updateError} />
       <TextEditor value={value ?? ""} onChange={setValue} />
