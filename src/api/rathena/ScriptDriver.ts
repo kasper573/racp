@@ -92,7 +92,7 @@ function logScriptFileLoadResult(
 async function loadRawEntities(file: string): Promise<RawScriptEntity[]> {
   const matrices = await gfs.readFile(file, "utf-8").then(parseTextEntities);
   return matrices.map((matrix, index) => ({
-    scriptId: createScriptId(file, index),
+    rawScriptEntityId: createScriptId(file, index),
     matrix,
   }));
 }
@@ -191,7 +191,7 @@ export type ScriptEntityTextMatrix = string[][];
 export type AnyScriptEntityType = ZodType<any, ZodTypeDef, RawScriptEntity>;
 
 export interface RawScriptEntity {
-  scriptId: string;
+  rawScriptEntityId: string;
   matrix: ScriptEntityTextMatrix;
 }
 

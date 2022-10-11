@@ -40,7 +40,7 @@ export const internalShopType = new ZodCustomObject(
     costItemId: zod.number().optional(),
     costVariable: zod.number().optional(),
   },
-  ({ scriptId, matrix }: RawScriptEntity) => {
+  ({ rawScriptEntityId, matrix }: RawScriptEntity) => {
     const [map, [variant], [name], [spriteId, ...tail]] = matrix;
 
     if (!shopVariants.includes(variant as ShopVariant)) {
@@ -86,7 +86,7 @@ export const internalShopType = new ZodCustomObject(
     });
 
     return {
-      scriptId,
+      scriptId: rawScriptEntityId,
       mapId,
       mapX: mapX !== undefined ? +mapX : undefined,
       mapY: mapY !== undefined ? +mapY : undefined,

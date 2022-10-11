@@ -64,7 +64,7 @@ export const warpType = createSegmentedObject()
     toY: zodNumeric(),
   })
   .buildForInput((input: RawScriptEntity) => [
-    [input.scriptId],
+    [input.rawScriptEntityId],
     ...input.matrix,
   ]);
 

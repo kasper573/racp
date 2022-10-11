@@ -107,7 +107,7 @@ export const monsterSpawnType = createSegmentedObject()
     imageUrl: zod.string().optional(),
   })
   .buildForInput((input: RawScriptEntity) => [
-    [input.scriptId],
+    [input.rawScriptEntityId],
     ...input.matrix,
   ]);
 

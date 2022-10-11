@@ -20,7 +20,7 @@ export const npcType = new ZodCustomObject(
     triggerY: zod.number().optional(),
     code: zod.string(),
   },
-  ({ scriptId, matrix }: RawScriptEntity) => {
+  ({ rawScriptEntityId, matrix }: RawScriptEntity) => {
     const [
       [mapId, mapXString, mapYString, facing],
       [type],
@@ -43,7 +43,7 @@ export const npcType = new ZodCustomObject(
     const code = tail[0];
 
     return {
-      scriptId,
+      scriptId: rawScriptEntityId,
       mapId,
       mapX: +mapXString,
       mapY: +mapYString,
