@@ -9,6 +9,7 @@ import { ConfigService } from "./services/config/service";
 import { DropService } from "./services/drop/service";
 import { VendorService } from "./services/vendor/service";
 import { ShopService } from "./services/shop/service";
+import { NpcService } from "./services/npc/service";
 
 export function createApiRouter(services: ApiServices) {
   return t.router(services);
@@ -23,6 +24,7 @@ export type ApiServices = {
   drop: DropService;
   vendor: VendorService;
   shop: ShopService;
+  npc: NpcService;
   map: MapService;
   meta: MetaService;
 };
