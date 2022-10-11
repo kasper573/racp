@@ -1,4 +1,4 @@
-import { createSearchProcedure } from "../../common/search";
+import { createSearchProcedure, noLimitForFilter } from "../../common/search";
 import { t } from "../../trpc";
 import { shopFilter, shopItemFilter, shopItemType, shopType } from "./types";
 import { ShopRepository } from "./repository";
@@ -17,7 +17,8 @@ export function createShopService(shops: ShopRepository) {
       shopItemType,
       shopItemFilter.type,
       shops.getShopItems,
-      (entity, payload) => shopItemFilter.for(payload)(entity)
+      (entity, payload) => shopItemFilter.for(payload)(entity),
+      noLimitForFilter((filter) => filter?.id?.matcher === "=")
     ),
   });
 }
