@@ -121,6 +121,9 @@ export default function MonsterViewPage(): ReactElement {
                 content: (
                   <ItemDropGrid
                     filter={{ MonsterId: { value: id, matcher: "=" } }}
+                    gridProps={{
+                      columnVisibilityModel: { MonsterName: false },
+                    }}
                   />
                 ),
               },
