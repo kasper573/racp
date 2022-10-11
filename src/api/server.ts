@@ -32,7 +32,7 @@ import { createMapService } from "./services/map/service";
 import { createMapRepository } from "./services/map/repository";
 import { createUserRepository } from "./services/user/repository";
 import { timeColor } from "./common/timeColor";
-import { createApiRouter } from "./router";
+import { ApiRouter, createApiRouter } from "./router";
 import { createDropRepository } from "./services/drop/repository";
 import { createDropService } from "./services/drop/service";
 import { createVendorService } from "./services/vendor/service";
@@ -68,38 +68,32 @@ const linker = createPublicFileLinker({
   port: args.apiPort,
 });
 
-const user = createUserRepository({ yaml, ...args });
-const items = createItemRepository({
-  ...args,
-  yaml,
-  files,
-  formatter,
-  linker,
-  logger,
-});
-const monsters = createMonsterRepository({
-  ...args,
-  yaml,
-  script,
-  formatter,
-  linker,
-  logger,
-});
-const maps = createMapRepository({
-  files,
-  linker,
-  formatter,
-  getSpawns: monsters.getSpawns,
-  script,
-  logger,
-});
-const npcs = createNpcRepository({ script, logger });
-const drops = createDropRepository({ items, monsters, logger });
-const shops = createShopRepository({
-  script,
-  logger,
-  getItems: items.getItems,
-});
+let router: ApiRouter;
+
+// prettier-ignore
+{
+  const user = createUserRepository({ yaml, ...args });
+  const items = createItemRepository({ ...args, yaml, files, formatter, linker, logger, });
+  const monsters = createMonsterRepository({ ...args, yaml, script, formatter, linker, logger, });
+  const maps = createMapRepository({ files, linker, formatter, getSpawns: monsters.getSpawns, script, logger, });
+  const npcs = createNpcRepository({ script, logger });
+  const drops = createDropRepository({ items, monsters, logger });
+  const shops = createShopRepository({ script, logger, getItems: items.getItems, });
+
+  router = createApiRouter({
+    util: createUtilService(),
+    config: createConfigService(config),
+    user: createUserService({ db, user, sign, ...args }),
+    item: createItemService(items),
+    monster: createMonsterService({ db, repo: monsters }),
+    drop: createDropService(drops),
+    vendor: createVendorService({ db, items }),
+    shop: createShopService(shops),
+    npc: createNpcService(npcs),
+    map: createMapService(maps),
+    meta: createMetaService({ items, monsters }),
+  })
+}
 
 app.use(authenticator.middleware);
 app.use(cors());
@@ -118,19 +112,7 @@ app.use(
           args.exposeInternalErrors ? error.message : "Internal Server Error"
         );
     },
-    router: createApiRouter({
-      util: createUtilService(),
-      config: createConfigService(config),
-      user: createUserService({ db, user, sign, ...args }),
-      item: createItemService(items),
-      monster: createMonsterService({ db, repo: monsters }),
-      drop: createDropService(drops),
-      vendor: createVendorService({ db, items }),
-      shop: createShopService(shops),
-      npc: createNpcService(npcs),
-      map: createMapService(maps),
-      meta: createMetaService({ items, monsters }),
-    }),
+    router,
     createContext: ({ req }: { req: JWTRequest<AuthenticatorPayload> }) => ({
       auth: req.auth,
     }),
