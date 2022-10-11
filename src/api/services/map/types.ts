@@ -4,6 +4,7 @@ import { matcher } from "../../util/matcher";
 import { trimQuotes } from "../../../lib/std/trimQuotes";
 import { createSegmentedObject } from "../../../lib/zod/ZodSegmentedObject";
 import { zodNumeric } from "../../../lib/zod/zodNumeric";
+import { RawScriptEntity } from "../../rathena/ScriptDriver";
 
 export type MapId = zod.infer<typeof mapIdType>;
 export const mapIdType = zod.string();
@@ -62,7 +63,10 @@ export const warpType = createSegmentedObject()
     toX: zodNumeric(),
     toY: zodNumeric(),
   })
-  .build();
+  .buildForInput((input: RawScriptEntity) => [
+    [input.scriptId],
+    ...input.matrix,
+  ]);
 
 export type WarpFilter = zod.infer<typeof warpFilter.type>;
 export const warpFilter = createEntityFilter(matcher, warpType);

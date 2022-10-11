@@ -4,7 +4,7 @@ import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { matcher } from "../../util/matcher";
 import { itemInstancePropertiesType } from "../inventory/types";
 import { itemIdType } from "../item/types";
-import { trimUniqueNpcName } from "../../rathena/ScriptDriver";
+import { RawScriptEntity, trimUniqueNpcName } from "../../rathena/ScriptDriver";
 
 export type ShopVariant = zod.infer<typeof shopVariantType>;
 export const shopVariantType = zod.union([
@@ -40,8 +40,8 @@ export const internalShopType = new ZodCustomObject(
     costItemId: zod.number().optional(),
     costVariable: zod.number().optional(),
   },
-  (input: string[][]) => {
-    const [[scriptId], map, [variant], [name], [spriteId, ...tail]] = input;
+  ({ scriptId, matrix }: RawScriptEntity) => {
+    const [map, [variant], [name], [spriteId, ...tail]] = matrix;
 
     if (!shopVariants.includes(variant as ShopVariant)) {
       throw new Error(`Not a shop entry`);
@@ -86,10 +86,10 @@ export const internalShopType = new ZodCustomObject(
     });
 
     return {
+      scriptId,
       mapId,
       mapX: mapX !== undefined ? +mapX : undefined,
       mapY: mapY !== undefined ? +mapY : undefined,
-      scriptId,
       variant: variant as ShopVariant,
       name: trimUniqueNpcName(name),
       spriteId,
