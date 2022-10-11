@@ -5,10 +5,7 @@ import { AdminSettingsForm } from "../forms/AdminSettingsForm";
 
 export default function AdminSettingsPage() {
   const { data: settings } = trpc.settings.read.useQuery();
-  const utils = trpc.useContext();
-  const { mutate: updateSettings } = trpc.settings.update.useMutation({
-    onSuccess: () => utils.settings.readPublic.invalidate(),
-  });
+  const { mutate: updateSettings } = trpc.settings.update.useMutation();
   return (
     <>
       <Header>Settings</Header>
