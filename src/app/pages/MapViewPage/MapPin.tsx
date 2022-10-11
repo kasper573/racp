@@ -3,19 +3,20 @@ import { Box, Popper, styled } from "@mui/material";
 import { LinkTo } from "../../components/Link";
 import { MapContainerContext } from "./MapContainer";
 import { MapCoordinate } from "./MapCoordinate";
+import { createHighlightSelector, HighlightId } from "./useHighlighter";
 
 export interface MapPinProps
   extends Omit<ComponentProps<typeof MapCoordinate>, "onClick"> {
   linkTo?: LinkTo;
   onClick?: () => void;
-  highlight?: boolean;
+  highlightId: HighlightId;
   label?: ReactNode;
 }
 
 export function MapPin({
   children,
   linkTo,
-  highlight = false,
+  highlightId,
   label,
   ...props
 }: MapPinProps) {
@@ -26,7 +27,6 @@ export function MapPin({
       {anchorEl && (
         <Popper
           open
-          sx={{ zIndex: highlight ? 1 : undefined }}
           placement="right"
           disablePortal={false}
           anchorEl={anchorEl}
@@ -40,7 +40,7 @@ export function MapPin({
             },
           ]}
         >
-          <Highlight enabled={highlight}>{label}</Highlight>
+          <Highlight highlightId={highlightId}>{label}</Highlight>
         </Popper>
       )}
       <MapCoordinate ref={setAnchorEl} {...props}>
@@ -51,11 +51,12 @@ export function MapPin({
 }
 
 const Highlight = styled(Box, {
-  shouldForwardProp: (prop) => prop !== "enabled",
-})<{ enabled: boolean }>`
+  shouldForwardProp: (prop) => prop !== "highlightId",
+})<{ highlightId: HighlightId }>`
   padding: 2px 4px;
   border-radius: 4px;
-  background-color: ${(p) =>
-    p.enabled ? p.theme.palette.primary.main : undefined};
-  z-index: ${(p) => (p.enabled ? 1 : undefined)};
+  ${(p) => createHighlightSelector(p.highlightId)} {
+    z-index: 1;
+    background-color: ${(p) => p.theme.palette.primary.main};
+  }
 `;
