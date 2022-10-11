@@ -1,6 +1,7 @@
 import { resetData, signInAsAdmin } from "../support/actions/admin";
 import { clickMainMenuItem } from "../support/actions/nav";
 import { findTableColumn } from "../support/actions/grid";
+import { waitForPageReady } from "../support/actions/common";
 
 before(() => {
   resetData();
@@ -20,6 +21,9 @@ describe("can change settings", () => {
       .type(JSON.stringify({ dark: [[0, "pink"]], light: [[0, "tomato"]] }), {
         parseSpecialCharSequences: false,
       });
+
+    // Wait for change to be submitted before leaving page
+    waitForPageReady();
 
     clickMainMenuItem("Items");
 
