@@ -10,9 +10,9 @@ import { gfs } from "../util/gfs";
 import { defined } from "../../lib/std/defined";
 import { createSegmentedObject } from "../../lib/zod/ZodSegmentedObject";
 
-export type NpcDriver = ReturnType<typeof createNpcDriver>;
+export type ScriptDriver = ReturnType<typeof createScriptDriver>;
 
-export function createNpcDriver({
+export function createScriptDriver({
   rAthenaPath,
   rAthenaMode,
   logger: parentLogger,
@@ -21,47 +21,51 @@ export function createNpcDriver({
   rAthenaMode: RAthenaMode;
   logger: Logger;
 }) {
-  const logger = parentLogger.chain("npc");
-  const npcFilesPromise = loadAllNpcFiles(rAthenaPath, rAthenaMode, logger);
+  const logger = parentLogger.chain("script");
+  const scriptFilesPromise = loadAllScriptFiles(
+    rAthenaPath,
+    rAthenaMode,
+    logger
+  );
 
   return {
-    async resolve<ET extends AnyNpcEntityType>(
+    async resolve<ET extends AnyScriptEntityType>(
       entityType: ET
     ): Promise<Array<zod.infer<ET>>> {
-      const npcFiles = await npcFilesPromise;
+      const scriptFiles = await scriptFilesPromise;
       const results = await Promise.all(
-        npcFiles.map((file) => parseNpcFileAs(file, entityType))
+        scriptFiles.map((file) => parseScriptFileAs(file, entityType))
       );
       return results.flat();
     },
   };
 }
 
-const createNpcEntityId = (file: string, index: number) =>
+const createScriptId = (file: string, index: number) =>
   base64encode(`${file}#${index}`);
 
-async function loadAllNpcFiles(
+async function loadAllScriptFiles(
   rAthenaPath: string,
   rAthenaMode: RAthenaMode,
   logger: Logger
-): Promise<ParsedNonTypesafeNpcFile[]> {
-  const npcFolder = path.resolve(rAthenaPath, "npc");
+): Promise<ParsedNonTypesafeScriptFile[]> {
+  const scriptFolder = path.resolve(rAthenaPath, "npc");
   const scriptMainFile = path.resolve(
-    npcFolder,
+    scriptFolder,
     modeFolderNames[rAthenaMode],
     "scripts_main.conf"
   );
 
-  const loadedFiles: ParsedNonTypesafeNpcFile[] = [];
+  const loadedFiles: ParsedNonTypesafeScriptFile[] = [];
   const importQueue = [scriptMainFile];
   while (importQueue.length > 0) {
     const batch = importQueue.splice(0, importQueue.length);
-    const result = await Promise.allSettled(batch.map(loadNpcFile));
+    const result = await Promise.allSettled(batch.map(loadScriptFile));
     const files = defined(result.map((r) => "value" in r && r.value));
-    logNpcFileLoadResult(batch, result, logger);
+    logScriptFileLoadResult(batch, result, logger);
     loadedFiles.push(...files);
     const newImports = files
-      .map((file) => parseNpcFileAs(file, npcImportEntity))
+      .map((file) => parseScriptFileAs(file, scriptImportEntity))
       .flat()
       .map((i) => path.resolve(rAthenaPath, i.path));
     importQueue.push(...newImports);
@@ -70,9 +74,9 @@ async function loadAllNpcFiles(
   return loadedFiles;
 }
 
-function logNpcFileLoadResult(
+function logScriptFileLoadResult(
   files: string[],
-  settled: PromiseSettledResult<ParsedNonTypesafeNpcFile>[],
+  settled: PromiseSettledResult<ParsedNonTypesafeScriptFile>[],
   logger: Logger
 ) {
   for (let i = 0; i < settled.length; i++) {
@@ -90,7 +94,9 @@ function logNpcFileLoadResult(
   }
 }
 
-async function loadNpcFile(file: string): Promise<ParsedNonTypesafeNpcFile> {
+async function loadScriptFile(
+  file: string
+): Promise<ParsedNonTypesafeScriptFile> {
   const entities = await gfs.readFile(file, "utf-8").then(parseTextEntities);
   return {
     file,
@@ -98,13 +104,13 @@ async function loadNpcFile(file: string): Promise<ParsedNonTypesafeNpcFile> {
   };
 }
 
-function parseNpcFileAs<ET extends AnyNpcEntityType>(
-  { file, entities }: ParsedNonTypesafeNpcFile,
+function parseScriptFileAs<ET extends AnyScriptEntityType>(
+  { file, entities }: ParsedNonTypesafeScriptFile,
   entityType: ET
 ): zod.infer<ET>[] {
   return entities.reduce((entities: Array<zod.infer<ET>>, matrix, index) => {
     const res = entityType.safeParse([
-      [createNpcEntityId(file, index)],
+      [createScriptId(file, index)],
       ...matrix,
     ]);
     if (res.success) {
@@ -115,11 +121,11 @@ function parseNpcFileAs<ET extends AnyNpcEntityType>(
 }
 
 /**
- * Parses npc text file content into an intermediate matrix data structure.
+ * Parses script text file content into an intermediate matrix data structure.
  * The matrix data will then later be passed to a known set of ZodArrayEntity
  * parsers who in turn finalizes the parsing.
  *
- * Each returned item represents an entry of some kind of npc.
+ * Each returned item represents an entry of some kind of script.
  * Each entry is a 2d array where:
  *   - the outer array represents content separated by tab
  *   - the inner array represents content separated by comma
@@ -180,29 +186,29 @@ const modeFolderNames: Record<RAthenaMode, string> = {
   Prerenewal: "pre-re",
 };
 
-const npcImportRegex = /^(npc|import):\s*(.*)$/;
-const npcImportEntity = createSegmentedObject()
-  .segment({ npcEntityId: zod.string() })
+const scriptImportRegex = /^(npc|import):\s*(.*)$/;
+const scriptImportEntity = createSegmentedObject()
+  .segment({ scriptId: zod.string() })
   .segment({
     path: zod
       .string()
-      .regex(npcImportRegex)
-      .transform((res) => npcImportRegex.exec(res)![2]),
+      .regex(scriptImportRegex)
+      .transform((res) => scriptImportRegex.exec(res)![2]),
   })
   .build();
 
 export type TextMatrixEntry = string[][];
 
-export type AnyNpcEntityType = ZodType<
+export type AnyScriptEntityType = ZodType<
   {
     // Must be the first segment of the input text matrix
-    npcEntityId: string;
+    scriptId: string;
   },
   ZodTypeDef,
   TextMatrixEntry
 >;
 
-interface ParsedNonTypesafeNpcFile {
+interface ParsedNonTypesafeScriptFile {
   file: string;
   entities: TextMatrixEntry[];
 }

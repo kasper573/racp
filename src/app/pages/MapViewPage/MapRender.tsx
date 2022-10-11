@@ -54,7 +54,7 @@ export function MapRender({
   );
 
   const arrowWarp = warps.entities.find(
-    (warp) => warp.toMap === map.id && warp.npcEntityId === warps.highlightId
+    (warp) => warp.toMap === map.id && warp.scriptId === warps.highlightId
   );
 
   return (
@@ -82,7 +82,7 @@ export function MapRender({
               )}
               {entities.map((warp, index) => {
                 const mouseBindings = {
-                  onMouseOver: () => setHighlightId?.(warp.npcEntityId),
+                  onMouseOver: () => setHighlightId?.(warp.scriptId),
                   onMouseOut: () => setHighlightId?.(undefined),
                 };
                 return (
@@ -91,7 +91,7 @@ export function MapRender({
                     key={`warp${index}`}
                     x={warp.fromX}
                     y={warp.fromY}
-                    highlight={warp.npcEntityId === highlightId}
+                    highlight={warp.scriptId === highlightId}
                     {...mouseBindings}
                     label={
                       <LinkOnMap
@@ -125,7 +125,7 @@ export function MapRender({
               x={swarm.x}
               y={swarm.y}
               highlight={swarm.all.some(
-                (spawn) => spawn.npcEntityId === highlightId
+                (spawn) => spawn.scriptId === highlightId
               )}
               label={
                 <>
@@ -156,7 +156,7 @@ export function MapRender({
           entities.map((shop, index) => {
             if (shop.mapX !== undefined && shop.mapY !== undefined) {
               const mouseBindings = {
-                onMouseOver: () => setHighlightId?.(shop.npcEntityId),
+                onMouseOver: () => setHighlightId?.(shop.scriptId),
                 onMouseOut: () => setHighlightId?.(undefined),
               };
               return (
@@ -164,11 +164,11 @@ export function MapRender({
                   key={`shop${index}`}
                   x={shop.mapX}
                   y={shop.mapY}
-                  highlight={shop.npcEntityId === highlightId}
+                  highlight={shop.scriptId === highlightId}
                   {...mouseBindings}
                   label={
                     <LinkOnMap
-                      to={router.shop({ id: shop.npcEntityId })}
+                      to={router.shop({ id: shop.scriptId })}
                       sx={{ lineHeight: "1em" }}
                     >
                       <MapPinLabel {...mouseBindings} color={shopColor}>
@@ -221,6 +221,6 @@ const MapPinLabel = styled(Typography)`
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
 `;
 
-const warpXArrowId = (warp: Warp) => `warp_arrow_${warp.npcEntityId}`;
+const warpXArrowId = (warp: Warp) => `warp_arrow_${warp.scriptId}`;
 
 const pointXArrowId = (point: Point) => `point_arrow_${point.x}_${point.y}`;

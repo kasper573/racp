@@ -1,5 +1,5 @@
 import { Logger } from "../../../lib/logger";
-import { NpcDriver } from "../../rathena/NpcDriver";
+import { ScriptDriver } from "../../rathena/ScriptDriver";
 import { Item, ItemId } from "../item/types";
 import { createAsyncMemo } from "../../../lib/createMemo";
 import { internalShopType, Shop, ShopItem } from "./types";
@@ -7,17 +7,17 @@ import { internalShopType, Shop, ShopItem } from "./types";
 export type ShopRepository = ReturnType<typeof createShopRepository>;
 
 export function createShopRepository({
-  npc,
+  script,
   logger,
   getItems,
 }: {
-  npc: NpcDriver;
+  script: ScriptDriver;
   logger: Logger;
   getItems: () => Promise<Map<ItemId, Item>>;
 }) {
   const internalShopsPromise = logger.track(
-    npc.resolve(internalShopType),
-    "npc.resolve",
+    script.resolve(internalShopType),
+    "script.resolve",
     "shop"
   );
 
@@ -50,7 +50,7 @@ export function createShopRepository({
             name: item?.Name ?? "Unknown",
             imageUrl: item?.ImageUrl,
             price: price === -1 ? item?.Buy ?? 0 : price,
-            shopId: internalShop.npcEntityId,
+            shopId: internalShop.scriptId,
             shopName: internalShop.name,
             shopMap,
           });

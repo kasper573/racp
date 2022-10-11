@@ -39,10 +39,10 @@ export const mapInfoType = zod.object({
 export type MapInfoFilter = zod.infer<typeof mapInfoFilter.type>;
 export const mapInfoFilter = createEntityFilter(matcher, mapInfoType);
 
-export type WarpId = Warp["npcEntityId"];
+export type WarpId = Warp["scriptId"];
 export type Warp = zod.infer<typeof warpType>;
 export const warpType = createSegmentedObject()
-  .segment({ npcEntityId: zod.string() })
+  .segment({ scriptId: zod.string() })
   .segment({
     fromMap: mapIdType,
     fromX: zodNumeric(),

@@ -113,7 +113,7 @@ export default function MapViewPage() {
                   <WarpGrid
                     data={warps}
                     onHoveredEntityChange={(warp) =>
-                      setHighlightWarpId(warp?.npcEntityId)
+                      setHighlightWarpId(warp?.scriptId)
                     }
                   />
                 ),
@@ -126,7 +126,7 @@ export default function MapViewPage() {
                     data={spawns}
                     gridProps={{ columnVisibilityModel: { map: false } }}
                     onHoveredEntityChange={(spawn) =>
-                      setHighlightSpawnId(spawn?.npcEntityId)
+                      setHighlightSpawnId(spawn?.scriptId)
                     }
                   />
                 ),
@@ -139,7 +139,7 @@ export default function MapViewPage() {
                     data={shops}
                     gridProps={{ columnVisibilityModel: { mapId: false } }}
                     onHoveredEntityChange={(shop) =>
-                      setHighlightShopId(shop?.npcEntityId)
+                      setHighlightShopId(shop?.scriptId)
                     }
                   />
                 ),

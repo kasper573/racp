@@ -22,7 +22,7 @@ export const shopIdType = zod.string();
 export type InternalShop = zod.infer<typeof internalShopType>;
 export const internalShopType = new ZodCustomObject(
   {
-    npcEntityId: shopIdType,
+    scriptId: shopIdType,
     variant: zod.string(), // TODO should be shopVariantType. Refactor after this is fixed: https://github.com/ksandin/racp/issues/111
     name: zod.string(),
     spriteId: zod.string(),
@@ -40,7 +40,7 @@ export const internalShopType = new ZodCustomObject(
     costVariable: zod.number().optional(),
   },
   (input: string[][]) => {
-    const [[npcEntityId], map, [variant], [name], [spriteId, ...tail]] = input;
+    const [[scriptId], map, [variant], [name], [spriteId, ...tail]] = input;
 
     if (!shopVariants.includes(variant as ShopVariant)) {
       throw new Error(`Not a shop entry`);
@@ -88,7 +88,7 @@ export const internalShopType = new ZodCustomObject(
       mapId,
       mapX: mapX !== undefined ? +mapX : undefined,
       mapY: mapY !== undefined ? +mapY : undefined,
-      npcEntityId,
+      scriptId,
       variant: variant as ShopVariant,
       name: name.replace(/#\w+/, ""), // The #<...> is a unique identifier that we don't need
       spriteId,

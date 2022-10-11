@@ -5,7 +5,7 @@ import { ZodCustomObject } from "../../../lib/zod/ZodCustomObject";
 
 export const npcType = new ZodCustomObject(
   {
-    npcEntityId: zod.string(),
+    scriptId: zod.string(),
     map: zod.object({
       id: zod.string(),
       x: zod.number(),
@@ -25,7 +25,7 @@ export const npcType = new ZodCustomObject(
   },
   (values: string[][]) => {
     const [
-      [npcEntityId],
+      [scriptId],
       [mapId, mapX, mapY, facing],
       [type],
       [name],
@@ -45,7 +45,7 @@ export const npcType = new ZodCustomObject(
     const code = tail[0];
 
     return {
-      npcEntityId,
+      scriptId,
       map: {
         id: mapId,
         x: +mapX,
