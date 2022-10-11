@@ -6,7 +6,7 @@ import {
   useElevatedState,
   UseElevatedStateProps,
 } from "../hooks/useElevatedState";
-import { Path, PathValue } from "./zodPath";
+import { getZodType, Path, PathValue } from "./zodPath";
 import { isZodError } from "./isZodError";
 
 export type ZodFormError = any;
@@ -29,6 +29,7 @@ export function useZodForm<Schema extends ZodType>({
       : undefined;
     return {
       issues,
+      schema: getZodType(schema, path),
       value: get(value, path),
       onChange(updatedFieldValue) {
         setValue(
@@ -51,6 +52,7 @@ export interface ZodFormOptions<Schema extends ZodType>
 
 export interface ZodFormRegistration<Value> {
   value: Value;
+  schema: ZodType<Value>;
   onChange: (updated: Value) => void;
   issues?: string[];
 }
