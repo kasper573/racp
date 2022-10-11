@@ -18,18 +18,19 @@ describe("can change settings", () => {
   it("zeny colors", () => {
     cy.findByLabelText("Zeny Colors")
       .clear()
-      .type(JSON.stringify({ dark: [[0, "pink"]], light: [[0, "tomato"]] }), {
-        parseSpecialCharSequences: false,
-      });
+      .type(
+        JSON.stringify({ dark: [[0, "green"]], light: [[0, "darkgreen"]] }),
+        { parseSpecialCharSequences: false }
+      );
 
     // Wait for change to be submitted before leaving page
     waitForPageReady();
 
     clickMainMenuItem("Items");
 
-    expectZenyColor("rgb(255, 192, 203)"); // pink
+    expectZenyColor("rgb(0, 128, 0)"); // green
     cy.findByRole("button", { name: /change to light mode/i }).click();
-    expectZenyColor("rgb(255, 99, 71)"); // tomato
+    expectZenyColor("rgb(0, 100, 0)"); // darkgreen
   });
 });
 
