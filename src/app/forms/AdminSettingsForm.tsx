@@ -4,6 +4,7 @@ import {
   AdminSettings,
   adminSettingsType,
 } from "../../api/services/settings/types";
+import { ZodField } from "../controls/ZodField";
 
 export function AdminSettingsForm({
   value,
@@ -24,6 +25,11 @@ export function AdminSettingsForm({
         size="small"
         label="Page Title"
         {...field("public.pageTitle")}
+      />
+      <ZodField
+        label="Zeny Colors (JSON)"
+        schema={adminSettingsType.shape.public.shape.zenyColors}
+        {...field("public.zenyColors")}
       />
     </>
   );
