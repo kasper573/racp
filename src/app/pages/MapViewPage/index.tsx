@@ -25,14 +25,13 @@ import { MapCoordinate } from "./MapCoordinate";
 import { pinIconCss } from "./pins/common";
 import { MapContainer } from "./MapContainer";
 
-const allPins = ["Warps", "Monsters", "Shops", "NPCs"] as const;
-const defaultPins: PinName[] = ["Warps", "Monsters", "Shops"];
-type PinName = typeof allPins[number];
+const pinOptions = ["Warps", "Monsters", "Shops", "NPCs"] as const;
+type PinName = typeof pinOptions[number];
 
 export default function MapViewPage() {
   const history = useHistory();
   const [visiblePins, setVisiblePins] = useState<PinName[] | undefined>(
-    Array.from(defaultPins)
+    Array.from(pinOptions)
   );
   const routeParams = useRouteParams(router.map().view);
   const { id, x, y, tab, title: routePointTitle } = routeParams;
@@ -102,7 +101,7 @@ export default function MapViewPage() {
             <Select
               sx={{ alignSelf: "flex-end" }}
               label="Pins"
-              options={allPins}
+              options={pinOptions}
               value={visiblePins}
               multi
               onChange={setVisiblePins}
