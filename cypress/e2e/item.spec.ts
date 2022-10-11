@@ -111,10 +111,10 @@ describe("details", () => {
   before(() => gotoItem(505));
 
   it("can list droppers", () => {
-    cy.findByLabelText("Content for Dropped by")
-      .should("contain.text", "Doppelganger")
-      .and("contain.text", "Nightmare")
-      .and("contain.text", "Tao Gunka");
+    findTableColumn("Monster")
+      .contains("contain", /doppelganger/i)
+      .and("contain", /nightmare/i)
+      .and("contain", /tao gunka/i);
   });
 });
 
