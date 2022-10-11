@@ -3,10 +3,9 @@ import { Children, ComponentProps } from "react";
 
 export function CommonPageGrid({
   children,
-  variant = "dock",
   sx,
   ...props
-}: { variant?: "dock" | "grow" } & ComponentProps<typeof Box>) {
+}: ComponentProps<typeof Box>) {
   const columnCount = useMediaQuery("(max-width: 1000px)") ? 1 : 2;
   const childrenArray = Children.toArray(children);
   const columns = splitIntoColumns(childrenArray, columnCount);

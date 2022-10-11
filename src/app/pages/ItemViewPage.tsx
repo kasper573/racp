@@ -77,7 +77,7 @@ export default function ItemViewPage(): ReactElement {
           ]}
         />
 
-        <CommonPageGrid variant="grow">
+        <CommonPageGrid>
           {scripts.length > 0 && (
             <TabbedPaper
               tabs={scripts.map(([label, script]) => ({
