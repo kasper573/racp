@@ -12,7 +12,7 @@ export type AdminSettingsService = ReturnType<
 
 export function createAdminSettingsService(files: FileStore) {
   const settingsFile = files.entry(
-    "mapBounds.json",
+    "settings.json",
     zodJsonProtocol(adminSettingsType)
   );
   const getSettings = () => settingsFile.data ?? defaultAdminSettings;
