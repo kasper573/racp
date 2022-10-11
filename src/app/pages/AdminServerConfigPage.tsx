@@ -7,7 +7,7 @@ import { LinkListItem } from "../components/Link";
 import { Header } from "../layout/Header";
 import { LoadingPage } from "./LoadingPage";
 
-export default function AdminRAthenaConfigPage() {
+export default function AdminServerConfigPage() {
   const [filter, setFilter] = useState("");
   const { data: configs = [], error, isLoading } = trpc.config.list.useQuery();
   const filteredConfigs = configs.filter((config) =>

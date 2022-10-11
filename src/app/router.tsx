@@ -148,12 +148,12 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
       serverConfig: route(
         "rathena-config",
         {
-          component: lazy(() => import("./pages/AdminRAthenaConfigPage")),
+          component: lazy(() => import("./pages/AdminServerConfigPage")),
           options: { title: "Server Config", icon: <Article /> },
         },
         (route) => ({
           edit: route("edit/&:configName", {
-            component: lazy(() => import("./pages/AdminRAthenaConfigEditPage")),
+            component: lazy(() => import("./pages/AdminServerConfigEditPage")),
             options: { title: "Edit", icon: <ModeEdit /> },
             params: { configName: stringParser },
           }),
