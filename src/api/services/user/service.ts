@@ -55,7 +55,7 @@ export function createUserService({
       }),
     login: t.procedure
       .input(loginPayloadType)
-      .output(zod.string())
+      .output(zod.object({ token: zod.string(), profile: userProfileType }))
       .mutation(async ({ input: { username, password } }) => {
         const user = await db.login
           .table("login")
@@ -74,33 +74,14 @@ export function createUserService({
           ? UserAccessLevel.Admin
           : UserAccessLevel.User;
 
-        return sign({ id, access });
-      }),
-    getMyProfile: t.procedure
-      .output(userProfileType.nullable())
-      .query(async ({ ctx: { auth } }) => {
-        if (!auth) {
-          return null;
-        }
-
-        const user = await db.login
-          .table("login")
-          .select("userid", "group_id", "email")
-          .where("account_id", "=", auth.id)
-          .first();
-
-        if (!user) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "Profile not found",
-          });
-        }
-
         return {
-          id: auth.id,
-          username: user.userid,
-          email: user.email,
-          access: auth.access,
+          token: sign({ id, access }),
+          profile: {
+            id,
+            username: user.userid,
+            email: user.email,
+            access,
+          },
         };
       }),
     updateMyProfile: t.procedure

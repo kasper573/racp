@@ -22,6 +22,7 @@ import {
   Storefront,
 } from "@mui/icons-material";
 import { useLocation } from "react-router-dom";
+import { useStore } from "zustand";
 import { UserAccessLevel } from "../api/services/user/types";
 import { zodRouteParam } from "../lib/zod/zodRouteParam";
 import { itemFilter } from "../api/services/item/types";
@@ -29,8 +30,7 @@ import { monsterFilter, mvpFilter } from "../api/services/monster/types";
 import { mapInfoFilter } from "../api/services/map/types";
 import { vendorItemFilter } from "../api/services/vendor/types";
 import { RestrictedPage } from "./pages/RestrictedPage";
-import { trpc } from "./state/client";
-import { LoadingPage } from "./pages/LoadingPage";
+import { authStore } from "./state/auth";
 
 const defaultOptions = {
   title: "",
@@ -173,11 +173,7 @@ export const loginRedirect = router.user().$;
 function requireAuth(requiredAccess = UserAccessLevel.User): RouteMiddleware {
   return (next) => {
     const location = useLocation();
-    const { data: profile, isFetching } = trpc.user.getMyProfile.useQuery();
-    if (isFetching) {
-      return () => <LoadingPage />;
-    }
-    const access = profile?.access;
+    const access = useStore(authStore).profile?.access;
     if (access === undefined) {
       return () => (
         <Redirect

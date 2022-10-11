@@ -4,16 +4,19 @@ import { createStore, useStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { useCallback } from "react";
 import { loginRedirect, logoutRedirect } from "../router";
+import { UserProfile } from "../../api/services/user/types";
 import { trpc } from "./client";
 
 export const authStore = createStore<{
   token?: string;
+  profile?: UserProfile;
   setToken: (token?: string) => void;
+  setProfile: (profile?: UserProfile) => void;
 }>()(
   persist(
     (set) => ({
-      token: undefined,
       setToken: (token) => set((state) => ({ ...state, token })),
+      setProfile: (profile) => set((state) => ({ ...state, profile })),
     }),
     { name: "auth" }
   )
@@ -24,13 +27,13 @@ export function useLogin(destination = loginRedirect) {
   const history = useHistory();
   const { mutateAsync, ...rest } = trpc.user.login.useMutation();
   async function login(...payload: Parameters<typeof mutateAsync>) {
-    let token: string;
     try {
-      token = await mutateAsync(...payload);
+      const { token, profile } = await mutateAsync(...payload);
+      auth.setToken(token);
+      auth.setProfile(profile);
     } catch {
       return;
     }
-    auth.setToken(token);
     history.push(destination ?? loginRedirect);
   }
   return [login, rest] as const;
@@ -46,7 +49,9 @@ export function useLogout() {
 }
 
 export function logout(history: History) {
-  authStore.getState().setToken(undefined);
+  const state = authStore.getState();
+  state.setToken(undefined);
+  state.setProfile(undefined);
   localStorage.removeItem("auth");
   history.push(logoutRedirect);
 }
