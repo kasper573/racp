@@ -22,8 +22,8 @@ export function AdminSettingsForm({
     <>
       <TextField
         size="small"
-        label="Application title"
-        {...field("public.appTitle")}
+        label="Page Title"
+        {...field("public.pageTitle")}
       />
     </>
   );

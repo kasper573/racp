@@ -49,7 +49,7 @@ export function Layout({ children }: { children?: ReactNode }) {
   return (
     <>
       <Helmet>
-        <title>{settings?.appTitle}</title>
+        <title>{settings?.pageTitle}</title>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Helmet>
       {globalStyles}
@@ -86,7 +86,7 @@ export function Layout({ children }: { children?: ReactNode }) {
             <LoadingSpinner sx={{ margin: "auto" }} />
           ) : (
             <Collapse orientation="horizontal" in>
-              <Logo>{settings?.appTitle}</Logo>
+              <Logo>{settings?.pageTitle}</Logo>
             </Collapse>
           )}
         </MuiToolbar>

@@ -5,7 +5,7 @@ export const zenyColorType = zod.tuple([zod.number(), zod.string()]);
 
 export type AdminPublicSettings = zod.infer<typeof adminPublicSettingsType>;
 export const adminPublicSettingsType = zod.object({
-  appTitle: zod.string(),
+  pageTitle: zod.string(),
   zenyColors: zod.object({
     // One for each theme mode
     dark: zod.array(zenyColorType),

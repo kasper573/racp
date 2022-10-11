@@ -6,7 +6,7 @@ export const defaultAdminSettings: AdminSettings = {
       dark: defaultZenyColors("white"),
       light: defaultZenyColors("black"),
     },
-    appTitle: "rAthenaCP",
+    pageTitle: "rAthenaCP",
   },
   internal: {},
 };
