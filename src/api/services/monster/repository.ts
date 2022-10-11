@@ -61,7 +61,7 @@ export function createMonsterRepository({
       logger.log("Recomputing monster spawn repository");
       return spawns.map((spawn) => ({
         ...spawn,
-        imageUrl: urlMap[imageName(spawn.id)],
+        imageUrl: urlMap[imageName(spawn.monsterId)],
       }));
     }
   );
@@ -71,7 +71,7 @@ export function createMonsterRepository({
     (monsters, spawns) => {
       const entries: Record<string, Mvp> = {};
       for (const spawn of spawns) {
-        const monster = monsters.get(spawn.id);
+        const monster = monsters.get(spawn.monsterId);
         if (!monster?.Modes["Mvp"]) {
           continue;
         }

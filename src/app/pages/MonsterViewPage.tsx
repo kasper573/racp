@@ -110,7 +110,7 @@ export default function MonsterViewPage(): ReactElement {
                 label: "Spawns",
                 content: (
                   <MonsterSpawnGrid
-                    filter={{ id: { value: id, matcher: "=" } }}
+                    filter={{ monsterId: { value: id, matcher: "=" } }}
                     gridProps={{ columnVisibilityModel: { name: false } }}
                   />
                 ),

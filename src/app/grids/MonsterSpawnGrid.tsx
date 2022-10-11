@@ -16,7 +16,7 @@ export const MonsterSpawnGrid = DataGrid.define(
       renderCell({ row: spawn }) {
         return (
           <IconWithLabel alt={spawn.name} src={spawn.imageUrl}>
-            <Link to={router.monster().view({ id: spawn.id })}>
+            <Link to={router.monster().view({ id: spawn.monsterId })}>
               {spawn.name}
             </Link>
           </IconWithLabel>
