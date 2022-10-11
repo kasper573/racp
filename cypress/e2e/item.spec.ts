@@ -116,6 +116,10 @@ describe("details", () => {
       .and("contain", /nightmare/i)
       .and("contain", /tao gunka/i);
   });
+
+  it("can list sellers", () => {
+    findTableColumn("Shop").contains("contain", /para_ptn10/i);
+  });
 });
 
 describe("assets", () => {
