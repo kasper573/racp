@@ -2,6 +2,7 @@ import * as zod from "zod";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { matcher } from "../../util/matcher";
 import { ZodCustomObject } from "../../../lib/zod/ZodCustomObject";
+import { trimUniqueNpcName } from "../../rathena/ScriptDriver";
 
 export const npcType = new ZodCustomObject(
   {
@@ -47,7 +48,7 @@ export const npcType = new ZodCustomObject(
       mapY: +mapYString,
       facing: +facing,
       type: type as "script",
-      name: name.replace(/#\w+/, ""), // The #<...> is a unique identifier that we don't need
+      name: trimUniqueNpcName(name),
       spriteId,
       triggerX,
       triggerY,

@@ -190,9 +190,7 @@ export function MapRender({
           <Tooltip
             title={routePointTitle ?? "The warp you selected leads here"}
           >
-            <Place
-              sx={{ ...mapPinIconCss, fill: theme.palette.success.main }}
-            />
+            <Place sx={{ ...mapPinIconCss, fill: routePinColor }} />
           </Tooltip>
         </MapCoordinate>
       )}
@@ -200,6 +198,7 @@ export function MapRender({
   );
 }
 
+const routePinColor = "#ff00ff";
 const monsterColor = "#ff7878";
 const shopColor = "#bbffbb";
 

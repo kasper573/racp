@@ -16,6 +16,7 @@ import { TabSwitch } from "../../components/TabSwitch";
 import { ShopGrid } from "../../grids/ShopGrid";
 import { ShopId } from "../../../api/services/shop/types";
 import { Select } from "../../controls/Select";
+import { NpcGrid } from "../../grids/NpcGrid";
 import { MapRender } from "./MapRender";
 
 const defaultPins = ["Warps", "Monsters", "Shops"] as const;
@@ -49,6 +50,10 @@ export default function MapViewPage() {
     });
 
   const { data: { entities: shops = [] } = {} } = trpc.shop.search.useQuery({
+    filter: { mapId: { value: id, matcher: "equals" } },
+  });
+
+  const { data: { entities: npcs = [] } = {} } = trpc.npc.search.useQuery({
     filter: { mapId: { value: id, matcher: "equals" } },
   });
 
@@ -143,6 +148,11 @@ export default function MapViewPage() {
                     }
                   />
                 ),
+              },
+              {
+                id: "npcs",
+                label: "NPCs",
+                content: <NpcGrid data={npcs} />,
               },
             ]}
           />

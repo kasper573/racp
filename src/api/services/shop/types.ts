@@ -4,6 +4,7 @@ import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { matcher } from "../../util/matcher";
 import { itemInstancePropertiesType } from "../inventory/types";
 import { itemIdType } from "../item/types";
+import { trimUniqueNpcName } from "../../rathena/ScriptDriver";
 
 export type ShopVariant = zod.infer<typeof shopVariantType>;
 export const shopVariantType = zod.union([
@@ -90,7 +91,7 @@ export const internalShopType = new ZodCustomObject(
       mapY: mapY !== undefined ? +mapY : undefined,
       scriptId,
       variant: variant as ShopVariant,
-      name: name.replace(/#\w+/, ""), // The #<...> is a unique identifier that we don't need
+      name: trimUniqueNpcName(name),
       spriteId,
       discount,
       items,
