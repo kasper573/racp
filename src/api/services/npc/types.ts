@@ -4,11 +4,11 @@ import { matcher } from "../../util/matcher";
 import { ZodCustomObject } from "../../../lib/zod/ZodCustomObject";
 import { RawScriptEntity, trimUniqueNpcName } from "../../rathena/ScriptDriver";
 
-export type NpcId = Npc["scriptId"];
+export type NpcId = Npc["id"];
 export type Npc = zod.infer<typeof npcType>;
 export const npcType = new ZodCustomObject(
   {
-    scriptId: zod.string(),
+    id: zod.string(),
     mapId: zod.string(),
     mapX: zod.number(),
     mapY: zod.number(),
@@ -43,7 +43,7 @@ export const npcType = new ZodCustomObject(
     const code = tail[0];
 
     return {
-      scriptId: rawScriptEntityId,
+      id: rawScriptEntityId,
       mapId,
       mapX: +mapXString,
       mapY: +mapYString,

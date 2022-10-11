@@ -137,7 +137,7 @@ export default function MapViewPage() {
                   <WarpGrid
                     data={warps}
                     onHoveredEntityChange={(warp) =>
-                      pins.warps.setHighlightId(warp?.scriptId)
+                      pins.warps.setHighlightId(warp?.id)
                     }
                   />
                 ),
@@ -150,7 +150,7 @@ export default function MapViewPage() {
                     data={spawns}
                     gridProps={{ columnVisibilityModel: { map: false } }}
                     onHoveredEntityChange={(spawn) =>
-                      pins.spawns.setHighlightId(spawn?.scriptId)
+                      pins.spawns.setHighlightId(spawn?.id)
                     }
                   />
                 ),
@@ -163,7 +163,7 @@ export default function MapViewPage() {
                     data={shops}
                     gridProps={{ columnVisibilityModel: { mapId: false } }}
                     onHoveredEntityChange={(shop) =>
-                      pins.shops.setHighlightId(shop?.scriptId)
+                      pins.shops.setHighlightId(shop?.id)
                     }
                   />
                 ),
@@ -175,7 +175,7 @@ export default function MapViewPage() {
                   <NpcGrid
                     data={npcs}
                     onHoveredEntityChange={(npc) =>
-                      pins.npcs.setHighlightId(npc?.scriptId)
+                      pins.npcs.setHighlightId(npc?.id)
                     }
                   />
                 ),

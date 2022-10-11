@@ -5,12 +5,12 @@ import { Link } from "../components/Link";
 
 export const ShopGrid = DataGrid.define(trpc.shop.search.useQuery)({
   emptyComponent: () => <>No shops found</>,
-  id: (shop) => shop.scriptId,
+  id: (shop) => shop.id,
   columns: {
     name: {
       headerName: "Name",
       renderCell({ row: shop }) {
-        return <Link to={router.shop({ id: shop.scriptId })}>{shop.name}</Link>;
+        return <Link to={router.shop({ id: shop.id })}>{shop.name}</Link>;
       },
     },
     mapId: {

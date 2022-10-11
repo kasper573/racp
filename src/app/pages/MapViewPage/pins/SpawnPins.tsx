@@ -23,7 +23,7 @@ export const SpawnPins = memo(
               key={`monster-swarm${index}`}
               x={swarm.x}
               y={swarm.y}
-              highlightId={swarm.all.map((spawn) => spawn.scriptId)}
+              highlightId={swarm.all.map((spawn) => spawn.id)}
               label={
                 <>
                   {swarm.groups.map((group, index) => (

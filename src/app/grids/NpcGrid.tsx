@@ -5,7 +5,7 @@ import { Link } from "../components/Link";
 
 export const NpcGrid = DataGrid.define(trpc.npc.search.useQuery)({
   emptyComponent: () => <>No npcs found</>,
-  id: (npc) => npc.scriptId,
+  id: (npc) => npc.id,
   columns: {
     name: {
       headerName: "Name",

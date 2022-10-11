@@ -9,7 +9,7 @@ export const MonsterSpawnGrid = DataGrid.define(
   trpc.monster.searchSpawns.useQuery
 )({
   emptyComponent: () => <>No monster spawns found</>,
-  id: (spawn) => spawn.scriptId,
+  id: (spawn) => spawn.id,
   columns: {
     name: {
       headerName: "Name",

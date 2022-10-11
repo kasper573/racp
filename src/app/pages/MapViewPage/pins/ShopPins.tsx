@@ -13,7 +13,7 @@ export const ShopPins = memo(
           entities.map((shop, index) => {
             if (shop.mapX !== undefined && shop.mapY !== undefined) {
               const mouseBindings = {
-                onMouseOver: () => setHighlightId?.(shop.scriptId),
+                onMouseOver: () => setHighlightId?.(shop.id),
                 onMouseOut: () => setHighlightId?.(undefined),
               };
               return (
@@ -21,11 +21,11 @@ export const ShopPins = memo(
                   key={`shop${index}`}
                   x={shop.mapX}
                   y={shop.mapY}
-                  highlightId={shop.scriptId}
+                  highlightId={shop.id}
                   {...mouseBindings}
                   label={
                     <LinkOnMap
-                      to={router.shop({ id: shop.scriptId })}
+                      to={router.shop({ id: shop.id })}
                       sx={{ lineHeight: "1em" }}
                     >
                       <PinLabel {...mouseBindings} color={shopColor}>

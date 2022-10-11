@@ -23,7 +23,7 @@ export const shopIdType = zod.string();
 export type InternalShop = zod.infer<typeof internalShopType>;
 export const internalShopType = new ZodCustomObject(
   {
-    scriptId: shopIdType,
+    id: shopIdType,
     variant: zod.string(), // TODO should be shopVariantType. Refactor after this is fixed: https://github.com/ksandin/racp/issues/111
     name: zod.string(),
     spriteId: zod.string(),
@@ -86,7 +86,7 @@ export const internalShopType = new ZodCustomObject(
     });
 
     return {
-      scriptId: rawScriptEntityId,
+      id: rawScriptEntityId,
       mapId,
       mapX: mapX !== undefined ? +mapX : undefined,
       mapY: mapY !== undefined ? +mapY : undefined,
