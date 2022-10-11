@@ -37,18 +37,12 @@ describe("details", () => {
 
   it("can list warps", () => {
     cy.findByRole("tab", { name: /warps/i }).click();
-    findTableColumn("Destination")
-      .contains("contain", /prt_maze01/i)
-      .and("contain", /prt_gld/i)
-      .and("contain", /mjolnir_10/i);
+    findTableColumn("Destination").contains(/prt_maze01/i);
   });
 
   it("can list monsters", () => {
     cy.findByRole("tab", { name: /monsters/i }).click();
-    findTableColumn("Name")
-      .should("contain", "Lunatic Ringleader")
-      .and("contain", "Poring")
-      .and("contain", "Fabre");
+    findTableColumn("Name").contains(/Lunatic Ringleader/i);
   });
 
   describe("shop list", () => {
@@ -58,10 +52,7 @@ describe("details", () => {
     });
 
     it("contains the right shops", () => {
-      findTableColumn("Name")
-        .should("contain", "Vendor from Milk Ranch")
-        .and("contain", "Fruit Gardener")
-        .and("contain", "Butcher");
+      findTableColumn("Name").contains(/Vendor from Milk Ranch/i);
     });
 
     it("can show show items", () => {
@@ -69,9 +60,7 @@ describe("details", () => {
         .first()
         .click();
 
-      findTableColumn("Name")
-        .should("contain", "Apple")
-        .and("contain", "Banana");
+      findTableColumn("Name").contains(/apple/i);
     });
   });
 });

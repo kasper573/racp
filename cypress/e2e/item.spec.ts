@@ -111,10 +111,11 @@ describe("details", () => {
   before(() => gotoItem(505));
 
   it("can list droppers", () => {
-    cy.findByLabelText("Content for Dropped by")
-      .should("contain.text", "Doppelganger")
-      .and("contain.text", "Nightmare")
-      .and("contain.text", "Tao Gunka");
+    findTableColumn("Monster").contains(/doppelganger/i);
+  });
+
+  it("can list sellers", () => {
+    findTableColumn("Shop").contains(/para_ptn10/i);
   });
 });
 

@@ -1,5 +1,5 @@
 import { Fragment, ReactElement } from "react";
-import { Stack } from "@mui/material";
+import { Box, Paper, Stack } from "@mui/material";
 import { pick } from "lodash";
 import { useRouteParams } from "../../lib/hooks/useRouteParams";
 import { Header } from "../layout/Header";
@@ -16,6 +16,7 @@ import { InfoTooltip } from "../components/InfoTooltip";
 import { ItemDisplayName } from "../components/ItemIdentifier";
 import { Spaceless } from "../components/Spaceless";
 import { ShopItemGrid } from "../grids/ShopItemGrid";
+import { TabSwitch } from "../components/TabSwitch";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ItemViewPage(): ReactElement {
@@ -96,38 +97,44 @@ export default function ItemViewPage(): ReactElement {
               },
             ]}
           />
-          <TabbedPaper
-            tabs={[
-              {
-                label: "Dropped by",
-                content:
-                  drops.length > 0 ? (
-                    <ItemDropGrid
-                      data={drops}
-                      gridProps={{ columnVisibilityModel: { ItemName: false } }}
-                    />
-                  ) : (
-                    <>None</>
-                  ),
-              },
-            ]}
-          />
-          <TabbedPaper
-            tabs={[
-              {
-                label: "Sold by",
-                content:
-                  shopItems.length > 0 ? (
-                    <ShopItemGrid
-                      data={shopItems}
-                      gridProps={{ columnVisibilityModel: { name: false } }}
-                    />
-                  ) : (
-                    <>None</>
-                  ),
-              },
-            ]}
-          />
+          <Box>
+            <TabSwitch
+              tabs={[
+                {
+                  label: "Dropped by",
+                  content:
+                    drops.length > 0 ? (
+                      <ItemDropGrid
+                        data={drops}
+                        gridProps={{
+                          columnVisibilityModel: { ItemName: false },
+                        }}
+                      />
+                    ) : (
+                      <Paper sx={{ p: 2 }}>None</Paper>
+                    ),
+                },
+              ]}
+            />
+          </Box>
+          <Box>
+            <TabSwitch
+              tabs={[
+                {
+                  label: "Sold by",
+                  content:
+                    shopItems.length > 0 ? (
+                      <ShopItemGrid
+                        data={shopItems}
+                        gridProps={{ columnVisibilityModel: { name: false } }}
+                      />
+                    ) : (
+                      <Paper sx={{ p: 2 }}>None</Paper>
+                    ),
+                },
+              ]}
+            />
+          </Box>
         </CommonPageGrid>
       </Stack>
     </>
