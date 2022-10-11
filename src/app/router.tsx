@@ -145,11 +145,11 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
       middleware: requireAuth(UserAccessLevel.Admin),
     },
     (route) => ({
-      config: route(
+      serverConfig: route(
         "rathena-config",
         {
           component: lazy(() => import("./pages/AdminRAthenaConfigPage")),
-          options: { title: "rAthena Config", icon: <Article /> },
+          options: { title: "Server Config", icon: <Article /> },
         },
         (route) => ({
           edit: route("edit/&:configName", {

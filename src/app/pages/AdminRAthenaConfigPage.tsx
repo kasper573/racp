@@ -18,7 +18,7 @@ export default function AdminRAthenaConfigPage() {
   }
   return (
     <>
-      <Header>Select a rathena/conf file to edit</Header>
+      <Header>Select an rathena/conf file to edit</Header>
       <TextField
         placeholder="Search"
         value={filter}
@@ -29,7 +29,7 @@ export default function AdminRAthenaConfigPage() {
         {filteredConfigs?.map((configName, index) => (
           <LinkListItem
             key={index}
-            to={router.admin().config().edit({ configName })}
+            to={router.admin().serverConfig().edit({ configName })}
           >
             {configName}
           </LinkListItem>

@@ -7,7 +7,7 @@ import { Header } from "../layout/Header";
 import { LoadingPage } from "./LoadingPage";
 
 export default function AdminRAthenaConfigEditPage() {
-  const { configName } = useRouteParams(router.admin().config().edit);
+  const { configName } = useRouteParams(router.admin().serverConfig().edit);
   const {
     data: value,
     error: queryError,
@@ -23,7 +23,7 @@ export default function AdminRAthenaConfigEditPage() {
 
   return (
     <>
-      <Header back={router.admin().config}>{configName}</Header>
+      <Header back={router.admin().serverConfig}>{configName}</Header>
       <ErrorMessage error={queryError} />
       <ErrorMessage error={updateError} />
       <TextEditor value={value ?? ""} onChange={setValue} />
