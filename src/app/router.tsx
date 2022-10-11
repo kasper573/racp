@@ -146,7 +146,7 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
     },
     (route) => ({
       serverConfig: route(
-        "rathena-config",
+        "server-config",
         {
           component: lazy(() => import("./pages/AdminServerConfigPage")),
           options: { title: "Server Config", icon: <Article /> },
