@@ -9,7 +9,6 @@ import { lazy } from "react";
 import {
   AccountCircle,
   AdminPanelSettings,
-  Article,
   EmojiEvents,
   Home,
   Image,
@@ -19,6 +18,8 @@ import {
   PersonAdd,
   PestControlRodent,
   Redeem,
+  Settings,
+  Storage,
   Storefront,
 } from "@mui/icons-material";
 import { useLocation } from "react-router-dom";
@@ -145,11 +146,15 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
       middleware: requireAuth(UserAccessLevel.Admin),
     },
     (route) => ({
+      racpConfig: route("racp-config", {
+        component: lazy(() => import("./pages/AdminRACPConfigPage")),
+        options: { title: "RACP Config", icon: <Settings /> },
+      }),
       serverConfig: route(
         "server-config",
         {
           component: lazy(() => import("./pages/AdminServerConfigPage")),
-          options: { title: "Server Config", icon: <Article /> },
+          options: { title: "Server Config", icon: <Storage /> },
         },
         (route) => ({
           edit: route("edit/&:configName", {
