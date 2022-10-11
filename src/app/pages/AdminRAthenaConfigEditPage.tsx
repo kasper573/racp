@@ -6,7 +6,7 @@ import { router } from "../router";
 import { Header } from "../layout/Header";
 import { LoadingPage } from "./LoadingPage";
 
-export default function AdminConfigEditPage() {
+export default function AdminRAthenaConfigEditPage() {
   const { configName } = useRouteParams(router.admin().config().edit);
   const {
     data: value,

@@ -7,7 +7,7 @@ import { LinkListItem } from "../components/Link";
 import { Header } from "../layout/Header";
 import { LoadingPage } from "./LoadingPage";
 
-export default function AdminConfigPage() {
+export default function AdminRAthenaConfigPage() {
   const [filter, setFilter] = useState("");
   const { data: configs = [], error, isLoading } = trpc.config.list.useQuery();
   const filteredConfigs = configs.filter((config) =>
@@ -18,7 +18,7 @@ export default function AdminConfigPage() {
   }
   return (
     <>
-      <Header>Select a configuration file to edit</Header>
+      <Header>Select a rathena/conf file to edit</Header>
       <TextField
         placeholder="Search"
         value={filter}
