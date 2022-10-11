@@ -146,9 +146,13 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
       middleware: requireAuth(UserAccessLevel.Admin),
     },
     (route) => ({
-      racpConfig: route("racp-config", {
-        component: lazy(() => import("./pages/AdminRACPConfigPage")),
-        options: { title: "RACP Config", icon: <Settings /> },
+      settings: route("settings", {
+        component: lazy(() => import("./pages/AdminSettingsPage")),
+        options: { title: "Settings", icon: <Settings /> },
+      }),
+      assets: route("assets", {
+        component: lazy(() => import("./pages/AdminAssetsPage")),
+        options: { title: "Assets", icon: <Image /> },
       }),
       serverConfig: route(
         "server-config",
@@ -164,10 +168,6 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
           }),
         })
       ),
-      assets: route("assets", {
-        component: lazy(() => import("./pages/AdminAssetsPage")),
-        options: { title: "Assets", icon: <Image /> },
-      }),
     })
   ),
 }));
