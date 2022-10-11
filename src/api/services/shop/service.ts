@@ -11,7 +11,8 @@ export function createShopService(shops: ShopRepository) {
       shopType,
       shopFilter.type,
       shops.getShops,
-      (entity, payload) => shopFilter.for(payload)(entity)
+      (entity, payload) => shopFilter.for(payload)(entity),
+      noLimitForFilter((filter) => filter?.mapId?.matcher === "equals")
     ),
     searchItems: createSearchProcedure(
       shopItemType,

@@ -1,4 +1,4 @@
-import { createSearchProcedure } from "../../common/search";
+import { createSearchProcedure, noLimitForFilter } from "../../common/search";
 import { t } from "../../trpc";
 import { npcFilter, npcType } from "./types";
 import { NpcRepository } from "./repository";
@@ -11,7 +11,8 @@ export function createNpcService(npcs: NpcRepository) {
       npcType,
       npcFilter.type,
       npcs.getNpcs,
-      (entity, payload) => npcFilter.for(payload)(entity)
+      (entity, payload) => npcFilter.for(payload)(entity),
+      noLimitForFilter((filter) => filter?.mapId?.matcher === "equals")
     ),
   });
 }

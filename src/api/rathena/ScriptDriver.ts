@@ -213,5 +213,10 @@ interface ParsedNonTypesafeScriptFile {
   entities: TextMatrixEntry[];
 }
 
-export const trimUniqueNpcName = (npcName: string) =>
-  npcName.replace(/#\w+/, "").replace(/::\w+/, "");
+export const trimUniqueNpcName = (npcName: string) => {
+  const trimmed = npcName
+    .replace(/#[\w-_]+/, "")
+    .replace(/::[\w-_]+/, "")
+    .trim();
+  return trimmed || npcName;
+};

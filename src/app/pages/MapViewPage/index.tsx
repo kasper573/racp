@@ -23,8 +23,9 @@ import { Shop, ShopId } from "../../../api/services/shop/types";
 import { Npc, NpcId } from "../../../api/services/npc/types";
 import { MapRender, MapRenderPins } from "./MapRender";
 
-const defaultPins = ["Warps", "Monsters", "Shops", "NPCs"] as const;
-type PinName = typeof defaultPins[number];
+const allPins = ["Warps", "Monsters", "Shops", "NPCs"] as const;
+const defaultPins: PinName[] = ["Warps", "Monsters", "Shops"];
+type PinName = typeof allPins[number];
 
 export default function MapViewPage() {
   const history = useHistory();
@@ -90,7 +91,7 @@ export default function MapViewPage() {
             <Select
               sx={{ alignSelf: "flex-end" }}
               label="Pins"
-              options={defaultPins}
+              options={allPins}
               value={visiblePins}
               multi
               onChange={setVisiblePins}
@@ -152,7 +153,14 @@ export default function MapViewPage() {
               {
                 id: "npcs",
                 label: "NPCs",
-                content: <NpcGrid data={npcs} />,
+                content: (
+                  <NpcGrid
+                    data={npcs}
+                    onHoveredEntityChange={(npc) =>
+                      pins.npcs.setHighlightId(npc?.scriptId)
+                    }
+                  />
+                ),
               },
             ]}
           />

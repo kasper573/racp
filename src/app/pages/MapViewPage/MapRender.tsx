@@ -4,6 +4,7 @@ import {
   MonetizationOn,
   PestControlRodent,
   Place,
+  PriorityHigh,
 } from "@mui/icons-material";
 import { useMemo } from "react";
 import Xarrow, { Xwrapper } from "react-xarrows";
@@ -36,6 +37,7 @@ export function MapRender({
   warps,
   spawns,
   shops,
+  npcs,
   routePoint,
   routePointTitle,
 }: {
@@ -187,6 +189,43 @@ export function MapRender({
           })
         }
       </Memo>
+      <Memo input={npcs}>
+        {({ entities, show, highlightId, setHighlightId }) =>
+          show &&
+          entities.map((npc, index) => {
+            const mouseBindings = {
+              onMouseOver: () => setHighlightId?.(npc.scriptId),
+              onMouseOut: () => setHighlightId?.(undefined),
+            };
+            return (
+              <MapPin
+                key={`npc${index}`}
+                x={npc.mapX}
+                y={npc.mapY}
+                highlight={npc.scriptId === highlightId}
+                {...mouseBindings}
+                label={
+                  <LinkOnMap
+                    to={router.map().view({
+                      id: npc.mapId,
+                      x: npc.mapX,
+                      y: npc.mapY,
+                      tab: "npcs",
+                    })}
+                    sx={{ lineHeight: "1em" }}
+                  >
+                    <MapPinLabel {...mouseBindings} color={npcColor}>
+                      {npc.name}
+                    </MapPinLabel>
+                  </LinkOnMap>
+                }
+              >
+                <PriorityHigh sx={{ ...mapPinIconCss, color: npcColor }} />
+              </MapPin>
+            );
+          })
+        }
+      </Memo>
       {routePoint && (
         <MapCoordinate x={routePoint.x} y={routePoint.y}>
           <Tooltip
@@ -203,6 +242,7 @@ export function MapRender({
 const routePinColor = "#ff00ff";
 const monsterColor = "#ff7878";
 const shopColor = "#bbffbb";
+const npcColor = "#f1b072";
 
 const mapPinIconCss = {
   color: "#fff",
