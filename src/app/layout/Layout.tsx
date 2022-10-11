@@ -11,6 +11,7 @@ import {
   useMediaQuery,
   IconButton,
   Collapse,
+  Stack,
 } from "@mui/material";
 import { Helmet } from "react-helmet-async";
 import { Menu as MenuIcon } from "@mui/icons-material";
@@ -58,19 +59,23 @@ export function Layout({ children }: { children?: ReactNode }) {
           <Container maxWidth={maxContentWidth} sx={{ display: "flex" }}>
             <Toolbar>
               {!isDrawerPermanent && (
-                <IconButton
-                  aria-label="Open main menu"
-                  onClick={() => setDrawerOpen(true)}
-                >
-                  <MenuIcon />
-                </IconButton>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <IconButton
+                    aria-label="Open main menu"
+                    onClick={() => setDrawerOpen(true)}
+                  >
+                    <MenuIcon />
+                  </IconButton>
+                  <Collapse orientation="horizontal" in>
+                    <Logo icon={false}>{settings?.pageTitle}</Logo>
+                  </Collapse>
+                </Stack>
               )}
             </Toolbar>
           </Container>
         </MuiToolbar>
       </AppBar>
       <MuiDrawer
-        role="menu"
         variant={isDrawerPermanent ? "permanent" : "temporary"}
         open={isDrawerOpen}
         onClose={handleDrawerCloseRequest}
