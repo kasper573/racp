@@ -6,27 +6,21 @@ import { ZodCustomObject } from "../../../lib/zod/ZodCustomObject";
 export const npcType = new ZodCustomObject(
   {
     scriptId: zod.string(),
-    map: zod.object({
-      id: zod.string(),
-      x: zod.number(),
-      y: zod.number(),
-    }),
+    mapId: zod.string(),
+    mapX: zod.number(),
+    mapY: zod.number(),
     facing: zod.number(),
     type: zod.literal("script"),
     name: zod.string(),
     spriteId: zod.string(),
-    trigger: zod
-      .object({
-        x: zod.number(),
-        y: zod.number(),
-      })
-      .optional(),
+    triggerX: zod.number().optional(),
+    triggerY: zod.number().optional(),
     code: zod.string(),
   },
   (values: string[][]) => {
     const [
       [scriptId],
-      [mapId, mapX, mapY, facing],
+      [mapId, mapXString, mapYString, facing],
       [type],
       [name],
       [spriteId, ...tail],
@@ -36,26 +30,27 @@ export const npcType = new ZodCustomObject(
       throw new Error(`Not an NPC object`);
     }
 
-    let trigger: { x: number; y: number } | undefined;
+    let triggerX: number | undefined;
+    let triggerY: number | undefined;
     if (typeof tail[0] === "number" && tail[1] === "number") {
       const [x, y] = tail.splice(0, 2);
-      trigger = { x: +x, y: +y };
+      triggerX = +x;
+      triggerY = +y;
     }
 
     const code = tail[0];
 
     return {
       scriptId,
-      map: {
-        id: mapId,
-        x: +mapX,
-        y: +mapY,
-      },
+      mapId,
+      mapX: +mapXString,
+      mapY: +mapYString,
       facing: +facing,
       type: type as "script",
-      name,
+      name: name.replace(/#\w+/, ""), // The #<...> is a unique identifier that we don't need
       spriteId,
-      trigger,
+      triggerX,
+      triggerY,
       code,
     };
   }
