@@ -1,19 +1,21 @@
 import { Typography } from "@mui/material";
 import { useEffect, useState } from "react";
+import { useStore } from "zustand";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
 import { UserProfileMutation } from "../../api/services/user/types";
 import { UserProfileForm } from "../forms/UserProfileForm";
 import { CenteredContent } from "../components/CenteredContent";
-import { LoadingPage } from "./LoadingPage";
+import { authStore } from "../state/auth";
 
 const defaultProfileMutation = {
   email: "",
 };
 
 export default function UserSettingsPage() {
-  const { data: profile, isLoading } = trpc.user.getMyProfile.useQuery();
-  const { mutate: updateMyProfile, error } =
+  const { profile, setProfile } = useStore(authStore);
+
+  const { mutateAsync: updateMyProfile, error } =
     trpc.user.updateMyProfile.useMutation();
   const [profileMutation, setProfileMutation] = useState<UserProfileMutation>(
     defaultProfileMutation
@@ -28,8 +30,14 @@ export default function UserSettingsPage() {
     }
   }, [profileMutation, profile]);
 
-  if (isLoading) {
-    return <LoadingPage />;
+  async function submitProfileUpdate() {
+    try {
+      if (await updateMyProfile(profileMutation)) {
+        setProfile({ ...profile!, ...profileMutation });
+      }
+    } catch {
+      // there is no reason profile update should fail
+    }
   }
 
   if (!profile) {
@@ -48,7 +56,7 @@ export default function UserSettingsPage() {
           onChange={setProfileMutation}
           onSubmit={(e) => {
             e.preventDefault();
-            updateMyProfile(profileMutation);
+            submitProfileUpdate();
           }}
         />
       </CenteredContent>
