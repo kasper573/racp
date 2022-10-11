@@ -5,7 +5,7 @@ import {
   PestControlRodent,
   Place,
 } from "@mui/icons-material";
-import { Fragment, useMemo } from "react";
+import { useMemo } from "react";
 import Xarrow, { Xwrapper } from "react-xarrows";
 import { Link } from "../../components/Link";
 import { Point } from "../../../lib/geometry";
@@ -16,6 +16,7 @@ import {
 } from "../../../api/services/monster/types";
 import { router } from "../../router";
 import { Shop, ShopId } from "../../../api/services/shop/types";
+import { Memo } from "../../../lib/Memo";
 import { MapContainer } from "./MapContainer";
 import { MapCoordinate } from "./MapCoordinate";
 import { MapPin } from "./MapPin";
@@ -51,120 +52,139 @@ export function MapRender({
     () => createMonsterSwarms(spawns.entities),
     [spawns.entities]
   );
+
   const arrowWarp = warps.entities.find(
     (warp) => warp.toMap === map.id && warp.npcEntityId === warps.highlightId
   );
+
   return (
     <MapContainer imageUrl={map.imageUrl} bounds={map.bounds}>
-      {warps.show && (
-        <Xwrapper>
-          {arrowWarp && (
-            <>
-              <Xarrow
-                start={warpXArrowId(arrowWarp)}
-                end={pointXArrowId({ x: arrowWarp.toX, y: arrowWarp.toY })}
-                color={theme.palette.primary.main}
-              />
-              <MapCoordinate
-                id={pointXArrowId({ x: arrowWarp.toX, y: arrowWarp.toY })}
-                x={arrowWarp.toX}
-                y={arrowWarp.toY}
-              />
-            </>
-          )}
-          {warps.entities.map((warp, index) => {
-            const mouseBindings = {
-              onMouseOver: () => warps.setHighlightId?.(warp.npcEntityId),
-              onMouseOut: () => warps.setHighlightId?.(undefined),
-            };
-            return (
-              <MapPin
-                data-testid="Map pin"
-                key={`warp${index}`}
-                x={warp.fromX}
-                y={warp.fromY}
-                highlight={warp.npcEntityId === warps.highlightId}
-                {...mouseBindings}
-                label={
-                  <LinkOnMap
-                    to={router.map().view({
-                      id: warp.toMap,
-                      x: warp.toX,
-                      y: warp.toY,
-                      tab,
+      <Memo input={warps}>
+        {({ entities, show, highlightId, setHighlightId }) =>
+          show && (
+            <Xwrapper>
+              {arrowWarp && (
+                <>
+                  <Xarrow
+                    start={warpXArrowId(arrowWarp)}
+                    end={pointXArrowId({
+                      x: arrowWarp.toX,
+                      y: arrowWarp.toY,
                     })}
+                    color={theme.palette.primary.main}
+                  />
+                  <MapCoordinate
+                    id={pointXArrowId({ x: arrowWarp.toX, y: arrowWarp.toY })}
+                    x={arrowWarp.toX}
+                    y={arrowWarp.toY}
+                  />
+                </>
+              )}
+              {entities.map((warp, index) => {
+                const mouseBindings = {
+                  onMouseOver: () => setHighlightId?.(warp.npcEntityId),
+                  onMouseOut: () => setHighlightId?.(undefined),
+                };
+                return (
+                  <MapPin
+                    data-testid="Map pin"
+                    key={`warp${index}`}
+                    x={warp.fromX}
+                    y={warp.fromY}
+                    highlight={warp.npcEntityId === highlightId}
+                    {...mouseBindings}
+                    label={
+                      <LinkOnMap
+                        to={router.map().view({
+                          id: warp.toMap,
+                          x: warp.toX,
+                          y: warp.toY,
+                          tab,
+                        })}
+                      >
+                        <MapPinLabel {...mouseBindings} color="white">
+                          {warp.toMap}
+                        </MapPinLabel>
+                      </LinkOnMap>
+                    }
                   >
-                    <MapPinLabel {...mouseBindings} color="white">
-                      {warp.toMap}
-                    </MapPinLabel>
-                  </LinkOnMap>
-                }
-              >
-                <MapPinIcon id={warpXArrowId(warp)} sx={mapPinIconCss} />
-              </MapPin>
-            );
-          })}
-        </Xwrapper>
-      )}
-      {spawns.show &&
-        spawnSwarms.map((swarm, index) => (
-          <MapPin
-            key={`monster-swarm${index}`}
-            x={swarm.x}
-            y={swarm.y}
-            highlight={swarm.all.some(
-              (spawn) => spawn.npcEntityId === spawns.highlightId
-            )}
-            label={
-              <>
-                {swarm.groups.map((group, index) => (
-                  <LinkOnMap
-                    key={index}
-                    to={router.monster().view({ id: group.id })}
-                    sx={{ lineHeight: "1em" }}
-                  >
-                    <MapPinLabel color={monsterColor}>
-                      {group.name} {group.size > 1 ? `x${group.size}` : ""}
-                    </MapPinLabel>
-                  </LinkOnMap>
-                ))}
-              </>
+                    <MapPinIcon id={warpXArrowId(warp)} sx={mapPinIconCss} />
+                  </MapPin>
+                );
+              })}
+            </Xwrapper>
+          )
+        }
+      </Memo>
+      <Memo input={{ ...spawns, swarms: spawnSwarms }}>
+        {({ swarms, show, highlightId }) =>
+          show &&
+          swarms.map((swarm, index) => (
+            <MapPin
+              key={`monster-swarm${index}`}
+              x={swarm.x}
+              y={swarm.y}
+              highlight={swarm.all.some(
+                (spawn) => spawn.npcEntityId === highlightId
+              )}
+              label={
+                <>
+                  {swarm.groups.map((group, index) => (
+                    <LinkOnMap
+                      key={index}
+                      to={router.monster().view({ id: group.id })}
+                      sx={{ lineHeight: "1em" }}
+                    >
+                      <MapPinLabel color={monsterColor}>
+                        {group.name} {group.size > 1 ? `x${group.size}` : ""}
+                      </MapPinLabel>
+                    </LinkOnMap>
+                  ))}
+                </>
+              }
+            >
+              <PestControlRodent
+                sx={{ ...mapPinIconCss, color: monsterColor }}
+              />
+            </MapPin>
+          ))
+        }
+      </Memo>
+      <Memo input={shops}>
+        {({ entities, show, highlightId, setHighlightId }) =>
+          show &&
+          entities.map((shop, index) => {
+            if (shop.mapX !== undefined && shop.mapY !== undefined) {
+              const mouseBindings = {
+                onMouseOver: () => setHighlightId?.(shop.npcEntityId),
+                onMouseOut: () => setHighlightId?.(undefined),
+              };
+              return (
+                <MapPin
+                  key={`shop${index}`}
+                  x={shop.mapX}
+                  y={shop.mapY}
+                  highlight={shop.npcEntityId === highlightId}
+                  {...mouseBindings}
+                  label={
+                    <LinkOnMap
+                      to={router.shop({ id: shop.npcEntityId })}
+                      sx={{ lineHeight: "1em" }}
+                    >
+                      <MapPinLabel {...mouseBindings} color={shopColor}>
+                        {shop.name}
+                      </MapPinLabel>
+                    </LinkOnMap>
+                  }
+                >
+                  <MonetizationOn sx={{ ...mapPinIconCss, color: shopColor }} />
+                </MapPin>
+              );
             }
-          >
-            <PestControlRodent sx={{ ...mapPinIconCss, color: monsterColor }} />
-          </MapPin>
-        ))}
-      {shops.show &&
-        shops.entities.map((shop, index) => {
-          if (shop.mapX !== undefined && shop.mapY !== undefined) {
-            const mouseBindings = {
-              onMouseOver: () => shops.setHighlightId?.(shop.npcEntityId),
-              onMouseOut: () => shops.setHighlightId?.(undefined),
-            };
-            return (
-              <MapPin
-                key={`shop${index}`}
-                x={shop.mapX}
-                y={shop.mapY}
-                highlight={shop.npcEntityId === shops.highlightId}
-                {...mouseBindings}
-                label={
-                  <LinkOnMap
-                    to={router.shop({ id: shop.npcEntityId })}
-                    sx={{ lineHeight: "1em" }}
-                  >
-                    <MapPinLabel {...mouseBindings} color={shopColor}>
-                      {shop.name}
-                    </MapPinLabel>
-                  </LinkOnMap>
-                }
-              >
-                <MonetizationOn sx={{ ...mapPinIconCss, color: shopColor }} />
-              </MapPin>
-            );
-          }
-          return null;
-        })}
+            return null;
+          })
+        }
+      </Memo>
       {routePoint && (
         <MapCoordinate x={routePoint.x} y={routePoint.y}>
           <Tooltip

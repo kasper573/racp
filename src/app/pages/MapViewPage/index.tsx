@@ -52,9 +52,6 @@ export default function MapViewPage() {
     filter: { mapId: { value: id, matcher: "equals" } },
   });
 
-  const locatedSpawns = spawns.filter((spawn) => spawn.x && spawn.y);
-  const locatedShops = shops.filter((shop) => shop.mapX && shop.mapY);
-
   if (isLoading || isFetching) {
     return <LoadingPage />;
   }
@@ -87,13 +84,13 @@ export default function MapViewPage() {
               setHighlightId: setHighlightWarpId,
             }}
             spawns={{
-              entities: locatedSpawns,
+              entities: spawns,
               show: pins?.includes("Monsters"),
               highlightId: highlightSpawnId,
               setHighlightId: setHighlightSpawnId,
             }}
             shops={{
-              entities: locatedShops,
+              entities: shops,
               show: pins?.includes("Shops"),
               highlightId: highlightShopId,
               setHighlightId: setHighlightShopId,
