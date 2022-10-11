@@ -50,7 +50,7 @@ export function createShopRepository({
             name: item?.Name ?? "Unknown",
             imageUrl: item?.ImageUrl,
             price: price === -1 ? item?.Buy ?? 0 : price,
-            shopId: internalShop.scriptId,
+            shopId: internalShop.id,
             shopName: internalShop.name,
             shopMap,
           });

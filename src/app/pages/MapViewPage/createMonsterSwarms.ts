@@ -21,10 +21,10 @@ export function createMonsterSwarms(
     return {
       ...center(swarm),
       all: swarm,
-      groups: Object.values(groupBy(swarm, (spawn) => spawn.id)).map(
+      groups: Object.values(groupBy(swarm, (spawn) => spawn.monsterId)).map(
         (group) => ({
           name: group[0].name,
-          id: group[0].id,
+          id: group[0].monsterId,
           size: group.length,
         })
       ),

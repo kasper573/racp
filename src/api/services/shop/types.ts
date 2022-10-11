@@ -4,7 +4,7 @@ import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { matcher } from "../../util/matcher";
 import { itemInstancePropertiesType } from "../inventory/types";
 import { itemIdType } from "../item/types";
-import { trimUniqueNpcName } from "../../rathena/ScriptDriver";
+import { RawScriptEntity, trimUniqueNpcName } from "../../rathena/ScriptDriver";
 
 export type ShopVariant = zod.infer<typeof shopVariantType>;
 export const shopVariantType = zod.union([
@@ -23,7 +23,7 @@ export const shopIdType = zod.string();
 export type InternalShop = zod.infer<typeof internalShopType>;
 export const internalShopType = new ZodCustomObject(
   {
-    scriptId: shopIdType,
+    id: shopIdType,
     variant: zod.string(), // TODO should be shopVariantType. Refactor after this is fixed: https://github.com/ksandin/racp/issues/111
     name: zod.string(),
     spriteId: zod.string(),
@@ -40,8 +40,8 @@ export const internalShopType = new ZodCustomObject(
     costItemId: zod.number().optional(),
     costVariable: zod.number().optional(),
   },
-  (input: string[][]) => {
-    const [[scriptId], map, [variant], [name], [spriteId, ...tail]] = input;
+  ({ rawScriptEntityId, matrix }: RawScriptEntity) => {
+    const [map, [variant], [name], [spriteId, ...tail]] = matrix;
 
     if (!shopVariants.includes(variant as ShopVariant)) {
       throw new Error(`Not a shop entry`);
@@ -86,10 +86,10 @@ export const internalShopType = new ZodCustomObject(
     });
 
     return {
+      id: rawScriptEntityId,
       mapId,
       mapX: mapX !== undefined ? +mapX : undefined,
       mapY: mapY !== undefined ? +mapY : undefined,
-      scriptId,
       variant: variant as ShopVariant,
       name: trimUniqueNpcName(name),
       spriteId,

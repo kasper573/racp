@@ -22,7 +22,7 @@ export function createScriptDriver({
   logger: Logger;
 }) {
   const logger = parentLogger.chain("script");
-  const scriptFilesPromise = loadAllScriptFiles(
+  const rawEntitiesPromise = loadAllScriptFiles(
     rAthenaPath,
     rAthenaMode,
     logger
@@ -32,11 +32,7 @@ export function createScriptDriver({
     async resolve<ET extends AnyScriptEntityType>(
       entityType: ET
     ): Promise<Array<zod.infer<ET>>> {
-      const scriptFiles = await scriptFilesPromise;
-      const results = await Promise.all(
-        scriptFiles.map((file) => parseScriptFileAs(file, entityType))
-      );
-      return results.flat();
+      return parseRawEntitiesAs(await rawEntitiesPromise, entityType);
     },
   };
 }
@@ -48,7 +44,7 @@ async function loadAllScriptFiles(
   rAthenaPath: string,
   rAthenaMode: RAthenaMode,
   logger: Logger
-): Promise<ParsedNonTypesafeScriptFile[]> {
+): Promise<RawScriptEntity[]> {
   const scriptFolder = path.resolve(rAthenaPath, "npc");
   const scriptMainFile = path.resolve(
     scriptFolder,
@@ -56,27 +52,28 @@ async function loadAllScriptFiles(
     "scripts_main.conf"
   );
 
-  const loadedFiles: ParsedNonTypesafeScriptFile[] = [];
+  const entities: RawScriptEntity[] = [];
   const importQueue = [scriptMainFile];
   while (importQueue.length > 0) {
     const batch = importQueue.splice(0, importQueue.length);
-    const result = await Promise.allSettled(batch.map(loadScriptFile));
-    const files = defined(result.map((r) => "value" in r && r.value));
+    const result = await Promise.allSettled(batch.map(loadRawEntities));
+    const newEntities = defined(
+      result.map((r) => "value" in r && r.value)
+    ).flat();
     logScriptFileLoadResult(batch, result, logger);
-    loadedFiles.push(...files);
-    const newImports = files
-      .map((file) => parseScriptFileAs(file, scriptImportEntity))
-      .flat()
-      .map((i) => path.resolve(rAthenaPath, i.path));
+    entities.push(...newEntities);
+    const newImports = parseRawEntitiesAs(newEntities, scriptImportEntity).map(
+      (i) => path.resolve(rAthenaPath, i.path)
+    );
     importQueue.push(...newImports);
   }
 
-  return loadedFiles;
+  return entities;
 }
 
 function logScriptFileLoadResult(
   files: string[],
-  settled: PromiseSettledResult<ParsedNonTypesafeScriptFile>[],
+  settled: PromiseSettledResult<unknown>[],
   logger: Logger
 ) {
   for (let i = 0; i < settled.length; i++) {
@@ -88,31 +85,24 @@ function logScriptFileLoadResult(
         file,
         result.reason instanceof Error ? result.reason.message : result.reason
       );
-    } else {
-      logger.log("Loaded", file);
     }
   }
 }
 
-async function loadScriptFile(
-  file: string
-): Promise<ParsedNonTypesafeScriptFile> {
-  const entities = await gfs.readFile(file, "utf-8").then(parseTextEntities);
-  return {
-    file,
-    entities,
-  };
+async function loadRawEntities(file: string): Promise<RawScriptEntity[]> {
+  const matrices = await gfs.readFile(file, "utf-8").then(parseTextEntities);
+  return matrices.map((matrix, index) => ({
+    rawScriptEntityId: createScriptId(file, index),
+    matrix,
+  }));
 }
 
-function parseScriptFileAs<ET extends AnyScriptEntityType>(
-  { file, entities }: ParsedNonTypesafeScriptFile,
+function parseRawEntitiesAs<ET extends AnyScriptEntityType>(
+  rawEntities: RawScriptEntity[],
   entityType: ET
 ): zod.infer<ET>[] {
-  return entities.reduce((entities: Array<zod.infer<ET>>, matrix, index) => {
-    const res = entityType.safeParse([
-      [createScriptId(file, index)],
-      ...matrix,
-    ]);
+  return rawEntities.reduce((entities: Array<zod.infer<ET>>, rawEntity) => {
+    const res = entityType.safeParse(rawEntity);
     if (res.success) {
       entities.push(res.data);
     }
@@ -133,7 +123,7 @@ function parseScriptFileAs<ET extends AnyScriptEntityType>(
  * The parser takes script data into consideration.
  * One script will be one value in the matrix, no different from string and number values.
  */
-export function parseTextEntities(text: string): TextMatrixEntry[] {
+export function parseTextEntities(text: string): ScriptEntityTextMatrix[] {
   text = removeComments(text);
   const repl = replaceScripts(text, scriptPlaceholder);
   const lines = nonEmptyLines(repl.text);
@@ -188,29 +178,21 @@ const modeFolderNames: Record<RAthenaMode, string> = {
 
 const scriptImportRegex = /^(npc|import):\s*(.*)$/;
 const scriptImportEntity = createSegmentedObject()
-  .segment({ scriptId: zod.string() })
   .segment({
     path: zod
       .string()
       .regex(scriptImportRegex)
       .transform((res) => scriptImportRegex.exec(res)![2]),
   })
-  .build();
+  .buildForInput((input: RawScriptEntity) => input.matrix);
 
-export type TextMatrixEntry = string[][];
+export type ScriptEntityTextMatrix = string[][];
 
-export type AnyScriptEntityType = ZodType<
-  {
-    // Must be the first segment of the input text matrix
-    scriptId: string;
-  },
-  ZodTypeDef,
-  TextMatrixEntry
->;
+export type AnyScriptEntityType = ZodType<any, ZodTypeDef, RawScriptEntity>;
 
-interface ParsedNonTypesafeScriptFile {
-  file: string;
-  entities: TextMatrixEntry[];
+export interface RawScriptEntity {
+  rawScriptEntityId: string;
+  matrix: ScriptEntityTextMatrix;
 }
 
 export const trimUniqueNpcName = (npcName: string) => {

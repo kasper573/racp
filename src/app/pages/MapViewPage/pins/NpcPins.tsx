@@ -12,7 +12,7 @@ export const NpcPins = memo(
         {show &&
           entities.map((npc, index) => {
             const mouseBindings = {
-              onMouseOver: () => setHighlightId?.(npc.scriptId),
+              onMouseOver: () => setHighlightId?.(npc.id),
               onMouseOut: () => setHighlightId?.(undefined),
             };
             return (
@@ -20,7 +20,7 @@ export const NpcPins = memo(
                 key={`npc${index}`}
                 x={npc.mapX}
                 y={npc.mapY}
-                highlightId={npc.scriptId}
+                highlightId={npc.id}
                 {...mouseBindings}
                 label={
                   <LinkOnMap

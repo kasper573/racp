@@ -4,6 +4,7 @@ import { matcher } from "../../util/matcher";
 import { trimQuotes } from "../../../lib/std/trimQuotes";
 import { createSegmentedObject } from "../../../lib/zod/ZodSegmentedObject";
 import { zodNumeric } from "../../../lib/zod/zodNumeric";
+import { RawScriptEntity } from "../../rathena/ScriptDriver";
 
 export type MapId = zod.infer<typeof mapIdType>;
 export const mapIdType = zod.string();
@@ -39,10 +40,10 @@ export const mapInfoType = zod.object({
 export type MapInfoFilter = zod.infer<typeof mapInfoFilter.type>;
 export const mapInfoFilter = createEntityFilter(matcher, mapInfoType);
 
-export type WarpId = Warp["scriptId"];
+export type WarpId = Warp["id"];
 export type Warp = zod.infer<typeof warpType>;
 export const warpType = createSegmentedObject()
-  .segment({ scriptId: zod.string() })
+  .segment({ id: zod.string() })
   .segment({
     fromMap: mapIdType,
     fromX: zodNumeric(),
@@ -62,7 +63,10 @@ export const warpType = createSegmentedObject()
     toX: zodNumeric(),
     toY: zodNumeric(),
   })
-  .build();
+  .buildForInput((input: RawScriptEntity) => [
+    [input.rawScriptEntityId],
+    ...input.matrix,
+  ]);
 
 export type WarpFilter = zod.infer<typeof warpFilter.type>;
 export const warpFilter = createEntityFilter(matcher, warpType);

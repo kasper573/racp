@@ -4,6 +4,7 @@ import { zodNumeric } from "../../../lib/zod/zodNumeric";
 import { matcher, toggleRecordType } from "../../util/matcher";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { mapIdType } from "../map/types";
+import { RawScriptEntity } from "../../rathena/ScriptDriver";
 
 export type MonsterDrop = zod.infer<typeof monsterDropType>;
 export const monsterDropType = zod.object({
@@ -75,10 +76,10 @@ export const monsterType = zod.object({
 export type MonsterFilter = zod.infer<typeof monsterFilter.type>;
 export const monsterFilter = createEntityFilter(matcher, monsterType);
 
-export type MonsterSpawnId = MonsterSpawn["scriptId"];
+export type MonsterSpawnId = MonsterSpawn["id"];
 export type MonsterSpawn = zod.infer<typeof monsterSpawnType>;
 export const monsterSpawnType = createSegmentedObject()
-  .segment({ scriptId: zod.string() })
+  .segment({ id: zod.string() })
   .segment({
     map: zod.string(),
     x: zodNumeric().optional().transform(trimZero),
@@ -94,7 +95,7 @@ export const monsterSpawnType = createSegmentedObject()
     level: zodNumeric().optional(),
   })
   .segment({
-    id: zodNumeric(),
+    monsterId: zodNumeric(),
     amount: zodNumeric(),
     spawnDelay: zodNumeric().optional(),
     spawnWindow: zodNumeric().optional(),
@@ -105,7 +106,10 @@ export const monsterSpawnType = createSegmentedObject()
     // The values are applied after loading the npc files
     imageUrl: zod.string().optional(),
   })
-  .build();
+  .buildForInput((input: RawScriptEntity) => [
+    [input.rawScriptEntityId],
+    ...input.matrix,
+  ]);
 
 export type MonsterSpawnFilter = zod.infer<typeof monsterSpawnFilter.type>;
 export const monsterSpawnFilter = createEntityFilter(matcher, monsterSpawnType);

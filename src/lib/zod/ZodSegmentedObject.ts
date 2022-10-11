@@ -2,8 +2,6 @@ import * as zod from "zod";
 import { ZodError, ZodIssue, ZodObject, ZodRawShape } from "zod";
 import { ZodCustomObject } from "./ZodCustomObject";
 
-const rawArrayEntity = zod.array(zod.array(zod.any()));
-
 export function createSegmentedObject() {
   return new SegmentBuilder({}, []);
 }
@@ -22,22 +20,30 @@ class SegmentBuilder<
   }
 
   build() {
+    return this.buildForInput((matrix: string[][]) => matrix);
+  }
+
+  buildForInput<Input>(resolveInput: (input: Input) => string[][]) {
     return new ZodCustomObject(
       this.combined,
-      createSegmentParser<Combined, Segments>(this.segments)
+      createSegmentParser<Input, Combined, Segments>(
+        this.segments,
+        resolveInput
+      )
     );
   }
 }
 
 function createSegmentParser<
+  Input,
   Combined extends ZodRawShape,
   Segments extends ZodRawShape[]
->(segments: Segments) {
+>(segments: Segments, getMatrix: (input: Input) => string[][]) {
   type Entity = zod.infer<ZodObject<Combined>>;
-  return (matrix: string[][]): Entity => {
+  return (input: Input): Entity => {
+    const matrix = getMatrix(input);
     const entity = {} as Entity;
 
-    // Otherwise, we require a matrix
     if (matrix.length < segments.length) {
       throw new Error(
         `Array must contain at least ${segments.length} elements`

@@ -17,7 +17,7 @@ export const WarpPins = memo(
         {show &&
           entities.map((warp, index) => {
             const mouseBindings = {
-              onMouseOver: () => setHighlightId?.(warp.scriptId),
+              onMouseOver: () => setHighlightId?.(warp.id),
               onMouseOut: () => setHighlightId?.(undefined),
             };
             return (
@@ -26,7 +26,7 @@ export const WarpPins = memo(
                   data-testid="Map pin"
                   x={warp.fromX}
                   y={warp.fromY}
-                  highlightId={warp.scriptId}
+                  highlightId={warp.id}
                   {...mouseBindings}
                   label={
                     <LinkOnMap
@@ -47,7 +47,7 @@ export const WarpPins = memo(
                 </MapPin>
                 {warp.toMap === warp.fromMap && (
                   <>
-                    <ArrowHighlight highlightId={warp.scriptId}>
+                    <ArrowHighlight highlightId={warp.id}>
                       <Xarrow
                         start={warpXArrowId(warp)}
                         end={pointXArrowId({ x: warp.toX, y: warp.toY })}
@@ -78,6 +78,6 @@ const ArrowHighlight = styled(Box, {
   }
 `;
 
-const warpXArrowId = (warp: Warp) => `warp_arrow_${warp.scriptId}`;
+const warpXArrowId = (warp: Warp) => `warp_arrow_${warp.id}`;
 
 const pointXArrowId = (point: Point) => `point_arrow_${point.x}_${point.y}`;

@@ -9,14 +9,14 @@ export const MonsterSpawnGrid = DataGrid.define(
   trpc.monster.searchSpawns.useQuery
 )({
   emptyComponent: () => <>No monster spawns found</>,
-  id: (spawn) => spawn.scriptId,
+  id: (spawn) => spawn.id,
   columns: {
     name: {
       headerName: "Name",
       renderCell({ row: spawn }) {
         return (
           <IconWithLabel alt={spawn.name} src={spawn.imageUrl}>
-            <Link to={router.monster().view({ id: spawn.id })}>
+            <Link to={router.monster().view({ id: spawn.monsterId })}>
               {spawn.name}
             </Link>
           </IconWithLabel>

@@ -5,7 +5,7 @@ import { Link } from "../components/Link";
 
 export const WarpGrid = DataGrid.define(trpc.map.searchWarps.useQuery)({
   emptyComponent: () => <>No warps found</>,
-  id: (warp) => warp.scriptId,
+  id: (warp) => warp.id,
   columns: {
     toMap: {
       headerName: "Destination",

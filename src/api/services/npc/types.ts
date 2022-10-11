@@ -2,13 +2,13 @@ import * as zod from "zod";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { matcher } from "../../util/matcher";
 import { ZodCustomObject } from "../../../lib/zod/ZodCustomObject";
-import { trimUniqueNpcName } from "../../rathena/ScriptDriver";
+import { RawScriptEntity, trimUniqueNpcName } from "../../rathena/ScriptDriver";
 
-export type NpcId = Npc["scriptId"];
+export type NpcId = Npc["id"];
 export type Npc = zod.infer<typeof npcType>;
 export const npcType = new ZodCustomObject(
   {
-    scriptId: zod.string(),
+    id: zod.string(),
     mapId: zod.string(),
     mapX: zod.number(),
     mapY: zod.number(),
@@ -20,14 +20,13 @@ export const npcType = new ZodCustomObject(
     triggerY: zod.number().optional(),
     code: zod.string(),
   },
-  (values: string[][]) => {
+  ({ rawScriptEntityId, matrix }: RawScriptEntity) => {
     const [
-      [scriptId],
       [mapId, mapXString, mapYString, facing],
       [type],
       [name],
       [spriteId, ...tail],
-    ] = values;
+    ] = matrix;
 
     if (type !== "script") {
       throw new Error(`Not an NPC object`);
@@ -44,7 +43,7 @@ export const npcType = new ZodCustomObject(
     const code = tail[0];
 
     return {
-      scriptId,
+      id: rawScriptEntityId,
       mapId,
       mapX: +mapXString,
       mapY: +mapYString,
