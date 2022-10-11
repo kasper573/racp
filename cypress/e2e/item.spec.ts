@@ -111,14 +111,11 @@ describe("details", () => {
   before(() => gotoItem(505));
 
   it("can list droppers", () => {
-    findTableColumn("Monster")
-      .contains("contain", /doppelganger/i)
-      .and("contain", /nightmare/i)
-      .and("contain", /tao gunka/i);
+    findTableColumn("Monster").contains(/doppelganger/i);
   });
 
   it("can list sellers", () => {
-    findTableColumn("Shop").contains("contain", /para_ptn10/i);
+    findTableColumn("Shop").contains(/para_ptn10/i);
   });
 });
 

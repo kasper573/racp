@@ -128,18 +128,12 @@ describe("details", () => {
 
   it("can list spawns", () => {
     cy.findByRole("tab", { name: /spawns/i }).click();
-    findTableColumn("Map")
-      .should("contain", "xmas_dun01")
-      .and("contain", "prt_maze01")
-      .and("contain", "sec_in02");
+    findTableColumn("Map").contains(/xmas_dun01/i);
   });
 
   it("can list drops", () => {
     cy.findByRole("tab", { name: /drops/i }).click();
-    findTableColumn("Name")
-      .should("contain", "Jellopy")
-      .and("contain", "Knife")
-      .and("contain", "Sticky Mucus");
+    findTableColumn("Name").contains(/Jellopy/i);
   });
 });
 
