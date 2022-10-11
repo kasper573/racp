@@ -1,21 +1,25 @@
 import { ZodError, ZodType } from "zod";
 import * as zod from "zod";
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 import { useElevatedState } from "../../lib/hooks/useElevatedState";
-import { TextField } from "./TextField";
+import { TextField, TextFieldProps } from "./TextField";
 
-export interface ZodFieldProps<T extends ZodType> {
+export interface ZodFieldProps<T extends ZodType>
+  extends Omit<
+    TextFieldProps,
+    "value" | "onChange" | "multiline" | "type" | "optional" | "error"
+  > {
   schema: T;
-  label?: ReactNode;
   value: zod.infer<T>;
   onChange: (value: zod.infer<T>) => void;
 }
 
 export function ZodField<T extends ZodType>({
-  label,
   value,
   onChange,
   schema,
+  helperText,
+  ...props
 }: ZodFieldProps<T>) {
   const [error, setError] = useState<string>();
   const [json, setJson] = useElevatedState({
@@ -36,10 +40,10 @@ export function ZodField<T extends ZodType>({
     <TextField
       multiline
       error={!!error}
-      helperText={error}
-      label={label}
+      helperText={error ?? helperText}
       value={json}
       onChange={setJson}
+      {...props}
     />
   );
 }

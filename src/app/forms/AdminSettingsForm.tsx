@@ -27,8 +27,12 @@ export function AdminSettingsForm({
         {...field("public.pageTitle")}
       />
       <ZodField
-        label="Zeny Colors (JSON)"
+        label="Zeny Colors"
         schema={adminSettingsType.shape.public.shape.zenyColors}
+        helperText={
+          "Colors to use for zeny as prices go up. Format: [[price1, color1], [price2, color2], ...]. " +
+          "Color values can be any css color. Price values must be in rising order."
+        }
         {...field("public.zenyColors")}
       />
     </>
