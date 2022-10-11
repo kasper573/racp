@@ -1,9 +1,19 @@
 import { Header } from "../layout/Header";
+import { trpc } from "../state/client";
+import { AdminSettingsForm } from "../forms/AdminSettingsForm";
 
 export default function AdminSettingsPage() {
+  const { data: settings } = trpc.settings.read.useQuery();
+  const utils = trpc.useContext();
+  const { mutate: updateSettings } = trpc.settings.update.useMutation({
+    onSuccess: () => utils.settings.readPublic.invalidate(),
+  });
   return (
     <>
       <Header>Settings</Header>
+      {settings && (
+        <AdminSettingsForm value={settings} onChange={updateSettings} />
+      )}
     </>
   );
 }

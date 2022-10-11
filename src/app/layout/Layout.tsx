@@ -26,7 +26,8 @@ export function Layout({ children }: { children?: ReactNode }) {
   const theme = useTheme();
   const isDrawerPermanent = !useMediaQuery(theme.breakpoints.down("md"));
   const [isDrawerOpen, setDrawerOpen] = useState(isDrawerPermanent);
-  const { data: settings } = trpc.settings.readPublic.useQuery();
+  const { data: settings, isLoading: isSettingsLoading } =
+    trpc.settings.readPublic.useQuery();
 
   useEffect(() => setDrawerOpen(isDrawerPermanent), [isDrawerPermanent]);
   function handleDrawerCloseRequest() {
@@ -81,10 +82,13 @@ export function Layout({ children }: { children?: ReactNode }) {
         }}
       >
         <MuiToolbar>
-          <Collapse orientation="horizontal" in={!!settings?.appTitle}>
-            <Logo>{settings?.appTitle}</Logo>
-          </Collapse>
-          {!settings?.appTitle && <LoadingSpinner sx={{ margin: "auto" }} />}
+          {isSettingsLoading ? (
+            <LoadingSpinner sx={{ margin: "auto" }} />
+          ) : (
+            <Collapse orientation="horizontal" in>
+              <Logo>{settings?.appTitle}</Logo>
+            </Collapse>
+          )}
         </MuiToolbar>
         <Divider />
         <Menu onItemSelected={handleDrawerCloseRequest} />
