@@ -10,7 +10,7 @@ export const defaultAdminSettings: AdminSettings = {
     donations: {
       enabled: false,
       presentation:
-        "Donations are not required, but welcome!\n\n" +
+        "Donations are welcome, but not required!\n\n" +
         "As a thank you, donations will be rewarded with credits that can be traded for in-game items.",
     },
   },
