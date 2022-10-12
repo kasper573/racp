@@ -15,21 +15,16 @@ describe("admin", () => {
     cy.findByRole("tab", { name: /donations/i }).click();
   });
 
-  let donationsUrl: string;
-
-  it("can enabled", () => {
+  it("can enable", () => {
     cy.findByLabelText("Enable donations").check();
     gotoMainMenuPage("Donations");
     cy.findByRole("heading", { name: "Donations" });
-    cy.url().then((url) => {
-      donationsUrl = url;
-    });
   });
 
-  it("can disabled", () => {
+  it("can disable", () => {
     cy.findByLabelText("Enable donations").uncheck();
     findMainMenuItem("Donations").should("not.exist");
-    cy.visit(donationsUrl);
+    cy.visit("/donations");
     waitForPageReady();
     cy.findByText(/you do not have permissions to access this page/i);
 
