@@ -7,7 +7,7 @@ before(() => {
   cy.visit("/");
 });
 
-describe("settings", () => {
+describe("admin", () => {
   before(signInAsAdmin);
 
   beforeEach(() => {
@@ -17,7 +17,7 @@ describe("settings", () => {
 
   let donationsUrl: string;
 
-  it("can be enabled", () => {
+  it("can enabled", () => {
     cy.findByLabelText("Enable donations").check();
     gotoMainMenuPage("Donations");
     cy.findByRole("heading", { name: "Donations" });
@@ -26,17 +26,18 @@ describe("settings", () => {
     });
   });
 
-  it("can be disabled", () => {
+  it("can disabled", () => {
     cy.findByLabelText("Enable donations").uncheck();
     findMainMenuItem("Donations").should("not.exist");
     cy.visit(donationsUrl);
     waitForPageReady();
-
     cy.findByText(/you do not have permissions to access this page/i);
+
+    // Restore admin state for following tests
+    signInAsAdmin();
   });
 
   describe("can change", () => {
-    before(signInAsAdmin);
     beforeEach(() => cy.findByLabelText("Enable donations").check());
 
     it("presentation", () => {
@@ -49,6 +50,21 @@ describe("settings", () => {
       cy.findByLabelText("Default donation amount").clear().type("100");
       gotoMainMenuPage("Donations");
       cy.findByLabelText("Donation amount").should("have.value", "100");
+    });
+
+    it("currency", () => {
+      cy.get(`#Currency`).select("EUR");
+      gotoMainMenuPage("Donations");
+      cy.findByText("EUR").should("exist");
+    });
+
+    it("exchange rate", () => {
+      cy.findByLabelText("Exchange rate").clear().type("50");
+      gotoMainMenuPage("Donations");
+      cy.findByLabelText("Donation amount").clear().type("7");
+      cy.findByText(/donating 7 \w+ will reward you 350 credits/i).should(
+        "exist"
+      );
     });
   });
 });
