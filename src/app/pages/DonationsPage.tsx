@@ -3,6 +3,10 @@ import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
 import { DonationForm } from "../forms/DonationForm";
 import { Money } from "../../api/services/settings/types";
+import { Link } from "../components/Link";
+import { router } from "../router";
+import { Auth } from "../components/Auth";
+import { UserAccessLevel } from "../../api/services/user/types";
 import { LoadingPage } from "./LoadingPage";
 
 export default function DonationsPage() {
@@ -11,6 +15,7 @@ export default function DonationsPage() {
     isLoading,
     error,
   } = trpc.settings.readPublic.useQuery();
+
   if (isLoading) {
     return <LoadingPage />;
   }
@@ -30,13 +35,24 @@ export default function DonationsPage() {
           {line}
         </Typography>
       ))}
-      <Header sx={{ mb: 3 }}>Make a donation</Header>
-      <DonationForm
-        exchangeRate={settings.donations.exchangeRate}
-        defaultAmount={settings.donations.defaultAmount}
-        currency={settings.donations.currency}
-        onSubmit={startDonationProcess}
-      />
+      <Auth>
+        <Header sx={{ mb: 3 }}>Make a donation</Header>
+        <DonationForm
+          exchangeRate={settings.donations.exchangeRate}
+          defaultAmount={settings.donations.defaultAmount}
+          currency={settings.donations.currency}
+          onSubmit={startDonationProcess}
+        />
+      </Auth>
+      <Auth exact={UserAccessLevel.Guest}>
+        <Typography>
+          You must be{" "}
+          <Link to={router.user().login({ destination: router.donations().$ })}>
+            signed in
+          </Link>{" "}
+          to make a donation.
+        </Typography>
+      </Auth>
     </>
   );
 }
