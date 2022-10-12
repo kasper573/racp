@@ -4,6 +4,12 @@ import { ZodType } from "zod";
 export type Currency = NominalString<"Currency">;
 export const currencyType = zod.string() as ZodType<Currency>;
 
+export type Money = zod.infer<typeof moneyType>;
+export const moneyType = zod.object({
+  value: zod.number(),
+  currency: currencyType,
+});
+
 export type ZenyColor = zod.infer<typeof zenyColorType>;
 export const zenyColorType = zod.tuple([zod.number(), zod.string()]);
 

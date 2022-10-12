@@ -1,18 +1,25 @@
 import { Button, InputAdornment, Stack } from "@mui/material";
 import { useState } from "react";
 import { TextField } from "../controls/TextField";
-import { Currency } from "../../api/services/settings/types";
+import { Currency, Money } from "../../api/services/settings/types";
 
 export function DonationForm({
   defaultAmount,
   currency,
+  onSubmit,
 }: {
   defaultAmount: number;
   currency: Currency;
+  onSubmit?: (money: Money) => void;
 }) {
-  const [amount, setAmount] = useState(defaultAmount);
+  const [value, setValue] = useState(defaultAmount);
   return (
-    <form>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit?.({ value, currency });
+      }}
+    >
       <div>
         <Stack direction="row" spacing={1}>
           <TextField
@@ -24,8 +31,8 @@ export function DonationForm({
                 <InputAdornment position="start">{currency}</InputAdornment>
               ),
             }}
-            value={amount}
-            onChange={setAmount}
+            value={value}
+            onChange={setValue}
           />
           <div>
             <Button type="submit">Donate</Button>
