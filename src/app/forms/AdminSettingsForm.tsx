@@ -8,6 +8,8 @@ import {
 import { ZodField } from "../controls/ZodField";
 import { Switch } from "../controls/Switch";
 import { TabbedPaper } from "../components/TabbedPaper";
+import { Select } from "../controls/Select";
+import { trpc } from "../state/client";
 
 export function AdminSettingsForm({
   value,
@@ -16,6 +18,7 @@ export function AdminSettingsForm({
   value: AdminSettings;
   onChange: (value: AdminSettings) => void;
 }) {
+  const { data: currencies = [] } = trpc.settings.getCurrencies.useQuery();
   const field = useZodForm({
     schema: adminSettingsType,
     value,
@@ -55,7 +58,6 @@ export function AdminSettingsForm({
                   label="Enable donations"
                 />
                 <TextField
-                  disabled={!value.public.donations.enabled}
                   label="Credits database key"
                   helperText={
                     `The value for the "key" column in the rathena table "acc_reg_num" ` +
@@ -65,10 +67,20 @@ export function AdminSettingsForm({
                 />
                 <TextField
                   multiline
-                  disabled={!value.public.donations.enabled}
                   label="Presentation"
                   helperText="Welcome text on the donations page to explain how donations work."
                   {...field("public.donations.presentation")}
+                />
+                <TextField
+                  type="number"
+                  label="Default amount"
+                  {...field("public.donations.defaultAmount")}
+                />
+                <Select
+                  options={currencies}
+                  label="Currency"
+                  required
+                  {...field("public.donations.currency")}
                 />
               </Stack>
             ),

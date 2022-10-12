@@ -1,9 +1,15 @@
+import * as zod from "zod";
 import { t } from "../../trpc";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
 import { FileStore } from "../../../lib/fs/createFileStore";
 import { zodJsonProtocol } from "../../../lib/zod/zodJsonProtocol";
-import { adminPublicSettingsType, adminSettingsType } from "./types";
+import {
+  adminPublicSettingsType,
+  adminSettingsType,
+  Currency,
+  currencyType,
+} from "./types";
 import { defaultAdminSettings } from "./defaults";
 
 export type AdminSettingsService = ReturnType<
@@ -28,5 +34,8 @@ export function createAdminSettingsService(files: FileStore) {
       .use(access(UserAccessLevel.Admin))
       .input(adminSettingsType)
       .mutation(({ input }) => settingsFile.write(input)),
+    getCurrencies: t.procedure
+      .output(zod.array(currencyType))
+      .query(() => ["USD" as Currency, "EUR" as Currency]),
   });
 }

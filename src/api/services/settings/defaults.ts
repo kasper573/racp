@@ -1,4 +1,4 @@
-import { AdminSettings, ZenyColor } from "./types";
+import { AdminSettings, Currency, ZenyColor } from "./types";
 
 export const defaultAdminSettings: AdminSettings = {
   public: {
@@ -9,6 +9,8 @@ export const defaultAdminSettings: AdminSettings = {
     pageTitle: "rAthenaCP",
     donations: {
       enabled: false,
+      defaultAmount: 5,
+      currency: "USD" as Currency,
       presentation:
         "Donations are welcome, but not required!\n\n" +
         "As a thank you, donations will be rewarded with credits that can be traded for in-game items.",

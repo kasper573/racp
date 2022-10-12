@@ -1,4 +1,8 @@
 import * as zod from "zod";
+import { ZodType } from "zod";
+
+export type Currency = NominalString<"Currency">;
+export const currencyType = zod.string() as ZodType<Currency>;
 
 export type ZenyColor = zod.infer<typeof zenyColorType>;
 export const zenyColorType = zod.tuple([zod.number(), zod.string()]);
@@ -13,6 +17,8 @@ export const adminPublicSettingsType = zod.object({
   }),
   donations: zod.object({
     enabled: zod.boolean(),
+    defaultAmount: zod.number(),
+    currency: currencyType,
     presentation: zod.string(),
   }),
 });
