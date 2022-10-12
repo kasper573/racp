@@ -11,12 +11,15 @@ export const adminPublicSettingsType = zod.object({
     dark: zod.array(zenyColorType),
     light: zod.array(zenyColorType),
   }),
+  donations: zod.object({
+    enabled: zod.boolean(),
+    presentation: zod.string(),
+  }),
 });
 
 export type AdminInternalSettings = zod.infer<typeof adminInternalSettingsType>;
 export const adminInternalSettingsType = zod.object({
   donations: zod.object({
-    enabled: zod.boolean(),
     accRegNumKey: zod.string(),
   }),
 });

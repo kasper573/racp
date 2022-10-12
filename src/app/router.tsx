@@ -14,6 +14,7 @@ import {
   Login,
   Map,
   ModeEdit,
+  Paid,
   PersonAdd,
   PestControlRodent,
   Redeem,
@@ -28,6 +29,7 @@ import { monsterFilter, mvpFilter } from "../api/services/monster/types";
 import { mapInfoFilter } from "../api/services/map/types";
 import { vendorItemFilter } from "../api/services/vendor/types";
 import { requireAuth } from "./util/requireAuth";
+import { requireSettings } from "./util/requireSettings";
 
 const defaultOptions = {
   title: "",
@@ -133,6 +135,11 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
     component: lazy(() => import("./pages/VendorItemSearchPage")),
     params: { filter: zodRouteParam(vendorItemFilter.type.default({})) },
     options: { title: "Vendings", icon: <Storefront /> },
+  }),
+  donations: route("donations", {
+    component: lazy(() => import("./pages/DonationsPage")),
+    options: { title: "Donations", icon: <Paid /> },
+    middleware: requireSettings((settings) => settings.donations.enabled),
   }),
   admin: route(
     "admin",

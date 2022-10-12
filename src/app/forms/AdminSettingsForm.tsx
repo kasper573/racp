@@ -51,17 +51,24 @@ export function AdminSettingsForm({
             content: (
               <Stack spacing={2}>
                 <FormControlLabel
-                  control={<Switch {...field("internal.donations.enabled")} />}
+                  control={<Switch {...field("public.donations.enabled")} />}
                   label="Enable donations"
                 />
                 <TextField
-                  disabled={!value.internal.donations.enabled}
+                  disabled={!value.public.donations.enabled}
                   label="Credits database key"
                   helperText={
                     `The value for the "key" column in the rathena table "acc_reg_num" ` +
                     `that will be used to retrieve and update a users credit balance.`
                   }
                   {...field("internal.donations.accRegNumKey")}
+                />
+                <TextField
+                  multiline
+                  disabled={!value.public.donations.enabled}
+                  label="Presentation"
+                  helperText="Welcome text on the donations page to explain how donations work."
+                  {...field("public.donations.presentation")}
                 />
               </Stack>
             ),
