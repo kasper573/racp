@@ -1,5 +1,5 @@
 import { resetData, signInAsAdmin } from "../support/actions/admin";
-import { clickMainMenuItem } from "../support/actions/nav";
+import { gotoMainMenuPage } from "../support/actions/nav";
 import { findTableColumn } from "../support/actions/grid";
 
 before(() => {
@@ -10,7 +10,7 @@ before(() => {
 
 describe("can change", () => {
   beforeEach(() => {
-    clickMainMenuItem("Settings", { menuName: "Admin" });
+    gotoMainMenuPage("Settings", { menuName: "Admin" });
     cy.findByRole("tab", { name: /appearance/i }).click();
   });
 
@@ -27,7 +27,7 @@ describe("can change", () => {
         { parseSpecialCharSequences: false }
       );
 
-    clickMainMenuItem("Items");
+    gotoMainMenuPage("Items");
 
     expectZenyColor("rgb(0, 128, 0)"); // green
     cy.findByRole("button", { name: /change to light mode/i }).click();

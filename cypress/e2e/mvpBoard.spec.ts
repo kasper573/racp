@@ -1,4 +1,4 @@
-import { clickMainMenuItem } from "../support/actions/nav";
+import { gotoMainMenuPage } from "../support/actions/nav";
 import { expectTableColumn, findTableColumn } from "../support/actions/grid";
 import { compareNumeric, compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/actions/search";
@@ -20,7 +20,7 @@ before(() => {
     ])
   );
 
-  clickMainMenuItem("Mvps");
+  gotoMainMenuPage("Mvps");
 });
 
 describe("search", () => {

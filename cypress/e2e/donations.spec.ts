@@ -1,5 +1,5 @@
 import { resetData, signInAsAdmin } from "../support/actions/admin";
-import { clickMainMenuItem, findMainMenuItem } from "../support/actions/nav";
+import { gotoMainMenuPage, findMainMenuItem } from "../support/actions/nav";
 import { waitForPageReady } from "../support/actions/common";
 
 before(() => {
@@ -11,7 +11,7 @@ describe("settings", () => {
   before(signInAsAdmin);
 
   beforeEach(() => {
-    clickMainMenuItem("Settings", { menuName: "Admin" });
+    gotoMainMenuPage("Settings", { menuName: "Admin" });
     cy.findByRole("tab", { name: /donations/i }).click();
   });
 
@@ -19,7 +19,7 @@ describe("settings", () => {
 
   it("can be enabled", () => {
     cy.findByLabelText("Enable donations").check();
-    clickMainMenuItem("Donations");
+    gotoMainMenuPage("Donations");
     cy.findByRole("heading", { name: "Donations" });
     cy.url().then((url) => {
       donationsUrl = url;
@@ -41,13 +41,13 @@ describe("settings", () => {
 
     it("presentation", () => {
       cy.findByLabelText("Presentation").clear().type("Hello world");
-      clickMainMenuItem("Donations");
+      gotoMainMenuPage("Donations");
       cy.findByText("Hello world");
     });
 
     it("default donation amount", () => {
       cy.findByLabelText("Default donation amount").clear().type("100");
-      clickMainMenuItem("Donations");
+      gotoMainMenuPage("Donations");
       cy.findByLabelText("Donation amount").should("have.value", "100");
     });
   });

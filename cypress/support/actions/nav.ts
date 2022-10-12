@@ -4,7 +4,7 @@ import { waitForPageReady } from "./common";
 import { withFilterMenu } from "./search";
 
 export function listMaps() {
-  clickMainMenuItem("maps");
+  gotoMainMenuPage("maps");
 }
 
 export function gotoMap(id: string) {
@@ -13,7 +13,7 @@ export function gotoMap(id: string) {
 }
 
 export function listMonsters() {
-  clickMainMenuItem("monsters");
+  gotoMainMenuPage("monsters");
 }
 
 export function gotoMonster(id: number) {
@@ -22,11 +22,11 @@ export function gotoMonster(id: number) {
 }
 
 export function listItems() {
-  clickMainMenuItem("items");
+  gotoMainMenuPage("items");
 }
 
 export function listVendings() {
-  clickMainMenuItem("vendings");
+  gotoMainMenuPage("vendings");
 }
 
 export function gotoItem(id: number) {
@@ -41,12 +41,10 @@ export function findMainMenuItem(
   return findMainMenu(menuName).findByText(ignoreCase(itemName));
 }
 
-export function clickMainMenuItem(
-  ...args: Parameters<typeof findMainMenuItem>
-) {
-  waitForPageReady();
+export function gotoMainMenuPage(...args: Parameters<typeof findMainMenuItem>) {
+  waitForPageReady(); // Wait for any pending requests to finish before navigating
   findMainMenuItem(...args).click();
-  waitForPageReady();
+  waitForPageReady(); // Wait for any initial requests to finish before proceeding
 }
 
 export function findMainMenu(name: string = "public menu") {
