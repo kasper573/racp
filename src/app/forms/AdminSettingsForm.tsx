@@ -85,7 +85,7 @@ export function AdminSettingsForm({
                 <TextField
                   type="number"
                   label="Exchange rate"
-                  helperText={`"How many credits does 1 ${value.public.donations.currency} equal?"`}
+                  helperText={`How many credits does 1 ${value.public.donations.currency} equal?`}
                   {...field("public.donations.exchangeRate")}
                 />
               </Stack>
