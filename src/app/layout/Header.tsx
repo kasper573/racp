@@ -1,4 +1,4 @@
-import { Breadcrumbs, Typography } from "@mui/material";
+import { Breadcrumbs, Stack, useTheme } from "@mui/material";
 import { ReactNode } from "react";
 import { Link } from "../components/Link";
 import { AnyRouteNode } from "../router";
@@ -12,6 +12,8 @@ export function Header<Arg>({
   parent?: ReactNode;
   children?: ReactNode;
 }) {
+  const theme = useTheme();
+
   if (back) {
     let backTitle: string;
     let backTo: { $: string };
@@ -35,15 +37,13 @@ export function Header<Arg>({
   }
 
   return (
-    <Breadcrumbs sx={{ height: 24, mb: 2 }}>
-      {parent}
-      <Typography
-        color="text.primary"
-        component="div"
-        sx={{ display: "flex", alignItems: "center" }}
-      >
-        {children}
-      </Typography>
-    </Breadcrumbs>
+    <>
+      <Breadcrumbs sx={{ height: 24, mb: 2, ...theme.typography.h6 }}>
+        {parent}
+        <Stack direction="row" alignItems="center">
+          {children}
+        </Stack>
+      </Breadcrumbs>
+    </>
   );
 }
