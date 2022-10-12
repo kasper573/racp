@@ -41,6 +41,9 @@ import { createShopRepository } from "./services/shop/repository";
 import { createNpcRepository } from "./services/npc/repository";
 import { createNpcService } from "./services/npc/service";
 import { createAdminSettingsService } from "./services/settings/service";
+import { createDonationService } from "./services/donation/service";
+import { createIPNRequestHandler } from "./services/donation/createIPNRequestHandler";
+import { UserAccessLevel } from "./services/user/types";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -93,9 +96,27 @@ let router: ApiRouter;
     npc: createNpcService(npcs),
     map: createMapService(maps),
     meta: createMetaService({ items, monsters }),
-    settings: createAdminSettingsService(files)
+    settings: createAdminSettingsService(files),
+    donation: createDonationService()
   })
 }
+
+const adminRouterCaller = router.createCaller({
+  auth: { id: -1, access: UserAccessLevel.Admin },
+});
+
+// PayPal IPN requests are not compatible with tRPC,
+// which is why we use a separate router for them
+app.use(
+  "/paypal-ipn",
+  createIPNRequestHandler(args.paypalEnvironment, async (result) => {
+    if (result.success) {
+      adminRouterCaller.donation.handleIPN(result.payload);
+    } else {
+      logger.warn("Ignored invalid IPN request", result.error);
+    }
+  })
+);
 
 app.use(authenticator.middleware);
 app.use(cors());
