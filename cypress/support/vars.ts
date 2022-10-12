@@ -2,4 +2,5 @@
 
 export const adminCharId = 1;
 export const adminCharName = "Admin";
-export const adminAccountId = 2; // 1 is reserved by rathena
+export const adminAccountId = 2000000; // 2000000+ is required by rathena
+export const adminAccountPin = "1234";
