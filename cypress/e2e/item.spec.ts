@@ -25,65 +25,65 @@ describe("search", () => {
   generateSearchPageTests({
     searches: {
       id: {
-        input: ($menu) => $menu.findByLabelText("ID").type("501"),
+        input: (menu) => menu().findByLabelText("ID").type("501"),
         verify: () => findRowById(501),
       },
       name: {
-        input: ($menu) => $menu.findByLabelText("Name").type("potion"),
+        input: (menu) => menu().findByLabelText("Name").type("potion"),
         verify: () => expectTableColumn("Name", () => /potion/i),
       },
       "primary type": {
-        input: ($menu) => $menu.get(`#PrimaryType`).select("Weapon"),
+        input: (menu) => menu().get(`#PrimaryType`).select("Weapon"),
         verify: () => findTableColumn("Name").contains("Sword"),
       },
       "sub type": {
-        input: ($menu) => {
-          $menu.get(`#PrimaryType`).select("Weapon");
-          $menu.get("#Subtype").select("Katar");
+        input: (menu) => {
+          menu().get(`#PrimaryType`).select("Weapon");
+          menu().get("#Subtype").select("Katar");
         },
         verify: () => findTableColumn("Name").contains("Jur"),
       },
       class: {
-        input: ($menu) => $menu.get("#Class").select("Third"),
+        input: (menu) => menu().get("#Class").select("Third"),
         verify: () => findTableColumn("Name").contains("Witch's Staff"),
       },
       job: {
-        input: ($menu) => $menu.get("#Job").select("Summoner"),
+        input: (menu) => menu().get("#Job").select("Summoner"),
         verify: () => findTableColumn("Name").contains(/Foxtail/i),
       },
       element: {
-        input: ($menu) => $menu.get("#Element").select("Dark"),
+        input: (menu) => menu().get("#Element").select("Dark"),
         verify: () => findTableColumn("Name").contains("Shadow Armor Scroll"),
       },
       status: {
-        input: ($menu) => $menu.get("#Status").select("Bleeding"),
+        input: (menu) => menu().get("#Status").select("Bleeding"),
         verify: () => findTableColumn("Name").contains("Muscle Cutter"),
       },
       race: {
-        input: ($menu) => $menu.get("#Race").select("Angel"),
+        input: (menu) => menu().get("#Race").select("Angel"),
         verify: () => findTableColumn("Name").contains("Royal Knuckle"),
       },
       description: {
-        input: ($menu) =>
-          $menu
+        input: (menu) =>
+          menu()
             .findByLabelText("Description contains")
             .type("Identified Description"),
         verify: () => findTableColumn("Name").contains("Red Potion"),
       },
       script: {
-        input: ($menu) =>
-          $menu.findByLabelText("Script contains").type("getrefine()"),
+        input: (menu) =>
+          menu().findByLabelText("Script contains").type("getrefine()"),
         verify: () => findTableColumn("Name").contains("Death Guidance"),
       },
       slots: {
-        input: ($menu) => $menu.within(() => menuSlide("Slots", [2, 3])),
+        input: (menu) => menu().within(() => menuSlide("Slots", [2, 3])),
         verify: () =>
           expectTableColumn("Slots", () => (text) => +text >= 2 && +text <= 2),
       },
       sellPrice: {
-        input: ($menu) => {
-          $menu.findByLabelText("Sell Value (min)").type("10000");
-          $menu.findByLabelText("Sell Value (max)").type("20000");
+        input: (menu) => {
+          menu().findByLabelText("Sell Value (min)").type("10000");
+          menu().findByLabelText("Sell Value (max)").type("20000");
         },
         verify: () =>
           expectTableColumn(

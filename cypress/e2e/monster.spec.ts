@@ -18,27 +18,27 @@ describe("search", () => {
   generateSearchPageTests({
     searches: {
       id: {
-        input: ($menu) => $menu.findByLabelText("ID").type("1309"),
+        input: (menu) => menu().findByLabelText("ID").type("1309"),
         verify: () => findRowById(1309),
       },
       name: {
-        input: ($menu) => $menu.findByLabelText("Name").type("dopp"),
+        input: (menu) => menu().findByLabelText("Name").type("dopp"),
         verify: () => expectTableColumn("Name", () => /dopp/i),
       },
       race: {
-        input: ($menu) => $menu.get("#Race").select("Angel"),
+        input: (menu) => menu().get("#Race").select("Angel"),
         verify: () => findTableColumn("Name").contains("Angeling"),
       },
       element: {
-        input: ($menu) => $menu.get("#Element").select("Earth"),
+        input: (menu) => menu().get("#Element").select("Earth"),
         verify: () => findTableColumn("Name").contains("Fabre"),
       },
       size: {
-        input: ($menu) => $menu.get("#Size").select("Small"),
+        input: (menu) => menu().get("#Size").select("Small"),
         verify: () => findTableColumn("Name").contains("Familiar"),
       },
       level: {
-        input: ($menu) => $menu.within(() => menuSlide("Level", [50, 55])),
+        input: (menu) => menu().within(() => menuSlide("Level", [50, 55])),
         verify: () =>
           expectTableColumn(
             "Level",
@@ -46,8 +46,8 @@ describe("search", () => {
           ),
       },
       "move speed": {
-        input: ($menu) =>
-          $menu.within(() => menuSlide("Move Speed", [100, 200])),
+        input: (menu) =>
+          menu().within(() => menuSlide("Move Speed", [100, 200])),
         verify: () =>
           expectTableColumn(
             "Move Speed",
@@ -55,7 +55,7 @@ describe("search", () => {
           ),
       },
       "attack range": {
-        input: ($menu) => $menu.within(() => menuSlide("Atk. Range", [5, 10])),
+        input: (menu) => menu().within(() => menuSlide("Atk. Range", [5, 10])),
         verify: () =>
           expectTableColumn(
             "Atk. Range",
@@ -63,7 +63,7 @@ describe("search", () => {
           ),
       },
       "skill range": {
-        input: ($menu) => $menu.within(() => menuSlide("Skill Range", [4, 8])),
+        input: (menu) => menu().within(() => menuSlide("Skill Range", [4, 8])),
         verify: () =>
           expectTableColumn(
             "Skill Range",
@@ -71,7 +71,7 @@ describe("search", () => {
           ),
       },
       "chase range": {
-        input: ($menu) => $menu.within(() => menuSlide("Chase Range", [6, 13])),
+        input: (menu) => menu().within(() => menuSlide("Chase Range", [6, 13])),
         verify: () =>
           expectTableColumn(
             "Chase Range",
@@ -79,9 +79,9 @@ describe("search", () => {
           ),
       },
       "base xp": {
-        input: ($menu) => {
-          $menu.findByLabelText("Base XP (min)").type("5000");
-          $menu.findByLabelText("Base XP (max)").type("6000");
+        input: (menu) => {
+          menu().findByLabelText("Base XP (min)").type("5000");
+          menu().findByLabelText("Base XP (max)").type("6000");
         },
         verify: () =>
           expectTableColumn(
@@ -90,9 +90,9 @@ describe("search", () => {
           ),
       },
       "job xp": {
-        input: ($menu) => {
-          $menu.findByLabelText("Job XP (min)").type("5000");
-          $menu.findByLabelText("Job XP (max)").type("6000");
+        input: (menu) => {
+          menu().findByLabelText("Job XP (min)").type("5000");
+          menu().findByLabelText("Job XP (max)").type("6000");
         },
         verify: () =>
           expectTableColumn(
@@ -101,7 +101,7 @@ describe("search", () => {
           ),
       },
       modes: {
-        input: ($menu) => $menu.get("#Modes").select("RandomTarget"),
+        input: (menu) => menu().get("#Modes").select("RandomTarget"),
         verify: () => findTableColumn("Name").contains(/cecil damon/i),
       },
     },

@@ -5,9 +5,9 @@ import { findDataRowIds, findTableColumn, sortGridBy } from "./grid";
 
 const clearFilters = () => cy.findByRole("button", { name: /clear/i }).click();
 
-export const withFilterMenu = (fn: ($menu: Cypress.Chainable) => void) => {
+export const withFilterMenu = (fn: (menu: () => Cypress.Chainable) => void) => {
   cy.findByRole("button", { name: /show filters/i }).click();
-  fn(cy.findByRole("menu", { name: /filters/i }));
+  fn(() => cy.findByRole("menu", { name: /filters/i }));
   cy.findByRole("button", { name: /close/i }).click();
 };
 
@@ -17,7 +17,7 @@ export function generateSearchPageTests({
 }: {
   searches: Record<
     string,
-    { input: ($menu: Cypress.Chainable) => void; verify: Function }
+    { input: (menu: () => Cypress.Chainable) => void; verify: Function }
   >;
   sorts: Record<string, CompareFn>;
 }) {
@@ -44,9 +44,9 @@ export function generateSearchPageTests({
   describe("can search by", () => {
     Object.entries(searches).forEach(([name, { input, verify }]) => {
       it(name, () => {
-        withFilterMenu(($menu) => {
+        withFilterMenu((menu) => {
           clearFilters();
-          input($menu);
+          input(menu);
         });
         waitForPageReady();
         verify();

@@ -38,21 +38,21 @@ before(() => {
 generateSearchPageTests({
   searches: {
     id: {
-      input: ($menu) => $menu.findByLabelText("Item ID").type("501"),
+      input: (menu) => menu().findByLabelText("Item ID").type("501"),
       verify: () => expectTableColumn("Item", () => /red potion/i),
     },
     name: {
-      input: ($menu) => $menu.findByLabelText("Item name").type("potion"),
+      input: (menu) => menu().findByLabelText("Item name").type("potion"),
       verify: () => expectTableColumn("Item", () => /potion/i),
     },
     vendor: {
-      input: ($menu) => $menu.findByLabelText("Vendor").type("4"),
+      input: (menu) => menu().findByLabelText("Vendor").type("4"),
       verify: () => expectTableColumn("Vendor", () => /4/i),
     },
     price: {
-      input: ($menu) => {
-        $menu.findByLabelText("Price (min)").type("300");
-        $menu.findByLabelText("Price (max)").type("600");
+      input: (menu) => {
+        menu().findByLabelText("Price (min)").type("300");
+        menu().findByLabelText("Price (max)").type("600");
       },
       verify: () =>
         expectTableColumn(
@@ -61,9 +61,9 @@ generateSearchPageTests({
         ),
     },
     amount: {
-      input: ($menu) => {
-        $menu.findByLabelText("Amount (min)").type("3");
-        $menu.findByLabelText("Amount (max)").type("6");
+      input: (menu) => {
+        menu().findByLabelText("Amount (min)").type("3");
+        menu().findByLabelText("Amount (max)").type("6");
       },
       verify: () =>
         expectTableColumn("Amount", () => (text) => +text >= 3 && +text <= 6),
