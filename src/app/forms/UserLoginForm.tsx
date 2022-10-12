@@ -25,13 +25,8 @@ export function UserLoginForm({
 
   return (
     <CommonForm label="Sign in" {...props}>
-      <TextField size="small" label="Username" {...field("username")} />
-      <TextField
-        size="small"
-        label="Password"
-        type="password"
-        {...field("password")}
-      />
+      <TextField label="Username" {...field("username")} />
+      <TextField label="Password" type="password" {...field("password")} />
     </CommonForm>
   );
 }

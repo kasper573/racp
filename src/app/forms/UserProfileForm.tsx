@@ -32,23 +32,20 @@ export function UserProfileForm({
 
   return (
     <CommonForm {...props}>
-      <TextField size="small" label="Username" value={profile.username} />
+      <TextField label="Username" value={profile.username} />
       <TextField
-        size="small"
         label="Access"
         value={getEnumName(UserAccessLevel, profile.access)}
       />
-      <TextField size="small" label="Email" {...field("email")} />
+      <TextField label="Email" {...field("email")} />
       <TextField
         optional
-        size="small"
         label="New password"
         type="password"
         {...field("password")}
       />
       <TextField
         optional
-        size="small"
         label="New password (confirm)"
         type="password"
         {...field("passwordConfirm")}

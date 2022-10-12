@@ -34,6 +34,7 @@ export function TextField({
   const readOnly = onChange === undefined;
   return (
     <MuiTextField
+      size="small"
       type={type}
       id={id}
       label={label}

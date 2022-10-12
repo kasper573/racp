@@ -25,19 +25,8 @@ export function ItemSearchFilterForm({ value, onChange }: FormDataProps) {
 
   return (
     <>
-      <TextField
-        size="small"
-        label="ID"
-        type="number"
-        optional
-        {...field("Id", "=")}
-      />
-      <TextField
-        size="small"
-        label="Name"
-        optional
-        {...field("Name", "contains")}
-      />
+      <TextField label="ID" type="number" optional {...field("Id", "=")} />
+      <TextField label="Name" optional {...field("Name", "contains")} />
       <Select
         label="Primary Type"
         multi
@@ -82,29 +71,22 @@ export function ItemSearchFilterForm({ value, onChange }: FormDataProps) {
         {...field("Races", "includesSomeString")}
       />
       <TextField
-        size="small"
         label="Description contains"
         optional
         {...field("DescriptionList", "someItemContains")}
       />
       <TextField
-        size="small"
         label="Script contains"
         optional
         {...field("ScriptList", "someItemContains")}
       />
       <SliderMenu
         ranged
-        size="small"
         label="Slots"
         max={meta?.maxSlots}
         {...field("Slots", "between")}
       />
-      <RangeFields
-        size="small"
-        label="Sell Value"
-        {...field("Sell", "between")}
-      />
+      <RangeFields label="Sell Value" {...field("Sell", "between")} />
     </>
   );
 }

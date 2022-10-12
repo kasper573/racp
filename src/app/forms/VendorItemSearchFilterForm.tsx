@@ -24,30 +24,19 @@ export function VendorItemSearchFilterForm({
   return (
     <>
       <TextField
-        size="small"
         label="Item ID"
         type="number"
         optional
         {...field("itemId", "=")}
       />
+      <TextField label="Item name" optional {...field("name", "contains")} />
       <TextField
-        size="small"
-        label="Item name"
-        optional
-        {...field("name", "contains")}
-      />
-      <TextField
-        size="small"
         label="Vendor"
         optional
         {...field("vendorTitle", "contains")}
       />
-      <RangeFields size="small" label="Price" {...field("price", "between")} />
-      <RangeFields
-        size="small"
-        label="Amount"
-        {...field("amount", "between")}
-      />
+      <RangeFields label="Price" {...field("price", "between")} />
+      <RangeFields label="Amount" {...field("amount", "between")} />
     </>
   );
 }

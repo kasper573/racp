@@ -27,42 +27,21 @@ export function MvpSearchFilterForm({
   return (
     <>
       <TextField
-        size="small"
         label="Monster ID"
         type="number"
         optional
         {...field("monsterId", "=")}
       />
-      <TextField
-        size="small"
-        label="Monster name"
-        optional
-        {...field("name", "contains")}
-      />
-      <TextField
-        size="small"
-        label="Map ID"
-        optional
-        {...field("mapId", "equals")}
-      />
-      <TextField
-        size="small"
-        label="Map name"
-        optional
-        {...field("mapName", "contains")}
-      />
+      <TextField label="Monster name" optional {...field("name", "contains")} />
+      <TextField label="Map ID" optional {...field("mapId", "equals")} />
+      <TextField label="Map name" optional {...field("mapName", "contains")} />
       <Select
         label="Status"
         multi
         options={mvpLifeStatusOptions}
         {...field("lifeStatus", "oneOf")}
       />
-      <TextField
-        size="small"
-        label="MVP"
-        optional
-        {...field("killedBy", "contains")}
-      />
+      <TextField label="MVP" optional {...field("killedBy", "contains")} />
     </>
   );
 }

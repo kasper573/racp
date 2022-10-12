@@ -26,7 +26,6 @@ export function DonationForm({
       <div>
         <Stack direction="row" spacing={1}>
           <TextField
-            size="small"
             label="Donation amount"
             type="number"
             InputProps={{

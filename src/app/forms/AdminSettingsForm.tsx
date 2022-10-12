@@ -33,11 +33,7 @@ export function AdminSettingsForm({
             label: "Appearance",
             content: (
               <Stack spacing={2}>
-                <TextField
-                  size="small"
-                  label="Page Title"
-                  {...field("public.pageTitle")}
-                />
+                <TextField label="Page Title" {...field("public.pageTitle")} />
                 <ZodField
                   label="Zeny Colors"
                   helperText={
@@ -61,7 +57,8 @@ export function AdminSettingsForm({
                   label="Credits database key"
                   helperText={
                     `The value for the "key" column in the rathena table "acc_reg_num" ` +
-                    `that will be used to retrieve and update a users credit balance.`
+                    `that will be used to retrieve and update a users credit balance. ` +
+                    `There is usually no need to change this, but the option is provided for flexibility.`
                   }
                   {...field("internal.donations.accRegNumKey")}
                 />
