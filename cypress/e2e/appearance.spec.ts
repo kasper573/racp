@@ -9,12 +9,17 @@ before(() => {
   signInAsAdmin();
 });
 
-describe("can change settings", () => {
-  beforeEach(() => clickMainMenuItem("Settings", { menuName: "Admin" }));
+describe("can change", () => {
+  beforeEach(() => {
+    clickMainMenuItem("Settings", { menuName: "Admin" });
+    cy.findByRole("tab", { name: /appearance/i }).click();
+  });
+
   it("page title", () => {
     cy.findByLabelText("Page Title").clear().type("Test Title");
     cy.findByRole("heading", { name: "Test Title" });
   });
+
   it("zeny colors", () => {
     cy.findByLabelText("Zeny Colors")
       .clear()

@@ -1,4 +1,4 @@
-import { Stack } from "@mui/material";
+import { Typography } from "@mui/material";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
 import { AdminSettingsForm } from "../forms/AdminSettingsForm";
@@ -16,13 +16,11 @@ export default function AdminSettingsPage() {
   return (
     <>
       <Header>Settings</Header>
-      <Stack direction="column" spacing={2}>
-        {settings ? (
-          <AdminSettingsForm value={settings} onChange={updateSettings} />
-        ) : (
-          <>Settings are unavailable</>
-        )}
-      </Stack>
+      {settings ? (
+        <AdminSettingsForm value={settings} onChange={updateSettings} />
+      ) : (
+        <Typography>Settings are unavailable</Typography>
+      )}
     </>
   );
 }
