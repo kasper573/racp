@@ -24,6 +24,7 @@ export const adminPublicSettingsType = zod.object({
   donations: zod.object({
     enabled: zod.boolean(),
     defaultAmount: zod.number(),
+    exchangeRate: zod.number(),
     currency: currencyType,
     presentation: zod.string(),
   }),

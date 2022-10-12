@@ -10,6 +10,7 @@ export const defaultAdminSettings: AdminSettings = {
     donations: {
       enabled: false,
       defaultAmount: 5,
+      exchangeRate: 10,
       currency: "USD" as Currency,
       presentation:
         "Donations are welcome, but not required!\n\n" +

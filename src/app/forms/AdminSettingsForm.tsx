@@ -73,7 +73,7 @@ export function AdminSettingsForm({
                 />
                 <TextField
                   type="number"
-                  label="Default amount"
+                  label="Default donation amount"
                   {...field("public.donations.defaultAmount")}
                 />
                 <Select
@@ -81,6 +81,12 @@ export function AdminSettingsForm({
                   label="Currency"
                   required
                   {...field("public.donations.currency")}
+                />
+                <TextField
+                  type="number"
+                  label="Exchange rate"
+                  helperText={`"How many credits does 1 ${value.public.donations.currency} equal?"`}
+                  {...field("public.donations.exchangeRate")}
                 />
               </Stack>
             ),

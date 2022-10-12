@@ -1,5 +1,5 @@
 import { Breadcrumbs, Stack, useTheme } from "@mui/material";
-import { ReactNode } from "react";
+import { ComponentProps, ReactNode } from "react";
 import { Link } from "../components/Link";
 import { AnyRouteNode } from "../router";
 
@@ -7,11 +7,12 @@ export function Header<Arg>({
   parent,
   back,
   children = "",
+  sx,
+  ...props
 }: {
   back?: AnyRouteNode | [AnyRouteNode<Arg>, Arg];
   parent?: ReactNode;
-  children?: ReactNode;
-}) {
+} & ComponentProps<typeof Breadcrumbs>) {
   const theme = useTheme();
 
   if (back) {
@@ -38,7 +39,10 @@ export function Header<Arg>({
 
   return (
     <>
-      <Breadcrumbs sx={{ height: 24, mb: 2, ...theme.typography.h6 }}>
+      <Breadcrumbs
+        sx={{ height: 24, mb: 2, ...theme.typography.h6, ...sx }}
+        {...props}
+      >
         {parent}
         <Stack direction="row" alignItems="center">
           {children}
