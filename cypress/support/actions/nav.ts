@@ -34,11 +34,18 @@ export function gotoItem(id: number) {
   searchByIdAndClickLink(id);
 }
 
-export function clickMainMenuItem(
+export function findMainMenuItem(
   itemName: string,
   { menuName }: { menuName?: string } = {}
 ) {
-  findMainMenu(menuName).findByText(ignoreCase(itemName)).click();
+  return findMainMenu(menuName).findByText(ignoreCase(itemName));
+}
+
+export function clickMainMenuItem(
+  ...args: Parameters<typeof findMainMenuItem>
+) {
+  waitForPageReady();
+  findMainMenuItem(...args).click();
   waitForPageReady();
 }
 

@@ -40,6 +40,7 @@ export function Header<Arg>({
   return (
     <>
       <Breadcrumbs
+        role="heading"
         sx={{ height: 24, mb: 2, ...theme.typography.h6, ...sx }}
         {...props}
       >
