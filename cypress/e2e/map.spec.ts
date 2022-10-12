@@ -17,11 +17,11 @@ describe("search", () => {
   generateSearchPageTests({
     searches: {
       id: {
-        input: () => cy.findByLabelText("ID").type("prontera"),
+        input: ($menu) => $menu.findByLabelText("ID").type("prontera"),
         verify: () => findRowById("prontera"),
       },
       name: {
-        input: () => cy.findByLabelText("Name").type("prt_"),
+        input: ($menu) => $menu.findByLabelText("Name").type("prt_"),
         verify: () => expectTableColumn("Name", () => /prt_/i),
       },
     },
