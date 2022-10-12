@@ -1,3 +1,4 @@
+import { FormControlLabel } from "@mui/material";
 import { TextField } from "../controls/TextField";
 import { useZodForm } from "../../lib/zod/useZodForm";
 import {
@@ -5,6 +6,7 @@ import {
   adminSettingsType,
 } from "../../api/services/settings/types";
 import { ZodField } from "../controls/ZodField";
+import { Switch } from "../controls/Switch";
 
 export function AdminSettingsForm({
   value,
@@ -34,6 +36,22 @@ export function AdminSettingsForm({
         }
         {...field("public.zenyColors")}
       />
+      <FormControlLabel
+        control={<Switch {...field("internal.donations.enabled")} />}
+        label="Enable donations"
+      />
+      {value.internal.donations.enabled && (
+        <>
+          <TextField
+            label="Credits database key"
+            helperText={
+              `The value for the "key" column in the rathena table "acc_reg_num" ` +
+              `that will be used to retrieve and update a users credit balance.`
+            }
+            {...field("internal.donations.accRegNumKey")}
+          />
+        </>
+      )}
     </>
   );
 }

@@ -14,7 +14,12 @@ export const adminPublicSettingsType = zod.object({
 });
 
 export type AdminInternalSettings = zod.infer<typeof adminInternalSettingsType>;
-export const adminInternalSettingsType = zod.object({});
+export const adminInternalSettingsType = zod.object({
+  donations: zod.object({
+    enabled: zod.boolean(),
+    accRegNumKey: zod.string(),
+  }),
+});
 
 export type AdminSettings = zod.infer<typeof adminSettingsType>;
 export const adminSettingsType = zod.object({

@@ -8,7 +8,12 @@ export const defaultAdminSettings: AdminSettings = {
     },
     pageTitle: "rAthenaCP",
   },
-  internal: {},
+  internal: {
+    donations: {
+      enabled: false,
+      accRegNumKey: "#CASHPOINTS",
+    },
+  },
 };
 
 function defaultZenyColors(primary: string): ZenyColor[] {
