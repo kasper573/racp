@@ -17,7 +17,7 @@ describe("admin", () => {
 
   let donationsUrl: string;
 
-  it("can enable", () => {
+  it("enabling works", () => {
     cy.findByLabelText("Enable donations").check();
     gotoMainMenuPage("Donations");
     cy.findByRole("heading", { name: "Donations" });
@@ -26,15 +26,17 @@ describe("admin", () => {
     });
   });
 
-  it("can disable", () => {
-    cy.findByLabelText("Enable donations").uncheck();
-    findMainMenuItem("Donations").should("not.exist");
-    cy.visit(donationsUrl);
-    waitForPageReady();
-    cy.findByText(/you do not have permissions to access this page/i);
+  describe("disabling", () => {
+    it("works", () => {
+      cy.findByLabelText("Enable donations").uncheck();
+      findMainMenuItem("Donations").should("not.exist");
+      cy.visit(donationsUrl);
+      waitForPageReady();
+      cy.findByText(/you do not have permissions to access this page/i);
+    });
 
-    // Restore admin state for following tests
-    signInAsAdmin();
+    // Restore admin state for following tests, since this test signed us out
+    after(signInAsAdmin);
   });
 
   describe("can change", () => {
