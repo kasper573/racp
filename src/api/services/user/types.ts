@@ -21,9 +21,12 @@ export const loginPayloadType = zod.object({
   password: zod.string(),
 });
 
+export type UserId = zod.infer<typeof userIdType>;
+export const userIdType = getZodType(LoginEntityType, "account_id");
+
 export type UserProfile = zod.infer<typeof userProfileType>;
 export const userProfileType = zod.object({
-  id: getZodType(LoginEntityType, "account_id"),
+  id: userIdType,
   username: getZodType(LoginEntityType, "userid"),
   email: getZodType(LoginEntityType, "email"),
   access: userAccessLevelType,

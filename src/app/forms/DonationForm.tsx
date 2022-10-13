@@ -1,49 +1,120 @@
-import { Button, InputAdornment, Stack, Typography } from "@mui/material";
-import { useState } from "react";
+import { InputAdornment, Stack } from "@mui/material";
+import { ReactNode, useState } from "react";
+import {
+  PayPalButtons,
+  PayPalScriptProvider,
+  usePayPalScriptReducer,
+} from "@paypal/react-paypal-js";
 import { TextField } from "../controls/TextField";
-import { Currency, Money } from "../../api/services/settings/types";
+import { AdminPublicSettings, Money } from "../../api/services/settings/types";
+import { LoadingSpinner } from "../components/LoadingSpinner";
+import { UserProfile } from "../../api/services/user/types";
+import { DonationMetaData } from "../../api/services/donation/types";
 
 export function DonationForm({
+  userId,
   defaultAmount,
   exchangeRate,
   currency,
+  paypalClientId,
+  paypalMerchantId,
   onSubmit,
 }: {
-  exchangeRate: number;
-  defaultAmount: number;
-  currency: Currency;
+  userId: UserProfile["id"];
   onSubmit?: (money: Money) => void;
-}) {
+} & AdminPublicSettings["donations"]) {
+  const [details, setDetails] = useState<unknown>();
   const [value, setValue] = useState(defaultAmount);
   const credits = value * exchangeRate;
+
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit?.({ value, currency });
+    <PayPalScriptProvider
+      options={{
+        currency,
+        "client-id": paypalClientId,
+        "merchant-id": paypalMerchantId,
       }}
     >
-      <div>
-        <Stack direction="row" spacing={1}>
-          <TextField
-            label="Donation amount"
-            type="number"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">{currency}</InputAdornment>
-              ),
-            }}
-            value={value}
-            onChange={setValue}
-          />
-          <div>
-            <Button type="submit">Donate</Button>
-          </div>
-        </Stack>
-      </div>
-      <Typography variant="caption">
-        Donating {value} {currency} will reward you {credits} credits.
-      </Typography>
-    </form>
+      {JSON.stringify(details)}
+      <PayPalFallback
+        pending={<LoadingSpinner />}
+        rejected={<>Could not connect to PayPal. Please try again later.</>}
+        initial={<>Connecting to PayPal. Please wait a moment.</>}
+      >
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSubmit?.({ value, currency });
+          }}
+        >
+          <Stack spacing={2}>
+            <div>
+              <TextField
+                label="Donation amount"
+                type="number"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">{currency}</InputAdornment>
+                  ),
+                }}
+                helperText={`Donating ${value} ${currency} will reward you ${credits} credits.`}
+                value={value}
+                onChange={setValue}
+              />
+            </div>
+            <PayPalButtons
+              createOrder={(data, actions) => {
+                const metaData: DonationMetaData = { userId };
+                return actions.order.create({
+                  purchase_units: [
+                    {
+                      custom_id: JSON.stringify(metaData),
+                      amount: { value: value.toString() },
+                    },
+                  ],
+                });
+              }}
+              onApprove={async (data, actions) => {
+                if (!actions.order) {
+                  return Promise.reject("No order");
+                }
+                try {
+                  await actions.order
+                    .capture()
+                    .then((details) => setDetails({ details }));
+                } catch (error) {
+                  setDetails({ error: `${error}` });
+                }
+              }}
+              onCancel={() => setDetails("cancel")}
+            />
+          </Stack>
+        </form>
+      </PayPalFallback>
+    </PayPalScriptProvider>
   );
+}
+
+function PayPalFallback({
+  children: resolved,
+  pending,
+  rejected,
+  initial,
+}: {
+  children: ReactNode;
+  pending: ReactNode;
+  rejected: ReactNode;
+  initial: ReactNode;
+}) {
+  const [{ isPending, isRejected, isInitial }] = usePayPalScriptReducer();
+  if (isPending) {
+    return <>{pending}</>;
+  }
+  if (isRejected) {
+    return <>{rejected}</>;
+  }
+  if (isInitial) {
+    return <>{initial}</>;
+  }
+  return <>{resolved}</>;
 }

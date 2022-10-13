@@ -12,6 +12,7 @@ export const defaultAdminSettings: AdminSettings = {
       defaultAmount: 5,
       exchangeRate: 10,
       currency: "USD" as Currency,
+      paypalClientId: "sb",
       presentation:
         "Donations are welcome, but not required!\n\n" +
         "As a thank you, donations will be rewarded with credits that can be traded for in-game items.",

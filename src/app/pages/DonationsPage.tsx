@@ -35,14 +35,17 @@ export default function DonationsPage() {
           {line}
         </Typography>
       ))}
+      <Header sx={{ mb: 3 }}>Make a donation</Header>
       <Auth>
-        <Header sx={{ mb: 3 }}>Make a donation</Header>
-        <DonationForm
-          exchangeRate={settings.donations.exchangeRate}
-          defaultAmount={settings.donations.defaultAmount}
-          currency={settings.donations.currency}
-          onSubmit={startDonationProcess}
-        />
+        {(user) =>
+          user && (
+            <DonationForm
+              {...settings.donations}
+              userId={user.id}
+              onSubmit={startDonationProcess}
+            />
+          )
+        }
       </Auth>
       <Auth exact={UserAccessLevel.Guest}>
         <Typography>

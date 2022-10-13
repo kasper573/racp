@@ -97,7 +97,10 @@ let router: ApiRouter;
     map: createMapService(maps),
     meta: createMetaService({ items, monsters }),
     settings: createAdminSettingsService(files),
-    donation: createDonationService()
+    donation: createDonationService({
+      getIPNUrl: () => `//${args.hostname}:${args.apiPort}${ipnPath}`,
+      logger: logger.chain("donation")
+    }),
   })
 }
 
@@ -107,15 +110,13 @@ const adminRouterCaller = router.createCaller({
 
 // PayPal IPN requests are not compatible with tRPC,
 // which is why we use a separate router for them
+const ipnPath = "/paypal-ipn";
 app.use(
-  "/paypal-ipn",
-  createIPNRequestHandler(args.paypalEnvironment, async (result) => {
-    if (result.success) {
-      adminRouterCaller.donation.handleIPN(result.payload);
-    } else {
-      logger.warn("Ignored invalid IPN request", result.error);
-    }
-  })
+  ipnPath,
+  createIPNRequestHandler(
+    args.paypalEnvironment,
+    adminRouterCaller.donation.handleIPN
+  )
 );
 
 app.use(authenticator.middleware);

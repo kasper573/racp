@@ -27,6 +27,8 @@ export const adminPublicSettingsType = zod.object({
     exchangeRate: zod.number(),
     currency: currencyType,
     presentation: zod.string(),
+    paypalClientId: zod.string(),
+    paypalMerchantId: zod.string().optional(),
   }),
 });
 
