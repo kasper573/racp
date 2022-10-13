@@ -115,7 +115,7 @@ export function createDonationService({
             `Failed to update credits for user ${accountId}. Refunding user.`
           );
 
-          try {
+          const { result: refund }: { result?: paypal.payments.Capture } =
             await client.execute(
               new paypal.payments.CapturesRefundRequest(capture.id).requestBody(
                 {
@@ -126,13 +126,16 @@ export function createDonationService({
                 }
               )
             );
+
+          if (refund?.status === "COMPLETED") {
             return "refundDueToInternalError";
-          } catch (e) {
-            logger.error(
-              `Failed to refund user ${accountId} for order ${orderID}: ${e}`
-            );
-            return "internalErrorAndRefundFailed";
           }
+
+          logger.error(
+            `Failed to refund user ${accountId} for order ${orderID}`,
+            refund
+          );
+          return "internalErrorAndRefundFailed";
         }
       ),
   });
