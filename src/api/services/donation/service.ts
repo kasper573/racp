@@ -6,10 +6,16 @@ import { AccountId, UserAccessLevel } from "../user/types";
 import { Logger } from "../../../lib/logger";
 import { AdminSettingsRepository } from "../settings/repository";
 import { DatabaseDriver } from "../../rathena/DatabaseDriver";
-import { AdminSettings, moneyType } from "../settings/types";
+import {
+  AdminSettings,
+  Currency,
+  currencyType,
+  moneyType,
+} from "../settings/types";
 import { updateAccRegValue } from "../../common/updateAccRegValue";
 import { donationCaptureResultType } from "./types";
 import { calculateRewardedCredits } from "./utils/calculateRewardedCredits";
+import { paypalCurrencies } from "./paypalCurrencies";
 
 export type DonationService = ReturnType<typeof createDonationService>;
 
@@ -25,6 +31,9 @@ export function createDonationService({
   logger: Logger;
 }) {
   return t.router({
+    getCurrencies: t.procedure
+      .output(zod.array(currencyType))
+      .query(() => paypalCurrencies as Currency[]),
     order: t.procedure
       .input(moneyType)
       .output(zod.string().optional())

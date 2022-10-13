@@ -1,13 +1,7 @@
-import * as zod from "zod";
 import { t } from "../../trpc";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
-import {
-  adminPublicSettingsType,
-  adminSettingsType,
-  Currency,
-  currencyType,
-} from "./types";
+import { adminPublicSettingsType, adminSettingsType } from "./types";
 import { AdminSettingsRepository } from "./repository";
 
 export type AdminSettingsService = ReturnType<
@@ -27,8 +21,5 @@ export function createAdminSettingsService(settings: AdminSettingsRepository) {
       .use(access(UserAccessLevel.Admin))
       .input(adminSettingsType)
       .mutation(({ input }) => settings.updateSettings(input)),
-    getCurrencies: t.procedure
-      .output(zod.array(currencyType))
-      .query(() => ["USD" as Currency, "EUR" as Currency]),
   });
 }
