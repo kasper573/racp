@@ -1,4 +1,4 @@
-import { InputAdornment, Stack } from "@mui/material";
+import { Box, InputAdornment, Stack, Typography } from "@mui/material";
 import { ReactNode, useState } from "react";
 import {
   PayPalButtons,
@@ -6,11 +6,16 @@ import {
   usePayPalScriptReducer,
 } from "@paypal/react-paypal-js";
 import { TextField } from "../controls/TextField";
-import { AdminPublicSettings, Money } from "../../api/services/settings/types";
+import {
+  AdminPublicSettings,
+  Currency,
+  Money,
+} from "../../api/services/settings/types";
 import { LoadingSpinner } from "../components/LoadingSpinner";
-import { UserProfile } from "../../api/services/user/types";
+import { AccountId, UserProfile } from "../../api/services/user/types";
 import { DonationMetaData } from "../../api/services/donation/types";
 import { calculateRewardedCredits } from "../../api/services/donation/utils/calculateRewardedCredits";
+import { useBlockNavigation } from "../../lib/hooks/useBlockNavigation";
 
 export function DonationForm({
   accountId,
@@ -24,9 +29,16 @@ export function DonationForm({
   accountId: UserProfile["id"];
   onSubmit?: (money: Money) => void;
 } & AdminPublicSettings["donations"]) {
-  const [details, setDetails] = useState<unknown>();
+  const [status, setStatus] = useState<DonationStatus>("idle");
   const [value, setValue] = useState(defaultAmount);
   const rewardedCredits = calculateRewardedCredits(value, exchangeRate);
+  const mayDonate = status !== "confirming";
+
+  useBlockNavigation(
+    status === "confirming",
+    "Leaving this page while confirming your donation will make you lose track of the confirmation process. " +
+      "The donation will finish, but you will not be notified of its resolution. Are you sure you want to leave?"
+  );
 
   return (
     <PayPalScriptProvider
@@ -36,7 +48,6 @@ export function DonationForm({
         "merchant-id": paypalMerchantId,
       }}
     >
-      {JSON.stringify(details)}
       <PayPalFallback
         pending={<LoadingSpinner />}
         rejected={<>Could not connect to PayPal. Please try again later.</>}
@@ -53,6 +64,7 @@ export function DonationForm({
               <TextField
                 label="Donation amount"
                 type="number"
+                disabled={!mayDonate}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">{currency}</InputAdornment>
@@ -63,38 +75,62 @@ export function DonationForm({
                 onChange={setValue}
               />
             </div>
-            <PayPalButtons
-              createOrder={(data, actions) => {
-                const metaData: DonationMetaData = { accountId };
-                return actions.order.create({
-                  purchase_units: [
-                    {
-                      custom_id: JSON.stringify(metaData),
-                      amount: { value: value.toString() },
-                    },
-                  ],
-                });
-              }}
-              onApprove={async (data, actions) => {
-                if (!actions.order) {
-                  return Promise.reject("No order");
-                }
-                try {
-                  await actions.order
-                    .capture()
-                    .then((details) => setDetails({ details }));
-                } catch (error) {
-                  setDetails({ error: `${error}` });
-                }
-              }}
-              onCancel={() => setDetails("cancel")}
-            />
+            <Box sx={{ maxWidth: 270 }}>
+              <PayPalButtons
+                fundingSource="paypal"
+                style={{ label: "donate" }}
+                disabled={!mayDonate}
+                createOrder={(data, actions) => {
+                  setStatus("idle");
+                  return actions.order.create(
+                    createDonationOrderOptions(value, currency, accountId)
+                  );
+                }}
+                onApprove={async (data, actions) => {
+                  if (!actions.order) {
+                    return Promise.reject("No order");
+                  }
+                  try {
+                    await actions.order
+                      .capture()
+                      .then(() => setStatus("confirming"));
+                  } catch (error) {
+                    setStatus("error");
+                  }
+                }}
+                onCancel={() => setStatus("cancel")}
+              />
+            </Box>
+            {status === "error" && (
+              <Typography color="error">
+                Something went wrong. Your donation was not processed. Please
+                try again later.
+              </Typography>
+            )}
+            {status === "confirming" && (
+              <Stack direction="row" spacing={2} alignItems="center">
+                <div>
+                  <LoadingSpinner />
+                </div>
+                <Typography color="info.main">
+                  Your donation has been sent. Waiting for confirmation.
+                </Typography>
+              </Stack>
+            )}
+            {status === "confirmed" && (
+              <Typography color="success.main">
+                Thank you for your donation. You have been awarded{" "}
+                {rewardedCredits} credits!
+              </Typography>
+            )}
           </Stack>
         </form>
       </PayPalFallback>
     </PayPalScriptProvider>
   );
 }
+
+type DonationStatus = "idle" | "error" | "cancel" | "confirming" | "confirmed";
 
 function PayPalFallback({
   children: resolved,
@@ -118,4 +154,39 @@ function PayPalFallback({
     return <>{initial}</>;
   }
   return <>{resolved}</>;
+}
+
+function createDonationOrderOptions(
+  value: number,
+  currency: Currency,
+  accountId: AccountId
+) {
+  const metaData: DonationMetaData = { accountId };
+  return {
+    purchase_units: [
+      {
+        custom_id: JSON.stringify(metaData),
+        amount: {
+          value: value.toString(),
+          breakdown: {
+            item_total: {
+              currency_code: currency,
+              value: value.toString(),
+            },
+          },
+        },
+        items: [
+          {
+            name: "Donation",
+            quantity: "1",
+            category: "DONATION" as const,
+            unit_amount: {
+              currency_code: currency,
+              value: value.toString(),
+            },
+          },
+        ],
+      },
+    ],
+  };
 }
