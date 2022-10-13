@@ -6,46 +6,37 @@ import {
   usePayPalScriptReducer,
 } from "@paypal/react-paypal-js";
 import { TextField } from "../controls/TextField";
-import {
-  AdminPublicSettings,
-  Currency,
-  Money,
-} from "../../api/services/settings/types";
+import { AdminPublicSettings, Money } from "../../api/services/settings/types";
 import { LoadingSpinner } from "../components/LoadingSpinner";
-import { AccountId, UserProfile } from "../../api/services/user/types";
-import { DonationMetaData } from "../../api/services/donation/types";
+import { UserProfile } from "../../api/services/user/types";
 import { calculateRewardedCredits } from "../../api/services/donation/utils/calculateRewardedCredits";
-import { useBlockNavigation } from "../../lib/hooks/useBlockNavigation";
+import { trpc } from "../state/client";
+import { DonationCaptureResult } from "../../api/services/donation/types";
 
 export function DonationForm({
-  accountId,
   defaultAmount,
   exchangeRate,
   currency,
   paypalClientId,
-  paypalMerchantId,
   onSubmit,
 }: {
   accountId: UserProfile["id"];
   onSubmit?: (money: Money) => void;
 } & AdminPublicSettings["donations"]) {
+  const { mutateAsync: capture } = trpc.donation.capture.useMutation();
+  const { mutateAsync: order } = trpc.donation.order.useMutation();
   const [status, setStatus] = useState<DonationStatus>("idle");
   const [value, setValue] = useState(defaultAmount);
   const rewardedCredits = calculateRewardedCredits(value, exchangeRate);
-  const mayDonate = status !== "confirming";
-
-  useBlockNavigation(
-    status === "confirming",
-    "Leaving this page while confirming your donation will make you lose track of the confirmation process. " +
-      "The donation will finish, but you will not be notified of its resolution. Are you sure you want to leave?"
-  );
+  const mayDonate = status !== "pending";
+  const statusDescription = describeDonationStatus(status, rewardedCredits);
 
   return (
     <PayPalScriptProvider
       options={{
         currency,
+        intent: "capture",
         "client-id": paypalClientId,
-        "merchant-id": paypalMerchantId,
       }}
     >
       <PayPalFallback
@@ -78,50 +69,34 @@ export function DonationForm({
             <Box sx={{ maxWidth: 270 }}>
               <PayPalButtons
                 fundingSource="paypal"
-                style={{ label: "donate" }}
                 disabled={!mayDonate}
-                createOrder={(data, actions) => {
+                createOrder={async () => {
                   setStatus("idle");
-                  return actions.order.create(
-                    createDonationOrderOptions(value, currency, accountId)
-                  );
-                }}
-                onApprove={async (data, actions) => {
-                  if (!actions.order) {
-                    return Promise.reject("No order");
+                  const orderID = await order({ value, currency });
+                  if (orderID === undefined) {
+                    throw new Error("Could not create order");
                   }
-                  try {
-                    await actions.order
-                      .capture()
-                      .then(() => setStatus("confirming"));
-                  } catch (error) {
-                    setStatus("error");
-                  }
+                  return orderID;
                 }}
                 onCancel={() => setStatus("cancel")}
+                onError={() => setStatus("error")}
+                onApprove={async (data) => {
+                  setStatus("pending");
+                  setStatus(await capture(data));
+                }}
               />
             </Box>
-            {status === "error" && (
-              <Typography color="error">
-                Something went wrong. Your donation was not processed. Please
-                try again later.
-              </Typography>
-            )}
-            {status === "confirming" && (
+            {statusDescription && (
               <Stack direction="row" spacing={2} alignItems="center">
-                <div>
-                  <LoadingSpinner />
-                </div>
-                <Typography color="info.main">
-                  Your donation has been sent. Waiting for confirmation.
+                {statusDescription.spinner && (
+                  <div>
+                    <LoadingSpinner />
+                  </div>
+                )}
+                <Typography color={statusDescription.color}>
+                  {statusDescription.message}
                 </Typography>
               </Stack>
-            )}
-            {status === "confirmed" && (
-              <Typography color="success.main">
-                Thank you for your donation. You have been awarded{" "}
-                {rewardedCredits} credits!
-              </Typography>
             )}
           </Stack>
         </form>
@@ -130,7 +105,63 @@ export function DonationForm({
   );
 }
 
-type DonationStatus = "idle" | "error" | "cancel" | "confirming" | "confirmed";
+function describeDonationStatus(
+  status: DonationStatus,
+  rewardedCredits: number
+): { spinner?: boolean; message: string; color?: string } | false {
+  switch (status) {
+    case "idle":
+      return false;
+    case "cancel":
+      return {
+        color: "info.main",
+        message: "Your donation was canceled.",
+      };
+    case "pending":
+      return {
+        spinner: true,
+        color: "info.main",
+        message: "Your donation has been sent. Waiting for confirmation.",
+      };
+    case "invalidUser":
+    case "unknownOrder":
+    case "orderNotCompleted":
+    case "noPaymentsReceived":
+    case "error":
+      return {
+        color: "error",
+        message:
+          "Something went wrong. Your donation was not processed. Please try again later.",
+      };
+    case "refundDueToInternalError":
+      return {
+        color: "error",
+        message:
+          "Something went wrong after your donation went through. " +
+          "A refund have been issued. Please try again later.",
+      };
+    case "internalErrorAndRefundFailed":
+      return {
+        color: "error",
+        message:
+          "Something went wrong after your donation went through. " +
+          "A refund was attempted but could be issued. " +
+          "Please contact an admin for a manual refund.",
+      };
+    case "creditsAwarded":
+      return {
+        color: "success.main",
+        message: `Thank you for your donation. You have been awarded ${rewardedCredits} credits!`,
+      };
+  }
+}
+
+type DonationStatus =
+  | "idle"
+  | "cancel"
+  | "pending"
+  | "error"
+  | DonationCaptureResult;
 
 function PayPalFallback({
   children: resolved,
@@ -154,39 +185,4 @@ function PayPalFallback({
     return <>{initial}</>;
   }
   return <>{resolved}</>;
-}
-
-function createDonationOrderOptions(
-  value: number,
-  currency: Currency,
-  accountId: AccountId
-) {
-  const metaData: DonationMetaData = { accountId };
-  return {
-    purchase_units: [
-      {
-        custom_id: JSON.stringify(metaData),
-        amount: {
-          value: value.toString(),
-          breakdown: {
-            item_total: {
-              currency_code: currency,
-              value: value.toString(),
-            },
-          },
-        },
-        items: [
-          {
-            name: "Donation",
-            quantity: "1",
-            category: "DONATION" as const,
-            unit_amount: {
-              currency_code: currency,
-              value: value.toString(),
-            },
-          },
-        ],
-      },
-    ],
-  };
 }

@@ -1,15 +1,15 @@
 import { DatabaseDriver } from "../../../rathena/DatabaseDriver";
 import { AdminSettings } from "../../settings/types";
-import { DonationIPN } from "../types";
 import { calculateRewardedCredits } from "./calculateRewardedCredits";
 
 export async function rewardUserWithCredits(
   db: DatabaseDriver,
-  { custom: { accountId }, mc_gross }: DonationIPN,
+  donationAmount: number,
+  accountId: number,
   settings: AdminSettings
 ) {
   const rewardedCredits = calculateRewardedCredits(
-    mc_gross,
+    donationAmount,
     settings.public.donations.exchangeRate
   );
 
@@ -41,5 +41,5 @@ export async function rewardUserWithCredits(
     success = newIds.length > 0;
   }
 
-  return [success, rewardedCredits] as const;
+  return success;
 }

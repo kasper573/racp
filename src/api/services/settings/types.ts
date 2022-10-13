@@ -28,7 +28,7 @@ export const adminPublicSettingsType = zod.object({
     currency: currencyType,
     presentation: zod.string(),
     paypalClientId: zod.string(),
-    paypalMerchantId: zod.string().optional(),
+    paypalMerchantId: zod.string(),
   }),
 });
 
@@ -36,6 +36,7 @@ export type AdminInternalSettings = zod.infer<typeof adminInternalSettingsType>;
 export const adminInternalSettingsType = zod.object({
   donations: zod.object({
     accRegNumKey: zod.string(),
+    paypalClientSecret: zod.string(),
   }),
 });
 

@@ -18,7 +18,6 @@ export function AdminSettingsForm({
   value: AdminSettings;
   onChange: (value: AdminSettings) => void;
 }) {
-  const { data: ipnUrl } = trpc.donation.getIPNUrl.useQuery();
   const { data: currencies = [] } = trpc.settings.getCurrencies.useQuery();
   const field = useZodForm({
     schema: adminSettingsType,
@@ -55,18 +54,16 @@ export function AdminSettingsForm({
                   label="Enable donations"
                 />
                 <TextField
-                  label="PayPal IPN Notification URL"
-                  value={ipnUrl ?? "Loading..."}
-                  helperText="Copy this URL and paste it into your PayPal merchant accounts IPN settings. Prefix it with either http or https depending on what you are using."
+                  label="Paypal Merchant ID"
+                  {...field("public.donations.paypalMerchantId")}
                 />
                 <TextField
                   label="Paypal Client ID"
                   {...field("public.donations.paypalClientId")}
                 />
                 <TextField
-                  label="Paypal Merchant ID"
-                  optional
-                  {...field("public.donations.paypalMerchantId")}
+                  label="Paypal Client Secret"
+                  {...field("internal.donations.paypalClientSecret")}
                 />
                 <TextField
                   label="Credits database key"

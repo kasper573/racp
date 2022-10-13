@@ -42,8 +42,6 @@ import { createNpcRepository } from "./services/npc/repository";
 import { createNpcService } from "./services/npc/service";
 import { createAdminSettingsService } from "./services/settings/service";
 import { createDonationService } from "./services/donation/service";
-import { createIPNRequestHandler } from "./services/donation/utils/createIPNRequestHandler";
-import { UserAccessLevel } from "./services/user/types";
 import { createAdminSettingsRepository } from "./services/settings/repository";
 
 const args = readCliArgs(options);
@@ -101,27 +99,12 @@ let router: ApiRouter;
     settings: createAdminSettingsService(settings),
     donation: createDonationService({
       db,
+      env: args.paypalEnvironment,
       settings,
-      getIPNUrl: () => `//${args.hostname}:${args.apiPort}${ipnPath}`,
       logger: logger.chain("donation")
     }),
   })
 }
-
-const adminRouterCaller = router.createCaller({
-  auth: { id: -1, access: UserAccessLevel.Admin },
-});
-
-// PayPal IPN requests are not compatible with tRPC,
-// which is why we use a separate router for them
-const ipnPath = "/paypal-ipn";
-app.use(
-  ipnPath,
-  createIPNRequestHandler(
-    args.paypalEnvironment,
-    adminRouterCaller.donation.handleIPN
-  )
-);
 
 app.use(authenticator.middleware);
 app.use(cors());
@@ -137,7 +120,9 @@ app.use(
         .error(
           `/${path}`,
           error.name,
-          args.exposeInternalErrors ? error.message : "Internal Server Error"
+          args.exposeInternalErrors
+            ? `${error.message}: ${error.stack}`
+            : "Internal Server Error"
         );
     },
     router,

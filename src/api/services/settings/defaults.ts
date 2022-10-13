@@ -13,6 +13,7 @@ export const defaultAdminSettings: AdminSettings = {
       exchangeRate: 10,
       currency: "USD" as Currency,
       paypalClientId: "sb",
+      paypalMerchantId: "",
       presentation:
         "Donations are welcome, but not required!\n\n" +
         "As a thank you, donations will be rewarded with credits that can be traded for in-game items.",
@@ -21,6 +22,7 @@ export const defaultAdminSettings: AdminSettings = {
   internal: {
     donations: {
       accRegNumKey: "#CASHPOINTS",
+      paypalClientSecret: "",
     },
   },
 };
