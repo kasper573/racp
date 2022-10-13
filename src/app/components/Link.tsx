@@ -16,8 +16,8 @@ export type LinkTo = AdditionalLinkProps["to"];
 export const LinkBase = MuiLink;
 
 const LinkBehavior = forwardRef<HTMLAnchorElement, RouterLinkProps>(
-  function Link({ to, ...props }, ref) {
-    return <RouterLink ref={ref} to={to.$} {...props} role={undefined} />;
+  function Link({ to, role, ...props }, ref) {
+    return <RouterLink ref={ref} to={to.$} {...props} role={role} />;
   }
 );
 

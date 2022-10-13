@@ -40,6 +40,7 @@ import { createShopService } from "./services/shop/service";
 import { createShopRepository } from "./services/shop/repository";
 import { createNpcRepository } from "./services/npc/repository";
 import { createNpcService } from "./services/npc/service";
+import { createAdminSettingsService } from "./services/settings/service";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -92,6 +93,7 @@ let router: ApiRouter;
     npc: createNpcService(npcs),
     map: createMapService(maps),
     meta: createMetaService({ items, monsters }),
+    settings: createAdminSettingsService(files)
   })
 }
 

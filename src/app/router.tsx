@@ -9,7 +9,6 @@ import { lazy } from "react";
 import {
   AccountCircle,
   AdminPanelSettings,
-  Article,
   EmojiEvents,
   Home,
   Image,
@@ -19,6 +18,8 @@ import {
   PersonAdd,
   PestControlRodent,
   Redeem,
+  Settings,
+  Storage,
   Storefront,
 } from "@mui/icons-material";
 import { useLocation } from "react-router-dom";
@@ -145,24 +146,28 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
       middleware: requireAuth(UserAccessLevel.Admin),
     },
     (route) => ({
-      config: route(
-        "config",
+      settings: route("settings", {
+        component: lazy(() => import("./pages/AdminSettingsPage")),
+        options: { title: "Settings", icon: <Settings /> },
+      }),
+      assets: route("assets", {
+        component: lazy(() => import("./pages/AdminAssetsPage")),
+        options: { title: "Assets", icon: <Image /> },
+      }),
+      serverConfig: route(
+        "server-config",
         {
-          component: lazy(() => import("./pages/AdminConfigPage")),
-          options: { title: "Config", icon: <Article /> },
+          component: lazy(() => import("./pages/AdminServerConfigPage")),
+          options: { title: "Server Config", icon: <Storage /> },
         },
         (route) => ({
           edit: route("edit/&:configName", {
-            component: lazy(() => import("./pages/AdminConfigEditPage")),
+            component: lazy(() => import("./pages/AdminServerConfigEditPage")),
             options: { title: "Edit", icon: <ModeEdit /> },
             params: { configName: stringParser },
           }),
         })
       ),
-      assets: route("assets", {
-        component: lazy(() => import("./pages/AdminAssetsPage")),
-        options: { title: "Assets", icon: <Image /> },
-      }),
     })
   ),
 }));

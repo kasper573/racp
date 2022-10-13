@@ -16,7 +16,6 @@ const env = loadEnv({
   NODE_ENV: { type: String, default: "development" },
   reactRefresh: { type: Boolean, optional: true },
   apiBaseUrl: { type: String, default: "/" },
-  appTitle: { type: String, default: "RACP" },
   appPort: { type: Number, default: 8080 },
   analyzeBundles: { type: Boolean, default: false },
 });
