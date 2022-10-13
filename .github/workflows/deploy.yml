@@ -33,7 +33,8 @@ jobs:
           apiBaseUrl: //${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_API_PORT }}
         run: |
           yarn install --frozen-lockfile
-          NODE_ENV=production && yarn app:build
+          export NODE_ENV=production
+          yarn app:build
 
       - name: Upload
         uses: burnett01/rsync-deployments@5.2.1
