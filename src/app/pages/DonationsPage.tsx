@@ -41,7 +41,7 @@ export default function DonationsPage() {
           user && (
             <DonationForm
               {...settings.donations}
-              userId={user.id}
+              accountId={user.id}
               onSubmit={startDonationProcess}
             />
           )

@@ -42,8 +42,9 @@ import { createNpcRepository } from "./services/npc/repository";
 import { createNpcService } from "./services/npc/service";
 import { createAdminSettingsService } from "./services/settings/service";
 import { createDonationService } from "./services/donation/service";
-import { createIPNRequestHandler } from "./services/donation/createIPNRequestHandler";
+import { createIPNRequestHandler } from "./services/donation/utils/createIPNRequestHandler";
 import { UserAccessLevel } from "./services/user/types";
+import { createAdminSettingsRepository } from "./services/settings/repository";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -83,6 +84,7 @@ let router: ApiRouter;
   const npcs = createNpcRepository({ script, logger });
   const drops = createDropRepository({ items, monsters, logger });
   const shops = createShopRepository({ script, logger, getItems: items.getItems, });
+  const settings = createAdminSettingsRepository(files);
 
   router = createApiRouter({
     util: createUtilService(),
@@ -96,8 +98,10 @@ let router: ApiRouter;
     npc: createNpcService(npcs),
     map: createMapService(maps),
     meta: createMetaService({ items, monsters }),
-    settings: createAdminSettingsService(files),
+    settings: createAdminSettingsService(settings),
     donation: createDonationService({
+      db,
+      settings,
       getIPNUrl: () => `//${args.hostname}:${args.apiPort}${ipnPath}`,
       logger: logger.chain("donation")
     }),

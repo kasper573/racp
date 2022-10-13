@@ -1,6 +1,6 @@
 // Common yargs CLI argument options used in all scripts
 
-import { paypalEnvironments } from "./services/donation/createIPNRequestHandler";
+import { paypalEnvironments } from "./services/donation/utils/createIPNRequestHandler";
 
 export const rAthenaModes = ["Renewal", "Prerenewal"] as const;
 export type RAthenaMode = typeof rAthenaModes extends Iterable<infer V>

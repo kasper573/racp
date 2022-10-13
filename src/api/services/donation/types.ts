@@ -1,8 +1,9 @@
 import * as zod from "zod";
 import { zodNumeric } from "../../../lib/zod/zodNumeric";
 import { currencyType } from "../settings/types";
-import { userIdType } from "../user/types";
+import { accountIdType } from "../user/types";
 
+export type DonationIPN = zod.infer<typeof donationIPNType>;
 export const donationIPNType = zod.object({
   mc_gross: zodNumeric(),
   mc_currency: currencyType,
@@ -14,5 +15,5 @@ export const donationIPNType = zod.object({
 
 export type DonationMetaData = zod.infer<typeof donationMetaDataType>;
 export const donationMetaDataType = zod.object({
-  userId: userIdType,
+  accountId: accountIdType,
 });

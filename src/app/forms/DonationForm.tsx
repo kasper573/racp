@@ -10,9 +10,10 @@ import { AdminPublicSettings, Money } from "../../api/services/settings/types";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { UserProfile } from "../../api/services/user/types";
 import { DonationMetaData } from "../../api/services/donation/types";
+import { calculateRewardedCredits } from "../../api/services/donation/utils/calculateRewardedCredits";
 
 export function DonationForm({
-  userId,
+  accountId,
   defaultAmount,
   exchangeRate,
   currency,
@@ -20,12 +21,12 @@ export function DonationForm({
   paypalMerchantId,
   onSubmit,
 }: {
-  userId: UserProfile["id"];
+  accountId: UserProfile["id"];
   onSubmit?: (money: Money) => void;
 } & AdminPublicSettings["donations"]) {
   const [details, setDetails] = useState<unknown>();
   const [value, setValue] = useState(defaultAmount);
-  const credits = value * exchangeRate;
+  const rewardedCredits = calculateRewardedCredits(value, exchangeRate);
 
   return (
     <PayPalScriptProvider
@@ -57,14 +58,14 @@ export function DonationForm({
                     <InputAdornment position="start">{currency}</InputAdornment>
                   ),
                 }}
-                helperText={`Donating ${value} ${currency} will reward you ${credits} credits.`}
+                helperText={`Donating ${value} ${currency} will reward you ${rewardedCredits} credits.`}
                 value={value}
                 onChange={setValue}
               />
             </div>
             <PayPalButtons
               createOrder={(data, actions) => {
-                const metaData: DonationMetaData = { userId };
+                const metaData: DonationMetaData = { accountId };
                 return actions.order.create({
                   purchase_units: [
                     {
