@@ -7,8 +7,9 @@ import { Logger } from "../../../lib/logger";
 import { AdminSettingsRepository } from "../settings/repository";
 import { DatabaseDriver } from "../../rathena/DatabaseDriver";
 import { AdminSettings, moneyType } from "../settings/types";
+import { updateAccRegValue } from "../../common/updateAccRegValue";
 import { donationCaptureResultType } from "./types";
-import { rewardUserWithCredits } from "./utils/rewardUserWithCredits";
+import { calculateRewardedCredits } from "./utils/calculateRewardedCredits";
 
 export type DonationService = ReturnType<typeof createDonationService>;
 
@@ -100,11 +101,23 @@ export function createDonationService({
             return "noPaymentsReceived";
           }
 
-          const success = await rewardUserWithCredits(
-            db,
+          // prettier-ignore
+          const {
+            public: { donations: { exchangeRate }, },
+            internal: { donations: { accRegNumKey }, },
+          } = settings.getSettings();
+
+          const rewardedCredits = calculateRewardedCredits(
             +capture.amount.value,
+            exchangeRate
+          );
+
+          const success = await updateAccRegValue(
+            db,
+            "num",
             accountId,
-            settings.getSettings()
+            accRegNumKey,
+            (n = 0) => n + rewardedCredits
           );
 
           if (success) {
