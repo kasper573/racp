@@ -2,14 +2,16 @@ import * as paypal from "@paypal/checkout-server-sdk";
 import * as paypalHttp from "@paypal/paypalhttp";
 
 export function createFakePayPalClient(fakeDB: paypal.orders.Order[]) {
+  const index = 0;
+
   function create(request: paypal.orders.OrdersCreateRequest) {
     request.body.id = " fake";
-    fakeDB.push(request.body);
+    fakeDB[index] = request.body;
     return request.body;
   }
 
   function find() {
-    return fakeDB[0];
+    return fakeDB[index];
   }
 
   function capture() {
