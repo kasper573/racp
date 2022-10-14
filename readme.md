@@ -113,6 +113,7 @@ To use the automatic deployment:
   - `DEPLOY_HOST` - The host of the server to deploy to
   - `DEPLOY_USERNAME` - The ssh username to connect with when deploying
   - `DEPLOY_PASSWORD` - The ssh password to connect with when deploying
+  - `DEPLOY_JWT_SECRET` - The JWT secret to use for user authentication (Can be any secret and unique string of your choice)
   - `DEPLOY_API_PORT` - The port to run the api on (Whatever port you want)
   - `DEPLOY_APP_PORT` - The port to run the web app on (80 is recommended, but it's up to you)
   - `DEPLOY_RATHENA_PATH` - The absolute path to the rAthena folder on your server

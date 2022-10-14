@@ -62,6 +62,7 @@ jobs:
             export apiPort=${{ secrets.DEPLOY_API_PORT }}
             export appPort=${{ secrets.DEPLOY_APP_PORT }}
             export rAthenaPath=${{ secrets.DEPLOY_RATHENA_PATH }}
+            export jwtSecret=${{ secrets.DEPLOY_JWT_SECRET }}
             export log=verbose
             export donationEnvironment=live
 
