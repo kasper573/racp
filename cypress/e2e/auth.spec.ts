@@ -41,7 +41,9 @@ describe("user", () => {
 
   it("can change their email", () => {
     updateProfile({ email: "new@email.com" });
-    cy.reload(); // Reload to clear any potential form cache
+    signOut();
+    cy.visit("/"); // Reload to clear any potential form cache
+    signIn(user.name, user.password);
     cy.findByLabelText("Email").should("have.value", "new@email.com");
   });
 
