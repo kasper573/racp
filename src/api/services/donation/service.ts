@@ -35,7 +35,7 @@ export function createDonationService({
   );
 
   return t.router({
-    getCurrencies: t.procedure
+    currencies: t.procedure
       .output(zod.array(currencyType))
       .query(() => paypalCurrencies as Currency[]),
     balance: t.procedure

@@ -18,7 +18,7 @@ export function AdminSettingsForm({
   value: AdminSettings;
   onChange: (value: AdminSettings) => void;
 }) {
-  const { data: currencies = [] } = trpc.donation.getCurrencies.useQuery();
+  const { data: currencies = [] } = trpc.donation.currencies.useQuery();
 
   const field = useZodForm({
     schema: adminSettingsType,
