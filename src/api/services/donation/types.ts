@@ -10,8 +10,8 @@ export const donationEnvironments = donationEnvironmentType.options.map(
   (o) => o.value
 );
 
-export type DonationCaptureResult = zod.infer<typeof donationCaptureResultType>;
-export const donationCaptureResultType = zod.union([
+export type DonationCaptureStatus = zod.infer<typeof donationCaptureStatusType>;
+export const donationCaptureStatusType = zod.union([
   zod.literal("orderNotCompleted"),
   zod.literal("noPaymentsReceived"),
   zod.literal("unknownOrder"),
@@ -20,3 +20,9 @@ export const donationCaptureResultType = zod.union([
   zod.literal("internalErrorAndRefundFailed"),
   zod.literal("creditsAwarded"),
 ]);
+
+export type DonationCaptureResult = zod.infer<typeof donationCaptureResultType>;
+export const donationCaptureResultType = zod.object({
+  status: donationCaptureStatusType,
+  rewardedCredits: zod.number().optional(),
+});

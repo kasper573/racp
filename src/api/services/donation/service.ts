@@ -91,7 +91,7 @@ export function createDonationService({
             await client.execute(new paypal.orders.OrdersGetRequest(orderID));
 
           if (!order) {
-            return "unknownOrder";
+            return { status: "unknownOrder" };
           }
 
           const orderAccountId = customIdToAccountId(
@@ -103,7 +103,7 @@ export function createDonationService({
               `Order ${orderID} (account ${orderAccountId}) was not created for ` +
                 `acting user ${accountId}. Will not reward user.`
             );
-            return "invalidUser";
+            return { status: "invalidUser" };
           }
 
           const { result }: { result?: paypal.orders.Order } =
@@ -115,7 +115,7 @@ export function createDonationService({
             );
 
           if (result?.status !== "COMPLETED") {
-            return "orderNotCompleted";
+            return { status: "orderNotCompleted" };
           }
 
           const purchase = result.purchase_units[0];
@@ -124,7 +124,7 @@ export function createDonationService({
             logger.warn(
               `No payment capture found for order ${orderID} (account ${accountId}). Will not reward user.`
             );
-            return "noPaymentsReceived";
+            return { status: "noPaymentsReceived" };
           }
 
           const rewardedCredits = calculateRewardedCredits(
@@ -138,7 +138,7 @@ export function createDonationService({
           );
 
           if (success) {
-            return "creditsAwarded";
+            return { status: "creditsAwarded", rewardedCredits };
           }
 
           logger.error(
@@ -158,14 +158,14 @@ export function createDonationService({
             );
 
           if (refund?.status === "COMPLETED") {
-            return "refundDueToInternalError";
+            return { status: "refundDueToInternalError" };
           }
 
           logger.error(
             `Failed to refund user ${accountId} for order ${orderID}`,
             refund
           );
-          return "internalErrorAndRefundFailed";
+          return { status: "internalErrorAndRefundFailed" };
         }
       ),
   });

@@ -27,11 +27,11 @@ export function DonationForm({
     trpc.donation.environment.useQuery();
   const { mutateAsync: capture } = trpc.donation.capture.useMutation();
   const { mutateAsync: order } = trpc.donation.order.useMutation();
-  const [status, setStatus] = useState<DonationStatus>("idle");
+  const [donationState, setDonationState] = useState<DonationState>("idle");
   const [value, setValue] = useState(defaultAmount);
   const rewardedCredits = calculateRewardedCredits(value, exchangeRate);
-  const mayDonate = status !== "pending";
-  const statusDescription = describeDonationStatus(status, rewardedCredits);
+  const mayDonate = donationState !== "pending";
+  const donationStateDescription = describeDonationState(donationState);
   const PayPalButton = PayPalButtonProviders[donationEnvironment];
 
   return (
@@ -74,30 +74,30 @@ export function DonationForm({
                 fundingSource="paypal"
                 disabled={!mayDonate}
                 createOrder={async () => {
-                  setStatus("idle");
+                  setDonationState("idle");
                   const orderID = await order({ value, currency });
                   if (orderID === undefined) {
                     throw new Error("Could not create order");
                   }
                   return orderID;
                 }}
-                onCancel={() => setStatus("cancel")}
-                onError={() => setStatus("error")}
+                onCancel={() => setDonationState("cancel")}
+                onError={() => setDonationState("error")}
                 onApprove={async (data) => {
-                  setStatus("pending");
-                  setStatus(await capture(data));
+                  setDonationState("pending");
+                  setDonationState(await capture(data));
                 }}
               />
             </Box>
-            {statusDescription && (
+            {donationStateDescription && (
               <Stack direction="row" spacing={2} alignItems="center">
-                {statusDescription.spinner && (
+                {donationStateDescription.spinner && (
                   <div>
                     <LoadingSpinner />
                   </div>
                 )}
-                <Typography color={statusDescription.color}>
-                  {statusDescription.message}
+                <Typography color={donationStateDescription.color}>
+                  {donationStateDescription.message}
                 </Typography>
               </Stack>
             )}
@@ -108,10 +108,10 @@ export function DonationForm({
   );
 }
 
-function describeDonationStatus(
-  status: DonationStatus,
-  rewardedCredits: number
+function describeDonationState(
+  state: DonationState
 ): { spinner?: boolean; message: string; color?: string } | false {
+  const status = typeof state === "string" ? state : state.status;
   switch (status) {
     case "idle":
       return false;
@@ -154,12 +154,14 @@ function describeDonationStatus(
     case "creditsAwarded":
       return {
         color: "success.main",
-        message: `Thank you for your donation. You have been awarded ${rewardedCredits} credits!`,
+        message: `Thank you for your donation. You have been awarded ${
+          (state as DonationCaptureResult).rewardedCredits
+        } credits!`,
       };
   }
 }
 
-type DonationStatus =
+type DonationState =
   | "idle"
   | "cancel"
   | "pending"
