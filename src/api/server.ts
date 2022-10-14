@@ -101,7 +101,7 @@ let router: ApiRouter;
       db,
       env: args.donationEnvironment,
       settings,
-      logger: logger.chain("donation")
+      logger,
     }),
   })
 }
