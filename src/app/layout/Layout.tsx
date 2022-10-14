@@ -10,8 +10,8 @@ import {
   useTheme,
   useMediaQuery,
   IconButton,
-  Collapse,
   Stack,
+  Fade,
 } from "@mui/material";
 import { Helmet } from "react-helmet-async";
 import { Menu as MenuIcon } from "@mui/icons-material";
@@ -64,9 +64,11 @@ export function Layout({ children }: { children?: ReactNode }) {
                   >
                     <MenuIcon />
                   </IconButton>
-                  <Collapse orientation="horizontal" in={!!settings?.pageTitle}>
-                    <Logo icon={false}>{settings?.pageTitle}</Logo>
-                  </Collapse>
+                  <Fade in={!!settings?.pageTitle}>
+                    <div>
+                      <Logo icon={false}>{settings?.pageTitle}</Logo>
+                    </div>
+                  </Fade>
                 </Stack>
               )}
             </Toolbar>
@@ -85,9 +87,11 @@ export function Layout({ children }: { children?: ReactNode }) {
         }}
       >
         <MuiToolbar>
-          <Collapse orientation="horizontal" in={!!settings?.pageTitle}>
-            <Logo>{settings?.pageTitle}</Logo>
-          </Collapse>
+          <Fade in={!!settings?.pageTitle}>
+            <div>
+              <Logo>{settings?.pageTitle}</Logo>
+            </div>
+          </Fade>
         </MuiToolbar>
         <Divider />
         <Menu onItemSelected={handleDrawerCloseRequest} />
