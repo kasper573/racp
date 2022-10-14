@@ -26,8 +26,7 @@ export function Layout({ children }: { children?: ReactNode }) {
   const theme = useTheme();
   const isDrawerPermanent = !useMediaQuery(theme.breakpoints.down("md"));
   const [isDrawerOpen, setDrawerOpen] = useState(isDrawerPermanent);
-  const { data: settings, isLoading: isSettingsLoading } =
-    trpc.settings.readPublic.useQuery();
+  const { data: settings } = trpc.settings.readPublic.useQuery();
 
   useEffect(() => setDrawerOpen(isDrawerPermanent), [isDrawerPermanent]);
   function handleDrawerCloseRequest() {
