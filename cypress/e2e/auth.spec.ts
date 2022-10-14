@@ -1,5 +1,6 @@
 import {
   assertSignedIn,
+  assertSignedOut,
   register,
   signIn,
   signOut,
@@ -63,6 +64,11 @@ describe("user", () => {
 describe("guest", () => {
   it("does not have access to admin menu", () => {
     findMainMenu("Admin").should("not.exist");
+  });
+
+  it("is not given access when attempting to sign in with bogus credentials", () => {
+    signIn("bogus", "credentials", { waitForRedirect: false });
+    assertSignedOut();
   });
 });
 
