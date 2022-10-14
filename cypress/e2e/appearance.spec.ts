@@ -15,17 +15,22 @@ describe("can change", () => {
   });
 
   it("page title", () => {
-    cy.findByLabelText("Page Title").clear().type("Test Title");
+    submitSettings(() =>
+      cy.findByLabelText("Page Title").clear().type("Test Title")
+    );
     cy.findByRole("heading", { name: "Test Title" });
   });
 
   it("zeny colors", () => {
-    cy.findByLabelText("Zeny Colors")
-      .clear()
-      .type(
-        JSON.stringify({ dark: [[0, "green"]], light: [[0, "darkgreen"]] }),
-        { parseSpecialCharSequences: false }
-      );
+    submitSettings(() =>
+      cy
+        .findByLabelText("Zeny Colors")
+        .clear()
+        .type(
+          JSON.stringify({ dark: [[0, "green"]], light: [[0, "darkgreen"]] }),
+          { parseSpecialCharSequences: false }
+        )
+    );
 
     gotoMainMenuPage("Items");
 
@@ -34,6 +39,11 @@ describe("can change", () => {
     expectZenyColor("rgb(0, 100, 0)"); // darkgreen
   });
 });
+
+function submitSettings(editSomeSettings: Function) {
+  editSomeSettings();
+  cy.findByRole("form").submit();
+}
 
 const expectZenyColor = (color: string) =>
   findTableColumn("Sell Value")
