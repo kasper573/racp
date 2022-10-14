@@ -20,6 +20,7 @@ import {
 } from "./types";
 import { calculateRewardedCredits } from "./utils/calculateRewardedCredits";
 import { paypalCurrencies } from "./paypalCurrencies";
+import { createFakePayPalClient } from "./createFakePayPalClient";
 
 export type DonationService = ReturnType<typeof createDonationService>;
 
@@ -176,9 +177,10 @@ export function createDonationService({
   });
 }
 
+const fakePayPalDB: paypal.orders.Order[] = [];
 function createPayPalClient(s: AdminSettings, env: DonationEnvironment) {
   if (env === "fake") {
-    return {} as paypal.core.PayPalHttpClient;
+    return createFakePayPalClient(fakePayPalDB);
   }
   return new paypal.core.PayPalHttpClient(
     {
