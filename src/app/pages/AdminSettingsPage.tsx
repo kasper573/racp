@@ -8,6 +8,7 @@ export default function AdminSettingsPage() {
     <>
       <Header>Settings</Header>
       <CommonRemoteForm
+        name="admin-settings"
         query={trpc.settings.read.useQuery}
         mutation={() => trpc.settings.update.useMutation()}
       >
