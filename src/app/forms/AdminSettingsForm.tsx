@@ -44,15 +44,15 @@ export function AdminSettingsForm(props: ZodFormOptions<AdminSettings>) {
                   label="Enable donations"
                 />
                 <TextField
-                  label="Paypal Merchant ID"
+                  label="PayPal Merchant ID"
                   {...field("donations.paypal.merchantId")}
                 />
                 <TextField
-                  label="Paypal Client ID"
+                  label="PayPal Client ID"
                   {...field("donations.paypal.clientId")}
                 />
                 <TextField
-                  label="Paypal Client Secret"
+                  label="PayPal Client Secret"
                   {...field("donations.paypal.clientSecret")}
                 />
                 <TextField

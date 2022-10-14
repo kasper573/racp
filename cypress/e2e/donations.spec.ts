@@ -18,9 +18,7 @@ beforeEach(() => {
 let donationsUrl: string;
 
 it("enabling works", () => {
-  updateSettingsAndGotoDonations(() =>
-    cy.findByLabelText("Enable donations").check()
-  );
+  updateSettingsAndGotoDonations(enableDonations);
   cy.findByRole("heading", { name: "Donations" });
   cy.url().then((url) => {
     donationsUrl = url;
@@ -41,9 +39,7 @@ describe("disabling", () => {
 });
 
 describe("can change", () => {
-  beforeEach(() =>
-    submitSettings(() => cy.findByLabelText("Enable donations").check())
-  );
+  beforeEach(() => submitSettings(enableDonations));
 
   it("presentation", () => {
     updateSettingsAndGotoDonations(() =>
@@ -77,7 +73,7 @@ describe("donating", () => {
   beforeEach(() => {
     resetData();
     updateSettingsAndGotoDonations(() => {
-      cy.findByLabelText("Enable donations").check();
+      enableDonations();
       cy.findByLabelText("Exchange rate").clear().type("8");
       cy.get(`#Currency`).select("USD");
     });
@@ -122,4 +118,11 @@ function submitSettings(editSomeSettings: Function) {
 function updateSettingsAndGotoDonations(editSomeSettings: Function) {
   submitSettings(editSomeSettings);
   gotoMainMenuPage("Donations");
+}
+
+function enableDonations() {
+  cy.findByLabelText("Enable donations").check();
+  cy.findByLabelText("PayPal Merchant ID").clear().type("test");
+  cy.findByLabelText("PayPal Client ID").clear().type("test");
+  cy.findByLabelText("PayPal Client Secret").clear().type("test");
 }
