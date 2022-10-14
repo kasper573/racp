@@ -12,7 +12,7 @@ export function createAdminSettingsService(settings: AdminSettingsRepository) {
   return t.router({
     readPublic: t.procedure
       .output(adminPublicSettingsType)
-      .query(() => settings.getSettings().public),
+      .query(() => settings.getSettings()),
     read: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(adminSettingsType)

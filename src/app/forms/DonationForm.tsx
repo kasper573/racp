@@ -17,7 +17,7 @@ export function DonationForm({
   defaultAmount,
   exchangeRate,
   currency,
-  paypalClientId,
+  paypal,
 }: {
   accountId: UserProfile["id"];
 } & AdminPublicSettings["donations"]) {
@@ -37,7 +37,7 @@ export function DonationForm({
       options={{
         currency,
         intent: "capture",
-        "client-id": paypalClientId,
+        "client-id": paypal?.clientId ?? "",
       }}
     >
       <PayPalSuspense

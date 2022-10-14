@@ -34,14 +34,14 @@ export function AdminSettingsForm({
             label: "Appearance",
             content: (
               <Stack spacing={2}>
-                <TextField label="Page Title" {...field("public.pageTitle")} />
+                <TextField label="Page Title" {...field("pageTitle")} />
                 <ZodField
                   label="Zeny Colors"
                   helperText={
                     "Colors to use for zeny as prices go up. Format: [[price1, color1], [price2, color2], ...]. " +
                     "Color values can be any css color. Price values must be in rising order."
                   }
-                  {...field("public.zenyColors")}
+                  {...field("zenyColors")}
                 />
               </Stack>
             ),
@@ -51,20 +51,20 @@ export function AdminSettingsForm({
             content: (
               <Stack spacing={2}>
                 <FormControlLabel
-                  control={<Switch {...field("public.donations.enabled")} />}
+                  control={<Switch {...field("donations.enabled")} />}
                   label="Enable donations"
                 />
                 <TextField
                   label="Paypal Merchant ID"
-                  {...field("public.donations.paypalMerchantId")}
+                  {...field("donations.paypal.merchantId")}
                 />
                 <TextField
                   label="Paypal Client ID"
-                  {...field("public.donations.paypalClientId")}
+                  {...field("donations.paypal.clientId")}
                 />
                 <TextField
                   label="Paypal Client Secret"
-                  {...field("internal.donations.paypalClientSecret")}
+                  {...field("donations.paypal.clientSecret")}
                 />
                 <TextField
                   label="Credits database key"
@@ -73,30 +73,30 @@ export function AdminSettingsForm({
                     `that will be used to retrieve and update a users credit balance. ` +
                     `There is usually no need to change this, but the option is provided for flexibility.`
                   }
-                  {...field("internal.donations.accRegNumKey")}
+                  {...field("donations.accRegNumKey")}
                 />
                 <TextField
                   multiline
                   label="Presentation"
                   helperText="Welcome text on the donations page to explain how donations work."
-                  {...field("public.donations.presentation")}
+                  {...field("donations.presentation")}
                 />
                 <TextField
                   type="number"
                   label="Default donation amount"
-                  {...field("public.donations.defaultAmount")}
+                  {...field("donations.defaultAmount")}
                 />
                 <Select
                   options={currencies}
                   label="Currency"
                   required
-                  {...field("public.donations.currency")}
+                  {...field("donations.currency")}
                 />
                 <TextField
                   type="number"
                   label="Exchange rate"
-                  helperText={`How many credits does 1 ${value.public.donations.currency} equal?`}
-                  {...field("public.donations.exchangeRate")}
+                  helperText={`How many credits does 1 ${value.donations.currency} equal?`}
+                  {...field("donations.exchangeRate")}
                 />
               </Stack>
             ),

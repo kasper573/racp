@@ -37,7 +37,7 @@ export function createDonationService({
 }) {
   const logger = parentLogger.chain("donation");
   const creditBalanceAtom = new AccRegNumDriver(db, logger).createKeyAtom(
-    () => settings.getSettings().internal.donations.accRegNumKey
+    () => settings.getSettings().donations.accRegNumKey
   );
 
   return t.router({
@@ -132,7 +132,7 @@ export function createDonationService({
 
           const rewardedCredits = calculateRewardedCredits(
             +capture.amount.value,
-            settings.getSettings().public.donations.exchangeRate
+            settings.getSettings().donations.exchangeRate
           );
 
           const success = await creditBalanceAtom.write(
@@ -175,20 +175,18 @@ export function createDonationService({
 }
 
 const fakePayPalDB: paypal.orders.Order[] = [];
-function createPayPalClient(s: AdminSettings, env: DonationEnvironment) {
+function createPayPalClient(settings: AdminSettings, env: DonationEnvironment) {
   if (env === "fake") {
     return createFakePayPalClient(fakePayPalDB);
   }
+  if (!settings.donations.paypal) {
+    throw new Error("PayPal settings not configured");
+  }
+  const { clientId, clientSecret } = settings.donations.paypal;
   return new paypal.core.PayPalHttpClient(
     {
-      live: new paypal.core.LiveEnvironment(
-        s.public.donations.paypalClientId,
-        s.internal.donations.paypalClientSecret
-      ),
-      sandbox: new paypal.core.SandboxEnvironment(
-        s.public.donations.paypalClientId,
-        s.internal.donations.paypalClientSecret
-      ),
+      live: new paypal.core.LiveEnvironment(clientId, clientSecret),
+      sandbox: new paypal.core.SandboxEnvironment(clientId, clientSecret),
     }[env]
   );
 }

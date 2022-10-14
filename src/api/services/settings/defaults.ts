@@ -1,28 +1,24 @@
 import { AdminSettings, Currency, ZenyColor } from "./types";
 
 export const defaultAdminSettings: AdminSettings = {
-  public: {
-    zenyColors: {
-      dark: defaultZenyColors("white"),
-      light: defaultZenyColors("black"),
-    },
-    pageTitle: "rAthenaCP",
-    donations: {
-      enabled: false,
-      defaultAmount: 5,
-      exchangeRate: 10,
-      currency: "USD" as Currency,
-      paypalClientId: "sb",
-      paypalMerchantId: "",
-      presentation:
-        "Donations are welcome, but not required!\n\n" +
-        "As a thank you, donations will be rewarded with credits that can be traded for in-game items.",
-    },
+  zenyColors: {
+    dark: defaultZenyColors("white"),
+    light: defaultZenyColors("black"),
   },
-  internal: {
-    donations: {
-      accRegNumKey: "#CASHPOINTS",
-      paypalClientSecret: "",
+  pageTitle: "rAthenaCP",
+  donations: {
+    enabled: false,
+    defaultAmount: 5,
+    exchangeRate: 10,
+    currency: "USD" as Currency,
+    presentation:
+      "Donations are welcome, but not required!\n\n" +
+      "As a thank you, donations will be rewarded with credits that can be traded for in-game items.",
+    accRegNumKey: "#CASHPOINTS",
+    paypal: {
+      merchantId: "",
+      clientId: "",
+      clientSecret: "",
     },
   },
 };
