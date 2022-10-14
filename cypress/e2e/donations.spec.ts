@@ -33,7 +33,7 @@ describe("disabling", () => {
     findMainMenuItem("Donations").should("not.exist");
     cy.visit(donationsUrl);
     waitForPageReady();
-    cy.findByText(/you do not have permissions to access this page/i);
+    cy.contains(/you do not have permissions to access this page/i);
   });
 
   // Restore admin state for following tests, since this test signed us out
@@ -49,7 +49,7 @@ describe("can change", () => {
     updateSettingsAndGotoDonations(() =>
       cy.findByLabelText("Presentation").clear().type("Hello world")
     );
-    cy.findByText("Hello world");
+    cy.contains("Hello world");
   });
 
   it("default donation amount", () => {
@@ -61,7 +61,7 @@ describe("can change", () => {
 
   it("currency", () => {
     updateSettingsAndGotoDonations(() => cy.get(`#Currency`).select("EUR"));
-    cy.findByText("EUR").should("exist");
+    cy.contains("EUR");
   });
 
   it("exchange rate", () => {
@@ -69,9 +69,7 @@ describe("can change", () => {
       cy.findByLabelText("Exchange rate").clear().type("50")
     );
     cy.findByLabelText("Donation amount").clear().type("7");
-    cy.findByText(/donating 7 \w+ will reward you 350 credits/i).should(
-      "exist"
-    );
+    cy.contains(/donating 7 \w+ will reward you 350 credits/i);
   });
 });
 
