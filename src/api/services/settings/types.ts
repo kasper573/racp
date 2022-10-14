@@ -1,5 +1,6 @@
 import * as zod from "zod";
 import { ZodType } from "zod";
+import { conditionallyRequired } from "../../../lib/zod/conditionallyRequired";
 
 export type Currency = NominalString<"Currency">;
 export const currencyType = zod.string() as ZodType<Currency>;
@@ -30,28 +31,12 @@ const donationSettingsBaseType = zod.object({
   paypal: paypalSettingsType,
 });
 
-export const donationSettingsType = donationSettingsBaseType
-  .refine(
-    ({ enabled, paypal }) => (enabled ? Boolean(paypal.merchantId) : true),
-    {
-      message: "Required when donations are enabled",
-      path: ["paypal", "merchantId"],
-    }
-  )
-  .refine(
-    ({ enabled, paypal }) => (enabled ? Boolean(paypal.clientId) : true),
-    {
-      message: "Required when donations are enabled",
-      path: ["paypal", "clientId"],
-    }
-  )
-  .refine(
-    ({ enabled, paypal }) => (enabled ? Boolean(paypal.clientSecret) : true),
-    {
-      message: "Required when donations are enabled",
-      path: ["paypal", "clientSecret"],
-    }
-  );
+export const donationSettingsType = conditionallyRequired(
+  donationSettingsBaseType,
+  ({ enabled }) => enabled,
+  ["paypal.merchantId", "paypal.clientId", "paypal.clientSecret"],
+  "Required when donations are enabled"
+);
 
 export type AdminSettings = zod.infer<typeof adminSettingsType>;
 export const adminSettingsType = zod.object({
