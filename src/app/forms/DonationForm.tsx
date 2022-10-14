@@ -1,7 +1,7 @@
-import { Box, InputAdornment, Stack, Typography } from "@mui/material";
-import { ReactNode, useState } from "react";
+import { Box, Button, InputAdornment, Stack, Typography } from "@mui/material";
+import { ComponentProps, ReactNode, useState } from "react";
 import {
-  PayPalButtons,
+  PayPalButtons as RealPayPalButton,
   PayPalScriptProvider,
   usePayPalScriptReducer,
 } from "@paypal/react-paypal-js";
@@ -23,6 +23,8 @@ export function DonationForm({
   accountId: UserProfile["id"];
   onSubmit?: (money: Money) => void;
 } & AdminPublicSettings["donations"]) {
+  const { data: donationEnvironment = "pending" } =
+    trpc.donation.environment.useQuery();
   const { mutateAsync: capture } = trpc.donation.capture.useMutation();
   const { mutateAsync: order } = trpc.donation.order.useMutation();
   const [status, setStatus] = useState<DonationStatus>("idle");
@@ -30,6 +32,7 @@ export function DonationForm({
   const rewardedCredits = calculateRewardedCredits(value, exchangeRate);
   const mayDonate = status !== "pending";
   const statusDescription = describeDonationStatus(status, rewardedCredits);
+  const PayPalButton = PayPalButtonProviders[donationEnvironment];
 
   return (
     <PayPalScriptProvider
@@ -39,7 +42,7 @@ export function DonationForm({
         "client-id": paypalClientId,
       }}
     >
-      <PayPalFallback
+      <PayPalSuspense
         pending={<LoadingSpinner />}
         rejected={<>Could not connect to PayPal. Please try again later.</>}
         initial={<>Connecting to PayPal. Please wait a moment.</>}
@@ -67,7 +70,7 @@ export function DonationForm({
               />
             </div>
             <Box sx={{ maxWidth: 270 }}>
-              <PayPalButtons
+              <PayPalButton
                 fundingSource="paypal"
                 disabled={!mayDonate}
                 createOrder={async () => {
@@ -100,7 +103,7 @@ export function DonationForm({
             )}
           </Stack>
         </form>
-      </PayPalFallback>
+      </PayPalSuspense>
     </PayPalScriptProvider>
   );
 }
@@ -163,7 +166,7 @@ type DonationStatus =
   | "error"
   | DonationCaptureResult;
 
-function PayPalFallback({
+function PayPalSuspense({
   children: resolved,
   pending,
   rejected,
@@ -185,4 +188,33 @@ function PayPalFallback({
     return <>{initial}</>;
   }
   return <>{resolved}</>;
+}
+
+const PayPalButtonProviders = {
+  sandbox: RealPayPalButton,
+  live: RealPayPalButton,
+  fake: FakePayPalButton,
+  pending: () => <LoadingSpinner />,
+};
+
+/**
+ * Fakes the PayPal flow. Used by E2E tests only.
+ */
+function FakePayPalButton({
+  createOrder,
+  onApprove,
+}: ComponentProps<typeof RealPayPalButton>) {
+  async function fake() {
+    const orderID = await createOrder?.(
+      { paymentSource: "paypal" },
+      { order: { create: () => Promise.resolve("fake") } }
+    );
+    if (orderID !== undefined) {
+      onApprove?.(
+        { orderID, facilitatorAccessToken: "fake" },
+        { redirect() {}, restart() {} }
+      );
+    }
+  }
+  return <Button onClick={fake}>Donate</Button>;
 }
