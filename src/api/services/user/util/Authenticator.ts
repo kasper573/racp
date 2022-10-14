@@ -1,5 +1,5 @@
 import * as jwt from "jsonwebtoken";
-import { expressjwt, Request as JWTRequest } from "express-jwt";
+import { expressjwt } from "express-jwt";
 import { Algorithm } from "jsonwebtoken";
 import { UserAccessLevel } from "../types";
 
@@ -18,10 +18,6 @@ export function createAuthenticator({
       algorithms,
       credentialsRequired: false,
     }),
-    validatorFor(requiredAccess: UserAccessLevel) {
-      return (req: JWTRequest<AuthenticatorPayload>) =>
-        (req.auth?.access ?? 0) >= requiredAccess;
-    },
   };
 }
 
