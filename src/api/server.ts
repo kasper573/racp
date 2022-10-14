@@ -41,6 +41,8 @@ import { createShopRepository } from "./services/shop/repository";
 import { createNpcRepository } from "./services/npc/repository";
 import { createNpcService } from "./services/npc/service";
 import { createAdminSettingsService } from "./services/settings/service";
+import { createDonationService } from "./services/donation/service";
+import { createAdminSettingsRepository } from "./services/settings/repository";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -80,6 +82,7 @@ let router: ApiRouter;
   const npcs = createNpcRepository({ script, logger });
   const drops = createDropRepository({ items, monsters, logger });
   const shops = createShopRepository({ script, logger, getItems: items.getItems, });
+  const settings = createAdminSettingsRepository(files);
 
   router = createApiRouter({
     util: createUtilService(),
@@ -93,7 +96,13 @@ let router: ApiRouter;
     npc: createNpcService(npcs),
     map: createMapService(maps),
     meta: createMetaService({ items, monsters }),
-    settings: createAdminSettingsService(files)
+    settings: createAdminSettingsService(settings),
+    donation: createDonationService({
+      db,
+      env: args.donationEnvironment,
+      settings,
+      logger,
+    }),
   })
 }
 
@@ -111,7 +120,9 @@ app.use(
         .error(
           `/${path}`,
           error.name,
-          args.exposeInternalErrors ? error.message : "Internal Server Error"
+          args.exposeInternalErrors
+            ? `${error.message}: ${error.stack}`
+            : "Internal Server Error"
         );
     },
     router,

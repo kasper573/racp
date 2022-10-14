@@ -21,13 +21,8 @@ export function MapSearchFilterForm({
 
   return (
     <>
-      <TextField size="small" label="ID" optional {...field("id", "equals")} />
-      <TextField
-        size="small"
-        label="Name"
-        optional
-        {...field("displayName", "contains")}
-      />
+      <TextField label="ID" optional {...field("id", "equals")} />
+      <TextField label="Name" optional {...field("displayName", "contains")} />
     </>
   );
 }

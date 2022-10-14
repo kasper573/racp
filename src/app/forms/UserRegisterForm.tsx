@@ -1,3 +1,4 @@
+import { Stack } from "@mui/material";
 import {
   UserRegisterPayload,
   userRegisterPayloadType,
@@ -21,26 +22,21 @@ export function UserRegisterForm({
     schema: userRegisterPayloadType,
     value,
     onChange,
-    updateDelay: 0,
     error: props.error,
   });
 
   return (
     <CommonForm label="Register" {...props}>
-      <TextField size="small" label="Username" {...field("username")} />
-      <TextField size="small" label="Email" type="email" {...field("email")} />
-      <TextField
-        size="small"
-        label="Password"
-        type="password"
-        {...field("password")}
-      />
-      <TextField
-        size="small"
-        label="Password (confirm)"
-        type="password"
-        {...field("passwordConfirm")}
-      />
+      <Stack spacing={2}>
+        <TextField label="Username" {...field("username")} />
+        <TextField label="Email" type="email" {...field("email")} />
+        <TextField label="Password" type="password" {...field("password")} />
+        <TextField
+          label="Password (confirm)"
+          type="password"
+          {...field("passwordConfirm")}
+        />
+      </Stack>
     </CommonForm>
   );
 }

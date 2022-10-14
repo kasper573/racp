@@ -24,7 +24,7 @@ export function getZodType<
   const steps = String(path).split(".");
   let node: ZodType = root;
   for (const step of steps) {
-    if (node instanceof ZodEffects) {
+    while (node instanceof ZodEffects) {
       node = node.innerType();
     }
     if (node instanceof ZodObject) {

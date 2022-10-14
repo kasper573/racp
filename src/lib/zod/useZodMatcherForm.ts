@@ -1,6 +1,5 @@
 import * as zod from "zod";
 import { ZodType } from "zod";
-import { UseElevatedStateProps } from "../hooks/useElevatedState";
 import { OmitNever, Values, ZodMatcher, ZodMatcherPayload } from "./ZodMatcher";
 import { useZodForm, ZodFormRegistration } from "./useZodForm";
 
@@ -38,9 +37,11 @@ export function useZodMatcherForm<
 export interface ZodMatcherFormOptions<
   Matcher extends ZodMatcher,
   Schema extends ZodType
-> extends UseElevatedStateProps<zod.infer<Schema>> {
+> {
   matcher: Matcher;
   schema: Schema;
+  value: zod.infer<Schema>;
+  onChange: (value: zod.infer<Schema>) => void;
 }
 
 type ValidMatchers<M extends ZodMatcher, Argument> = Values<

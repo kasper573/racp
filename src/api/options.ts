@@ -1,5 +1,7 @@
 // Common yargs CLI argument options used in all scripts
 
+import { donationEnvironments } from "./services/donation/types";
+
 export const rAthenaModes = ["Renewal", "Prerenewal"] as const;
 export type RAthenaMode = typeof rAthenaModes extends Iterable<infer V>
   ? V
@@ -59,5 +61,10 @@ export const options = {
     default: "assets",
     description:
       "Folder to mount public web server files in (relative to root)",
+  },
+  donationEnvironment: {
+    type: "string",
+    choices: donationEnvironments,
+    default: "sandbox",
   },
 } as const;

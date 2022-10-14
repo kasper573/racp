@@ -63,5 +63,6 @@ jobs:
             export appPort=${{ secrets.DEPLOY_APP_PORT }}
             export rAthenaPath=${{ secrets.DEPLOY_RATHENA_PATH }}
             export log=verbose
+            export donationEnvironment=live
 
             pm2 restart ecosystem.config.json

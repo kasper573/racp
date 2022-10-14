@@ -26,19 +26,8 @@ export function MonsterSearchFilterForm({
 
   return (
     <>
-      <TextField
-        size="small"
-        label="ID"
-        type="number"
-        optional
-        {...field("Id", "=")}
-      />
-      <TextField
-        size="small"
-        label="Name"
-        optional
-        {...field("Name", "contains")}
-      />
+      <TextField label="ID" type="number" optional {...field("Id", "=")} />
+      <TextField label="Name" optional {...field("Name", "contains")} />
       <Select
         label="Race"
         multi
@@ -59,49 +48,36 @@ export function MonsterSearchFilterForm({
       />
       <SliderMenu
         ranged
-        size="small"
         label="Level"
         {...meta?.monsterLevels}
         {...field("Level", "between")}
       />
       <SliderMenu
         ranged
-        size="small"
         label="Move Speed"
         {...meta?.monsterWalkSpeeds}
         {...field("WalkSpeed", "between")}
       />
       <SliderMenu
         ranged
-        size="small"
         label="Atk. Range"
         {...meta?.monsterAttackRanges}
         {...field("AttackRange", "between")}
       />
       <SliderMenu
         ranged
-        size="small"
         label="Skill Range"
         {...meta?.monsterSkillRanges}
         {...field("SkillRange", "between")}
       />
       <SliderMenu
         ranged
-        size="small"
         label="Chase Range"
         {...meta?.monsterChaseRanges}
         {...field("ChaseRange", "between")}
       />
-      <RangeFields
-        size="small"
-        label="Base XP"
-        {...field("BaseExp", "between")}
-      />
-      <RangeFields
-        size="small"
-        label="Job XP"
-        {...field("JobExp", "between")}
-      />
+      <RangeFields label="Base XP" {...field("BaseExp", "between")} />
+      <RangeFields label="Job XP" {...field("JobExp", "between")} />
       <Select
         label="Modes"
         multi

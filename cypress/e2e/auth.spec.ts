@@ -1,5 +1,6 @@
 import {
   assertSignedIn,
+  assertSignedOut,
   register,
   signIn,
   signOut,
@@ -41,7 +42,9 @@ describe("user", () => {
 
   it("can change their email", () => {
     updateProfile({ email: "new@email.com" });
-    cy.reload(); // Reload to clear any potential form cache
+    signOut();
+    cy.visit("/"); // Reload to clear any potential form cache
+    signIn(user.name, user.password);
     cy.findByLabelText("Email").should("have.value", "new@email.com");
   });
 
@@ -61,6 +64,11 @@ describe("user", () => {
 describe("guest", () => {
   it("does not have access to admin menu", () => {
     findMainMenu("Admin").should("not.exist");
+  });
+
+  it("is not given access when attempting to sign in with bogus credentials", () => {
+    signIn("bogus", "credentials", { waitForRedirect: false });
+    assertSignedOut();
   });
 });
 

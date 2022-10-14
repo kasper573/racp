@@ -20,6 +20,8 @@ const env = loadEnv({
   analyzeBundles: { type: Boolean, default: false },
 });
 
+console.log("Building with env", env);
+
 const appDirectory = path.resolve(__dirname, "src", "app");
 const isDevBuild = env.NODE_ENV === "development";
 

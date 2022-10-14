@@ -11,6 +11,7 @@ import { VendorService } from "./services/vendor/service";
 import { ShopService } from "./services/shop/service";
 import { NpcService } from "./services/npc/service";
 import { AdminSettingsService } from "./services/settings/service";
+import { DonationService } from "./services/donation/service";
 
 export function createApiRouter(services: ApiServices) {
   return t.router(services);
@@ -29,6 +30,7 @@ export type ApiServices = {
   map: MapService;
   meta: MetaService;
   settings: AdminSettingsService;
+  donation: DonationService;
 };
 
 export type ApiRouter = ReturnType<typeof createApiRouter>;

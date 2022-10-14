@@ -1,7 +1,7 @@
 import { ZodError, ZodType } from "zod";
 import * as zod from "zod";
-import { useState } from "react";
-import { useElevatedState } from "../../lib/hooks/useElevatedState";
+import { useEffect, useState } from "react";
+import { useLatest } from "../../lib/hooks/useLatest";
 import { TextField, TextFieldProps } from "./TextField";
 
 export interface ZodFieldProps<T extends ZodType>
@@ -22,19 +22,18 @@ export function ZodField<T extends ZodType>({
   ...props
 }: ZodFieldProps<T>) {
   const [error, setError] = useState<string>();
-  const [json, setJson] = useElevatedState({
-    value: readableJson(value),
-    onChange: onJsonChange,
-  });
+  const [json, setJson] = useState(() => readableJson(value));
 
-  function onJsonChange(newJson: string) {
+  const latest = useLatest({ schema, onChange });
+  useEffect(() => {
     try {
-      onChange(schema.parse(JSON.parse(newJson)));
+      const { schema, onChange } = latest.current;
+      onChange(schema.parse(JSON.parse(json)));
       setError(undefined);
     } catch (e) {
       setError(e instanceof ZodError ? e.message : `${e}`);
     }
-  }
+  }, [json, latest]);
 
   return (
     <TextField

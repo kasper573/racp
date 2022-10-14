@@ -15,6 +15,7 @@ import {
 } from "../src/api/rathena/DatabaseDriver";
 import {
   adminAccountId,
+  adminAccountPin,
   adminCharId,
   adminCharName,
 } from "../cypress/support/vars";
@@ -71,6 +72,7 @@ async function resetData() {
     user_pass: args.ADMIN_PASSWORD,
     email: "admin@localhost",
     group_id: (await user.adminGroupIds)[0],
+    pincode: adminAccountPin,
   });
 
   await db.char.table("char").insert({

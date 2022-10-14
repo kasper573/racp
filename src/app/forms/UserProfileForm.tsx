@@ -1,3 +1,4 @@
+import { Stack } from "@mui/material";
 import {
   UserAccessLevel,
   UserProfile,
@@ -26,33 +27,31 @@ export function UserProfileForm({
     schema: userProfileMutationType,
     value,
     onChange,
-    updateDelay: 0,
     error: props.error,
   });
 
   return (
     <CommonForm {...props}>
-      <TextField size="small" label="Username" value={profile.username} />
-      <TextField
-        size="small"
-        label="Access"
-        value={getEnumName(UserAccessLevel, profile.access)}
-      />
-      <TextField size="small" label="Email" {...field("email")} />
-      <TextField
-        optional
-        size="small"
-        label="New password"
-        type="password"
-        {...field("password")}
-      />
-      <TextField
-        optional
-        size="small"
-        label="New password (confirm)"
-        type="password"
-        {...field("passwordConfirm")}
-      />
+      <Stack spacing={2}>
+        <TextField label="Username" value={profile.username} />
+        <TextField
+          label="Access"
+          value={getEnumName(UserAccessLevel, profile.access)}
+        />
+        <TextField label="Email" {...field("email")} />
+        <TextField
+          optional
+          label="New password"
+          type="password"
+          {...field("password")}
+        />
+        <TextField
+          optional
+          label="New password (confirm)"
+          type="password"
+          {...field("passwordConfirm")}
+        />
+      </Stack>
     </CommonForm>
   );
 }

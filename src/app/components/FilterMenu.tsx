@@ -48,7 +48,7 @@ export function FilterMenu<T extends AnyFilter>({
   const numFilters = Object.keys(filter).length;
 
   let content = (
-    <Box sx={{ padding: 2, paddingTop: 0 }}>
+    <Box role="menu" aria-label="Filters" sx={{ padding: 2, paddingTop: 0 }}>
       <Stack
         sx={{ flex: 1, py: 1 }}
         spacing={2}

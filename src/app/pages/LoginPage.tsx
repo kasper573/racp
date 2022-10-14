@@ -32,6 +32,7 @@ export default function LoginPage() {
           onSubmit={submit}
           isLoading={isLoading}
           error={error?.data}
+          sx={{ mb: 2 }}
         />
 
         <Typography sx={{ textAlign: "right" }}>

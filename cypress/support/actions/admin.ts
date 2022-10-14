@@ -1,5 +1,5 @@
 import { signIn } from "./user";
-import { clickMainMenuItem } from "./nav";
+import { gotoMainMenuPage } from "./nav";
 
 export function resetData() {
   cy.exec("yarn run reset-data", { log: true });
@@ -11,7 +11,7 @@ export function signInAsAdmin() {
 
 export function uploadAssets() {
   const fixtures = Cypress.config("fixturesFolder");
-  clickMainMenuItem("Assets", { menuName: "Admin" });
+  gotoMainMenuPage("Assets", { menuName: "Admin" });
   cy.selectFileByName("mapInfo", `${fixtures}/mapInfo_prontera.lub`);
   cy.selectFileByName("itemInfo", `${fixtures}/itemInfo_red-potion.lub`);
   cy.selectFileByName("data", `${fixtures}/prontera_poring_red-potion.grf`);

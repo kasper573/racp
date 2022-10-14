@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { t } from "../../trpc";
 import { DatabaseDriver } from "../../rathena/DatabaseDriver";
 import { some } from "../../util/knex";
+import { access } from "../../middlewares/access";
 import {
   loginPayloadType,
   UserAccessLevel,
@@ -87,11 +88,8 @@ export function createUserService({
     updateMyProfile: t.procedure
       .input(userProfileMutationType)
       .output(zod.boolean())
+      .use(access(UserAccessLevel.User))
       .mutation(async ({ input: { email, password }, ctx: { auth } }) => {
-        if (!auth) {
-          throw new TRPCError({ code: "UNAUTHORIZED" });
-        }
-
         const emailOwner = await db.login
           .table("login")
           .select("account_id")

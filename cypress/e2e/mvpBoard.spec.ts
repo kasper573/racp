@@ -1,4 +1,4 @@
-import { clickMainMenuItem } from "../support/actions/nav";
+import { gotoMainMenuPage } from "../support/actions/nav";
 import { expectTableColumn, findTableColumn } from "../support/actions/grid";
 import { compareNumeric, compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/actions/search";
@@ -20,34 +20,34 @@ before(() => {
     ])
   );
 
-  clickMainMenuItem("Mvps");
+  gotoMainMenuPage("Mvps");
 });
 
 describe("search", () => {
   generateSearchPageTests({
     searches: {
       monsterId: {
-        input: () => cy.findByLabelText("Monster ID").type("1038"),
+        input: (menu) => menu().findByLabelText("Monster ID").type("1038"),
         verify: () => expectTableColumn("Monster", () => /Osiris/i),
       },
       monsterName: {
-        input: () => cy.findByLabelText("Monster name").type("dopp"),
+        input: (menu) => menu().findByLabelText("Monster name").type("dopp"),
         verify: () => expectTableColumn("Monster", () => /dopp/i),
       },
       mapId: {
-        input: () => cy.findByLabelText("Map ID").type("prt_maze03"),
+        input: (menu) => menu().findByLabelText("Map ID").type("prt_maze03"),
         verify: () => expectTableColumn("Monster", () => /baphomet/i),
       },
       mapName: {
-        input: () => cy.findByLabelText("Map name").type("fild"),
+        input: (menu) => menu().findByLabelText("Map name").type("fild"),
         verify: () => expectTableColumn("Map", () => /fild/i),
       },
       status: {
-        input: () => cy.get("#Status").select("Dead"),
+        input: (menu) => menu().get("#Status").select("Dead"),
         verify: () => findTableColumn("Monster").contains("Osiris"),
       },
       killedBy: {
-        input: () => cy.findByLabelText("MVP").type(adminCharName),
+        input: (menu) => menu().findByLabelText("MVP").type(adminCharName),
         verify: () => expectTableColumn("MVP", () => adminCharName),
       },
     },

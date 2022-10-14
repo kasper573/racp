@@ -2,7 +2,6 @@ import {
   intParser,
   OptionsRouter,
   Redirect,
-  RouteMiddleware,
   stringParser,
 } from "react-typesafe-routes";
 import { lazy } from "react";
@@ -15,6 +14,7 @@ import {
   Login,
   Map,
   ModeEdit,
+  Paid,
   PersonAdd,
   PestControlRodent,
   Redeem,
@@ -22,16 +22,14 @@ import {
   Storage,
   Storefront,
 } from "@mui/icons-material";
-import { useLocation } from "react-router-dom";
-import { useStore } from "zustand";
 import { UserAccessLevel } from "../api/services/user/types";
 import { zodRouteParam } from "../lib/zod/zodRouteParam";
 import { itemFilter } from "../api/services/item/types";
 import { monsterFilter, mvpFilter } from "../api/services/monster/types";
 import { mapInfoFilter } from "../api/services/map/types";
 import { vendorItemFilter } from "../api/services/vendor/types";
-import { RestrictedPage } from "./pages/RestrictedPage";
-import { authStore } from "./state/auth";
+import { requireAuth } from "./util/requireAuth";
+import { requireSettings } from "./util/requireSettings";
 
 const defaultOptions = {
   title: "",
@@ -138,6 +136,11 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
     params: { filter: zodRouteParam(vendorItemFilter.type.default({})) },
     options: { title: "Vendings", icon: <Storefront /> },
   }),
+  donations: route("donations", {
+    component: lazy(() => import("./pages/DonationsPage")),
+    options: { title: "Donations", icon: <Paid /> },
+    middleware: requireSettings((settings) => settings.donations.enabled),
+  }),
   admin: route(
     "admin",
     {
@@ -174,26 +177,6 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
 
 export const logoutRedirect = router.user().login({}).$;
 export const loginRedirect = router.user().$;
-
-function requireAuth(requiredAccess = UserAccessLevel.User): RouteMiddleware {
-  return (next) => {
-    const location = useLocation();
-    const access = useStore(authStore).profile?.access;
-    if (access === undefined) {
-      return () => (
-        <Redirect
-          to={router.user().login({
-            destination: `${location.pathname}${location.search}`,
-          })}
-        />
-      );
-    }
-    if (access < requiredAccess) {
-      return () => <RestrictedPage />;
-    }
-    return next;
-  };
-}
 
 export type RouterOptions = typeof defaultOptions;
 

@@ -31,6 +31,8 @@ jobs:
     env:
       apiPort: 8081
       appPort: 8080
+      donationEnvironment: "fake"
+      exposeInternalErrors: true
       apiBaseUrl: http://localhost:8081
       rAthenaPath: ./node_modules/rathena
       CYPRESS_BASE_URL: http://localhost:8080

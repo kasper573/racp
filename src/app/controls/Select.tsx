@@ -7,15 +7,18 @@ import {
 import { ComponentProps, ReactNode, useMemo } from "react";
 import { htmlId } from "../util/htmlId";
 
-export interface SelectPropsBase<Value, Option>
-  extends Omit<ComponentProps<typeof FormControl>, "onChange"> {
+export type SelectPropsBase<Value, Option> = Omit<
+  ComponentProps<typeof FormControl>,
+  "onChange"
+> & {
   options?: readonly Option[];
   label?: ReactNode;
   empty?: ReactNode;
   autoSort?: boolean;
-  value?: Value;
-  onChange?: (value?: Value) => void;
-}
+} & (
+    | { value?: Value; onChange?: (value?: Value) => void }
+    | { required: true; value: Value; onChange: (value: Value) => void }
+  );
 
 export type SelectProps<Value extends string> =
   | (SelectPropsBase<Value, Value> & { multi?: false })
@@ -31,6 +34,7 @@ export function Select<Value extends string>({
   id = typeof label === "string" ? htmlId(label) : undefined,
   empty = "No options",
   autoSort = true,
+  required,
   ...props
 }: SelectProps<Value>) {
   const sortedOptions = useMemo(
@@ -48,11 +52,26 @@ export function Select<Value extends string>({
         label={label}
         onChange={
           multi
+            ? required
+              ? (e) => {
+                  const values = e.target.value as Value[];
+                  if (values.length) {
+                    onChange?.(values);
+                  }
+                }
+              : (e) => {
+                  const values = e.target.value as Value[];
+                  onChange?.(values.length ? values : undefined);
+                }
+            : required
             ? (e) => {
-                const values = e.target.value as Value[];
-                onChange?.(values.length ? values : undefined);
+                if (e.target.value) {
+                  onChange?.(e.target.value as Value);
+                }
               }
-            : (e) => onChange?.(e.target.value as Value)
+            : (e) => {
+                onChange?.(e.target.value as Value);
+              }
         }
       >
         {sortedOptions.length === 0 ? (

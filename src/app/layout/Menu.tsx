@@ -3,23 +3,29 @@ import { router } from "../router";
 import { Auth } from "../components/Auth";
 import { RouteList } from "../components/RouteList";
 import { UserAccessLevel } from "../../api/services/user/types";
+import { defined } from "../../lib/std/defined";
+import { AdminPublicSettings } from "../../api/services/settings/types";
+import { trpc } from "../state/client";
 
-const publicRoutes = [
-  router.item,
-  router.monster,
-  router.map,
-  router.vendor,
-  router.mvps,
-];
+const publicRoutes = (settings?: AdminPublicSettings) =>
+  defined([
+    router.item,
+    router.monster,
+    router.map,
+    router.vendor,
+    router.mvps,
+    settings?.donations.enabled ? router.donations : undefined,
+  ]);
 
 const protectedRoutes = Object.values(router.admin.children);
 
 export function Menu({ onItemSelected }: { onItemSelected?: () => void }) {
+  const { data: settings } = trpc.settings.readPublic.useQuery();
   return (
     <>
       <RouteList
         aria-label="Public menu"
-        routes={publicRoutes}
+        routes={publicRoutes(settings)}
         onClick={onItemSelected}
       />
       <Auth atLeast={UserAccessLevel.Admin}>
