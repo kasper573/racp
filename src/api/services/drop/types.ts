@@ -2,7 +2,7 @@ import * as zod from "zod";
 import { itemIdType, itemType } from "../item/types";
 import { monsterDropType, monsterIdType } from "../monster/types";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
-import { matcher } from "../../util/matcher";
+import { matcher } from "../../matcher";
 
 export type ItemDrop = zod.infer<typeof itemDropType>;
 

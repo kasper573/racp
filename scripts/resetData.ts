@@ -3,7 +3,7 @@ import * as fs from "fs";
 import { groupBy, pick, uniq } from "lodash";
 import recursiveReadDir = require("recursive-readdir");
 import * as mysql from "mysql";
-import { readCliArgs } from "../src/api/util/cli";
+import { readCliArgs } from "../src/lib/cli";
 import { options } from "../src/api/options";
 import { createLogger } from "../src/lib/logger";
 import { createConfigDriver } from "../src/api/rathena/ConfigDriver";

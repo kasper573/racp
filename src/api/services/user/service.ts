@@ -2,7 +2,7 @@ import * as zod from "zod";
 import { TRPCError } from "@trpc/server";
 import { t } from "../../trpc";
 import { DatabaseDriver } from "../../rathena/DatabaseDriver";
-import { some } from "../../util/knex";
+import { some } from "../../../lib/knex";
 import { access } from "../../middlewares/access";
 import {
   loginPayloadType,

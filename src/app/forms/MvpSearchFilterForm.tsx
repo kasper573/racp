@@ -5,7 +5,7 @@ import {
   mvpLifeStatusOptions,
 } from "../../api/services/monster/types";
 import { useZodMatcherForm } from "../../lib/zod/useZodMatcherForm";
-import { matcher } from "../../api/util/matcher";
+import { matcher } from "../../api/matcher";
 import { Select } from "../controls/Select";
 
 export interface MvpSearchFilterFormProps {

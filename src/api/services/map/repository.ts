@@ -8,7 +8,7 @@ import { ScriptDriver } from "../../rathena/ScriptDriver";
 import { createImageRepository } from "../../common/createImageRepository";
 import { trimExtension } from "../../../lib/std/trimExtension";
 import { Logger } from "../../../lib/logger";
-import { gfs } from "../../util/gfs";
+import { gfs } from "../../gfs";
 import { createAsyncMemo } from "../../../lib/createMemo";
 import { MonsterSpawn } from "../monster/types";
 import { zodJsonProtocol } from "../../../lib/zod/zodJsonProtocol";

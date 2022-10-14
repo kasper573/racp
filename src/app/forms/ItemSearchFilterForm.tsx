@@ -6,7 +6,7 @@ import { Select } from "../controls/Select";
 import { SliderMenu } from "../controls/SliderMenu";
 import { TextField } from "../controls/TextField";
 import { useLatest } from "../../lib/hooks/useLatest";
-import { matcher } from "../../api/util/matcher";
+import { matcher } from "../../api/matcher";
 import { useZodMatcherForm } from "../../lib/zod/useZodMatcherForm";
 import { RangeFields } from "../controls/RangeFields";
 

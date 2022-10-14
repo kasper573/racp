@@ -6,7 +6,7 @@ import { ZodTypeDef } from "zod/lib/types";
 import { base64encode } from "byte-base64";
 import { Logger } from "../../lib/logger";
 import { RAthenaMode } from "../options";
-import { gfs } from "../util/gfs";
+import { gfs } from "../gfs";
 import { defined } from "../../lib/std/defined";
 import { createSegmentedObject } from "../../lib/zod/ZodSegmentedObject";
 

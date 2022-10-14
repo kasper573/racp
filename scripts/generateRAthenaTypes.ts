@@ -4,7 +4,7 @@ import { execSync } from "child_process";
 import sqlts from "@rmp135/sql-ts";
 import { pick } from "lodash";
 import * as zod from "zod";
-import { readCliArgs } from "../src/api/util/cli";
+import { readCliArgs } from "../src/lib/cli";
 import { options } from "../src/api/options";
 import { createLogger } from "../src/lib/logger";
 import {

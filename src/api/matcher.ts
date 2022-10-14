@@ -1,23 +1,9 @@
 import { without } from "lodash";
 import * as zod from "zod";
-import { createZodMatcher } from "../../lib/zod/ZodMatcher";
-
-export type ToggleName = zod.infer<typeof toggleNameType>;
-export const toggleNameType = zod.string();
-
-export type ToggleRecord = zod.infer<typeof toggleRecordType>;
-export const toggleRecordType = zod
-  .record(toggleNameType, zod.boolean())
-  .default({});
-
-export function resolveToggles(record: ToggleRecord = {}): ToggleName[] {
-  return Object.entries(record).reduce((names, [name, on]) => {
-    if (on) {
-      names.push(name);
-    }
-    return names;
-  }, [] as ToggleName[]);
-}
+import { Knex } from "knex";
+import { createZodMatcher } from "../lib/zod/ZodMatcher";
+import { createKnexMatcher } from "../lib/createKnexMatcher";
+import { toggleNameType, toggleRecordType } from "../lib/zod/zodToggle";
 
 const stringOptions = zod.object({ caseSensitive: zod.boolean() }).partial();
 
@@ -161,3 +147,50 @@ export const matcher = createZodMatcher()
       return list.includes(arg);
     }
   );
+
+export const knexMatcher = createKnexMatcher()
+  .add("=", (query, column, value: number) => query.where(column, "=", value))
+  .add(">", (query, column, value: number) => query.where(column, ">", value))
+  .add("<", (query, column, value: number) => query.where(column, "<", value))
+  .add(">=", (query, column, value: number) => query.where(column, ">=", value))
+  .add("<=", (query, column, value: number) => query.where(column, "<=", value))
+  .add(
+    "between",
+    (
+      query,
+      column,
+      [min, max]: [number | null | undefined, number | null | undefined]
+    ) => {
+      if (min != null) {
+        query = query.where(column, ">=", min);
+      }
+      if (max != null) {
+        query = query.where(column, "<=", max);
+      }
+      return query;
+    }
+  )
+  .add("oneOfN", noop)
+  .add("oneOf", noop)
+  .add("includes", noop)
+  .add("includesAll", noop)
+  .add("includesSomeString", noop)
+  .add("enabled", noop)
+  .add("equals", noop)
+  .add("startsWith", noop)
+  .add("endsWith", noop)
+  .add("contains", (query, column, value: string) =>
+    query.whereILike(column, `%${value}%`)
+  )
+  .add("someItemContains", noop)
+  .add("everyItemContains", noop)
+  .add("someItemEquals", noop)
+  .add("is", noop);
+
+function noop<T extends Knex.QueryBuilder>(
+  query: T,
+  value: any,
+  options: any
+): T {
+  throw new Error("Not implemented");
+}

@@ -1,6 +1,6 @@
 import { TextField } from "../controls/TextField";
 import { useZodMatcherForm } from "../../lib/zod/useZodMatcherForm";
-import { matcher } from "../../api/util/matcher";
+import { matcher } from "../../api/matcher";
 import { mapInfoFilter, MapInfoFilter } from "../../api/services/map/types";
 
 export interface MapSearchFilterFormProps {

@@ -8,7 +8,7 @@ import { router } from "../router";
 import { ClientTextBlock } from "../components/ClientText/ClientText";
 import { TabbedPaper } from "../components/TabbedPaper";
 import { Script } from "../components/Script";
-import { resolveToggles } from "../../api/util/matcher";
+import { resolveToggles } from "../../lib/zod/zodToggle";
 import { ItemDropGrid } from "../grids/ItemDropGrid";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 import { CommonPageGrid } from "../components/CommonPageGrid";

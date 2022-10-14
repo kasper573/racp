@@ -6,7 +6,7 @@ import { createImageRepository } from "../../common/createImageRepository";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
 import { ImageFormatter } from "../../../lib/image/createImageFormatter";
 import { Logger } from "../../../lib/logger";
-import { gfs } from "../../util/gfs";
+import { gfs } from "../../gfs";
 import { createAsyncMemo } from "../../../lib/createMemo";
 import { zodJsonProtocol } from "../../../lib/zod/zodJsonProtocol";
 import { createItemResolver } from "./util/createItemResolver";

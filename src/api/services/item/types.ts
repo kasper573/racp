@@ -1,8 +1,9 @@
 import * as zod from "zod";
-import { matcher, toggleRecordType } from "../../util/matcher";
+import { matcher } from "../../matcher";
 import { clientTextType } from "../../common/clientTextType";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { zodNominalString } from "../../../lib/zod/zodNominalString";
+import { toggleRecordType } from "../../../lib/zod/zodToggle";
 import { itemScriptType } from "./util/itemScriptType";
 
 export type Item = zod.infer<typeof itemType>;

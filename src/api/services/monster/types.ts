@@ -1,10 +1,11 @@
 import * as zod from "zod";
 import { createSegmentedObject } from "../../../lib/zod/ZodSegmentedObject";
 import { zodNumeric } from "../../../lib/zod/zodNumeric";
-import { matcher, toggleRecordType } from "../../util/matcher";
+import { matcher } from "../../matcher";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { mapIdType } from "../map/types";
 import { RawScriptEntity } from "../../rathena/ScriptDriver";
+import { toggleRecordType } from "../../../lib/zod/zodToggle";
 
 export type MonsterDrop = zod.infer<typeof monsterDropType>;
 export const monsterDropType = zod.object({

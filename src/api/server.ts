@@ -10,6 +10,7 @@ import { createLogger } from "../lib/logger";
 import { createPublicFileLinker } from "../lib/fs/createPublicFileLinker";
 import { createImageFormatter } from "../lib/image/createImageFormatter";
 import { createEllipsisLogFn } from "../lib/createEllipsisLogFn";
+import { readCliArgs } from "../lib/cli";
 import { createYamlDriver } from "./rathena/YamlDriver";
 import { createConfigDriver } from "./rathena/ConfigDriver";
 import { createDatabaseDriver } from "./rathena/DatabaseDriver";
@@ -20,7 +21,6 @@ import {
 import { createUserService } from "./services/user/service";
 import { createUtilService } from "./services/util/service";
 import { createItemService } from "./services/item/service";
-import { readCliArgs } from "./util/cli";
 import { options } from "./options";
 import { createMonsterService } from "./services/monster/service";
 import { createScriptDriver } from "./rathena/ScriptDriver";

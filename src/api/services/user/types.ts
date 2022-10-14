@@ -1,8 +1,8 @@
 import * as zod from "zod";
-import { toggleRecordType } from "../../util/matcher";
 import { getZodType } from "../../../lib/zod/zodPath";
 import { LoginEntityType } from "../../rathena/DatabaseDriver.types";
 import { createPropertyMatchRefiner } from "../../../lib/zod/propertyMatchRefiner";
+import { toggleRecordType } from "../../../lib/zod/zodToggle";
 
 export enum UserAccessLevel {
   Guest,

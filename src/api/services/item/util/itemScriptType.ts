@@ -1,6 +1,6 @@
 import * as zod from "zod";
 import { ParseInput, ParseReturnType, ZodType } from "zod";
-import { dedupe } from "../../../util/dedupe";
+import { dedupe } from "../../../rathena/dedupe";
 import { chainParse } from "../../../../lib/zod/chainParse";
 
 const parsedItemScript = zod.object({

@@ -1,6 +1,6 @@
 import { pick } from "lodash";
 import { createLogger } from "../src/lib/logger";
-import { readCliArgs } from "../src/api/util/cli";
+import { readCliArgs } from "../src/lib/cli";
 import { options } from "../src/api/options";
 import { createConfigDriver } from "../src/api/rathena/ConfigDriver";
 

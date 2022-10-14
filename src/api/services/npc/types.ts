@@ -1,6 +1,6 @@
 import * as zod from "zod";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
-import { matcher } from "../../util/matcher";
+import { matcher } from "../../matcher";
 import { ZodCustomObject } from "../../../lib/zod/ZodCustomObject";
 import { RawScriptEntity, trimUniqueNpcName } from "../../rathena/ScriptDriver";
 

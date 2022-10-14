@@ -6,8 +6,9 @@ import { DatabaseDriver } from "../../rathena/DatabaseDriver";
 import { normalizeItemInstanceProperties } from "../inventory/types";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
-import { count, knexMatcher } from "../../util/knex";
+import { count } from "../../../lib/knex";
 import { itemFilter } from "../item/types";
+import { knexMatcher } from "../../matcher";
 import {
   createVendorItemId,
   parseVendorItemId,

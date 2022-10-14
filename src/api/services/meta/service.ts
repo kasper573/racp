@@ -1,6 +1,5 @@
 import { Item } from "../item/types";
-import { dedupe, dedupeRecordInsert } from "../../util/dedupe";
-import { select, Selector } from "../../util/select";
+import { dedupe, dedupeRecordInsert } from "../../rathena/dedupe";
 import { ClientTextNode } from "../../common/clientTextType";
 import { ItemRepository } from "../item/repository";
 import { MonsterRepository } from "../monster/repository";
@@ -82,3 +81,19 @@ const largestSlot = (largest: number, item: Item) =>
 
 const addTag = (tags: Map<string, true>, node: ClientTextNode) =>
   node.tag ? tags.set(node.tag, true) : tags;
+
+type Selector<V, S> = (value: V) => S[] | S | undefined;
+
+function select<V, S>(values: V[], selector: Selector<V, S>) {
+  return values.reduce((list, value) => {
+    const selected = selector(value);
+    if (Array.isArray(selected)) {
+      list.push(...selected);
+      return list;
+    }
+    if (selected !== undefined) {
+      list.push(selected);
+    }
+    return list;
+  }, [] as S[]);
+}

@@ -2,7 +2,7 @@ import * as zod from "zod";
 import { itemIdType } from "../item/types";
 import { itemInstancePropertiesType } from "../inventory/types";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
-import { matcher } from "../../util/matcher";
+import { matcher } from "../../matcher";
 
 export type VendorItem = zod.infer<typeof vendorItemType>;
 

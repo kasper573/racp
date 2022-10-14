@@ -5,7 +5,7 @@ import { debounce } from "lodash";
 import { ImageFormatter } from "../../lib/image/createImageFormatter";
 import { Linker } from "../../lib/fs/createPublicFileLinker";
 import { Logger } from "../../lib/logger";
-import { gfs } from "../util/gfs";
+import { gfs } from "../gfs";
 import { decodeRpcFileData, RpcFile } from "./RpcFile";
 
 export function createImageRepository(

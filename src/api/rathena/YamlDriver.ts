@@ -5,7 +5,7 @@ import * as yaml from "yaml";
 import { isPlainObject } from "lodash";
 import { typedKeys } from "../../lib/std/typedKeys";
 import { Logger } from "../../lib/logger";
-import { gfs } from "../util/gfs";
+import { gfs } from "../gfs";
 
 export type YamlDriver = ReturnType<typeof createYamlDriver>;
 

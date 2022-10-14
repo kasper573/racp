@@ -3,7 +3,7 @@ import { t } from "../../trpc";
 import { bufferToLuaCode, parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { decodeRpcFileData, rpcFile } from "../../common/RpcFile";
 import { createUnluac } from "../../../lib/unluac/unluac";
-import { gfs } from "../../util/gfs";
+import { gfs } from "../../gfs";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
 import { ReducedLuaTables, reducedLuaTables } from "./types";
