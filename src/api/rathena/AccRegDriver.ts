@@ -1,15 +1,29 @@
+import { Logger } from "../../lib/logger";
 import { DatabaseDriver } from "./DatabaseDriver";
 
 // Abstractions for interfacing with the rathena "acc_reg_" tables in a type safe manner
 
 export abstract class AccRegDriver<Value = any> {
-  abstract read(accountId: number, key: string): Promise<Value | undefined>;
+  protected constructor(protected logger: Logger) {}
+
+  protected abstract readImpl(
+    accountId: number,
+    key: string
+  ): Promise<Value | undefined>;
 
   protected abstract writeImpl(
     accountId: number,
     key: string,
     value: Value
   ): Promise<boolean>;
+
+  async read(accountId: number, key: string) {
+    try {
+      return await this.readImpl(accountId, key);
+    } catch (e) {
+      this.logger.error(`Failed to read ${key} for account ${accountId}: ${e}`);
+    }
+  }
 
   async write(
     accountId: number,
@@ -18,8 +32,11 @@ export abstract class AccRegDriver<Value = any> {
   ): Promise<boolean> {
     try {
       const currentValue = await this.read(accountId, key);
-      return this.writeImpl(accountId, key, createValue(currentValue));
+      return await this.writeImpl(accountId, key, createValue(currentValue));
     } catch (e) {
+      this.logger.error(
+        `Failed to write ${key} for account ${accountId}: ${e}`
+      );
       return false;
     }
   }
@@ -42,15 +59,15 @@ export class AccRegKeyAtom<Driver extends AccRegDriver> {
 }
 
 export class AccRegNumDriver extends AccRegDriver<number> {
-  constructor(private db: DatabaseDriver) {
-    super();
+  constructor(private db: DatabaseDriver, logger: Logger) {
+    super(logger.chain("AccRegNumDriver"));
   }
 
   private createQuery() {
     return this.db.char.table("acc_reg_num");
   }
 
-  async read(accountId: number, key: string) {
+  async readImpl(accountId: number, key: string) {
     return this.createQuery()
       .where({ account_id: accountId, key })
       .select("value")
@@ -58,7 +75,7 @@ export class AccRegNumDriver extends AccRegDriver<number> {
       .then((result) => (result !== undefined ? +result.value : undefined));
   }
 
-  protected async writeImpl(
+  async writeImpl(
     accountId: number,
     key: string,
     value: number

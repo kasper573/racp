@@ -28,14 +28,15 @@ export function createDonationService({
   db,
   env,
   settings,
-  logger,
+  logger: parentLogger,
 }: {
   db: DatabaseDriver;
   env: DonationEnvironment;
   settings: AdminSettingsRepository;
   logger: Logger;
 }) {
-  const creditBalanceAtom = new AccRegNumDriver(db).createKeyAtom(
+  const logger = parentLogger.chain("donation");
+  const creditBalanceAtom = new AccRegNumDriver(db, logger).createKeyAtom(
     () => settings.getSettings().internal.donations.accRegNumKey
   );
 
@@ -126,6 +127,8 @@ export function createDonationService({
             );
             return { status: "noPaymentsReceived" };
           }
+
+          logger.warn("Received", capture.amount.value);
 
           const rewardedCredits = calculateRewardedCredits(
             +capture.amount.value,
