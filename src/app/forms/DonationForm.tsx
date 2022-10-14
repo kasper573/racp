@@ -139,7 +139,7 @@ function describeDonationState(
         color: "error",
         message:
           "Something went wrong after your donation went through. " +
-          "A refund was attempted but could be issued. " +
+          "A refund was attempted but could not be issued. " +
           "Please contact an admin for a manual refund.",
       };
     case "creditsAwarded":
