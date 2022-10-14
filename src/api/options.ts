@@ -63,4 +63,10 @@ export const options = {
     choices: donationEnvironments,
     default: "sandbox",
   },
+  exposeInternalErrors: {
+    type: "boolean",
+    default: false,
+    description:
+      "Set to true to share stack traces and error messages for internal server errors with clients.",
+  },
 } as const;

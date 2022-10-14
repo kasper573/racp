@@ -120,6 +120,7 @@ app.use(
     router,
     createContext: ({ req }: { req: JWTRequest<AuthenticatorPayload> }) => ({
       auth: req.auth,
+      exposeInternalErrors: args.exposeInternalErrors,
     }),
   })
 );
