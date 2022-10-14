@@ -10,6 +10,7 @@ import { UserAccessLevel } from "../../api/services/user/types";
 import { LoadingPage } from "./LoadingPage";
 
 export default function DonationsPage() {
+  const balanceQuery = trpc.donation.balance.useQuery();
   const {
     data: settings,
     isLoading,
@@ -39,11 +40,16 @@ export default function DonationsPage() {
       <Auth>
         {(user) =>
           user && (
-            <DonationForm
-              {...settings.donations}
-              accountId={user.id}
-              onSubmit={startDonationProcess}
-            />
+            <>
+              <DonationForm
+                {...settings.donations}
+                accountId={user.id}
+                onSubmit={startDonationProcess}
+              />
+              <Typography sx={{ mt: 1 }}>
+                Your currently have {balanceQuery.data ?? "?"} credits
+              </Typography>
+            </>
           )
         }
       </Auth>

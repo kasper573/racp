@@ -38,6 +38,13 @@ export function createDonationService({
     getCurrencies: t.procedure
       .output(zod.array(currencyType))
       .query(() => paypalCurrencies as Currency[]),
+    balance: t.procedure
+      .output(zod.number())
+      .query(({ ctx: { auth } }) =>
+        auth
+          ? creditBalanceAtom.read(auth.id).then((balance) => balance ?? 0)
+          : 0
+      ),
     order: t.procedure
       .input(moneyType)
       .output(zod.string().optional())
