@@ -13,13 +13,11 @@ import {
   Image,
   Login,
   Map,
-  ModeEdit,
   Paid,
   PersonAdd,
   PestControlRodent,
   Redeem,
   Settings,
-  Storage,
   Storefront,
 } from "@mui/icons-material";
 import { UserAccessLevel } from "../api/services/user/types";
@@ -157,20 +155,6 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
         component: lazy(() => import("./pages/AdminAssetsPage")),
         options: { title: "Assets", icon: <Image /> },
       }),
-      serverConfig: route(
-        "server-config",
-        {
-          component: lazy(() => import("./pages/AdminServerConfigPage")),
-          options: { title: "Server Config", icon: <Storage /> },
-        },
-        (route) => ({
-          edit: route("edit/&:configName", {
-            component: lazy(() => import("./pages/AdminServerConfigEditPage")),
-            options: { title: "Edit", icon: <ModeEdit /> },
-            params: { configName: stringParser },
-          }),
-        })
-      ),
     })
   ),
 }));

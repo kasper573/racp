@@ -13,7 +13,6 @@ import { createEllipsisLogFn } from "../lib/createEllipsisLogFn";
 import { createYamlDriver } from "./rathena/YamlDriver";
 import { createConfigDriver } from "./rathena/ConfigDriver";
 import { createDatabaseDriver } from "./rathena/DatabaseDriver";
-import { createConfigService } from "./services/config/service";
 import {
   AuthenticatorPayload,
   createAuthenticator,
@@ -86,7 +85,6 @@ let router: ApiRouter;
 
   router = createApiRouter({
     util: createUtilService(),
-    config: createConfigService(config),
     user: createUserService({ db, user, sign, ...args }),
     item: createItemService(items),
     monster: createMonsterService({ db, repo: monsters }),

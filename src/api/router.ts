@@ -5,7 +5,6 @@ import { MonsterService } from "./services/monster/service";
 import { MetaService } from "./services/meta/service";
 import { MapService } from "./services/map/service";
 import { ItemService } from "./services/item/service";
-import { ConfigService } from "./services/config/service";
 import { DropService } from "./services/drop/service";
 import { VendorService } from "./services/vendor/service";
 import { ShopService } from "./services/shop/service";
@@ -20,7 +19,6 @@ export function createApiRouter(services: ApiServices) {
 export type ApiServices = {
   util: UtilService;
   user: UserService;
-  config: ConfigService;
   item: ItemService;
   monster: MonsterService;
   drop: DropService;
