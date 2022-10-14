@@ -84,8 +84,8 @@ it("donating works", () => {
   // Cypress does currently not allow us to test sandbox mode due to PayPal iframes (but our code supports it).
   cy.findByLabelText("Donation amount").clear().type("6");
   cy.findByRole("button", { name: /donate/i }).click();
-  cy.findByText(/thank you for your donation/i);
-  cy.findByText(/you currently have 48 credits/i);
+  cy.contains(/thank you for your donation/i);
+  cy.contains(/you currently have 48 credits/i);
 });
 
 function submitSettings(editSomeSettings: Function) {

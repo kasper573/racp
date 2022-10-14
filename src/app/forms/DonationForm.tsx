@@ -6,7 +6,7 @@ import {
   usePayPalScriptReducer,
 } from "@paypal/react-paypal-js";
 import { TextField } from "../controls/TextField";
-import { AdminPublicSettings, Money } from "../../api/services/settings/types";
+import { AdminPublicSettings } from "../../api/services/settings/types";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { UserProfile } from "../../api/services/user/types";
 import { calculateRewardedCredits } from "../../api/services/donation/utils/calculateRewardedCredits";
@@ -18,10 +18,8 @@ export function DonationForm({
   exchangeRate,
   currency,
   paypalClientId,
-  onSubmit,
 }: {
   accountId: UserProfile["id"];
-  onSubmit?: (money: Money) => void;
 } & AdminPublicSettings["donations"]) {
   const { data: donationEnvironment = "pending" } =
     trpc.donation.environment.useQuery();
@@ -47,62 +45,55 @@ export function DonationForm({
         rejected={<>Could not connect to PayPal. Please try again later.</>}
         initial={<>Connecting to PayPal. Please wait a moment.</>}
       >
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            onSubmit?.({ value, currency });
-          }}
-        >
-          <Stack spacing={2}>
-            <div>
-              <TextField
-                label="Donation amount"
-                type="number"
-                disabled={!mayDonate}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">{currency}</InputAdornment>
-                  ),
-                }}
-                helperText={`Donating ${value} ${currency} will reward you ${rewardedCredits} credits.`}
-                value={value}
-                onChange={setValue}
-              />
-            </div>
-            <Box sx={{ maxWidth: 270 }}>
-              <PayPalButton
-                fundingSource="paypal"
-                disabled={!mayDonate}
-                createOrder={async () => {
-                  setDonationState("idle");
-                  const orderID = await order({ value, currency });
-                  if (orderID === undefined) {
-                    throw new Error("Could not create order");
-                  }
-                  return orderID;
-                }}
-                onCancel={() => setDonationState("cancel")}
-                onError={() => setDonationState("error")}
-                onApprove={async (data) => {
-                  setDonationState("pending");
-                  setDonationState(await capture(data));
-                }}
-              />
-            </Box>
-            {donationStateDescription && (
-              <Stack direction="row" spacing={2} alignItems="center">
-                {donationStateDescription.spinner && (
-                  <div>
-                    <LoadingSpinner />
-                  </div>
-                )}
-                <Typography color={donationStateDescription.color}>
-                  {donationStateDescription.message}
-                </Typography>
-              </Stack>
-            )}
-          </Stack>
-        </form>
+        <Stack spacing={2}>
+          <div>
+            <TextField
+              label="Donation amount"
+              type="number"
+              disabled={!mayDonate}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">{currency}</InputAdornment>
+                ),
+              }}
+              helperText={`Donating ${value} ${currency} will reward you ${rewardedCredits} credits.`}
+              value={value}
+              onChange={setValue}
+            />
+          </div>
+          <Box sx={{ maxWidth: 270 }}>
+            <PayPalButton
+              fundingSource="paypal"
+              disabled={!mayDonate}
+              createOrder={async () => {
+                setDonationState("idle");
+                const orderID = await order({ value, currency });
+                if (orderID === undefined) {
+                  throw new Error("Could not create order");
+                }
+                return orderID;
+              }}
+              onCancel={() => setDonationState("cancel")}
+              onError={() => setDonationState("error")}
+              onApprove={async (data) => {
+                setDonationState("pending");
+                setDonationState(await capture(data));
+              }}
+            />
+          </Box>
+          {donationStateDescription && (
+            <Stack direction="row" spacing={2} alignItems="center">
+              {donationStateDescription.spinner && (
+                <div>
+                  <LoadingSpinner />
+                </div>
+              )}
+              <Typography color={donationStateDescription.color}>
+                {donationStateDescription.message}
+              </Typography>
+            </Stack>
+          )}
+        </Stack>
       </PayPalSuspense>
     </PayPalScriptProvider>
   );

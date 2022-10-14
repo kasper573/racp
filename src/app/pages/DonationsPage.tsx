@@ -2,7 +2,6 @@ import { Typography } from "@mui/material";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
 import { DonationForm } from "../forms/DonationForm";
-import { Money } from "../../api/services/settings/types";
 import { Link } from "../components/Link";
 import { router } from "../router";
 import { Auth } from "../components/Auth";
@@ -24,10 +23,6 @@ export default function DonationsPage() {
     return <Header>Something went wrong</Header>;
   }
 
-  function startDonationProcess(money: Money) {
-    // TODO: implement
-  }
-
   return (
     <>
       <Header>Donations</Header>
@@ -41,13 +36,9 @@ export default function DonationsPage() {
         {(user) =>
           user && (
             <>
-              <DonationForm
-                {...settings.donations}
-                accountId={user.id}
-                onSubmit={startDonationProcess}
-              />
+              <DonationForm {...settings.donations} accountId={user.id} />
               <Typography sx={{ mt: 1 }}>
-                Your currently have {balanceQuery.data ?? "?"} credits
+                You currently have {balanceQuery.data ?? "?"} credits
               </Typography>
             </>
           )
