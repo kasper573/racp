@@ -1,13 +1,17 @@
 import { styled } from "@mui/material";
-import {
-  useElevatedState,
-  UseElevatedStateProps,
-} from "../../lib/hooks/useElevatedState";
+import { ComponentProps } from "react";
 
-export function TextEditor(props: UseElevatedStateProps<string>) {
-  const [value, setValue] = useElevatedState(props);
-
-  return <Text value={value} onChange={(e) => setValue(e.target.value)} />;
+export function TextEditor({
+  value,
+  onChange,
+  ...props
+}: {
+  value: string;
+  onChange: (value: string) => void;
+} & Omit<ComponentProps<typeof Text>, "value" | "onChange">) {
+  return (
+    <Text value={value} onChange={(e) => onChange(e.target.value)} {...props} />
+  );
 }
 
 const Text = styled("textarea")`

@@ -1,3 +1,4 @@
+import { Stack } from "@mui/material";
 import { LoginPayload, loginPayloadType } from "../../api/services/user/types";
 import { useZodForm } from "../../lib/zod/useZodForm";
 import { TextField } from "../controls/TextField";
@@ -25,8 +26,10 @@ export function UserLoginForm({
 
   return (
     <CommonForm label="Sign in" {...props}>
-      <TextField label="Username" {...field("username")} />
-      <TextField label="Password" type="password" {...field("password")} />
+      <Stack spacing={2}>
+        <TextField label="Username" {...field("username")} />
+        <TextField label="Password" type="password" {...field("password")} />
+      </Stack>
     </CommonForm>
   );
 }
