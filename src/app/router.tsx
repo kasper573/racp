@@ -142,7 +142,7 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
   admin: route(
     "admin",
     {
-      component: lazy(() => import("./pages/AdminPage")),
+      component: () => <Redirect to={router.admin().settings()} />,
       options: { title: "Admin", icon: <AdminPanelSettings /> },
       middleware: requireAuth(UserAccessLevel.Admin),
     },
