@@ -1,6 +1,6 @@
 // Common yargs CLI argument options used in all scripts
 
-import { paypalEnvironments } from "./services/donation/service";
+import { donationEnvironments } from "./services/donation/types";
 
 export const rAthenaModes = ["Renewal", "Prerenewal"] as const;
 export type RAthenaMode = typeof rAthenaModes extends Iterable<infer V>
@@ -64,7 +64,7 @@ export const options = {
   },
   paypalEnvironment: {
     type: "string",
-    choices: paypalEnvironments,
+    choices: donationEnvironments,
     default: "sandbox",
   },
 } as const;

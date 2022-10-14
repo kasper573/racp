@@ -13,7 +13,11 @@ import {
   moneyType,
 } from "../settings/types";
 import { AccRegNumDriver } from "../../rathena/AccRegDriver";
-import { donationCaptureResultType } from "./types";
+import {
+  donationCaptureResultType,
+  DonationEnvironment,
+  donationEnvironmentType,
+} from "./types";
 import { calculateRewardedCredits } from "./utils/calculateRewardedCredits";
 import { paypalCurrencies } from "./paypalCurrencies";
 
@@ -26,7 +30,7 @@ export function createDonationService({
   logger,
 }: {
   db: DatabaseDriver;
-  env: PaypalEnvironment;
+  env: DonationEnvironment;
   settings: AdminSettingsRepository;
   logger: Logger;
 }) {
@@ -35,6 +39,7 @@ export function createDonationService({
   );
 
   return t.router({
+    environment: t.procedure.output(donationEnvironmentType).query(() => env),
     currencies: t.procedure
       .output(zod.array(currencyType))
       .query(() => paypalCurrencies as Currency[]),
@@ -171,7 +176,10 @@ export function createDonationService({
   });
 }
 
-function createPayPalClient(s: AdminSettings, env: PaypalEnvironment) {
+function createPayPalClient(s: AdminSettings, env: DonationEnvironment) {
+  if (env === "fake") {
+    return {} as paypal.core.PayPalHttpClient;
+  }
   return new paypal.core.PayPalHttpClient(
     {
       live: new paypal.core.LiveEnvironment(
@@ -188,7 +196,3 @@ function createPayPalClient(s: AdminSettings, env: PaypalEnvironment) {
 
 const accountIdToCustomId = (id: AccountId) => id.toString();
 const customIdToAccountId = (customId: string) => +customId;
-
-export const paypalEnvironments = ["live", "sandbox"] as const;
-
-export type PaypalEnvironment = typeof paypalEnvironments[number];
