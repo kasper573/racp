@@ -117,13 +117,7 @@ app.use(
     onError({ error, path }) {
       logger
         .chain("trpc")
-        .error(
-          `/${path}`,
-          error.name,
-          args.exposeInternalErrors
-            ? `${error.message}: ${error.stack}`
-            : "Internal Server Error"
-        );
+        .error(`/${path}`, error.name, `${error.message}: ${error.stack}`);
     },
     router,
     createContext: ({ req }: { req: JWTRequest<AuthenticatorPayload> }) => ({

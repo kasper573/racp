@@ -12,7 +12,7 @@
     "app:build": "webpack",
     "app:serve": "serve dist -s -l tcp://0.0.0.0:$appPort",
     "app:prod": "cross-env NODE_ENV=production yarn app:build && yarn app:serve",
-    "api:dev": "ts-node-dev --files src/api/server --apiPort 8081 --exposeInternalErrors",
+    "api:dev": "ts-node-dev --files src/api/server --apiPort 8081",
     "api:prod": "cross-env NODE_ENV=production ts-node --files src/api/server",
     "e2e:dev": "cross-env CYPRESS_BASE_URL=http://localhost:8080 cypress open",
     "e2e:run": "cross-env CYPRESS_BASE_URL=http://localhost:8080 cypress run",
