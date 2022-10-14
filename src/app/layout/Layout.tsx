@@ -17,7 +17,6 @@ import { Helmet } from "react-helmet-async";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { LoadingPage } from "../pages/LoadingPage";
 import { trpc } from "../state/client";
-import { LoadingSpinner } from "../components/LoadingSpinner";
 import { globalStyles } from "./globalStyles";
 import { Toolbar } from "./Toolbar";
 import { Menu } from "./Menu";
@@ -66,7 +65,7 @@ export function Layout({ children }: { children?: ReactNode }) {
                   >
                     <MenuIcon />
                   </IconButton>
-                  <Collapse orientation="horizontal" in>
+                  <Collapse orientation="horizontal" in={!!settings?.pageTitle}>
                     <Logo icon={false}>{settings?.pageTitle}</Logo>
                   </Collapse>
                 </Stack>
@@ -87,13 +86,9 @@ export function Layout({ children }: { children?: ReactNode }) {
         }}
       >
         <MuiToolbar>
-          {isSettingsLoading ? (
-            <LoadingSpinner sx={{ margin: "auto" }} />
-          ) : (
-            <Collapse orientation="horizontal" in>
-              <Logo>{settings?.pageTitle}</Logo>
-            </Collapse>
-          )}
+          <Collapse orientation="horizontal" in={!!settings?.pageTitle}>
+            <Logo>{settings?.pageTitle}</Logo>
+          </Collapse>
         </MuiToolbar>
         <Divider />
         <Menu onItemSelected={handleDrawerCloseRequest} />
