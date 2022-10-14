@@ -40,7 +40,9 @@ export function CommonRemoteForm<T>({
       )}
       {...props}
     >
-      <FormControls value={localState} onChange={setLocalState} />
+      {localState !== undefined && (
+        <FormControls value={localState} onChange={setLocalState} />
+      )}
     </CommonForm>
   );
 }

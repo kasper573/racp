@@ -4,9 +4,12 @@ import { useReinitializingState } from "./useReinitializingState";
 import { useBlockNavigation } from "./useBlockNavigation";
 
 export interface UseRemoteStateProps<T> {
-  query: any;
-  mutation: any;
-  isEqual?: (a: T, b: T) => boolean;
+  query: () => { data?: T; isLoading: boolean };
+  mutation: () => {
+    mutate: (data: T) => void;
+    isLoading: boolean;
+  };
+  isEqual?: (a?: T, b?: T) => boolean;
   navigationWarningMessage?: string;
 }
 
@@ -17,14 +20,14 @@ export function useRemoteState<T>({
   navigationWarningMessage = "You have unsaved changes. Are you sure you want to leave?",
 }: UseRemoteStateProps<T>) {
   const { data: remoteState } = useQuery();
-  const { mutate: uploadState, isUploading } = useMutation();
-  const [localState, setLocalState] = useReinitializingState<T>(remoteState);
+  const { mutate: uploadState, isLoading: isUploading } = useMutation();
+  const [localState, setLocalState] = useReinitializingState(remoteState);
   const uploadLatestState = useCallback(
-    () => uploadState(localState),
+    () => localState !== undefined && uploadState(localState),
     [localState, uploadState]
   );
   const isDirty = useMemo(
-    () => !isEqual(localState, remoteState),
+    () => localState !== undefined && !isEqual(localState, remoteState),
     [isEqual, localState, remoteState]
   );
   useBlockNavigation(isDirty, navigationWarningMessage);

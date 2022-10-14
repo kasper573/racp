@@ -9,9 +9,9 @@ export default function AdminSettingsPage() {
       <Header>Settings</Header>
       <CommonRemoteForm
         query={trpc.settings.read.useQuery}
-        mutation={trpc.settings.update.useMutation}
+        mutation={() => trpc.settings.update.useMutation()}
       >
-        {(props: any) => props.value && <AdminSettingsForm {...props} />}
+        {AdminSettingsForm}
       </CommonRemoteForm>
     </>
   );
