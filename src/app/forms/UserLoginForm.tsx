@@ -20,7 +20,6 @@ export function UserLoginForm({
     schema: loginPayloadType,
     value,
     onChange,
-    updateDelay: 0,
     error: props.error,
   });
 

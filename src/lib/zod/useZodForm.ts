@@ -2,10 +2,6 @@ import * as zod from "zod";
 import { ZodType } from "zod";
 import { get, set } from "lodash";
 import produce from "immer";
-import {
-  useElevatedState,
-  UseElevatedStateProps,
-} from "../hooks/useElevatedState";
 import { getZodType, Path, PathValue } from "./zodPath";
 import { isZodError } from "./isZodError";
 
@@ -14,9 +10,9 @@ export type ZodFormError = any;
 export function useZodForm<Schema extends ZodType>({
   schema,
   error,
-  ...props
+  value,
+  onChange: setValue,
 }: ZodFormOptions<Schema>) {
-  const [value, setValue] = useElevatedState(props);
   type Entity = zod.infer<Schema>;
 
   function createFieldProps<P extends Path<Entity>>(
@@ -44,10 +40,11 @@ export function useZodForm<Schema extends ZodType>({
   return createFieldProps;
 }
 
-export interface ZodFormOptions<Schema extends ZodType>
-  extends UseElevatedStateProps<zod.infer<Schema>> {
+export interface ZodFormOptions<Schema extends ZodType> {
   schema: Schema;
   error?: ZodFormError;
+  value: zod.infer<Schema>;
+  onChange: (value: zod.infer<Schema>) => void;
 }
 
 export interface ZodFormRegistration<Value> {

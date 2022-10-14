@@ -22,7 +22,6 @@ export function UserRegisterForm({
     schema: userRegisterPayloadType,
     value,
     onChange,
-    updateDelay: 0,
     error: props.error,
   });
 
