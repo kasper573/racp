@@ -99,7 +99,7 @@ let router: ApiRouter;
     settings: createAdminSettingsService(settings),
     donation: createDonationService({
       db,
-      env: args.paypalEnvironment,
+      env: args.donationEnvironment,
       settings,
       logger: logger.chain("donation")
     }),

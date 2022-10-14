@@ -2,6 +2,8 @@ import { resetData, signInAsAdmin } from "../support/actions/admin";
 import { gotoMainMenuPage, findMainMenuItem } from "../support/actions/nav";
 import { waitForPageReady } from "../support/actions/common";
 
+// Note: To test this suite you must run the RACP API with the fake donation environment
+
 before(() => {
   resetData();
   cy.visit("/");
@@ -73,20 +75,46 @@ describe("can change", () => {
   });
 });
 
-it("donating works", () => {
-  updateSettingsAndGotoDonations(() => {
-    cy.findByLabelText("Enable donations").check();
-    cy.findByLabelText("Exchange rate").clear().type("8");
-    cy.get(`#Currency`).select("USD");
+describe("donating", () => {
+  beforeEach(() => {
+    resetData();
+    updateSettingsAndGotoDonations(() => {
+      cy.findByLabelText("Enable donations").check();
+      cy.findByLabelText("Exchange rate").clear().type("8");
+      cy.get(`#Currency`).select("USD");
+    });
   });
 
+  it("rewards you with the correct amount of credits", () => {
+    cy.findByLabelText("Donation amount").clear().type("6");
+
+    paypalFlow();
+
+    cy.contains(/thank you for your donation/i);
+    cy.contains(/you currently have 48 credits/i);
+  });
+
+  it("internal server errors informs the user and yields no credits", () => {
+    // Causes a credit count too high to be inserted into the database
+    // This can't happen in production, but this emulates an internal server error,
+    // which in production could be i.e. the mysql database not answering.
+    cy.findByLabelText("Donation amount")
+      .clear()
+      .type("999999999999999999999999");
+
+    paypalFlow();
+
+    cy.contains(/something went wrong/i);
+    cy.contains(/you currently have 0 credits/i);
+  });
+});
+
+function paypalFlow() {
   // Assuming fake donation flow is enabled.
   // Cypress does currently not allow us to test sandbox mode due to PayPal iframes (but our code supports it).
-  cy.findByLabelText("Donation amount").clear().type("6");
+  // Once cypress supports iframes we can replace this line with the actual PayPal flow
   cy.findByRole("button", { name: /donate/i }).click();
-  cy.contains(/thank you for your donation/i);
-  cy.contains(/you currently have 48 credits/i);
-});
+}
 
 function submitSettings(editSomeSettings: Function) {
   editSomeSettings();

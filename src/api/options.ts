@@ -62,7 +62,7 @@ export const options = {
     description:
       "Folder to mount public web server files in (relative to root)",
   },
-  paypalEnvironment: {
+  donationEnvironment: {
     type: "string",
     choices: donationEnvironments,
     default: "sandbox",
