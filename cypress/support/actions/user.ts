@@ -43,12 +43,21 @@ export function updateProfile({
   waitForPageReady();
 }
 
-export function signIn(username: string, password: string) {
+export function signIn(
+  username: string,
+  password: string,
+  { waitForRedirect = true } = {}
+) {
   clickUserMenuItem("Sign in");
   cy.findByLabelText("Username").type(username);
   cy.findByLabelText("Password").type(password);
-  cy.findByRole("button", { name: "Sign in" }).click();
-  waitForPageReady();
+  cy.url().then((urlForSignInPage) => {
+    cy.findByRole("button", { name: "Sign in" }).click();
+    if (waitForRedirect) {
+      cy.url().should("not.equal", urlForSignInPage);
+      waitForPageReady();
+    }
+  });
 }
 
 export function signOut() {
@@ -57,4 +66,8 @@ export function signOut() {
 
 export function assertSignedIn(username?: string) {
   openUserMenu().contains("Signed in" + (username ? ` as ${username}` : ""));
+}
+
+export function assertSignedOut() {
+  openUserMenu().should("not.contain", "Signed in");
 }
