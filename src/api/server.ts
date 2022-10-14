@@ -53,8 +53,7 @@ const logger = createLogger(
 );
 
 const app = express();
-const authenticator = createAuthenticator({ secret: args.jwtSecret, ...args });
-const { sign } = authenticator;
+const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
 const yaml = createYamlDriver({ ...args, logger });
 const config = createConfigDriver({ ...args, logger });
 const db = createDatabaseDriver(config);
@@ -85,7 +84,7 @@ let router: ApiRouter;
 
   router = createApiRouter({
     util: createUtilService(),
-    user: createUserService({ db, user, sign, ...args }),
+    user: createUserService({ db, user, sign: auth.sign, ...args }),
     item: createItemService(items),
     monster: createMonsterService({ db, repo: monsters }),
     drop: createDropService(drops),
@@ -104,7 +103,7 @@ let router: ApiRouter;
   })
 }
 
-app.use(authenticator.middleware);
+app.use(auth.middleware);
 app.use(cors());
 app.use(express.static(linker.directory));
 app.use(
