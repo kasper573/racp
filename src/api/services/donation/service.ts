@@ -12,7 +12,7 @@ import {
   currencyType,
   moneyType,
 } from "../settings/types";
-import { updateAccRegValue } from "../../common/updateAccRegValue";
+import { AccRegNumDriver } from "../../rathena/AccRegDriver";
 import { donationCaptureResultType } from "./types";
 import { calculateRewardedCredits } from "./utils/calculateRewardedCredits";
 import { paypalCurrencies } from "./paypalCurrencies";
@@ -30,6 +30,10 @@ export function createDonationService({
   settings: AdminSettingsRepository;
   logger: Logger;
 }) {
+  const creditBalanceAtom = new AccRegNumDriver(db).createKeyAtom(
+    () => settings.getSettings().internal.donations.accRegNumKey
+  );
+
   return t.router({
     getCurrencies: t.procedure
       .output(zod.array(currencyType))
@@ -121,11 +125,8 @@ export function createDonationService({
             exchangeRate
           );
 
-          const success = await updateAccRegValue(
-            db,
-            "num",
+          const success = await creditBalanceAtom.write(
             accountId,
-            accRegNumKey,
             (n = 0) => n + rewardedCredits
           );
 
