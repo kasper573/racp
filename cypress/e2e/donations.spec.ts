@@ -73,6 +73,21 @@ describe("can change", () => {
   });
 });
 
+it("donating works", () => {
+  updateSettingsAndGotoDonations(() => {
+    cy.findByLabelText("Enable donations").check();
+    cy.findByLabelText("Exchange rate").clear().type("8");
+    cy.get(`#Currency`).select("USD");
+  });
+
+  // Assuming fake donation flow is enabled.
+  // Cypress does currently not allow us to test sandbox mode due to PayPal iframes (but our code supports it).
+  cy.findByLabelText("Donation amount").clear().type("6");
+  cy.findByRole("button", { name: /donate/i }).click();
+  cy.findByText(/thank you for your donation/i);
+  cy.findByText(/you currently have 48 credits/i);
+});
+
 function submitSettings(editSomeSettings: Function) {
   editSomeSettings();
   cy.findByRole("form").submit();

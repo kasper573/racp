@@ -24,7 +24,6 @@
     "analyze-bundles": "cross-env NODE_ENV=production analyzeBundles=true webpack"
   },
   "dependencies": {
-    "@deepsquare/cypress-iframe": "^2.0.2",
     "@emotion/react": "11.9.3",
     "@emotion/styled": "11.9.3",
     "@fontsource/roboto": "4.5.7",
