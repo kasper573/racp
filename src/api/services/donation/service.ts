@@ -127,15 +127,9 @@ export function createDonationService({
             return "noPaymentsReceived";
           }
 
-          // prettier-ignore
-          const {
-            public: { donations: { exchangeRate }, },
-            internal: { donations: { accRegNumKey }, },
-          } = settings.getSettings();
-
           const rewardedCredits = calculateRewardedCredits(
             +capture.amount.value,
-            exchangeRate
+            settings.getSettings().public.donations.exchangeRate
           );
 
           const success = await creditBalanceAtom.write(
