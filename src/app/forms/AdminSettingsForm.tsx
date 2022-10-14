@@ -1,6 +1,6 @@
 import { FormControlLabel, Stack } from "@mui/material";
 import { TextField } from "../controls/TextField";
-import { useZodForm } from "../../lib/zod/useZodForm";
+import { useZodForm, ZodFormOptions } from "../../lib/zod/useZodForm";
 import {
   AdminSettings,
   adminSettingsType,
@@ -11,20 +11,9 @@ import { TabbedPaper } from "../components/TabbedPaper";
 import { Select } from "../controls/Select";
 import { trpc } from "../state/client";
 
-export function AdminSettingsForm({
-  value,
-  onChange,
-}: {
-  value: AdminSettings;
-  onChange: (value: AdminSettings) => void;
-}) {
+export function AdminSettingsForm(props: ZodFormOptions<AdminSettings>) {
   const { data: currencies = [] } = trpc.donation.currencies.useQuery();
-
-  const field = useZodForm({
-    schema: adminSettingsType,
-    value,
-    onChange,
-  });
+  const field = useZodForm({ schema: adminSettingsType, ...props });
 
   return (
     <>
@@ -95,7 +84,7 @@ export function AdminSettingsForm({
                 <TextField
                   type="number"
                   label="Exchange rate"
-                  helperText={`How many credits does 1 ${value.donations.currency} equal?`}
+                  helperText={`How many credits does 1 ${props.value.donations.currency} equal?`}
                   {...field("donations.exchangeRate")}
                 />
               </Stack>

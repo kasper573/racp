@@ -1,20 +1,15 @@
-import * as zod from "zod";
 import { ZodType } from "zod";
 import { get, set } from "lodash";
 import produce from "immer";
 import { getZodType, Path, PathValue } from "./zodPath";
 import { isZodError } from "./isZodError";
 
-export type ZodFormError = any;
-
-export function useZodForm<Schema extends ZodType>({
+export function useZodForm<Entity>({
   schema,
   error,
   value,
   onChange: setValue,
-}: ZodFormOptions<Schema>) {
-  type Entity = zod.infer<Schema>;
-
+}: UseZodFormOptions<Entity>) {
   function createFieldProps<P extends Path<Entity>>(
     path: P
   ): ZodFormRegistration<PathValue<Entity, P>> {
@@ -30,7 +25,7 @@ export function useZodForm<Schema extends ZodType>({
       onChange(updatedFieldValue) {
         setValue(
           produce(value, (draft: Entity) => {
-            set(draft, path, updatedFieldValue);
+            set(draft as unknown as object, path, updatedFieldValue);
           })
         );
       },
@@ -40,11 +35,14 @@ export function useZodForm<Schema extends ZodType>({
   return createFieldProps;
 }
 
-export interface ZodFormOptions<Schema extends ZodType> {
-  schema: Schema;
+export interface UseZodFormOptions<Entity> extends ZodFormOptions<Entity> {
+  schema: ZodType<Entity>;
+}
+
+export interface ZodFormOptions<Entity> {
   error?: ZodFormError;
-  value: zod.infer<Schema>;
-  onChange: (value: zod.infer<Schema>) => void;
+  value: Entity;
+  onChange: (value: Entity) => void;
 }
 
 export interface ZodFormRegistration<Value> {
@@ -53,3 +51,5 @@ export interface ZodFormRegistration<Value> {
   onChange: (updated: Value) => void;
   issues?: string[];
 }
+
+export type ZodFormError = any;

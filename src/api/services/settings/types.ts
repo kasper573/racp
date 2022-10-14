@@ -20,7 +20,7 @@ export const paypalSettingsType = zod.object({
   clientSecret: zod.string(),
 });
 
-export const donationSettingsType = zod.object({
+const donationSettingsBaseType = zod.object({
   enabled: zod.boolean(),
   defaultAmount: zod.number(),
   exchangeRate: zod.number(),
@@ -29,6 +29,29 @@ export const donationSettingsType = zod.object({
   accRegNumKey: zod.string(),
   paypal: paypalSettingsType,
 });
+
+export const donationSettingsType = donationSettingsBaseType
+  .refine(
+    ({ enabled, paypal }) => (enabled ? Boolean(paypal.merchantId) : true),
+    {
+      message: "Required when donations are enabled",
+      path: ["paypal", "merchantId"],
+    }
+  )
+  .refine(
+    ({ enabled, paypal }) => (enabled ? Boolean(paypal.clientId) : true),
+    {
+      message: "Required when donations are enabled",
+      path: ["paypal", "clientId"],
+    }
+  )
+  .refine(
+    ({ enabled, paypal }) => (enabled ? Boolean(paypal.clientSecret) : true),
+    {
+      message: "Required when donations are enabled",
+      path: ["paypal", "clientSecret"],
+    }
+  );
 
 export type AdminSettings = zod.infer<typeof adminSettingsType>;
 export const adminSettingsType = zod.object({
@@ -45,7 +68,7 @@ export type AdminPublicSettings = zod.infer<typeof adminPublicSettingsType>;
 export const adminPublicSettingsType = zod.object({
   ...adminSettingsType.shape,
   donations: zod.object({
-    ...donationSettingsType.shape,
+    ...donationSettingsBaseType.shape,
     paypal: paypalSettingsType.omit({ clientSecret: true }),
   }),
 });
