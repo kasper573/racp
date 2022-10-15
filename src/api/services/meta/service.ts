@@ -1,5 +1,5 @@
 import { Item } from "../item/types";
-import { dedupe, dedupeRecordInsert } from "../../rathena/dedupe";
+import { dedupe, dedupeRecordInsert } from "../../rathena/util/dedupe";
 import { ClientTextNode } from "../../common/clientTextType";
 import { ItemRepository } from "../item/repository";
 import { MonsterRepository } from "../monster/repository";

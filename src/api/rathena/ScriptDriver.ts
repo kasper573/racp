@@ -9,7 +9,7 @@ import { RAthenaMode } from "../options";
 import { gfs } from "../gfs";
 import { defined } from "../../lib/std/defined";
 import { createSegmentedObject } from "../../lib/zod/ZodSegmentedObject";
-import { modeFolderNames, nonEmptyLines, removeComments } from "./parse";
+import { modeFolderNames, nonEmptyLines, removeComments } from "./util/parse";
 
 export type ScriptDriver = ReturnType<typeof createScriptDriver>;
 

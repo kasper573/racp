@@ -11,7 +11,7 @@ import {
   modeFolderNames,
   nonEmptyLines,
   removeComments,
-} from "./parse";
+} from "./util/parse";
 
 export type TxtDriver = ReturnType<typeof createTxtDriver>;
 
