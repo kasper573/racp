@@ -56,7 +56,8 @@ export function createItemRepository({
   );
 
   const itemResolver = createItemResolver({ tradeScale });
-  const itemsPromise = yaml.resolve("db/item_db.yml", itemResolver);
+  const items = yaml.resolve("db/item_db.yml", itemResolver);
+
   const infoFile = files.entry(
     "itemInfo.json",
     zodJsonProtocol(zod.record(itemInfoType))
@@ -64,7 +65,7 @@ export function createItemRepository({
 
   const getItems = createAsyncMemo(
     async () =>
-      [await itemsPromise, infoFile?.data, imageRepository.urlMap] as const,
+      [await items.read(), infoFile?.data, imageRepository.urlMap] as const,
     (plainItems, info, urlMap) => {
       logger.log("Recomputing item repository");
       return Array.from(plainItems.values()).reduce((map, item) => {

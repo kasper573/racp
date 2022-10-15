@@ -11,7 +11,7 @@ export function createUserRepository({
   adminPermissionName?: string;
 }) {
   const groups = yaml.resolve("conf/groups.yml", UserGroupResolver);
-  const adminGroupIds = groups.then((groups) =>
+  const adminGroupIds = groups.read().then((groups) =>
     Array.from(groups.values())
       .filter((group) => group.Permissions[adminPermissionName])
       .map((group) => group.Id)

@@ -4,47 +4,42 @@ import { ZodType } from "zod";
 import * as yaml from "yaml";
 import { isPlainObject } from "lodash";
 import { typedKeys } from "../../lib/std/typedKeys";
-import { Logger } from "../../lib/logger";
 import { gfs } from "../gfs";
+import { Logger } from "../../lib/logger";
+import { Repository } from "./util/Repository";
 
 export type YamlDriver = ReturnType<typeof createYamlDriver>;
-
-export function createYamlDriver({
-  rAthenaPath,
-  rAthenaMode,
-  logger: parentLogger,
-}: {
+export function createYamlDriver(options: {
   rAthenaPath: string;
   rAthenaMode: string;
   logger: Logger;
 }) {
-  const logger = parentLogger.chain("yaml");
+  return {
+    resolve<ET extends ZodType, Key>(
+      file: string,
+      resolver: YamlResolver<ET, Key>
+    ) {
+      return new YamlRepository({ file, resolver, ...options });
+    },
+  };
+}
 
-  async function loadNode(file: string): Promise<DBNode | undefined> {
-    const filePath = path.resolve(rAthenaPath, file);
-    let content: string;
-    try {
-      content = await gfs.readFile(filePath, "utf-8");
-    } catch (e) {
-      return;
-    }
-    const unknownObject = yaml.parse(content);
-    filterNulls(unknownObject);
-    const result = dbNode.safeParse(unknownObject);
-    if (!result.success) {
-      logger.error(
-        "Ignoring node. Unexpected YAML structure. Error info: ",
-        JSON.stringify({ file, issues: result.error.issues }, null, 2)
-      );
-      return;
-    }
-    return result.data;
+export class YamlRepository<ET extends ZodType, Key> extends Repository<
+  Map<Key, zod.infer<ET>>,
+  {
+    rAthenaPath: string;
+    rAthenaMode: string;
+    file: string;
+    resolver: YamlResolver<ET, Key>;
   }
+> {
+  protected async readImpl() {
+    const {
+      rAthenaMode,
+      file,
+      resolver: { entityType, getKey, postProcess = noop },
+    } = this.options;
 
-  const resolve = logger.wrap(async function resolve<ET extends ZodType, Key>(
-    file: string,
-    { entityType, getKey, postProcess = noop }: YamlResolver<ET, Key>
-  ): Promise<Map<Key, zod.infer<ET>>> {
     const imports: ImportNode[] = [{ Path: file, Mode: rAthenaMode }];
     const entities = new Map<Key, zod.infer<ET>>();
 
@@ -52,7 +47,7 @@ export function createYamlDriver({
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const imp = imports.shift()!;
       if (!imp.Mode || imp.Mode === rAthenaMode) {
-        const res = await loadNode(imp.Path);
+        const res = await this.loadNode(imp.Path);
         if (!res) {
           continue;
         }
@@ -70,11 +65,28 @@ export function createYamlDriver({
     );
 
     return entities;
-  });
+  }
 
-  return {
-    resolve,
-  };
+  private async loadNode(file: string): Promise<DBNode | undefined> {
+    const filePath = path.resolve(this.options.rAthenaPath, file);
+    let content: string;
+    try {
+      content = await gfs.readFile(filePath, "utf-8");
+    } catch (e) {
+      return;
+    }
+    const unknownObject = yaml.parse(content);
+    filterNulls(unknownObject);
+    const result = dbNode.safeParse(unknownObject);
+    if (!result.success) {
+      this.logger.error(
+        "Ignoring node. Unexpected YAML structure. Error info: ",
+        JSON.stringify({ file, issues: result.error.issues }, null, 2)
+      );
+      return;
+    }
+    return result.data;
+  }
 }
 
 export interface YamlResolver<ET extends ZodType, Key> {
