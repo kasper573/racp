@@ -1,5 +1,4 @@
 import * as path from "path";
-import recursiveReadDir = require("recursive-readdir");
 import { Logger } from "../../lib/logger";
 import { gfs } from "../gfs";
 
@@ -18,11 +17,6 @@ export function createConfigDriver({
   const configDirectory = path.resolve(rAthenaPath, "conf");
   const configPath = (configName: string) =>
     path.resolve(configDirectory, configName);
-
-  const list = logger.wrap(async function list() {
-    const files = await recursiveReadDir(configDirectory);
-    return files.map((file) => path.relative(configDirectory, file));
-  });
 
   const read = logger.wrap(async function read(configName: string) {
     return gfs.readFile(configPath(configName), "utf-8");
@@ -66,7 +60,6 @@ export function createConfigDriver({
   };
 
   return {
-    list,
     read,
     update,
     parse,
