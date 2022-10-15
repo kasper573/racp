@@ -8,12 +8,13 @@ export type AdminSettingsRepository = ReturnType<
 >;
 
 export function createAdminSettingsRepository(files: FileStore) {
-  const settingsFile = files.entry(
-    "settings.json",
-    zodJsonProtocol(adminSettingsType)
-  );
+  const settingsFile = files.entry({
+    relativeFilename: "settings.json",
+    protocol: zodJsonProtocol(adminSettingsType),
+  });
   return {
-    getSettings: () => settingsFile.data ?? defaultAdminSettings,
+    getSettings: () =>
+      settingsFile.read().then((settings) => settings ?? defaultAdminSettings),
     updateSettings: settingsFile.write,
   };
 }

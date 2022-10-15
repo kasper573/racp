@@ -48,24 +48,25 @@ export function createMapRepository({
     "warp"
   );
 
-  const infoFile = files.entry(
-    "mapInfo.json",
-    zodJsonProtocol(zod.record(mapInfoType))
-  );
-  const boundsFile = files.entry(
-    "mapBounds.json",
-    zodJsonProtocol(mapBoundsRegistryType)
-  );
+  const infoFile = files.entry({
+    relativeFilename: "mapInfo.json",
+    protocol: zodJsonProtocol(zod.record(mapInfoType)),
+  });
+
+  const boundsFile = files.entry({
+    relativeFilename: "mapBounds.json",
+    protocol: zodJsonProtocol(mapBoundsRegistryType),
+  });
 
   const getMaps = createAsyncMemo(
-    async () =>
-      [
-        await warpsPromise,
-        await getSpawns(),
-        infoFile.data,
-        boundsFile.data,
+    () =>
+      Promise.all([
+        warpsPromise,
+        getSpawns(),
+        infoFile.read(),
+        boundsFile.read(),
         imageRepository.urlMap,
-      ] as const,
+      ]),
     (warps, spawns, infoRecord, bounds, urlMap) => {
       logger.log("Recomputing map repository");
 
@@ -111,8 +112,8 @@ export function createMapRepository({
     updateImages: imageRepository.update,
     updateBounds: boundsFile.assign,
     destroy: () => {
-      infoFile.close();
-      boundsFile.close();
+      infoFile.dispose();
+      boundsFile.dispose();
       imageRepository.close();
     },
   };

@@ -41,20 +41,23 @@ export abstract class AccRegDriver<Value = any> {
     }
   }
 
-  createKeyAtom(getKey: () => string): AccRegKeyAtom<this> {
+  createKeyAtom(getKey: () => Promise<string> | string): AccRegKeyAtom<this> {
     return new AccRegKeyAtom(this, getKey);
   }
 }
 
 export class AccRegKeyAtom<Driver extends AccRegDriver> {
-  constructor(private driver: Driver, private getKey: () => string) {}
+  constructor(
+    private driver: Driver,
+    private getKey: () => Promise<string> | string
+  ) {}
 
-  read(accountId: number) {
-    return this.driver.read(accountId, this.getKey());
+  async read(accountId: number) {
+    return this.driver.read(accountId, await this.getKey());
   }
 
-  write(accountId: number, value: Parameters<Driver["write"]>[2]) {
-    return this.driver.write(accountId, this.getKey(), value);
+  async write(accountId: number, value: Parameters<Driver["write"]>[2]) {
+    return this.driver.write(accountId, await this.getKey(), value);
   }
 }
 

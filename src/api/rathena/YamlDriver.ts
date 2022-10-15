@@ -5,15 +5,12 @@ import * as yaml from "yaml";
 import { isPlainObject } from "lodash";
 import { typedKeys } from "../../lib/std/typedKeys";
 import { gfs } from "../gfs";
-import { Logger } from "../../lib/logger";
-import { Repository } from "../../lib/Repository";
+import { CachedRepository, RepositoryOptions } from "../../lib/Repository";
 
 export type YamlDriver = ReturnType<typeof createYamlDriver>;
-export function createYamlDriver(options: {
-  rAthenaPath: string;
-  rAthenaMode: string;
-  logger: Logger;
-}) {
+export function createYamlDriver(
+  options: Omit<YamlRepositoryOptions<any, any>, "resolver" | "file">
+) {
   return {
     resolve<ET extends ZodType, Key>(
       file: string,
@@ -24,15 +21,25 @@ export function createYamlDriver(options: {
   };
 }
 
-export class YamlRepository<ET extends ZodType, Key> extends Repository<
-  Map<Key, zod.infer<ET>>,
-  {
-    rAthenaPath: string;
-    rAthenaMode: string;
-    file: string;
-    resolver: YamlResolver<ET, Key>;
-  }
+export interface YamlRepositoryOptions<ET extends ZodType, Key>
+  extends Omit<RepositoryOptions<Map<Key, zod.infer<ET>>>, "defaultValue"> {
+  rAthenaPath: string;
+  rAthenaMode: string;
+  file: string;
+  resolver: YamlResolver<ET, Key>;
+}
+
+export class YamlRepository<ET extends ZodType, Key> extends CachedRepository<
+  Map<Key, zod.infer<ET>>
 > {
+  constructor(private options: YamlRepositoryOptions<ET, Key>) {
+    super({
+      defaultValue: new Map(),
+      ...options,
+      logger: options.logger.chain(options.file),
+    });
+  }
+
   protected async readImpl() {
     const {
       rAthenaMode,

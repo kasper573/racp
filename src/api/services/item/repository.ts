@@ -44,10 +44,10 @@ export function createItemRepository({
   const imageName = (item: Item) => `${item.Id}${formatter.fileExtension}`;
   const imageRepository = createImageRepository(formatter, imageLinker, logger);
 
-  const optionTextsFile = files.entry(
-    "itemOptionTexts.json",
-    zodJsonProtocol(itemOptionTextsType)
-  );
+  const optionTextsFile = files.entry({
+    relativeFilename: "itemOptionTexts.json",
+    protocol: zodJsonProtocol(itemOptionTextsType),
+  });
 
   const cashStoreItemsPromise = txt.resolve(
     "db",
@@ -58,14 +58,18 @@ export function createItemRepository({
   const itemResolver = createItemResolver({ tradeScale });
   const items = yaml.resolve("db/item_db.yml", itemResolver);
 
-  const infoFile = files.entry(
-    "itemInfo.json",
-    zodJsonProtocol(zod.record(itemInfoType))
-  );
+  const infoFile = files.entry({
+    relativeFilename: "itemInfo.json",
+    protocol: zodJsonProtocol(zod.record(itemInfoType)),
+  });
 
   const getItems = createAsyncMemo(
     async () =>
-      [await items.read(), infoFile?.data, imageRepository.urlMap] as const,
+      [
+        await items.read(),
+        await infoFile.read(),
+        imageRepository.urlMap,
+      ] as const,
     (plainItems, info, urlMap) => {
       logger.log("Recomputing item repository");
       return Array.from(plainItems.values()).reduce((map, item) => {
@@ -91,8 +95,9 @@ export function createItemRepository({
       )
   );
 
-  function getResourceNames() {
-    return Object.entries(infoFile.data ?? {}).reduce(
+  async function getResourceNames() {
+    const info = await infoFile.read();
+    return Object.entries(info ?? {}).reduce(
       (resourceNames: Record<string, string>, [id, info]) => {
         if (info.identifiedResourceName !== undefined) {
           resourceNames[id] = info.identifiedResourceName;
@@ -106,13 +111,14 @@ export function createItemRepository({
   return {
     getItems,
     getCashStoreItems,
-    getOptionTexts: () => optionTextsFile.data ?? {},
+    getOptionTexts: () => optionTextsFile.read().then((texts = {}) => texts),
     updateOptionTexts: optionTextsFile.assign,
     updateInfo(luaCode: string) {
       return infoFile.assign(parseLuaTableAs(luaCode, itemInfoType));
     },
     getResourceNames,
-    countInfo: () => Object.keys(infoFile.data ?? {}).length,
+    countInfo: () =>
+      infoFile.read().then((info = {}) => Object.keys(info).length),
     countImages: () =>
       gfs.readdir(imageLinker.directory).then((dirs) => dirs.length),
     updateImages: imageRepository.update,
@@ -121,7 +127,7 @@ export function createItemRepository({
         Array.from(map.values()).filter((item) => item.ImageUrl === undefined)
       ),
     destroy: () => {
-      infoFile.close();
+      infoFile.dispose();
       imageRepository.close();
     },
   };

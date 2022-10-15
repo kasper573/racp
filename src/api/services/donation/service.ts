@@ -30,7 +30,7 @@ export type DonationService = ReturnType<typeof createDonationService>;
 export function createDonationService({
   db,
   env,
-  settings,
+  settings: settingsRepo,
   items,
   logger: parentLogger,
 }: {
@@ -41,8 +41,8 @@ export function createDonationService({
   logger: Logger;
 }) {
   const logger = parentLogger.chain("donation");
-  const creditBalanceAtom = new AccRegNumDriver(db, logger).createKeyAtom(
-    () => settings.getSettings().donations.accRegNumKey
+  const creditBalanceAtom = new AccRegNumDriver(db, logger).createKeyAtom(() =>
+    settingsRepo.getSettings().then(({ donations }) => donations.accRegNumKey)
   );
 
   return t.router({
@@ -68,7 +68,10 @@ export function createDonationService({
       .output(zod.string().optional())
       .use(access(UserAccessLevel.User))
       .mutation(async ({ input: { value, currency }, ctx: { auth } }) => {
-        const client = createPayPalClient(settings.getSettings(), env);
+        const client = createPayPalClient(
+          await settingsRepo.getSettings(),
+          env
+        );
         const { result }: { result?: paypal.orders.Order } =
           await client.execute(
             new paypal.orders.OrdersCreateRequest().requestBody({
@@ -97,7 +100,8 @@ export function createDonationService({
             auth: { id: accountId },
           },
         }) => {
-          const client = createPayPalClient(settings.getSettings(), env);
+          const settings = await settingsRepo.getSettings();
+          const client = createPayPalClient(settings, env);
 
           const { result: order }: { result?: paypal.orders.Order } =
             await client.execute(new paypal.orders.OrdersGetRequest(orderID));
@@ -143,7 +147,7 @@ export function createDonationService({
 
           const rewardedCredits = calculateRewardedCredits(
             +capture.amount.value,
-            settings.getSettings().donations.exchangeRate
+            settings.donations.exchangeRate
           );
 
           const success = await creditBalanceAtom.write(
