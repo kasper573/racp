@@ -1,3 +1,4 @@
+import { ComponentProps } from "react";
 import { Header } from "../layout/Header";
 import { ItemGrid } from "../grids/ItemGrid";
 import { trpc } from "../state/client";
@@ -19,9 +20,7 @@ export default function DonationItemsPage() {
           sx={{ position: "absolute", right: 0 }}
           filter={filter}
           setFilter={setFilter}
-          fields={(props) => (
-            <ItemSearchFilterForm {...props} showPriceFields />
-          )}
+          fields={DonationItemsFilterForm}
         />
       </Header>
       <ItemGrid
@@ -42,3 +41,7 @@ export default function DonationItemsPage() {
     </>
   );
 }
+
+const DonationItemsFilterForm = (
+  props: ComponentProps<typeof ItemSearchFilterForm>
+) => <ItemSearchFilterForm {...props} showPriceFields />;
