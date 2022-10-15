@@ -14,7 +14,7 @@ const publicRoutes = (settings?: AdminPublicSettings) =>
     router.map,
     router.vendor,
     router.mvps,
-    settings?.donations.enabled ? router.donations : undefined,
+    settings?.donations.enabled ? router.donation : undefined,
   ]);
 
 const protectedRoutes = Object.values(router.admin.children);

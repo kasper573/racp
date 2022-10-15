@@ -10,7 +10,11 @@ import { matcher } from "../../api/matcher";
 import { useZodMatcherForm } from "../../lib/zod/useZodMatcherForm";
 import { RangeFields } from "../controls/RangeFields";
 
-export function ItemSearchFilterForm({ value, onChange }: FormDataProps) {
+export function ItemSearchFilterForm({
+  value,
+  onChange,
+  showPriceFields,
+}: FormDataProps & { showPriceFields?: boolean }) {
   const field = useZodMatcherForm({
     matcher,
     schema: itemFilter.type,
@@ -87,6 +91,9 @@ export function ItemSearchFilterForm({ value, onChange }: FormDataProps) {
         {...field("Slots", "between")}
       />
       <RangeFields label="Sell Value" {...field("Sell", "between")} />
+      {showPriceFields && (
+        <RangeFields label="Buy Price" {...field("Buy", "between")} />
+      )}
     </>
   );
 }

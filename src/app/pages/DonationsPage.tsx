@@ -9,7 +9,7 @@ import { UserAccessLevel } from "../../api/services/user/types";
 import { LoadingPage } from "./LoadingPage";
 
 export default function DonationsPage() {
-  const balanceQuery = trpc.donation.balance.useQuery();
+  const { data: balance } = trpc.donation.balance.useQuery();
   const {
     data: settings,
     isLoading,
@@ -31,6 +31,9 @@ export default function DonationsPage() {
           {line}
         </Typography>
       ))}
+      <Link to={router.donation().items({})} sx={{ mb: 2 }}>
+        Redeemable items
+      </Link>
       <Header sx={{ mb: 3 }}>Make a donation</Header>
       <Auth>
         {(user) =>
@@ -38,7 +41,7 @@ export default function DonationsPage() {
             <>
               <DonationForm {...settings.donations} accountId={user.id} />
               <Typography sx={{ mt: 1 }}>
-                You currently have {balanceQuery.data ?? "?"} credits
+                You currently have {balance ?? "?"} credits
               </Typography>
             </>
           )
@@ -47,7 +50,7 @@ export default function DonationsPage() {
       <Auth exact={UserAccessLevel.Guest}>
         <Typography>
           You must be{" "}
-          <Link to={router.user().login({ destination: router.donations().$ })}>
+          <Link to={router.user().login({ destination: router.donation().$ })}>
             signed in
           </Link>{" "}
           to make a donation.
