@@ -166,6 +166,9 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
       }),
     })
   ),
+  notFound: route("*", {
+    component: lazy(() => import("./pages/NotFoundPage")),
+  }),
 }));
 
 export const logoutRedirect = router.user().login({}).$;
