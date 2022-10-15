@@ -1,7 +1,7 @@
 import * as path from "path";
 import * as zod from "zod";
-import { matchRecursive } from "xregexp";
 import { ZodType } from "zod";
+import { matchRecursive } from "xregexp";
 import { ZodTypeDef } from "zod/lib/types";
 import { base64encode } from "byte-base64";
 import { Logger } from "../../lib/logger";
@@ -9,6 +9,7 @@ import { RAthenaMode } from "../options";
 import { gfs } from "../gfs";
 import { defined } from "../../lib/std/defined";
 import { createSegmentedObject } from "../../lib/zod/ZodSegmentedObject";
+import { modeFolderNames, nonEmptyLines, removeComments } from "./parse";
 
 export type ScriptDriver = ReturnType<typeof createScriptDriver>;
 
@@ -165,16 +166,6 @@ export function replaceScripts<Placeholder extends string>(
 
 const scriptPlaceholder = (n: number) =>
   `_SCRIPT_PLACEHOLDER_${n}_${Date.now()}`;
-
-const nonEmptyLines = (s: string) => s.split(/[\r\n]+/).filter((l) => l.trim());
-
-const removeComments = (s: string) =>
-  s.replaceAll(/\/\/.*$/gm, "").replaceAll(/\/\*(.|[\r\n])*?\*\//gm, "");
-
-const modeFolderNames: Record<RAthenaMode, string> = {
-  Renewal: "re",
-  Prerenewal: "pre-re",
-};
 
 const scriptImportRegex = /^(npc|import):\s*(.*)$/;
 const scriptImportEntity = createSegmentedObject()
