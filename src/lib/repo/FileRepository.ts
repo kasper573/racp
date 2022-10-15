@@ -16,10 +16,13 @@ export class FileRepository<Data> extends ReactiveRepository<Data | undefined> {
   private readonly filename: string;
 
   constructor(private options: FileRepositoryOptions<Data>) {
-    super({ defaultValue: undefined, ...options });
+    super({
+      defaultValue: undefined,
+      repositoryName: options.relativeFilename,
+      ...options,
+    });
 
     ensureDir(this.options.directory);
-    this.logger = this.logger.chain(options.relativeFilename);
     this.filename = path.resolve(
       this.options.directory,
       this.options.relativeFilename

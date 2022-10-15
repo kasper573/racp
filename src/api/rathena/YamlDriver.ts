@@ -39,7 +39,7 @@ export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
     super({
       ...options,
       defaultValue: new Map(),
-      logger: options.logger.chain(options.file),
+      repositoryName: options.file,
     });
   }
 

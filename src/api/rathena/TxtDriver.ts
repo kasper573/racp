@@ -47,10 +47,11 @@ export class TxtRepository<ET extends AnyZodObject> extends ReactiveRepository<
     this.options.startFolder
   );
   constructor(private options: TxtRepositoryOptions<ET>) {
-    super({ defaultValue: [], ...options });
-    this.logger = this.logger
-      .chain(this.options.startFolder)
-      .chain(this.options.relativeFilePath);
+    super({
+      defaultValue: [],
+      repositoryName: [options.startFolder, options.relativeFilePath],
+      ...options,
+    });
   }
 
   protected observeSource(onSourceChanged: () => void) {

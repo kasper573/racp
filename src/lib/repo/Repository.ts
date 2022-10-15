@@ -3,14 +3,23 @@ import { Logger } from "../logger";
 export interface RepositoryOptions<T> {
   logger: Logger;
   defaultValue: T;
+  repositoryName?: string | string[];
 }
 
 export abstract class Repository<T> {
-  protected logger: Logger;
+  protected readonly logger: Logger;
   protected readonly defaultValue: T;
 
-  constructor({ logger, defaultValue }: RepositoryOptions<T>) {
-    this.logger = logger.chain(this.constructor.name);
+  constructor({
+    logger,
+    repositoryName = [],
+    defaultValue,
+  }: RepositoryOptions<T>) {
+    this.logger = [
+      this.constructor.name,
+      ...(Array.isArray(repositoryName) ? repositoryName : [repositoryName]),
+    ].reduce((logger, name) => logger.chain(name), logger);
+
     this.defaultValue = defaultValue;
 
     // read/write is commonly used in higher order functions
