@@ -67,7 +67,7 @@ export class AccRegNumDriver extends AccRegDriver<number> {
     return this.db.char.table("acc_reg_num");
   }
 
-  async readImpl(accountId: number, key: string) {
+  protected async readImpl(accountId: number, key: string) {
     return this.createQuery()
       .where({ account_id: accountId, key })
       .select("value")
@@ -75,7 +75,7 @@ export class AccRegNumDriver extends AccRegDriver<number> {
       .then((result) => (result !== undefined ? +result.value : undefined));
   }
 
-  async writeImpl(
+  protected async writeImpl(
     accountId: number,
     key: string,
     value: number
