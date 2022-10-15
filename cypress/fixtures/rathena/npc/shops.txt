@@ -1,0 +1,1 @@
+prontera,73,134,0	shop	Potion Seller	90,501:-1
