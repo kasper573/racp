@@ -9,16 +9,6 @@ export abstract class Repository<T> {
   protected logger: Logger;
   protected readonly defaultValue: T;
 
-  private _isReading = false;
-  get isReading() {
-    return this._isReading;
-  }
-
-  private _isWriting = false;
-  get isWriting() {
-    return this._isWriting;
-  }
-
   constructor({ logger, defaultValue }: RepositoryOptions<T>) {
     this.logger = logger.chain(this.constructor.name);
     this.defaultValue = defaultValue;
@@ -29,29 +19,31 @@ export abstract class Repository<T> {
     throw new Error("Writing not supported");
   }
 
+  private pendingReadPromise?: Promise<T>;
   async read(): Promise<T> {
-    try {
-      this._isReading = true;
-      const value = await this.logger.track(this.readImpl(), "read");
-      return value ?? this.defaultValue;
-    } catch (e) {
-      this.logger.error("Failed to read:", e);
-      return this.defaultValue;
-    } finally {
-      this._isReading = false;
+    if (!this.pendingReadPromise) {
+      this.pendingReadPromise = this.logger
+        .track(this.readImpl(), "read")
+        .then((value) => {
+          delete this.pendingReadPromise;
+          return value ?? this.defaultValue;
+        })
+        .catch((e) => {
+          delete this.pendingReadPromise;
+          this.logger.error("Failed to read:", e);
+          return this.defaultValue;
+        });
     }
+    return this.pendingReadPromise;
   }
 
   async write(value: T): Promise<boolean> {
     try {
-      this._isWriting = true;
       await this.logger.track(this.writeImpl(value), "write");
       return true;
     } catch (e) {
       this.logger.error("Failed to write:", e);
       return false;
-    } finally {
-      this._isWriting = false;
     }
   }
 
@@ -112,7 +104,7 @@ export abstract class ReactiveRepository<T> extends CachedRepository<T> {
 
   start() {
     this.stop();
-    this.stopObserving = this.observeSource(this.handleSourceChange);
+    this.stopObserving = this.observeSource(() => this.clearCache());
   }
 
   stop() {
@@ -124,10 +116,4 @@ export abstract class ReactiveRepository<T> extends CachedRepository<T> {
     this.stop();
     super.dispose();
   }
-
-  private handleSourceChange = () => {
-    if (!this.isWriting) {
-      this.read();
-    }
-  };
 }
