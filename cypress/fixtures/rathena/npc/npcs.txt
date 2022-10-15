@@ -1,0 +1,1 @@
+prontera,101,288,3	script	JohnDoe	98,{}

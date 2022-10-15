@@ -1,0 +1,7 @@
+Body:
+  - Id: 99
+    Name: Admin
+    Level: 99
+    LogCommands: true
+    Permissions:
+      channel_admin: true

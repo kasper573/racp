@@ -1,0 +1,1 @@
+prontera,0,0	monster	Poring	1002,28,5000
