@@ -13,6 +13,9 @@ import {
   moneyType,
 } from "../settings/types";
 import { AccRegNumDriver } from "../../rathena/AccRegDriver";
+import { createSearchProcedure } from "../../common/search";
+import { itemFilter, itemType } from "../item/types";
+import { ItemRepository } from "../item/repository";
 import {
   donationCaptureResultType,
   DonationEnvironment,
@@ -28,11 +31,13 @@ export function createDonationService({
   db,
   env,
   settings,
+  items,
   logger: parentLogger,
 }: {
   db: DatabaseDriver;
   env: DonationEnvironment;
   settings: AdminSettingsRepository;
+  items: ItemRepository;
   logger: Logger;
 }) {
   const logger = parentLogger.chain("donation");
@@ -41,6 +46,12 @@ export function createDonationService({
   );
 
   return t.router({
+    searchItems: createSearchProcedure(
+      itemType,
+      itemFilter.type,
+      async () => Array.from((await items.getCashStoreItems()).values()),
+      (entity, payload) => itemFilter.for(payload)(entity)
+    ),
     environment: t.procedure.output(donationEnvironmentType).query(() => env),
     currencies: t.procedure
       .output(zod.array(currencyType))

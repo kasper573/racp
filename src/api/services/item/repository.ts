@@ -9,12 +9,21 @@ import { Logger } from "../../../lib/logger";
 import { gfs } from "../../gfs";
 import { createAsyncMemo } from "../../../lib/createMemo";
 import { zodJsonProtocol } from "../../../lib/zod/zodJsonProtocol";
+import { TxtDriver } from "../../rathena/TxtDriver";
+import { defined } from "../../../lib/std/defined";
 import { createItemResolver } from "./util/createItemResolver";
-import { Item, ItemId, itemInfoType, itemOptionTextsType } from "./types";
+import {
+  rawCashStoreItemType,
+  Item,
+  ItemId,
+  itemInfoType,
+  itemOptionTextsType,
+} from "./types";
 
 export type ItemRepository = ReturnType<typeof createItemRepository>;
 
 export function createItemRepository({
+  txt,
   yaml,
   files,
   tradeScale,
@@ -22,6 +31,7 @@ export function createItemRepository({
   formatter,
   logger: parentLogger,
 }: {
+  txt: TxtDriver;
   yaml: YamlDriver;
   files: FileStore;
   tradeScale: number;
@@ -37,6 +47,12 @@ export function createItemRepository({
   const optionTextsFile = files.entry(
     "itemOptionTexts.json",
     zodJsonProtocol(itemOptionTextsType)
+  );
+
+  const cashStoreItemsPromise = txt.resolve(
+    "db",
+    "item_cash_db.txt",
+    rawCashStoreItemType
   );
 
   const itemResolver = createItemResolver({ tradeScale });
@@ -63,6 +79,17 @@ export function createItemRepository({
     }
   );
 
+  const getCashStoreItems = createAsyncMemo(
+    () => Promise.all([cashStoreItemsPromise, getItems()]),
+    (cashItems, items): Item[] =>
+      defined(
+        cashItems.map(({ itemId, price }) => {
+          const item = items.get(itemId);
+          return item ? { ...item, Buy: price } : undefined;
+        })
+      )
+  );
+
   function getResourceNames() {
     return Object.entries(infoFile.data ?? {}).reduce(
       (resourceNames: Record<string, string>, [id, info]) => {
@@ -77,6 +104,7 @@ export function createItemRepository({
 
   return {
     getItems,
+    getCashStoreItems,
     getOptionTexts: () => optionTextsFile.data ?? {},
     updateOptionTexts: optionTextsFile.assign,
     updateInfo(luaCode: string) {

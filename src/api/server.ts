@@ -42,6 +42,7 @@ import { createNpcService } from "./services/npc/service";
 import { createAdminSettingsService } from "./services/settings/service";
 import { createDonationService } from "./services/donation/service";
 import { createAdminSettingsRepository } from "./services/settings/repository";
+import { createTxtDriver } from "./rathena/TxtDriver";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -53,6 +54,7 @@ const logger = createLogger(
 );
 
 const app = express();
+const txt = createTxtDriver({ ...args, logger });
 const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
 const yaml = createYamlDriver({ ...args, logger });
 const config = createConfigDriver({ ...args, logger });
@@ -74,7 +76,7 @@ let router: ApiRouter;
 // prettier-ignore
 {
   const user = createUserRepository({ yaml, ...args });
-  const items = createItemRepository({ ...args, yaml, files, formatter, linker, logger, });
+  const items = createItemRepository({ ...args, txt, yaml, files, formatter, linker, logger, });
   const monsters = createMonsterRepository({ ...args, yaml, script, formatter, linker, logger, });
   const maps = createMapRepository({ files, linker, formatter, getSpawns: monsters.getSpawns, script, logger, });
   const npcs = createNpcRepository({ script, logger });
@@ -98,6 +100,7 @@ let router: ApiRouter;
       db,
       env: args.donationEnvironment,
       settings,
+      items,
       logger,
     }),
   })
