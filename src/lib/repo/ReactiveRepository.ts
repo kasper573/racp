@@ -1,3 +1,4 @@
+import { debounce } from "lodash";
 import { CachedRepository } from "./CachedRepository";
 import { RepositoryOptions } from "./Repository";
 
@@ -15,7 +16,7 @@ export abstract class ReactiveRepository<T> extends CachedRepository<T> {
 
   start() {
     this.stop();
-    this.stopObserving = this.observeSource(() => this.clearCache());
+    this.stopObserving = this.observeSource(this.handleSourceChange);
   }
 
   stop() {
@@ -27,4 +28,8 @@ export abstract class ReactiveRepository<T> extends CachedRepository<T> {
     this.stop();
     super.dispose();
   }
+
+  private handleSourceChange = debounce(() => this.clearCache(), 50, {
+    maxWait: 1000,
+  });
 }
