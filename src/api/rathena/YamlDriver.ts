@@ -6,7 +6,6 @@ import { isPlainObject } from "lodash";
 import { typedKeys } from "../../lib/std/typedKeys";
 import { Logger } from "../../lib/logger";
 import { gfs } from "../gfs";
-import { ignoreMissingFileError } from "../../lib/fs/ignoreMissingFileError";
 
 export type YamlDriver = ReturnType<typeof createYamlDriver>;
 
@@ -23,16 +22,10 @@ export function createYamlDriver({
 
   async function loadNode(file: string): Promise<DBNode | undefined> {
     const filePath = path.resolve(rAthenaPath, file);
-    let content: string | undefined;
+    let content: string;
     try {
-      content = await ignoreMissingFileError(() =>
-        gfs.readFile(filePath, "utf-8")
-      );
-      if (!content) {
-        return;
-      }
+      content = await gfs.readFile(filePath, "utf-8");
     } catch (e) {
-      logger.error(`Error while loading node: "${filePath}"`, e);
       return;
     }
     const unknownObject = yaml.parse(content);
