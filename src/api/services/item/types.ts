@@ -4,6 +4,7 @@ import { clientTextType } from "../../common/clientTextType";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { zodNominalString } from "../../../lib/zod/zodNominalString";
 import { toggleRecordType } from "../../../lib/zod/zodToggle";
+import { zodNumeric } from "../../../lib/zod/zodNumeric";
 import { itemScriptType } from "./util/itemScriptType";
 
 export type Item = zod.infer<typeof itemType>;
@@ -135,3 +136,11 @@ export const itemOptionType = zod.object({
 
 export type ItemOptionTexts = zod.infer<typeof itemOptionTextsType>;
 export const itemOptionTextsType = zod.record(zod.string()); // By option id
+
+// Directly from item_cash_db.txt
+export type RawCashStoreItem = zod.infer<typeof rawCashStoreItemType>;
+export const rawCashStoreItemType = zod.object({
+  storeCategoryId: zodNumeric(),
+  itemId: zodNumeric(),
+  price: zodNumeric(),
+});

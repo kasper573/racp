@@ -167,7 +167,9 @@ export type DataGridQueryFn<Entity = any, Filter = any> = (
 };
 
 type DefinedKeys = "query" | "link" | "id" | "columns" | "emptyComponent";
-DataGrid.define = <QueryFn extends DataGridQueryFn>(query: QueryFn) => {
+DataGrid.define = <QueryFn extends DataGridQueryFn>(
+  predefinedQuery: QueryFn
+) => {
   type Entity = QueryFn extends DataGridQueryFn<infer E> ? E : never;
   type Filter = QueryFn extends DataGridQueryFn<Entity, infer F> ? F : never;
   return <Id extends GridRowId>(
@@ -176,10 +178,23 @@ DataGrid.define = <QueryFn extends DataGridQueryFn>(query: QueryFn) => {
       "query"
     >
   ) => {
-    return function SpecificDataGrid(
-      restProps: Omit<DataGridProps<Entity, Filter, Id>, DefinedKeys>
-    ) {
-      return <DataGrid query={query} {...definedProps} {...restProps} />;
+    type Columns = ColumnConventionProps<Entity, Id>["columns"];
+    return function SpecificDataGrid({
+      query = predefinedQuery,
+      columns: transformColumns,
+      ...restProps
+    }: Omit<DataGridProps<Entity, Filter, Id>, DefinedKeys> & {
+      query?: DataGridQueryFn<Entity, Filter>;
+      columns?: (columns: Columns) => Columns;
+    }) {
+      const { columns, ...rest } = { ...definedProps, ...restProps };
+      return (
+        <DataGrid
+          query={query}
+          columns={transformColumns ? transformColumns(columns) : columns}
+          {...rest}
+        />
+      );
     };
   };
 };

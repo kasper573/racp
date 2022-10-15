@@ -22,7 +22,7 @@ export function SliderMenu({
   sx,
   style,
   className,
-  size,
+  size = "small",
   label,
   width = 150,
   step = 1,

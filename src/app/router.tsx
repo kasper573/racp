@@ -83,7 +83,7 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
     component: lazy(() => import("./pages/ShopViewPage")),
     params: { id: stringParser },
   }),
-  mvps: route("mvps/:filter?", {
+  mvp: route("mvp/:filter?", {
     component: lazy(() => import("./pages/MvpSearchPage")),
     options: { title: "Mvps", icon: <EmojiEvents /> },
     params: { filter: zodRouteParam(mvpFilter.type.default({})) },
@@ -134,11 +134,20 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
     params: { filter: zodRouteParam(vendorItemFilter.type.default({})) },
     options: { title: "Vendings", icon: <Storefront /> },
   }),
-  donations: route("donations", {
-    component: lazy(() => import("./pages/DonationsPage")),
-    options: { title: "Donations", icon: <Paid /> },
-    middleware: requireSettings((settings) => settings.donations.enabled),
-  }),
+  donation: route(
+    "donation",
+    {
+      component: lazy(() => import("./pages/DonationsPage")),
+      options: { title: "Donations", icon: <Paid /> },
+      middleware: requireSettings((settings) => settings.donations.enabled),
+    },
+    (route) => ({
+      items: route("items/:filter?", {
+        component: lazy(() => import("./pages/DonationItemsPage")),
+        params: { filter: zodRouteParam(itemFilter.type.default({})) },
+      }),
+    })
+  ),
   admin: route(
     "admin",
     {
