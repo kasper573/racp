@@ -1,1 +1,0 @@
-prontera,223,9,0	warp	Prontera1	2,2,prontera,192,8
