@@ -23,7 +23,7 @@ import { createUtilService } from "./services/util/service";
 import { createItemService } from "./services/item/service";
 import { options } from "./options";
 import { createMonsterService } from "./services/monster/service";
-import { createScriptDriver } from "./rathena/ScriptDriver";
+import { createScriptDriver, ScriptRepository } from "./rathena/ScriptDriver";
 import { createMetaService } from "./services/meta/service";
 import { createItemRepository } from "./services/item/repository";
 import { createMonsterRepository } from "./services/monster/repository";
@@ -63,7 +63,7 @@ const files = createFileStore(
   path.join(process.cwd(), args.dataFolder),
   logger
 );
-const script = createScriptDriver({ ...args, logger });
+const script = createScriptDriver(new ScriptRepository({ ...args, logger }));
 const formatter = createImageFormatter({ extension: ".png", quality: 70 });
 const linker = createPublicFileLinker({
   directory: path.join(process.cwd(), args.publicFolder),

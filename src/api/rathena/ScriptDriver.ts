@@ -4,73 +4,76 @@ import { ZodType } from "zod";
 import { matchRecursive } from "xregexp";
 import { ZodTypeDef } from "zod/lib/types";
 import { base64encode } from "byte-base64";
+import recursiveWatch = require("recursive-watch");
 import { Logger } from "../../lib/logger";
 import { RAthenaMode } from "../options";
 import { gfs } from "../gfs";
 import { defined } from "../../lib/std/defined";
 import { createSegmentedObject } from "../../lib/zod/ZodSegmentedObject";
+import { RepositoryOptions } from "../../lib/repo/Repository";
+import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
 import { modeFolderNames, nonEmptyLines, removeComments } from "./util/parse";
 
 export type ScriptDriver = ReturnType<typeof createScriptDriver>;
 
-export function createScriptDriver({
-  rAthenaPath,
-  rAthenaMode,
-  logger: parentLogger,
-}: {
-  rAthenaPath: string;
-  rAthenaMode: RAthenaMode;
-  logger: Logger;
-}) {
-  const logger = parentLogger.chain("script");
-  const rawEntitiesPromise = loadAllScriptFiles(
-    rAthenaPath,
-    rAthenaMode,
-    logger
-  );
-
+export function createScriptDriver(repo: ScriptRepository) {
   return {
     async resolve<ET extends AnyScriptEntityType>(
       entityType: ET
     ): Promise<Array<zod.infer<ET>>> {
-      return parseRawEntitiesAs(await rawEntitiesPromise, entityType);
+      return parseRawEntitiesAs(await repo.read(), entityType);
     },
   };
 }
 
-const createScriptId = (file: string, index: number) =>
-  base64encode(`${file}#${index}`);
+export interface ScriptRepositoryOptions
+  extends Omit<RepositoryOptions<RawScriptEntity[]>, "defaultValue"> {
+  rAthenaPath: string;
+  rAthenaMode: RAthenaMode;
+}
 
-async function loadAllScriptFiles(
-  rAthenaPath: string,
-  rAthenaMode: RAthenaMode,
-  logger: Logger
-): Promise<RawScriptEntity[]> {
-  const scriptFolder = path.resolve(rAthenaPath, "npc");
-  const scriptMainFile = path.resolve(
-    scriptFolder,
-    modeFolderNames[rAthenaMode],
-    "scripts_main.conf"
-  );
+export class ScriptRepository extends ReactiveRepository<RawScriptEntity[]> {
+  private readonly baseFolder = path.resolve(this.options.rAthenaPath, "npc");
 
-  const entities: RawScriptEntity[] = [];
-  const importQueue = [scriptMainFile];
-  while (importQueue.length > 0) {
-    const batch = importQueue.splice(0, importQueue.length);
-    const result = await Promise.allSettled(batch.map(loadRawEntities));
-    const newEntities = defined(
-      result.map((r) => "value" in r && r.value)
-    ).flat();
-    logScriptFileLoadResult(batch, result, logger);
-    entities.push(...newEntities);
-    const newImports = parseRawEntitiesAs(newEntities, scriptImportEntity).map(
-      (i) => path.resolve(rAthenaPath, i.path)
-    );
-    importQueue.push(...newImports);
+  constructor(private options: ScriptRepositoryOptions) {
+    super({ defaultValue: [], ...options });
   }
 
-  return entities;
+  protected observeSource(onSourceChanged: () => void) {
+    return recursiveWatch(this.baseFolder, onSourceChanged);
+  }
+
+  protected async readImpl() {
+    const { rAthenaPath, rAthenaMode } = this.options;
+    const scriptMainFile = path.resolve(
+      this.baseFolder,
+      modeFolderNames[rAthenaMode],
+      "scripts_main.conf"
+    );
+
+    const entities: RawScriptEntity[] = [];
+    const importQueue = [scriptMainFile];
+    while (importQueue.length > 0) {
+      const batch = importQueue.splice(0, importQueue.length);
+      const result = await Promise.allSettled(batch.map(loadRawEntities));
+      const newEntities = defined(
+        result.map((r) => "value" in r && r.value)
+      ).flat();
+      logScriptFileLoadResult(batch, result, this.logger);
+      entities.push(...newEntities);
+      const newImports = parseRawEntitiesAs(
+        newEntities,
+        scriptImportEntity
+      ).map((i) => path.resolve(rAthenaPath, i.path));
+      importQueue.push(...newImports);
+    }
+
+    return entities;
+  }
 }
+
+const createScriptId = (file: string, index: number) =>
+  base64encode(`${file}#${index}`);
 
 function logScriptFileLoadResult(
   files: string[],
