@@ -10,6 +10,17 @@ export abstract class Repository<T> {
   protected readonly logger: Logger;
   protected readonly defaultValue: T;
 
+  private _isInitialized = false;
+  private _isDisposed = false;
+
+  get isInitialized() {
+    return this._isInitialized;
+  }
+
+  get isDisposed() {
+    return this._isDisposed;
+  }
+
   constructor({
     logger,
     repositoryName = [],
@@ -25,6 +36,9 @@ export abstract class Repository<T> {
     // read/write is commonly used in higher order functions
     this.read = this.read.bind(this);
     this.write = this.write.bind(this);
+
+    // TODO remove this and replace with manual init of all repositories in server.ts
+    setTimeout(() => this.initialize(), 0);
   }
 
   protected abstract readImpl(): Promise<T | undefined>;
@@ -60,7 +74,26 @@ export abstract class Repository<T> {
     }
   }
 
+  /**
+   * Starts any behavior that will be active until disposed
+   */
+  initialize() {
+    if (this.isInitialized) {
+      throw new Error("Repository already initialized");
+    }
+    this._isInitialized = true;
+  }
+
+  /**
+   * Disposes any resources and/or behaviors that were started by initialize
+   */
   dispose() {
-    this.logger.log("Disposed");
+    if (!this.isInitialized) {
+      throw new Error("Repository not initialized, cannot dispose.");
+    }
+    if (this.isDisposed) {
+      throw new Error("Repository already disposed");
+    }
+    this._isDisposed = true;
   }
 }

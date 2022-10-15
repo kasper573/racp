@@ -27,7 +27,7 @@ export abstract class CachedRepository<T> extends Repository<T> {
   }
 
   dispose() {
-    this.clearCache();
     super.dispose();
+    this.clearCache();
   }
 }
