@@ -19,6 +19,7 @@
     "e2e:ci:dependencies": "concurrently \"yarn api:prod\" \"yarn app:prod\"",
     "e2e:ci:run": "cross-var npx start-server-and-test e2e:ci:dependencies $CYPRESS_BASE_URL 'cypress run'",
     "reset-data": "ts-node --files scripts/resetData.ts",
+    "inject-rathena-fixtures": "ts-node --files scripts/injectRAthenaFixtures.ts",
     "codegen": "ts-node --files scripts/generateRAthenaTypes.ts",
     "configure-rathena": "ts-node --files scripts/configureRAthena.ts",
     "analyze-bundles": "cross-env NODE_ENV=production analyzeBundles=true webpack"
@@ -112,6 +113,7 @@
     "react-router-dom": "5.3.3",
     "react-typesafe-routes": "0.0.8",
     "react-xarrows": "^2.0.2",
+    "recursive-copy": "^2.0.14",
     "recursive-readdir": "2.2.2",
     "serve": "^14.0.1",
     "stripe": "^10.13.0",
