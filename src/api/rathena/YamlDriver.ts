@@ -7,6 +7,7 @@ import { typedKeys } from "../../lib/std/typedKeys";
 import { gfs } from "../gfs";
 import { CachedRepository, RepositoryOptions } from "../../lib/Repository";
 
+// TODO: refactor: use factory for predefining options
 export type YamlDriver = ReturnType<typeof createYamlDriver>;
 export function createYamlDriver(
   options: Omit<YamlRepositoryOptions<any, any>, "resolver" | "file">

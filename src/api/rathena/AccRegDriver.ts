@@ -46,6 +46,7 @@ export abstract class AccRegDriver<Value = any> {
   }
 }
 
+// TODO: refactor: use factory for predefining options
 export class AccRegKeyAtom<Driver extends AccRegDriver> {
   constructor(
     private driver: Driver,
