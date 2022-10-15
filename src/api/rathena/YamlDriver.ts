@@ -115,7 +115,7 @@ const bodyNode = zod.array(zod.unknown());
 
 type DBNode = zod.infer<typeof dbNode>;
 const dbNode = zod.object({
-  Header: headerNode,
+  Header: headerNode.optional(),
   Body: bodyNode.optional(),
   Footer: footerNode.optional(),
 });
