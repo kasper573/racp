@@ -3,10 +3,11 @@ import * as zod from "zod";
 import { ZodType } from "zod";
 import * as yaml from "yaml";
 import { isPlainObject } from "lodash";
+import recursiveWatch = require("recursive-watch");
 import { typedKeys } from "../../lib/std/typedKeys";
 import { gfs } from "../gfs";
 import { RepositoryOptions } from "../../lib/repo/Repository";
-import { CachedRepository } from "../../lib/repo/CachedRepository";
+import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
 
 // TODO: refactor: use factory for predefining options
 export type YamlDriver = ReturnType<typeof createYamlDriver>;
@@ -31,15 +32,19 @@ export interface YamlRepositoryOptions<ET extends ZodType, Key>
   resolver: YamlResolver<ET, Key>;
 }
 
-export class YamlRepository<ET extends ZodType, Key> extends CachedRepository<
+export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
   Map<Key, zod.infer<ET>>
 > {
   constructor(private options: YamlRepositoryOptions<ET, Key>) {
     super({
-      defaultValue: new Map(),
       ...options,
+      defaultValue: new Map(),
       logger: options.logger.chain(options.file),
     });
+  }
+
+  protected observeSource(onSourceChanged: () => void): () => void {
+    return recursiveWatch(path.dirname(this.options.file), onSourceChanged);
   }
 
   protected async readImpl() {

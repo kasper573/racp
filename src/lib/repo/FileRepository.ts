@@ -1,14 +1,12 @@
 import * as path from "path";
+import recursiveWatch = require("recursive-watch");
 import { gfs } from "../../api/gfs";
 import { ensureDir } from "../fs/ensureDir";
-import { watchFileInDirectory } from "../fs/watchFileInDirectory";
-import {
-  ReactiveRepository,
-  ReactiveRepositoryOptions,
-} from "./ReactiveRepository";
+import { ReactiveRepository } from "./ReactiveRepository";
+import { RepositoryOptions } from "./Repository";
 
 export interface FileRepositoryOptions<Data>
-  extends Omit<ReactiveRepositoryOptions<Data>, "defaultValue"> {
+  extends Omit<RepositoryOptions<Data>, "defaultValue"> {
   directory: string;
   relativeFilename: string;
   protocol: FileProtocol<Data>;
@@ -18,14 +16,7 @@ export class FileRepository<Data> extends ReactiveRepository<Data | undefined> {
   private readonly filename: string;
 
   constructor(private options: FileRepositoryOptions<Data>) {
-    super({
-      defaultValue: undefined,
-      ...options,
-
-      // Force disable auto start because our implementation of observeSource depends on this.options.
-      // We will start manually after the constructor has finished.
-      startImmediately: false,
-    });
+    super({ defaultValue: undefined, ...options });
 
     ensureDir(this.options.directory);
     this.logger = this.logger.chain(options.relativeFilename);
@@ -33,19 +24,14 @@ export class FileRepository<Data> extends ReactiveRepository<Data | undefined> {
       this.options.directory,
       this.options.relativeFilename
     );
-
-    if (options.startImmediately) {
-      this.start();
-    }
   }
 
   protected observeSource(onSourceChanged: () => void) {
-    const watcher = watchFileInDirectory(
-      this.options.directory,
-      this.options.relativeFilename,
-      onSourceChanged
-    );
-    return () => watcher.close();
+    return recursiveWatch(this.options.directory, (changedFile) => {
+      if (changedFile === this.options.relativeFilename) {
+        onSourceChanged();
+      }
+    });
   }
 
   protected async readImpl() {

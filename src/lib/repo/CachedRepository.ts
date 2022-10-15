@@ -22,6 +22,7 @@ export abstract class CachedRepository<T> extends Repository<T> {
   }
 
   clearCache() {
+    this.logger.log("Cache cleared");
     this.cache = undefined;
   }
 

@@ -1,21 +1,14 @@
 import { CachedRepository } from "./CachedRepository";
 import { RepositoryOptions } from "./Repository";
 
-export interface ReactiveRepositoryOptions<T> extends RepositoryOptions<T> {
-  startImmediately?: boolean;
-}
-
 export abstract class ReactiveRepository<T> extends CachedRepository<T> {
   private stopObserving?: () => void;
 
-  protected constructor({
-    startImmediately = true,
-    ...rest
-  }: ReactiveRepositoryOptions<T>) {
+  protected constructor({ ...rest }: RepositoryOptions<T>) {
     super(rest);
-    if (startImmediately) {
-      this.start();
-    }
+
+    // TODO remove this and replace with manual restart of all repositories in server.ts
+    setTimeout(() => this.start(), 0);
   }
 
   protected abstract observeSource(onSourceChanged: Function): () => void;

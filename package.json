@@ -115,6 +115,7 @@
     "react-xarrows": "^2.0.2",
     "recursive-copy": "^2.0.14",
     "recursive-readdir": "2.2.2",
+    "recursive-watch": "^1.1.4",
     "serve": "^14.0.1",
     "stripe": "^10.13.0",
     "style-loader": "3.3.1",
