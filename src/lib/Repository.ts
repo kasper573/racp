@@ -1,4 +1,4 @@
-import { Logger } from "../../../lib/logger";
+import { Logger } from "./logger";
 
 export abstract class Repository<T, Options extends Record<string, any>> {
   protected logger = this.options.logger.chain(this.constructor.name);

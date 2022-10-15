@@ -6,7 +6,7 @@ import { isPlainObject } from "lodash";
 import { typedKeys } from "../../lib/std/typedKeys";
 import { gfs } from "../gfs";
 import { Logger } from "../../lib/logger";
-import { Repository } from "./util/Repository";
+import { Repository } from "../../lib/Repository";
 
 export type YamlDriver = ReturnType<typeof createYamlDriver>;
 export function createYamlDriver(options: {
