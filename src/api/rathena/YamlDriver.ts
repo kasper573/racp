@@ -30,7 +30,15 @@ export function createYamlDriver({
     }
     const unknownObject = yaml.parse(content);
     filterNulls(unknownObject);
-    return dbNode.parse(unknownObject);
+    const result = dbNode.safeParse(unknownObject);
+    if (!result.success) {
+      logger.error(
+        "Ignoring node. Unexpected YAML structure. Error info: ",
+        JSON.stringify({ file, issues: result.error.issues }, null, 2)
+      );
+      return;
+    }
+    return result.data;
   }
 
   const resolve = logger.wrap(async function resolve<ET extends ZodType, Key>(
