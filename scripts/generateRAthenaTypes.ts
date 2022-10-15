@@ -7,10 +7,9 @@ import * as zod from "zod";
 import { readCliArgs } from "../src/lib/cli";
 import { options } from "../src/api/options";
 import { createLogger } from "../src/lib/logger";
-import {
-  createConfigDriver,
-  dbInfoConfigName,
-} from "../src/api/rathena/ConfigDriver";
+import { createConfigDriver } from "../src/api/rathena/ConfigDriver";
+import { dbInfoConfigName } from "../src/api/rathena/util/constants";
+import { DBInfoDriver } from "../src/api/rathena/DBInfoDriver";
 
 /**
  * Generates zod type & typescript definitions of the rAthena mysql database
@@ -31,10 +30,12 @@ async function generate() {
     logger: createLogger(console.log),
   });
 
+  const dbInfo = new DBInfoDriver(cfg.resolve(dbInfoConfigName));
+
   const tsString = await sqlts.toTypeScript({
     client: "mysql",
     template: path.resolve(__dirname, "DatabaseDriver.codegen.hbs"),
-    connection: await cfg.presets.dbInfo(template),
+    connection: await dbInfo.read(template),
     tableNameCasing: "pascal",
     enumNameCasing: "pascal",
     globalOptionality: "required",

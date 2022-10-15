@@ -3,6 +3,8 @@ import { createLogger } from "../src/lib/logger";
 import { readCliArgs } from "../src/lib/cli";
 import { options } from "../src/api/options";
 import { createConfigDriver } from "../src/api/rathena/ConfigDriver";
+import { DBInfoDriver } from "../src/api/rathena/DBInfoDriver";
+import { dbInfoConfigName } from "../src/api/rathena/util/constants";
 
 /**
  * Updates an rAthena build with the settings we need to run racp + rathena in CI.
@@ -19,10 +21,9 @@ async function configureRAthena() {
   });
 
   const cfg = createConfigDriver({ ...args, logger });
-
-  logger.log(`Updating ${cfg.presets.dbInfoConfigName}...`);
-  const dbInfo = await cfg.load(cfg.presets.dbInfoConfigName);
-  dbInfo.update(
+  const dbInfo = new DBInfoDriver(cfg.resolve(dbInfoConfigName));
+  logger.log(`Updating ${dbInfo.file.filename}...`);
+  dbInfo.file.write(
     [
       "login_server",
       "char_server",

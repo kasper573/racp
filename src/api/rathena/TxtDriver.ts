@@ -8,12 +8,8 @@ import { ZodCustomObject } from "../../lib/zod/ZodCustomObject";
 import { defined } from "../../lib/std/defined";
 import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
 import { RepositoryOptions } from "../../lib/repo/Repository";
-import {
-  importFolderName,
-  modeFolderNames,
-  nonEmptyLines,
-  removeComments,
-} from "./util/parse";
+import { modeFolderNames, nonEmptyLines, removeComments } from "./util/parse";
+import { importFolderName } from "./util/constants";
 
 export type TxtDriver = ReturnType<typeof createTxtDriver>;
 

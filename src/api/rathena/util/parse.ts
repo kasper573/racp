@@ -10,5 +10,3 @@ export const modeFolderNames: Record<RAthenaMode, string> = {
   Renewal: "re",
   Prerenewal: "pre-re",
 };
-
-export const importFolderName = "import";

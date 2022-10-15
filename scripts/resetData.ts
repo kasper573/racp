@@ -45,11 +45,12 @@ async function resetData() {
   ]);
 
   // Reset databases
+
   const cfg = createConfigDriver({ ...args, logger });
   const db = createDatabaseDriver(cfg);
   for (const { driver, group } of await groupDatabaseDrivers(db)) {
     await driver.useConnection(async (conn) => {
-      const { database } = await driver.dbInfo;
+      const { database } = await driver.dbInfo();
       logger.log(`Truncating database for drivers: ${group}`);
       await runSqlQuery(conn, createTruncateDBQuery(database));
       const sqlFiles = uniq(
@@ -94,7 +95,7 @@ const sqlFilesPerDb: Record<string, string> = {
 };
 
 async function groupDatabaseDrivers(db: DatabaseDriver) {
-  const dbInfos = await Promise.all(db.all.map((one) => one.dbInfo));
+  const dbInfos = await Promise.all(db.all.map((one) => one.dbInfo()));
   const ids = dbInfos.map((one) => `${one.host}:${one.port}:${one.database}`);
   const lookup = Object.values(
     groupBy(db.all, (one) => ids[db.all.indexOf(one)])

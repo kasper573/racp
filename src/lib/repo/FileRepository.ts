@@ -13,7 +13,7 @@ export interface FileRepositoryOptions<Data>
 }
 
 export class FileRepository<Data> extends ReactiveRepository<Data | undefined> {
-  private readonly filename: string;
+  readonly filename: string;
 
   constructor(private options: FileRepositoryOptions<Data>) {
     super({

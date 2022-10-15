@@ -1,108 +1,45 @@
 import * as path from "path";
 import { Logger } from "../../lib/logger";
-import { gfs } from "../gfs";
+import { FileProtocol, FileRepository } from "../../lib/repo/FileRepository";
 
 export type ConfigDriver = ReturnType<typeof createConfigDriver>;
 
-export const dbInfoConfigName = "inter_athena.conf";
-
 export function createConfigDriver({
   rAthenaPath,
-  logger: parentLogger,
+  logger,
 }: {
   rAthenaPath: string;
   logger: Logger;
 }) {
-  const logger = parentLogger.chain("config");
-  const configDirectory = path.resolve(rAthenaPath, "conf");
-  const configPath = (configName: string) =>
-    path.resolve(configDirectory, configName);
-
-  const read = logger.wrap(async function read(configName: string) {
-    return gfs.readFile(configPath(configName), "utf-8");
-  });
-
-  const load = logger.wrap(async function load(configName: string) {
-    const record = await parse(await read(configName));
-    return {
-      get(key: string) {
-        if (key in record) {
-          return record[key];
-        }
-        throw new Error(
-          `Config "${configName}" does not contain a "${key}" key`
-        );
-      },
-      update(...[values]: Parameters<typeof format>) {
-        Object.assign(record, values);
-        return update(configName, format(record));
-      },
-    };
-  });
-
-  const update = logger.wrap(async function update(
-    configName: string,
-    value: string
-  ) {
-    try {
-      return gfs.writeFile(configPath(configName), value);
-    } catch {
-      throw new Error(`Unknown config`);
-    }
-  });
-
-  const presets = {
-    dbInfoConfigName,
-    createDBInfo,
-    async dbInfo(prefix: string) {
-      return createDBInfo(await load(dbInfoConfigName), prefix);
-    },
-  };
-
   return {
-    read,
-    update,
-    parse,
-    load,
-    presets,
-  };
-}
-
-function createDBInfo(
-  config: { get: (key: string) => string },
-  prefix: string
-) {
-  return {
-    get host() {
-      return config.get(`${prefix}_ip`);
-    },
-    get port() {
-      return parseInt(config.get(`${prefix}_port`), 10);
-    },
-    get user() {
-      return config.get(`${prefix}_id`);
-    },
-    get password() {
-      return config.get(`${prefix}_pw`);
-    },
-    get database() {
-      return config.get(`${prefix}_db`);
+    resolve(configName: string) {
+      return new FileRepository({
+        logger,
+        directory: path.resolve(rAthenaPath, "conf"),
+        relativeFilename: configName,
+        protocol: configFileProtocol,
+      });
     },
   };
 }
 
-function format(config: Record<string, unknown>) {
-  return Object.entries(config)
-    .map(([key, value]) => `${key}: ${value}`)
-    .join("\n");
-}
+export type Config = Record<string, string>;
 
-function parse(config: string) {
-  const matches = config
-    .replaceAll(/\/\/.*$/gm, "")
-    .matchAll(/^([\w_]+):(.*)/gm);
-  return Array.from(matches).reduce((record, [, key, value]) => {
-    record[key.trim()] = value.trim();
-    return record;
-  }, {} as Record<string, string>);
-}
+export const configFileProtocol: FileProtocol<Config> = {
+  serialize(config) {
+    return Object.entries(config)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join("\n");
+  },
+
+  parse(config) {
+    const matches = config
+      .replaceAll(/\/\/.*$/gm, "")
+      .matchAll(/^([\w_]+):(.*)/gm);
+    const data = Array.from(matches).reduce((record, [, key, value]) => {
+      record[key.trim()] = value.trim();
+      return record;
+    }, {} as Config);
+    return { success: true, data };
+  },
+};
