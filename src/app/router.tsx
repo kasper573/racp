@@ -83,7 +83,7 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
     component: lazy(() => import("./pages/ShopViewPage")),
     params: { id: stringParser },
   }),
-  mvps: route("mvps/:filter?", {
+  mvp: route("mvp/:filter?", {
     component: lazy(() => import("./pages/MvpSearchPage")),
     options: { title: "Mvps", icon: <EmojiEvents /> },
     params: { filter: zodRouteParam(mvpFilter.type.default({})) },

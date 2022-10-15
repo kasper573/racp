@@ -8,7 +8,7 @@ import { MvpSearchFilterForm } from "../forms/MvpSearchFilterForm";
 import { Link } from "../components/Link";
 
 export default function MvpSearchPage() {
-  const [filter = {}, setFilter] = useRouteState(router.mvps, "filter");
+  const [filter = {}, setFilter] = useRouteState(router.mvp, "filter");
   return (
     <>
       <Header>
@@ -24,7 +24,7 @@ export default function MvpSearchPage() {
         This board shows boss monsters that have dedicated spawns, and their
         most recent mvp information. <br />
         For a full list of boss monsters, regardless of spawn or mvp
-        confugration, see the{" "}
+        configuration, see the{" "}
         <Link
           to={router.monster().search({
             filter: { Modes: { value: ["Mvp"], matcher: "enabled" } },
