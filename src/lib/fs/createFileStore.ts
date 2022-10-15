@@ -1,5 +1,5 @@
 import { Logger } from "../logger";
-import { FileRepository, FileRepositoryOptions } from "./FileRepository";
+import { FileRepository, FileRepositoryOptions } from "../repo/FileRepository";
 
 export type FileStore = ReturnType<typeof createFileStore>;
 

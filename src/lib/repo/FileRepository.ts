@@ -1,8 +1,11 @@
 import * as path from "path";
-import { ReactiveRepository, ReactiveRepositoryOptions } from "../Repository";
 import { gfs } from "../../api/gfs";
-import { ensureDir } from "./ensureDir";
-import { watchFileInDirectory } from "./watchFileInDirectory";
+import { ensureDir } from "../fs/ensureDir";
+import { watchFileInDirectory } from "../fs/watchFileInDirectory";
+import {
+  ReactiveRepository,
+  ReactiveRepositoryOptions,
+} from "./ReactiveRepository";
 
 export interface FileRepositoryOptions<Data>
   extends Omit<ReactiveRepositoryOptions<Data>, "defaultValue"> {

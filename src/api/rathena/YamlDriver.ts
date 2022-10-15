@@ -5,7 +5,8 @@ import * as yaml from "yaml";
 import { isPlainObject } from "lodash";
 import { typedKeys } from "../../lib/std/typedKeys";
 import { gfs } from "../gfs";
-import { CachedRepository, RepositoryOptions } from "../../lib/Repository";
+import { RepositoryOptions } from "../../lib/repo/Repository";
+import { CachedRepository } from "../../lib/repo/CachedRepository";
 
 // TODO: refactor: use factory for predefining options
 export type YamlDriver = ReturnType<typeof createYamlDriver>;
