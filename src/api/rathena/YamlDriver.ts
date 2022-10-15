@@ -23,11 +23,14 @@ export function createYamlDriver({
 
   async function loadNode(file: string): Promise<DBNode | undefined> {
     const filePath = path.resolve(rAthenaPath, file);
-    let content: string;
+    let content: string | undefined;
     try {
       content = await ignoreMissingFileError(() =>
         gfs.readFile(filePath, "utf-8")
       );
+      if (!content) {
+        return;
+      }
     } catch (e) {
       logger.error(`Error while loading node: "${filePath}"`, e);
       return;
