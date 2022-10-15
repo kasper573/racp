@@ -24,14 +24,17 @@ export function createTxtDriver({
   rAthenaMode: RAthenaMode;
   logger: Logger;
 }) {
-  const logger = parentLogger.chain("txt");
-
   return {
     async resolve<ET extends AnyZodObject>(
       startFolder: string,
       relativeFilePath: string,
       { shape }: ET
     ): Promise<Array<zod.infer<ET>>> {
+      const logger = parentLogger
+        .chain("txt")
+        .chain(startFolder)
+        .chain(relativeFilePath);
+
       const baseFolder = path.resolve(rAthenaPath, startFolder);
       const modeFolder = path.resolve(baseFolder, modeFolderNames[rAthenaMode]);
       const importFolder = path.resolve(baseFolder, importFolderName);
@@ -42,36 +45,39 @@ export function createTxtDriver({
         path.resolve(importFolder, relativeFilePath),
       ];
 
-      const parser = createTxtEntityParser(shape);
-      return (
-        await Promise.all(
-          fileNames.map((fileName) =>
-            gfs
-              .readFile(fileName, "utf8")
-              .catch((err) => logger.warn("Failed to load file", err))
-              .then((fileContent) =>
-                fileContent ? parseTextTable(fileContent) : []
-              )
-              .then((rows) =>
-                defined(
-                  rows.map((row, rowIndex): zod.infer<ET> | undefined => {
-                    const result = parser.safeParse(row);
-                    if (!result.success) {
-                      logger
-                        .chain(fileName)
-                        .warn(`Failed to parse row #${rowIndex}`, {
-                          row,
-                          issues: result.error.issues,
-                        });
-                      return undefined;
-                    }
-                    return result.data;
-                  })
-                )
-              )
-          )
+      const fileReadResults = await Promise.allSettled(
+        fileNames.map((name) => gfs.readFile(name, "utf8"))
+      );
+      if (fileReadResults.every(({ status }) => status === "rejected")) {
+        logger.warn("Skipped: File could not be found");
+        return [];
+      }
+
+      const files = defined(
+        fileReadResults.map(
+          (result, index) =>
+            result.status === "fulfilled" && {
+              content: result.value,
+              name: fileNames[index],
+            }
         )
-      ).flat();
+      );
+
+      const parser = createTxtEntityParser(shape);
+      const entities = files.map(({ content, name }) =>
+        parseTextTable(content).map((row, rowIndex) => {
+          const result = parser.safeParse(row);
+          if (!result.success) {
+            logger.chain(name).warn(`Failed to parse row #${rowIndex}`, {
+              row,
+              issues: result.error.issues,
+            });
+          }
+          return result.success ? result.data : undefined;
+        })
+      );
+
+      return defined(entities.flat());
     },
   };
 }
