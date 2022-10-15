@@ -1,11 +1,13 @@
 import * as path from "path";
 import * as zod from "zod";
 import { AnyZodObject, ZodRawShape, ZodTypeAny } from "zod";
+import recursiveWatch = require("recursive-watch");
 import { RAthenaMode } from "../options";
-import { Logger } from "../../lib/logger";
 import { gfs } from "../gfs";
 import { ZodCustomObject } from "../../lib/zod/ZodCustomObject";
 import { defined } from "../../lib/std/defined";
+import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
+import { RepositoryOptions } from "../../lib/repo/Repository";
 import {
   importFolderName,
   modeFolderNames,
@@ -15,71 +17,94 @@ import {
 
 export type TxtDriver = ReturnType<typeof createTxtDriver>;
 
-export function createTxtDriver({
-  rAthenaPath,
-  rAthenaMode,
-  logger: parentLogger,
-}: {
-  rAthenaPath: string;
-  rAthenaMode: RAthenaMode;
-  logger: Logger;
-}) {
+type PredefinedKeys = "rAthenaPath" | "rAthenaMode" | "logger";
+export function createTxtDriver(
+  predefinedOptions: Pick<TxtRepositoryOptions<any>, PredefinedKeys>
+) {
   return {
-    async resolve<ET extends AnyZodObject>(
-      startFolder: string,
-      relativeFilePath: string,
-      { shape }: ET
-    ): Promise<Array<zod.infer<ET>>> {
-      const logger = parentLogger
-        .chain("txt")
-        .chain(startFolder)
-        .chain(relativeFilePath);
-
-      const baseFolder = path.resolve(rAthenaPath, startFolder);
-      const modeFolder = path.resolve(baseFolder, modeFolderNames[rAthenaMode]);
-      const importFolder = path.resolve(baseFolder, importFolderName);
-
-      const fileNames: string[] = [
-        path.resolve(baseFolder, relativeFilePath),
-        path.resolve(modeFolder, relativeFilePath),
-        path.resolve(importFolder, relativeFilePath),
-      ];
-
-      const fileReadResults = await Promise.allSettled(
-        fileNames.map((name) => gfs.readFile(name, "utf8"))
-      );
-      if (fileReadResults.every(({ status }) => status === "rejected")) {
-        logger.warn("Skipped: File could not be found");
-        return [];
-      }
-
-      const files = defined(
-        fileReadResults.map(
-          (result, index) =>
-            result.status === "fulfilled" && {
-              content: result.value,
-              name: fileNames[index],
-            }
-        )
-      );
-
-      const parser = createTxtEntityParser(shape);
-      const entities = files.map(({ content, name }) =>
-        parseTextTable(content).map((row, rowIndex) => {
-          const result = parser.safeParse(row);
-          if (!result.success) {
-            logger.chain(name).warn(`Failed to parse row #${rowIndex}`, {
-              row,
-              issues: result.error.issues,
-            });
-          }
-          return result.success ? result.data : undefined;
-        })
-      );
-
-      return defined(entities.flat());
+    resolve<ET extends AnyZodObject>(
+      inlineOptions: Omit<TxtRepositoryOptions<ET>, PredefinedKeys>
+    ) {
+      return new TxtRepository({ ...predefinedOptions, ...inlineOptions });
     },
   };
+}
+
+export interface TxtRepositoryOptions<ET extends AnyZodObject>
+  extends Omit<RepositoryOptions<zod.infer<ET>[]>, "defaultValue"> {
+  rAthenaPath: string;
+  rAthenaMode: RAthenaMode;
+  startFolder: string;
+  relativeFilePath: string;
+  entityType: ET;
+}
+
+export class TxtRepository<ET extends AnyZodObject> extends ReactiveRepository<
+  zod.infer<ET>[]
+> {
+  private readonly baseFolder = path.resolve(
+    this.options.rAthenaPath,
+    this.options.startFolder
+  );
+  constructor(private options: TxtRepositoryOptions<ET>) {
+    super({ defaultValue: [], ...options });
+    this.logger = this.logger
+      .chain(this.options.startFolder)
+      .chain(this.options.relativeFilePath);
+  }
+
+  protected observeSource(onSourceChanged: () => void) {
+    return recursiveWatch(this.baseFolder, onSourceChanged);
+  }
+
+  protected async readImpl() {
+    const modeFolder = path.resolve(
+      this.baseFolder,
+      modeFolderNames[this.options.rAthenaMode]
+    );
+
+    const importFolder = path.resolve(this.baseFolder, importFolderName);
+
+    const fileNames: string[] = [
+      path.resolve(this.baseFolder, this.options.relativeFilePath),
+      path.resolve(modeFolder, this.options.relativeFilePath),
+      path.resolve(importFolder, this.options.relativeFilePath),
+    ];
+
+    const fileReadResults = await Promise.allSettled(
+      fileNames.map((name) => gfs.readFile(name, "utf8"))
+    );
+    if (fileReadResults.every(({ status }) => status === "rejected")) {
+      this.logger.warn("Skipped: File could not be found");
+      return [];
+    }
+
+    const files = defined(
+      fileReadResults.map(
+        (result, index) =>
+          result.status === "fulfilled" && {
+            content: result.value,
+            name: fileNames[index],
+          }
+      )
+    );
+
+    const parser = createTxtEntityParser(this.options.entityType.shape);
+    const entities = files.map(({ content, name }) =>
+      parseTextTable(content).map((row, rowIndex) => {
+        const result = parser.safeParse(row);
+        if (!result.success) {
+          this.logger.chain(name).warn(`Failed to parse row #${rowIndex}`, {
+            row,
+            issues: result.error.issues,
+          });
+        }
+        return result.success ? result.data : undefined;
+      })
+    );
+
+    return defined(entities.flat());
+  }
 }
 
 function createTxtEntityParser<Shape extends ZodRawShape>(shape: Shape) {

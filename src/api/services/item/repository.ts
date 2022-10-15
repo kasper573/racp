@@ -49,11 +49,11 @@ export function createItemRepository({
     protocol: zodJsonProtocol(itemOptionTextsType),
   });
 
-  const cashStoreItemsPromise = txt.resolve(
-    "db",
-    "item_cash_db.txt",
-    rawCashStoreItemType
-  );
+  const cashStoreItems = txt.resolve({
+    startFolder: "db",
+    relativeFilePath: "item_cash_db.txt",
+    entityType: rawCashStoreItemType,
+  });
 
   const itemResolver = createItemResolver({ tradeScale });
   const items = yaml.resolve("db/item_db.yml", itemResolver);
@@ -85,7 +85,7 @@ export function createItemRepository({
   );
 
   const getCashStoreItems = createAsyncMemo(
-    () => Promise.all([cashStoreItemsPromise, getItems()]),
+    () => Promise.all([cashStoreItems.read(), getItems()]),
     (cashItems, items): Item[] =>
       defined(
         cashItems.map(({ itemId, price }) => {
