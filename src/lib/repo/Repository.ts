@@ -12,6 +12,10 @@ export abstract class Repository<T> {
   constructor({ logger, defaultValue }: RepositoryOptions<T>) {
     this.logger = logger.chain(this.constructor.name);
     this.defaultValue = defaultValue;
+
+    // read/write is commonly used in higher order functions
+    this.read = this.read.bind(this);
+    this.write = this.write.bind(this);
   }
 
   protected abstract readImpl(): Promise<T | undefined>;

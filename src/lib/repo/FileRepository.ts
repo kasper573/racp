@@ -66,12 +66,12 @@ export class FileRepository<Data> extends ReactiveRepository<Data | undefined> {
     }
   }
 
-  async assign(changes: Data) {
+  readonly assign = async (changes: Data) => {
     const current = await this.read();
     const updated = { ...current, ...changes };
     await this.write(updated);
     return updated;
-  }
+  };
 }
 
 export interface FileProtocol<Data> {
