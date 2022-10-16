@@ -3,6 +3,7 @@ import { createLogger } from "../src/lib/logger";
 import { readCliArgs } from "../src/lib/cli";
 import { options } from "../src/api/options";
 import { createDatabaseDriver } from "../src/api/rathena/DatabaseDriver";
+import { DBInfo } from "../src/api/rathena/DBInfoDriver";
 
 /**
  * Updates an rAthena build with the settings we need to run racp + rathena in CI.
@@ -20,22 +21,17 @@ async function configureRAthena() {
 
   const db = createDatabaseDriver({ ...args, logger });
   logger.log(`Updating ${db.info.file.filename}...`);
-  const success = await db.info.file.write(
-    [
-      "login_server",
-      "char_server",
-      "ipban_db",
-      "map_server",
-      "web_server",
-      "log_db",
-    ].reduce(
-      (record, prefix) => ({
-        ...record,
-        [`${prefix}_ip`]: args.MYSQL_HOST,
-        [`${prefix}_port`]: args.MYSQL_PORT,
-        [`${prefix}_id`]: args.MYSQL_USER,
-        [`${prefix}_pw`]: args.MYSQL_PASSWORD,
-        [`${prefix}_db`]: args.MYSQL_DATABASE,
+  const success = await db.info.update(
+    db.all.reduce(
+      (changes: Record<string, DBInfo>, driver) => ({
+        ...changes,
+        [driver.name]: {
+          host: args.MYSQL_HOST,
+          port: args.MYSQL_PORT,
+          user: args.MYSQL_USER,
+          password: args.MYSQL_PASSWORD,
+          database: args.MYSQL_DATABASE,
+        },
       }),
       {}
     )
