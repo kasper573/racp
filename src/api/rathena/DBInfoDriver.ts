@@ -1,4 +1,5 @@
 import { FileRepository } from "../../lib/repo/FileRepository";
+import { typedKeys } from "../../lib/std/typedKeys";
 import { Config } from "./ConfigDriver";
 
 export class DBInfoDriver {
@@ -6,8 +7,8 @@ export class DBInfoDriver {
 
   async read(prefix: string): Promise<DBInfo> {
     const values = (await this.file.read()) ?? {};
-    const requireProp = (suffix: string) => {
-      const key = createKey(prefix, suffix);
+    const requireProp = (prop: keyof DBInfo) => {
+      const key = createKey(prefix, prop);
       const value = values[key];
       if (value === undefined) {
         throw new Error(
@@ -19,26 +20,35 @@ export class DBInfoDriver {
 
     // prettier-ignore
     return {
-      host: requireProp(`ip`),
-      port: parseInt(requireProp(`port`), 10),
-      user: requireProp(`id`),
-      password: requireProp(`pw`),
-      database: requireProp(`db`)
+      host: requireProp("host"),
+      port: parseInt(requireProp("port"), 10),
+      user: requireProp("user"),
+      password: requireProp("password"),
+      database: requireProp("database")
     };
   }
 
   async update(changes: Record<string, DBInfo>) {
     const values = (await this.file.read()) ?? {};
     for (const [prefix, info] of Object.entries(changes)) {
-      for (const [suffix, value] of Object.entries(info)) {
-        values[createKey(prefix, suffix)] = `${value}`;
+      for (const prop of typedKeys(info)) {
+        values[createKey(prefix, prop)] = `${info[prop]}`;
       }
     }
     return this.file.write(values);
   }
 }
 
-const createKey = (prefix: string, suffix: string) => `${prefix}_${suffix}`;
+const propMap: Record<keyof DBInfo, string> = {
+  host: "ip",
+  port: "port",
+  user: "id",
+  password: "pw",
+  database: "db",
+};
+
+const createKey = (prefix: string, prop: keyof DBInfo) =>
+  `${prefix}_${propMap[prop]}`;
 
 export type DBInfo = Readonly<{
   host: string;
