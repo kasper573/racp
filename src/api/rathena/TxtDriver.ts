@@ -9,7 +9,6 @@ import { defined } from "../../lib/std/defined";
 import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
 import { RepositoryOptions } from "../../lib/repo/Repository";
 import { modeFolderNames, nonEmptyLines, removeComments } from "./util/parse";
-import { importFolderName } from "./util/constants";
 
 export type TxtDriver = ReturnType<typeof createTxtDriver>;
 
@@ -60,7 +59,7 @@ export class TxtRepository<ET extends AnyZodObject> extends ReactiveRepository<
       modeFolderNames[this.options.rAthenaMode]
     );
 
-    const importFolder = path.resolve(this.baseFolder, importFolderName);
+    const importFolder = path.resolve(this.baseFolder, "import");
 
     const fileNames: string[] = [
       path.resolve(this.baseFolder, this.options.relativeFilePath),

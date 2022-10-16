@@ -3,15 +3,25 @@ import * as mysql from "mysql";
 import { singletons } from "../../lib/singletons";
 import { Tables } from "./DatabaseDriver.types";
 import { DBInfoDriver } from "./DBInfoDriver";
+import { createConfigDriver } from "./ConfigDriver";
 
 export type DatabaseDriver = ReturnType<typeof createDatabaseDriver>;
+
+export const dbInfoConfigName = "inter_athena.conf";
 
 /**
  * Typesafe knex interface with rAthena mysql database.
  * Each property is a driver for the database of the same name.
  * The drivers are initialized lazily on first use.
  */
-export function createDatabaseDriver(dbInfoDriver: DBInfoDriver) {
+export function createDatabaseDriver(
+  ...params: Parameters<typeof createConfigDriver>
+) {
+  // Automatically creating config/dbInfo drivers since nothing else is using them
+  // If we need to use them for something else, we can refactor this
+  const cfg = createConfigDriver(...params);
+  const dbInfoDriver = new DBInfoDriver(cfg.resolve(dbInfoConfigName));
+
   const db = singletons({
     login: () => driverForDB("login_server"),
     map: () => driverForDB("map_server"),
@@ -19,6 +29,7 @@ export function createDatabaseDriver(dbInfoDriver: DBInfoDriver) {
     log: () => driverForDB("log_db"),
     destroy: () => destroy,
     all: (): DBDriver[] => [db.login, db.map, db.char, db.log],
+    info: () => dbInfoDriver,
   });
 
   function destroy() {

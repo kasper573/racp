@@ -2,9 +2,7 @@ import { pick } from "lodash";
 import { createLogger } from "../src/lib/logger";
 import { readCliArgs } from "../src/lib/cli";
 import { options } from "../src/api/options";
-import { createConfigDriver } from "../src/api/rathena/ConfigDriver";
-import { DBInfoDriver } from "../src/api/rathena/DBInfoDriver";
-import { dbInfoConfigName } from "../src/api/rathena/util/constants";
+import { createDatabaseDriver } from "../src/api/rathena/DatabaseDriver";
 
 /**
  * Updates an rAthena build with the settings we need to run racp + rathena in CI.
@@ -20,10 +18,9 @@ async function configureRAthena() {
     MYSQL_DATABASE: { type: "string", required: true },
   });
 
-  const cfg = createConfigDriver({ ...args, logger });
-  const dbInfo = new DBInfoDriver(cfg.resolve(dbInfoConfigName));
-  logger.log(`Updating ${dbInfo.file.filename}...`);
-  dbInfo.file.write(
+  const db = createDatabaseDriver({ ...args, logger });
+  logger.log(`Updating ${db.info.file.filename}...`);
+  db.info.file.write(
     [
       "login_server",
       "char_server",

@@ -12,7 +12,6 @@ import { createImageFormatter } from "../lib/image/createImageFormatter";
 import { createEllipsisLogFn } from "../lib/createEllipsisLogFn";
 import { readCliArgs } from "../lib/cli";
 import { createYamlDriver } from "./rathena/YamlDriver";
-import { createConfigDriver } from "./rathena/ConfigDriver";
 import { createDatabaseDriver } from "./rathena/DatabaseDriver";
 import {
   AuthenticatorPayload,
@@ -43,8 +42,6 @@ import { createAdminSettingsService } from "./services/settings/service";
 import { createDonationService } from "./services/donation/service";
 import { createAdminSettingsRepository } from "./services/settings/repository";
 import { createTxtDriver } from "./rathena/TxtDriver";
-import { DBInfoDriver } from "./rathena/DBInfoDriver";
-import { dbInfoConfigName } from "./rathena/util/constants";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -59,10 +56,7 @@ const app = express();
 const txt = createTxtDriver({ ...args, logger });
 const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
 const yaml = createYamlDriver({ ...args, logger });
-const config = createConfigDriver({ ...args, logger });
-const db = createDatabaseDriver(
-  new DBInfoDriver(config.resolve(dbInfoConfigName))
-);
+const db = createDatabaseDriver({ ...args, logger });
 const files = createFileStore(
   path.join(process.cwd(), args.dataFolder),
   logger

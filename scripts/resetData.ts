@@ -6,7 +6,6 @@ import * as mysql from "mysql";
 import { readCliArgs } from "../src/lib/cli";
 import { options } from "../src/api/options";
 import { createLogger } from "../src/lib/logger";
-import { createConfigDriver } from "../src/api/rathena/ConfigDriver";
 import { createYamlDriver } from "../src/api/rathena/YamlDriver";
 import { createUserRepository } from "../src/api/services/user/repository";
 import {
@@ -19,8 +18,6 @@ import {
   adminCharId,
   adminCharName,
 } from "../cypress/support/vars";
-import { DBInfoDriver } from "../src/api/rathena/DBInfoDriver";
-import { dbInfoConfigName } from "../src/api/rathena/util/constants";
 
 async function resetData() {
   const logger = createLogger(console.log).chain("removeUGC");
@@ -48,10 +45,7 @@ async function resetData() {
 
   // Reset databases
 
-  const cfg = createConfigDriver({ ...args, logger });
-  const db = createDatabaseDriver(
-    new DBInfoDriver(cfg.resolve(dbInfoConfigName))
-  );
+  const db = createDatabaseDriver({ ...args, logger });
   for (const { driver, group } of await groupDatabaseDrivers(db)) {
     await driver.useConnection(async (conn) => {
       const { database } = await driver.dbInfo();
