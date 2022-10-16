@@ -72,6 +72,14 @@ jobs:
           CYPRESS_VIEWPORT_WIDTH: ${{ inputs.width }}
           CYPRESS_VIEWPORT_HEIGHT: ${{ inputs.height }}
 
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: ${{ inputs.width}}x${{ inputs.height }}
+          path: cypress/reports/*.xml
+          reporter: mocha-junit-reporter
+
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
