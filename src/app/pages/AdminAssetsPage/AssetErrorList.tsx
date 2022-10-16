@@ -14,7 +14,10 @@ export const AssetErrorList = memo(function ({
   errors: ErrorLike[];
 }) {
   return (
-    <Accordion sx={{ [`&&`]: { marginTop: 0, marginBottom: 2 } }}>
+    <Accordion
+      expanded={errors.length > 0}
+      sx={{ [`&&`]: { marginTop: 0, marginBottom: 2 } }}
+    >
       <AccordionSummary expandIcon={<ExpandMore />}>
         <Typography>Errors during upload ({errors.length})</Typography>
       </AccordionSummary>
