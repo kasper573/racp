@@ -2,7 +2,7 @@ import * as zod from "zod";
 import { YamlDriver } from "../../rathena/YamlDriver";
 import { FileStore } from "../../../lib/fs/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
-import { createImageRepository } from "../../common/createImageRepository";
+import { ImageUrlMap } from "../../common/ImageUrlMap";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
 import { ImageFormatter } from "../../../lib/image/createImageFormatter";
 import { Logger } from "../../../lib/logger";
@@ -42,7 +42,11 @@ export function createItemRepository({
   const logger = parentLogger.chain("item");
   const imageLinker = linker.chain("items");
   const imageName = (item: Item) => `${item.Id}${formatter.fileExtension}`;
-  const imageRepository = createImageRepository(formatter, imageLinker, logger);
+  const imageUrlMap = new ImageUrlMap({
+    formatter,
+    linker: imageLinker,
+    logger,
+  });
 
   const optionTextsFile = files.entry({
     relativeFilename: "itemOptionTexts.json",
@@ -64,12 +68,7 @@ export function createItemRepository({
   });
 
   const getItems = createAsyncMemo(
-    async () =>
-      [
-        await items.read(),
-        await infoFile.read(),
-        imageRepository.urlMap,
-      ] as const,
+    () => Promise.all([items.read(), infoFile.read(), imageUrlMap.read()]),
     (plainItems, info, urlMap) => {
       logger.log("Recomputing item repository");
       return Array.from(plainItems.values()).reduce((map, item) => {
@@ -121,14 +120,14 @@ export function createItemRepository({
       infoFile.read().then((info = {}) => Object.keys(info).length),
     countImages: () =>
       gfs.readdir(imageLinker.directory).then((dirs) => dirs.length),
-    updateImages: imageRepository.update,
+    updateImages: imageUrlMap.update,
     missingImages: () =>
       getItems().then((map) =>
         Array.from(map.values()).filter((item) => item.ImageUrl === undefined)
       ),
     destroy: () => {
       infoFile.dispose();
-      imageRepository.close();
+      imageUrlMap.dispose();
     },
   };
 }

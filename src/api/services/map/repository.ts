@@ -5,7 +5,7 @@ import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
 import { ImageFormatter } from "../../../lib/image/createImageFormatter";
 import { ScriptDriver } from "../../rathena/ScriptDriver";
-import { createImageRepository } from "../../common/createImageRepository";
+import { ImageUrlMap } from "../../common/ImageUrlMap";
 import { trimExtension } from "../../../lib/std/trimExtension";
 import { Logger } from "../../../lib/logger";
 import { gfs } from "../../gfs";
@@ -40,7 +40,11 @@ export function createMapRepository({
   const logger = parentLogger.chain("map");
   const imageLinker = linker.chain("maps");
   const mapImageName = (mapId: string) => `${mapId}${formatter.fileExtension}`;
-  const imageRepository = createImageRepository(formatter, imageLinker, logger);
+  const imageUrlMap = new ImageUrlMap({
+    formatter,
+    linker: imageLinker,
+    logger,
+  });
 
   const warpsPromise = logger.track(
     script.resolve(warpType),
@@ -65,7 +69,7 @@ export function createMapRepository({
         getSpawns(),
         infoFile.read(),
         boundsFile.read(),
-        imageRepository.urlMap,
+        imageUrlMap.read(),
       ]),
     (warps, spawns, infoRecord, bounds, urlMap) => {
       logger.log("Recomputing map repository");
@@ -109,12 +113,12 @@ export function createMapRepository({
     countImages: () =>
       gfs.readdir(imageLinker.directory).then((dirs) => dirs.length),
     warps: warpsPromise,
-    updateImages: imageRepository.update,
+    updateImages: imageUrlMap.update,
     updateBounds: boundsFile.assign,
     destroy: () => {
       infoFile.dispose();
       boundsFile.dispose();
-      imageRepository.close();
+      imageUrlMap.dispose();
     },
   };
 }

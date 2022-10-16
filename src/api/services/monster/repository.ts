@@ -4,7 +4,7 @@ import { YamlDriver } from "../../rathena/YamlDriver";
 import { ScriptDriver } from "../../rathena/ScriptDriver";
 import { ImageFormatter } from "../../../lib/image/createImageFormatter";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
-import { createImageRepository } from "../../common/createImageRepository";
+import { ImageUrlMap } from "../../common/ImageUrlMap";
 import { Logger } from "../../../lib/logger";
 import { createAsyncMemo } from "../../../lib/createMemo";
 import { Mvp, createMvpId, Monster, monsterSpawnType } from "./types";
@@ -30,7 +30,11 @@ export function createMonsterRepository({
   const logger = parentLogger.chain("monster");
   const imageLinker = linker.chain("monsters");
   const imageName = (id: Monster["Id"]) => `${id}${formatter.fileExtension}`;
-  const imageRepository = createImageRepository(formatter, imageLinker, logger);
+  const imageUrlMap = new ImageUrlMap({
+    formatter,
+    linker: imageLinker,
+    logger,
+  });
 
   const monsterResolver = createMonsterResolver(rAthenaMode);
   const monsters = yaml.resolve("db/mob_db.yml", monsterResolver);
@@ -41,7 +45,7 @@ export function createMonsterRepository({
   );
 
   const getMonsters = createAsyncMemo(
-    async () => [await monsters.read(), imageRepository.urlMap] as const,
+    async () => Promise.all([monsters.read(), imageUrlMap.read()]),
     (monsters, urlMap) => {
       logger.log("Recomputing monster repository");
       return Array.from(monsters.values()).reduce(
@@ -56,7 +60,7 @@ export function createMonsterRepository({
   );
 
   const getMonsterSpawns = createAsyncMemo(
-    async () => [await spawnsPromise, imageRepository.urlMap] as const,
+    async () => Promise.all([spawnsPromise, imageUrlMap.read()]),
     (spawns, urlMap) => {
       logger.log("Recomputing monster spawn repository");
       return spawns.map((spawn) => ({
@@ -97,13 +101,13 @@ export function createMonsterRepository({
     getSpawns: getMonsterSpawns,
     getMonsters,
     getMvps,
-    updateImages: imageRepository.update,
+    updateImages: imageUrlMap.update,
     missingImages: () =>
       getMonsters().then((map) =>
         Array.from(map.values()).filter(
           (monster) => monster.ImageUrl === undefined
         )
       ),
-    destroy: () => imageRepository.close(),
+    destroy: () => imageUrlMap.dispose(),
   };
 }
