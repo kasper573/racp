@@ -5,6 +5,10 @@ on:
         description: "Cypress project ID"
         required: false
     inputs:
+      name:
+        description: "Name of test"
+        required: true
+        type: string
       width:
         description: "Cypress viewport width"
         required: true
@@ -76,18 +80,19 @@ jobs:
         uses: dorny/test-reporter@v1
         if: always()
         with:
-          name: ${{ inputs.width}}x${{ inputs.height }}
+          name: E2E Test Report (${{ inputs.name }})
           path: cypress/reports/*.xml
           reporter: java-junit
+          fail-on-error: false
 
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: cypress-screenshots-${{ inputs.width}}x${{ inputs.height }}
+          name: cypress-screenshots-${{ inputs.name }}
           path: cypress/screenshots
 
       - uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: cypress-videos-${{ inputs.width}}x${{ inputs.height }}
+          name: cypress-videos-${{ inputs.name }}
           path: cypress/videos
