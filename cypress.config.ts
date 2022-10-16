@@ -11,6 +11,7 @@ export default defineConfig({
   },
   chromeWebSecurity: false, // Without this we sometimes get "Failed to fetch" error
   e2e: {
+    requestTimeout: 60000, // Very high to avoid flakiness caused by admin operations sometimes causing rebuilding of db indexes
     specPattern: "cypress/**/*.spec.ts",
     setupNodeEvents(on, config) {
       return dotenvFlowPlugin(config, undefined, true);
