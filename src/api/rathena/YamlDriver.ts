@@ -44,7 +44,10 @@ export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
   }
 
   protected observeSource(onSourceChanged: () => void): () => void {
-    return recursiveWatch(path.dirname(this.options.file), onSourceChanged);
+    return recursiveWatch(
+      path.dirname(path.resolve(this.options.rAthenaPath, this.options.file)),
+      onSourceChanged
+    );
   }
 
   protected async readImpl() {
