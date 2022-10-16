@@ -5,7 +5,6 @@ import { matchRecursive } from "xregexp";
 import { ZodTypeDef } from "zod/lib/types";
 import { base64encode } from "byte-base64";
 import recursiveWatch = require("recursive-watch");
-import { Logger } from "../../lib/logger";
 import { RAthenaMode } from "../options";
 import { gfs } from "../gfs";
 import { defined } from "../../lib/std/defined";
@@ -59,7 +58,7 @@ export class ScriptRepository extends ReactiveRepository<RawScriptEntity[]> {
       const newEntities = defined(
         result.map((r) => "value" in r && r.value)
       ).flat();
-      logScriptFileLoadResult(batch, result, this.logger);
+      this.logReadResult(batch, result);
       entities.push(...newEntities);
       const newImports = parseRawEntitiesAs(
         newEntities,
@@ -70,28 +69,26 @@ export class ScriptRepository extends ReactiveRepository<RawScriptEntity[]> {
 
     return entities;
   }
+
+  private logReadResult(
+    files: string[],
+    settled: PromiseSettledResult<unknown>[]
+  ) {
+    for (let i = 0; i < settled.length; i++) {
+      const result = settled[i];
+      const file = files[i];
+      if (result.status === "rejected") {
+        this.logger.warn(
+          path.relative(this.baseFolder, file),
+          result.reason instanceof Error ? result.reason.message : result.reason
+        );
+      }
+    }
+  }
 }
 
 const createScriptId = (file: string, index: number) =>
   base64encode(`${file}#${index}`);
-
-function logScriptFileLoadResult(
-  files: string[],
-  settled: PromiseSettledResult<unknown>[],
-  logger: Logger
-) {
-  for (let i = 0; i < settled.length; i++) {
-    const result = settled[i];
-    const file = files[i];
-    if (result.status === "rejected") {
-      logger.warn(
-        "Skipped",
-        file,
-        result.reason instanceof Error ? result.reason.message : result.reason
-      );
-    }
-  }
-}
 
 async function loadRawEntities(file: string): Promise<RawScriptEntity[]> {
   const matrices = await gfs.readFile(file, "utf-8").then(parseTextEntities);
