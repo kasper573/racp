@@ -81,7 +81,7 @@ jobs:
         if: always()
         with:
           name: E2E Test Report (${{ inputs.name }})
-          path: cypress/reports/*.xml
+          path: cypress/reports/**/*.xml
           reporter: java-junit
           fail-on-error: false
 
