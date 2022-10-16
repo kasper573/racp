@@ -61,7 +61,7 @@ export class FileRepository<Data> extends ReactiveRepository<Data | undefined> {
     if (data === undefined) {
       await gfs.rm(this.filename);
     } else {
-      gfs.writeFile(
+      await gfs.writeFile(
         this.filename,
         this.options.protocol.serialize(data),
         "utf-8"
