@@ -74,6 +74,12 @@ export abstract class Repository<T> {
     }
   }
 
+  transform(createValue: (currentValue: T) => T) {
+    return this.read().then((currentValue) =>
+      this.write(createValue(currentValue))
+    );
+  }
+
   /**
    * Starts any behavior that will be active until disposed
    */

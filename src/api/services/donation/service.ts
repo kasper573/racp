@@ -12,7 +12,7 @@ import {
   currencyType,
   moneyType,
 } from "../settings/types";
-import { AccRegNumDriver } from "../../rathena/AccRegDriver";
+import { AccRegNumRepository } from "../../rathena/AccRegRepository";
 import { createSearchProcedure } from "../../common/search";
 import { itemFilter, itemType } from "../item/types";
 import { ItemRepository } from "../item/repository";
@@ -41,9 +41,15 @@ export function createDonationService({
   logger: Logger;
 }) {
   const logger = parentLogger.chain("donation");
-  const creditBalanceAtom = new AccRegNumDriver(db, logger).createKeyAtom(() =>
-    settingsRepo.getSettings().then(({ donations }) => donations.accRegNumKey)
-  );
+  const creditBalanceAtom = async (accountId: number) =>
+    new AccRegNumRepository({
+      db,
+      logger,
+      accountId,
+      key: await settingsRepo
+        .getSettings()
+        .then(({ donations }) => donations.accRegNumKey),
+    });
 
   return t.router({
     searchItems: createSearchProcedure(
@@ -60,7 +66,9 @@ export function createDonationService({
       .output(zod.number())
       .query(({ ctx: { auth } }) =>
         auth
-          ? creditBalanceAtom.read(auth.id).then((balance) => balance ?? 0)
+          ? creditBalanceAtom(auth.id).then((atom) =>
+              atom.read().then((balance) => balance ?? 0)
+            )
           : 0
       ),
     order: t.procedure
@@ -150,10 +158,8 @@ export function createDonationService({
             settings.donations.exchangeRate
           );
 
-          const success = await creditBalanceAtom.write(
-            accountId,
-            (n = 0) => n + rewardedCredits
-          );
+          const atom = await creditBalanceAtom(accountId);
+          const success = await atom.transform((n = 0) => n + rewardedCredits);
 
           if (success) {
             return { status: "creditsAwarded", rewardedCredits };
