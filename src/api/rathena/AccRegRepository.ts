@@ -1,4 +1,5 @@
-import { Repository, RepositoryOptions } from "../../lib/repo/Repository";
+import { MutableRepository } from "../../lib/repo/MutableRepository";
+import { RepositoryOptions } from "../../lib/repo/Repository";
 import { DatabaseDriver } from "./DatabaseDriver";
 
 // Abstractions for interfacing with the rathena "acc_reg_" tables in a type safe manner
@@ -10,7 +11,7 @@ export interface AccRegRepositoryOptions<T>
   key: string;
 }
 
-export class AccRegNumRepository extends Repository<number | undefined> {
+export class AccRegNumRepository extends MutableRepository<number | undefined> {
   constructor(private options: AccRegRepositoryOptions<number>) {
     super({ defaultValue: undefined, ...options });
   }

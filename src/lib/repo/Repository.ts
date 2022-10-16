@@ -21,7 +21,7 @@ export abstract class Repository<T> {
     return this._isDisposed;
   }
 
-  constructor({
+  protected constructor({
     logger,
     repositoryName = [],
     defaultValue,
@@ -35,16 +35,12 @@ export abstract class Repository<T> {
 
     // read/write is commonly used in higher order functions
     this.read = this.read.bind(this);
-    this.write = this.write.bind(this);
 
     // TODO remove this and replace with manual init of all repositories in server.ts
     setTimeout(() => this.initialize(), 0);
   }
 
   protected abstract readImpl(): Promise<T | undefined>;
-  protected writeImpl(value?: T): Promise<void> {
-    throw new Error("Writing not supported");
-  }
 
   private pendingReadPromise?: Promise<T>;
   async read(): Promise<T> {
@@ -62,22 +58,6 @@ export abstract class Repository<T> {
         });
     }
     return this.pendingReadPromise;
-  }
-
-  async write(value: T): Promise<boolean> {
-    try {
-      await this.logger.track(this.writeImpl(value), "write");
-      return true;
-    } catch (e) {
-      this.logger.error("Failed to write:", e);
-      return false;
-    }
-  }
-
-  transform(createValue: (currentValue: T) => T) {
-    return this.read().then((currentValue) =>
-      this.write(createValue(currentValue))
-    );
   }
 
   /**

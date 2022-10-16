@@ -1,6 +1,6 @@
-import { Repository } from "./Repository";
+import { MutableRepository } from "./MutableRepository";
 
-export abstract class CachedRepository<T> extends Repository<T> {
+export abstract class CachedRepository<T> extends MutableRepository<T> {
   private cache?: { value: T };
 
   async read() {
