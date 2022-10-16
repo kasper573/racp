@@ -78,7 +78,7 @@ jobs:
         with:
           name: ${{ inputs.width}}x${{ inputs.height }}
           path: cypress/reports/*.xml
-          reporter: mocha-junit
+          reporter: java-junit
 
       - uses: actions/upload-artifact@v3
         if: failure()
