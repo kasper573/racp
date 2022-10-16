@@ -20,7 +20,7 @@ async function configureRAthena() {
 
   const db = createDatabaseDriver({ ...args, logger });
   logger.log(`Updating ${db.info.file.filename}...`);
-  db.info.file.write(
+  const success = await db.info.file.write(
     [
       "login_server",
       "char_server",
@@ -41,9 +41,15 @@ async function configureRAthena() {
     )
   );
 
+  if (!success) {
+    logger.error(`Failed to update ${db.info.file.filename}`);
+    return 1;
+  }
+
   logger.log("Finished configuring RAthena");
+  return 0;
 }
 
 if (require.main === module) {
-  configureRAthena();
+  configureRAthena().then(process.exit);
 }
