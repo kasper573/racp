@@ -88,6 +88,9 @@ export abstract class Repository<T> {
       throw new Error("Repository already initialized");
     }
     this._isInitialized = true;
+
+    // TODO remove this and replace with manual read of all repositories in server.ts
+    this.read();
   }
 
   /**
