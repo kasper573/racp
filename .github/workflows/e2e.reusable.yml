@@ -27,9 +27,9 @@ jobs:
         image: mariadb:latest
         ports: [3306]
         env:
-          MYSQL_USER: ragnarok
-          MYSQL_PASSWORD: ragnarok
-          MYSQL_DATABASE: ragnarok
+          MYSQL_USER: racp
+          MYSQL_PASSWORD: racp
+          MYSQL_DATABASE: racp
           MYSQL_ROOT_PASSWORD: racp
           MYSQL_ROOT_HOST: "%"
     env:
@@ -66,9 +66,9 @@ jobs:
         env:
           MYSQL_PORT: 3306
           MYSQL_HOST: db
-          MYSQL_USER: ragnarok
-          MYSQL_PASSWORD: ragnarok
-          MYSQL_DATABASE: ragnarok
+          MYSQL_USER: racp
+          MYSQL_PASSWORD: racp
+          MYSQL_DATABASE: racp
 
       - name: Run cypress
         run: yarn e2e:ci:run
