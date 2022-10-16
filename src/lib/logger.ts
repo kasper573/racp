@@ -90,8 +90,6 @@ function stringifyResult(result: unknown) {
   const quantity = quantify(result);
   if (quantity !== undefined) {
     return `${quantity}`;
-  } else if (isPlainObject(result)) {
-    return JSON.stringify(result);
   } else {
     return `${typeof result}`;
   }
