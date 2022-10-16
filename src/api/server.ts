@@ -126,5 +126,5 @@ app.use(
 );
 
 http.createServer(app).listen(args.apiPort, "0.0.0.0", () => {
-  console.log(`API is running on port ${args.apiPort}`);
+  logger.log(`API is running on port ${args.apiPort}`);
 });
