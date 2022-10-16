@@ -10,7 +10,7 @@ import { ReducedLuaTables, reducedLuaTables } from "./types";
 
 export type UtilService = ReturnType<typeof createUtilService>;
 
-export function createUtilService() {
+export function createUtilService(readyResolver: () => Promise<boolean>) {
   const unluac = createUnluac({
     write: gfs.writeFile,
     read: gfs.readFile,
@@ -40,5 +40,6 @@ export function createUtilService() {
           {}
         );
       }),
+    ready: t.procedure.output(zod.boolean()).query(readyResolver),
   });
 }

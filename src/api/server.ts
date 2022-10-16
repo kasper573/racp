@@ -82,8 +82,11 @@ let router: ApiRouter;
   const shops = createShopRepository({ script, logger, getItems: items.getItems, });
   const settings = createAdminSettingsRepository(files);
 
+  // TODO wait for all repositories to be ready
+  const readyPromise = Promise.resolve(true);
+
   router = createApiRouter({
-    util: createUtilService(),
+    util: createUtilService(() => readyPromise),
     user: createUserService({ db, user, sign: auth.sign, ...args }),
     item: createItemService(items),
     monster: createMonsterService({ db, repo: monsters }),
