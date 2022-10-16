@@ -19,6 +19,8 @@ import {
   adminCharId,
   adminCharName,
 } from "../cypress/support/vars";
+import { DBInfoDriver } from "../src/api/rathena/DBInfoDriver";
+import { dbInfoConfigName } from "../src/api/rathena/util/constants";
 
 async function resetData() {
   const logger = createLogger(console.log).chain("removeUGC");
@@ -47,7 +49,9 @@ async function resetData() {
   // Reset databases
 
   const cfg = createConfigDriver({ ...args, logger });
-  const db = createDatabaseDriver(cfg);
+  const db = createDatabaseDriver(
+    new DBInfoDriver(cfg.resolve(dbInfoConfigName))
+  );
   for (const { driver, group } of await groupDatabaseDrivers(db)) {
     await driver.useConnection(async (conn) => {
       const { database } = await driver.dbInfo();
