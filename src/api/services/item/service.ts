@@ -41,7 +41,7 @@ export function createItemService(repo: ItemRepository) {
         const itemInfoAsLuaCode = bufferToLuaCode(
           Buffer.from(decodeRpcFileData(input.data))
         );
-        repo.updateInfo(itemInfoAsLuaCode);
+        await repo.updateInfo(itemInfoAsLuaCode);
         return repo.getResourceNames();
       }),
     uploadOptionTexts: t.procedure
