@@ -151,8 +151,6 @@ export function createDonationService({
             return { status: "noPaymentsReceived" };
           }
 
-          logger.warn("Received", capture.amount.value);
-
           const rewardedCredits = calculateRewardedCredits(
             +capture.amount.value,
             settings.donations.exchangeRate
