@@ -32,8 +32,8 @@ export const configFileProtocol: FileProtocol<Config> = {
       .join("\n");
   },
 
-  parse(config) {
-    const matches = config
+  parse(fileContent) {
+    const matches = fileContent
       .replaceAll(/\/\/.*$/gm, "")
       .matchAll(/^([\w_]+):(.*)/gm);
     const data = Array.from(matches).reduce((record, [, key, value]) => {

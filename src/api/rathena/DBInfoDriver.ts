@@ -8,10 +8,13 @@ export class DBInfoDriver {
     const config = (await this.file.read()) ?? {};
     const requireProp = (suffix: string) => {
       const key = `${prefix}_${suffix}`;
-      if (!Object.hasOwn(config, key)) {
-        throw new Error(`Missing key ${key}`);
+      const value = config[key];
+      if (value === undefined) {
+        throw new Error(
+          `Config file "${this.file.filename}" is missing key "${key}"`
+        );
       }
-      return config[key];
+      return value;
     };
 
     // prettier-ignore
