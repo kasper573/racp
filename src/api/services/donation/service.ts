@@ -14,8 +14,8 @@ import {
 } from "../settings/types";
 import { AccRegNumRepository } from "../../rathena/AccRegRepository";
 import { createSearchProcedure } from "../../common/search";
-import { itemFilter, itemType } from "../item/types";
-import { ItemRepository } from "../item/repository";
+import { Item, itemFilter, itemType } from "../item/types";
+import { Repository } from "../../../lib/repo/Repository";
 import {
   donationCaptureResultType,
   DonationEnvironment,
@@ -31,13 +31,13 @@ export function createDonationService({
   db,
   env,
   settings: settingsRepo,
-  items,
+  cashStoreItems,
   logger: parentLogger,
 }: {
   db: DatabaseDriver;
   env: DonationEnvironment;
   settings: AdminSettingsRepository;
-  items: ItemRepository;
+  cashStoreItems: Repository<Item[]>;
   logger: Logger;
 }) {
   const logger = parentLogger.chain("donation");
@@ -55,7 +55,7 @@ export function createDonationService({
     searchItems: createSearchProcedure(
       itemType,
       itemFilter.type,
-      async () => Array.from((await items.getCashStoreItems()).values()),
+      () => cashStoreItems.read(),
       (entity, payload) => itemFilter.for(payload)(entity)
     ),
     environment: t.procedure.output(donationEnvironmentType).query(() => env),

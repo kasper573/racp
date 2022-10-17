@@ -77,8 +77,8 @@ let router: ApiRouter;
   const monsters = createMonsterRepository({ ...args,resources, formatter, linker, logger, });
   const maps = createMapRepository({ linker, formatter, getSpawns: monsters.getSpawns, resources, logger, });
   const npcs = createNpcRepository(resources);
-  const drops = createDropRepository({ items, monsters, logger });
-  const shops = createShopRepository({ resources, getItems: items.getItems, });
+  const drops = createDropRepository({ items: items.items, monsters, logger });
+  const shops = createShopRepository({ resources, items: items.items, });
   const settings = createAdminSettingsRepository(resources);
 
   // TODO wait for all repositories to be ready
@@ -94,14 +94,17 @@ let router: ApiRouter;
     shop: createShopService(shops),
     npc: createNpcService(npcs),
     map: createMapService(maps),
-    meta: createMetaService({ items, monsters }),
+    meta: createMetaService({
+      items: items.items.map((map) => Array.from(map.values())),
+      monsters
+    }),
     settings: createAdminSettingsService(settings),
     donation: createDonationService({
       db,
       env: args.donationEnvironment,
-      settings,
-      items,
       logger,
+      settings,
+      ...items,
     }),
   })
 }

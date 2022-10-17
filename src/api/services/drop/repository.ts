@@ -1,8 +1,9 @@
 import { groupBy } from "lodash";
 import { createAsyncMemo } from "../../../lib/createMemo";
 import { MonsterRepository } from "../monster/repository";
-import { ItemRepository } from "../item/repository";
 import { Logger } from "../../../lib/logger";
+import { Repository } from "../../../lib/repo/Repository";
+import { Item, ItemId } from "../item/types";
 import { ItemDrop } from "./types";
 
 export type DropRepository = ReturnType<typeof createDropRepository>;
@@ -13,11 +14,11 @@ export function createDropRepository({
   logger,
 }: {
   monsters: MonsterRepository;
-  items: ItemRepository;
+  items: Repository<Map<ItemId, Item>>;
   logger: Logger;
 }) {
   const getDrops = createAsyncMemo(
-    () => Promise.all([monsters.getMonsters(), items.getItems()]),
+    () => Promise.all([monsters.getMonsters(), items.read()]),
     (monsters, items) => {
       logger.log("Recomputing drop repository");
       const itemsByAegisName = groupBy(

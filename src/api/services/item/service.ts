@@ -16,14 +16,14 @@ export function createItemService(repo: ItemRepository) {
     search: createSearchProcedure(
       itemType,
       itemFilter.type,
-      async () => Array.from((await repo.getItems()).values()),
+      async () => Array.from((await repo.items.read()).values()),
       (entity, payload) => itemFilter.for(payload)(entity)
     ),
     read: t.procedure
       .input(itemIdType)
       .output(itemType)
       .query(async ({ input: itemId }) => {
-        const map = await repo.getItems();
+        const map = await repo.items.read();
         const item = map.get(itemId);
         if (!item) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Item not found" });
@@ -33,7 +33,7 @@ export function createItemService(repo: ItemRepository) {
     countInfo: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.number())
-      .query(() => repo.countInfo()),
+      .query(() => repo.infoCount.read()),
     uploadInfo: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(rpcFile)
@@ -42,31 +42,29 @@ export function createItemService(repo: ItemRepository) {
           Buffer.from(decodeRpcFileData(input.data))
         );
         await repo.updateInfo(itemInfoAsLuaCode);
-        return repo.getResourceNames();
+        return repo.resourceNames.read();
       }),
     uploadOptionTexts: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(itemOptionTextsType)
-      .mutation(({ input }) => {
-        repo.updateOptionTexts(input);
-      }),
+      .mutation(({ input }) => repo.optionTexts.assign(input)),
     countImages: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.number())
-      .query(() => repo.countImages()),
+      .query(() => repo.imageUrlMap.size()),
     uploadImages: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(zod.array(rpcFile))
-      .mutation(({ input }) => repo.updateImages(input)),
+      .mutation(({ input }) => repo.imageUrlMap.update(input)),
     missingImages: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.array(itemType.shape["Id"]))
       .query(async () => {
-        const itemsWithMissingImages = await repo.missingImages();
+        const itemsWithMissingImages = await repo.missingImages.read();
         return itemsWithMissingImages.map((m) => m.Id);
       }),
     getOptionTexts: t.procedure
       .output(itemOptionTextsType)
-      .query(() => repo.getOptionTexts()),
+      .query(() => repo.optionTexts.read().then((val) => val ?? {})),
   });
 }

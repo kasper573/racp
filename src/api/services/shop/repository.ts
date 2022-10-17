@@ -1,16 +1,17 @@
 import { Item, ItemId } from "../item/types";
 import { createAsyncMemo } from "../../../lib/createMemo";
 import { ResourceFactory } from "../../resources";
+import { Repository } from "../../../lib/repo/Repository";
 import { internalShopType, Shop, ShopItem } from "./types";
 
 export type ShopRepository = ReturnType<typeof createShopRepository>;
 
 export function createShopRepository({
   resources,
-  getItems,
+  items,
 }: {
   resources: ResourceFactory;
-  getItems: () => Promise<Map<ItemId, Item>>;
+  items: Repository<Map<ItemId, Item>>;
 }) {
   const internalShops = resources.script(internalShopType);
 
@@ -25,7 +26,7 @@ export function createShopRepository({
     );
 
   const getShopItems = createAsyncMemo(
-    () => Promise.all([internalShops.read(), getItems()]),
+    () => Promise.all([internalShops.read(), items.read()]),
     (internalShops, items): ShopItem[] => {
       return internalShops.reduce((shopItems, internalShop) => {
         const shopMap =
