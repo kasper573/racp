@@ -42,6 +42,7 @@ import { createAdminSettingsService } from "./services/settings/service";
 import { createDonationService } from "./services/donation/service";
 import { createAdminSettingsRepository } from "./services/settings/repository";
 import { createTxtDriver } from "./rathena/TxtDriver";
+import { createResourceManager } from "./resources";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -69,11 +70,14 @@ const linker = createPublicFileLinker({
   port: args.apiPort,
 });
 
+const resourceManager = createResourceManager({ logger, ...args });
+const resources = resourceManager.create;
+
 let router: ApiRouter;
 
 // prettier-ignore
 {
-  const user = createUserRepository({ yaml, ...args });
+  const user = createUserRepository({ resources, ...args });
   const items = createItemRepository({ ...args, txt, yaml, files, formatter, linker, logger, });
   const monsters = createMonsterRepository({ ...args, yaml, script, formatter, linker, logger, });
   const maps = createMapRepository({ files, linker, formatter, getSpawns: monsters.getSpawns, script, logger, });
