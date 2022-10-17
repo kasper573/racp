@@ -13,15 +13,9 @@ import { RepositoryOptions } from "../../lib/repo/Repository";
 import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
 import { modeFolderNames, nonEmptyLines, removeComments } from "./util/parse";
 
-export type ScriptDriver = ReturnType<typeof createScriptDriver>;
-
-export function createScriptDriver(repo: ScriptRepository) {
-  return {
-    async resolve<ET extends AnyScriptEntityType>(
-      entityType: ET
-    ): Promise<Array<zod.infer<ET>>> {
-      return parseRawEntitiesAs(await repo.read(), entityType);
-    },
+export function createScriptEntityResolver(repo: ScriptRepository) {
+  return function resolve<ET extends AnyScriptEntityType>(entityType: ET) {
+    return repo.map((raw) => parseRawEntitiesAs(raw, entityType));
   };
 }
 

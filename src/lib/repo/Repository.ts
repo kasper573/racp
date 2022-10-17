@@ -35,9 +35,6 @@ export abstract class Repository<T = any> {
 
     // read/write is commonly used in higher order functions
     this.read = this.read.bind(this);
-
-    // TODO remove this and replace with manual init of all repositories in server.ts
-    setTimeout(() => this.initialize(), 0);
   }
 
   protected abstract readImpl(): Promise<T | undefined>;

@@ -4,7 +4,6 @@ import { FileStore } from "../../../lib/fs/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
 import { ImageFormatter } from "../../../lib/image/createImageFormatter";
-import { ScriptDriver } from "../../rathena/ScriptDriver";
 import { ImageUrlMap } from "../../common/ImageUrlMap";
 import { trimExtension } from "../../../lib/std/trimExtension";
 import { Logger } from "../../../lib/logger";
@@ -12,6 +11,7 @@ import { gfs } from "../../gfs";
 import { createAsyncMemo } from "../../../lib/createMemo";
 import { MonsterSpawn } from "../monster/types";
 import { zodJsonProtocol } from "../../../lib/zod/zodJsonProtocol";
+import { ResourceFactory } from "../../resources";
 import {
   mapBoundsRegistryType,
   MapId,
@@ -26,7 +26,7 @@ export function createMapRepository({
   files,
   linker,
   formatter,
-  script,
+  resources,
   getSpawns,
   logger: parentLogger,
 }: {
@@ -34,7 +34,7 @@ export function createMapRepository({
   linker: Linker;
   formatter: ImageFormatter;
   getSpawns: () => Promise<MonsterSpawn[]>;
-  script: ScriptDriver;
+  resources: ResourceFactory;
   logger: Logger;
 }) {
   const logger = parentLogger.chain("map");
@@ -46,11 +46,7 @@ export function createMapRepository({
     logger,
   });
 
-  const warpsPromise = logger.track(
-    script.resolve(warpType),
-    "script.resolve",
-    "warp"
-  );
+  const warps = resources.script(warpType);
 
   const infoFile = files.entry({
     relativeFilename: "mapInfo.json",
@@ -65,7 +61,7 @@ export function createMapRepository({
   const getMaps = createAsyncMemo(
     () =>
       Promise.all([
-        warpsPromise,
+        warps.read(),
         getSpawns(),
         infoFile.read(),
         boundsFile.read(),
@@ -112,7 +108,7 @@ export function createMapRepository({
     },
     countImages: () =>
       gfs.readdir(imageLinker.directory).then((dirs) => dirs.length),
-    warps: warpsPromise,
+    warps: warps.read(),
     updateImages: imageUrlMap.update,
     updateBounds: boundsFile.assign,
     destroy: () => {

@@ -1,12 +1,12 @@
 import { pick } from "lodash";
 import { RAthenaMode } from "../../options";
 import { YamlDriver } from "../../rathena/YamlDriver";
-import { ScriptDriver } from "../../rathena/ScriptDriver";
 import { ImageFormatter } from "../../../lib/image/createImageFormatter";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
 import { ImageUrlMap } from "../../common/ImageUrlMap";
 import { Logger } from "../../../lib/logger";
 import { createAsyncMemo } from "../../../lib/createMemo";
+import { ResourceFactory } from "../../resources";
 import { Mvp, createMvpId, Monster, monsterSpawnType } from "./types";
 import { createMonsterResolver } from "./util/createMonsterResolver";
 
@@ -17,14 +17,14 @@ export function createMonsterRepository({
   linker,
   formatter,
   yaml,
-  script,
+  resources,
   logger: parentLogger,
 }: {
   linker: Linker;
   formatter: ImageFormatter;
   rAthenaMode: RAthenaMode;
   yaml: YamlDriver;
-  script: ScriptDriver;
+  resources: ResourceFactory;
   logger: Logger;
 }) {
   const logger = parentLogger.chain("monster");
@@ -38,11 +38,7 @@ export function createMonsterRepository({
 
   const monsterResolver = createMonsterResolver(rAthenaMode);
   const monsters = yaml.resolve("db/mob_db.yml", monsterResolver);
-  const spawnsPromise = logger.track(
-    script.resolve(monsterSpawnType),
-    "script.resolve",
-    "monsterSpawn"
-  );
+  const spawns = resources.script(monsterSpawnType);
 
   const getMonsters = createAsyncMemo(
     async () => Promise.all([monsters.read(), imageUrlMap.read()]),
@@ -60,7 +56,7 @@ export function createMonsterRepository({
   );
 
   const getMonsterSpawns = createAsyncMemo(
-    async () => Promise.all([spawnsPromise, imageUrlMap.read()]),
+    async () => Promise.all([spawns.read(), imageUrlMap.read()]),
     (spawns, urlMap) => {
       logger.log("Recomputing monster spawn repository");
       return spawns.map((spawn) => ({

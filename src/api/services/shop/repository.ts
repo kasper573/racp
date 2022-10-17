@@ -1,28 +1,21 @@
-import { Logger } from "../../../lib/logger";
-import { ScriptDriver } from "../../rathena/ScriptDriver";
 import { Item, ItemId } from "../item/types";
 import { createAsyncMemo } from "../../../lib/createMemo";
+import { ResourceFactory } from "../../resources";
 import { internalShopType, Shop, ShopItem } from "./types";
 
 export type ShopRepository = ReturnType<typeof createShopRepository>;
 
 export function createShopRepository({
-  script,
-  logger,
+  resources,
   getItems,
 }: {
-  script: ScriptDriver;
-  logger: Logger;
+  resources: ResourceFactory;
   getItems: () => Promise<Map<ItemId, Item>>;
 }) {
-  const internalShopsPromise = logger.track(
-    script.resolve(internalShopType),
-    "script.resolve",
-    "shop"
-  );
+  const internalShops = resources.script(internalShopType);
 
   const getShops = () =>
-    internalShopsPromise.then((list) =>
+    internalShops.read().then((list) =>
       list.map(
         (internalShop): Shop => ({
           ...internalShop,
@@ -32,7 +25,7 @@ export function createShopRepository({
     );
 
   const getShopItems = createAsyncMemo(
-    () => Promise.all([internalShopsPromise, getItems()]),
+    () => Promise.all([internalShops.read(), getItems()]),
     (internalShops, items): ShopItem[] => {
       return internalShops.reduce((shopItems, internalShop) => {
         const shopMap =
