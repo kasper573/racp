@@ -33,6 +33,10 @@ export class ImageUrlMap extends ReactiveRepository<UrlMap> {
     return Object.freeze(urlMap);
   }
 
+  size () {
+    return this.read().then((map) => Object.keys(map).length);
+  }
+
   readonly update = async (files: RpcFile[]) => {
     await Promise.all(
       files.map((file) =>
