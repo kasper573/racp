@@ -2,21 +2,21 @@ export function createResourceManager() {
   return new ResourceManagerBuilder({});
 }
 
-export class ResourceManagerBuilder<Factories extends ResourceFactories> {
+class ResourceManagerBuilder<Factories extends ResourceFactories> {
   constructor(private factories: Factories) {}
 
   add<Name extends string, Factory extends ResourceFactory>(
     name: Name,
     factory: Factory
   ) {
-    return new ResourceManagerBuilder({
+    return new ResourceManagerBuilder<Factories & Record<Name, Factory>>({
       ...this.factories,
       [name]: factory,
     });
   }
 
   build() {
-    return new ResourceManager(this.factories);
+    return new ResourceManager<Factories>(this.factories);
   }
 }
 
@@ -59,9 +59,9 @@ function bindFactories<Factories extends ResourceFactories>(
   );
 }
 
-export type ResourceFactories = Record<string, ResourceFactory>;
+type ResourceFactories = Record<string, ResourceFactory>;
 
-export type ResourceFactory = (...args: any[]) => Resource;
+type ResourceFactory = (...args: any[]) => Resource;
 
 export interface Resource {
   dispose?: () => void;
