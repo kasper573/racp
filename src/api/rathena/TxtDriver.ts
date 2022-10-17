@@ -10,21 +10,6 @@ import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
 import { RepositoryOptions } from "../../lib/repo/Repository";
 import { modeFolderNames, nonEmptyLines, removeComments } from "./util/parse";
 
-export type TxtDriver = ReturnType<typeof createTxtDriver>;
-
-type PredefinedKeys = "rAthenaPath" | "rAthenaMode" | "logger";
-export function createTxtDriver(
-  predefinedOptions: Pick<TxtRepositoryOptions<any>, PredefinedKeys>
-) {
-  return {
-    resolve<ET extends AnyZodObject>(
-      inlineOptions: Omit<TxtRepositoryOptions<ET>, PredefinedKeys>
-    ) {
-      return new TxtRepository({ ...predefinedOptions, ...inlineOptions });
-    },
-  };
-}
-
 export interface TxtRepositoryOptions<ET extends AnyZodObject>
   extends Omit<RepositoryOptions<zod.infer<ET>[]>, "defaultValue"> {
   rAthenaPath: string;

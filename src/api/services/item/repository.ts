@@ -1,5 +1,4 @@
 import * as zod from "zod";
-import { TxtDriver } from "../../rathena/TxtDriver";
 import { zodJsonProtocol } from "../../../lib/zod/zodJsonProtocol";
 import { defined } from "../../../lib/std/defined";
 import { ResourceFactory } from "../../resources";
@@ -16,11 +15,9 @@ import {
 export type ItemRepository = ReturnType<typeof createItemRepository>;
 
 export function createItemRepository({
-  txt,
   resources,
   tradeScale,
 }: {
-  txt: TxtDriver;
   resources: ResourceFactory;
   tradeScale: number;
 }) {
@@ -32,11 +29,11 @@ export function createItemRepository({
     zodJsonProtocol(itemOptionTextsType)
   );
 
-  const cashItems = txt.resolve({
-    startFolder: "db",
-    relativeFilePath: "item_cash_db.txt",
-    entityType: rawCashStoreItemType,
-  });
+  const cashItems = resources.txt(
+    "db",
+    "item_cash_db.txt",
+    rawCashStoreItemType
+  );
 
   const itemResolver = createItemResolver({ tradeScale });
   const itemDB = resources.yaml("db/item_db.yml", itemResolver);

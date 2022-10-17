@@ -1,5 +1,5 @@
 import * as path from "path";
-import { ZodType } from "zod";
+import { AnyZodObject, ZodType } from "zod";
 import { createResourceManager as createResourceManagerImpl } from "../lib/createResourceManager";
 import { Logger } from "../lib/logger";
 import { FileProtocol, FileRepository } from "../lib/repo/FileRepository";
@@ -12,6 +12,7 @@ import {
 } from "./rathena/ScriptDriver";
 import { RAthenaMode } from "./options";
 import { ImageRepository } from "./common/ImageRepository";
+import { TxtRepository } from "./rathena/TxtDriver";
 
 export type ResourceFactory = ReturnType<
   typeof createResourceManager
@@ -64,5 +65,19 @@ export function createResourceManager({
         logger: options.logger,
       });
     })
+    .add(
+      "txt",
+      <ET extends AnyZodObject>(
+        startFolder: string,
+        relativeFilePath: string,
+        entityType: ET
+      ) =>
+        new TxtRepository({
+          ...options,
+          startFolder,
+          relativeFilePath,
+          entityType,
+        })
+    )
     .build();
 }
