@@ -1,3 +1,4 @@
+import * as path from "path";
 import { ZodType } from "zod";
 import { createResourceManager as createResourceManagerImpl } from "../lib/createResourceManager";
 import { Logger } from "../lib/logger";
@@ -14,12 +15,12 @@ export type ResourceFactory = ReturnType<
 >["create"];
 
 export function createResourceManager({
-  fileDirectory,
+  dataFolder,
   ...options
 }: {
   rAthenaPath: string;
   rAthenaMode: RAthenaMode;
-  fileDirectory: string;
+  dataFolder: string;
   logger: Logger;
 }) {
   const scripts = new ScriptRepository(options);
@@ -36,7 +37,7 @@ export function createResourceManager({
       "file",
       <Data>(relativeFilename: string, protocol: FileProtocol<Data>) =>
         new FileRepository({
-          directory: fileDirectory,
+          directory: path.join(process.cwd(), dataFolder),
           relativeFilename,
           protocol,
           ...options,

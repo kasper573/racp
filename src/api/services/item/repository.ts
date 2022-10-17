@@ -1,5 +1,4 @@
 import * as zod from "zod";
-import { YamlDriver } from "../../rathena/YamlDriver";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { ImageUrlMap } from "../../common/ImageUrlMap";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
@@ -24,7 +23,6 @@ export type ItemRepository = ReturnType<typeof createItemRepository>;
 
 export function createItemRepository({
   txt,
-  yaml,
   resources,
   tradeScale,
   linker,
@@ -32,7 +30,6 @@ export function createItemRepository({
   logger: parentLogger,
 }: {
   txt: TxtDriver;
-  yaml: YamlDriver;
   resources: ResourceFactory;
   tradeScale: number;
   linker: Linker;
@@ -60,7 +57,7 @@ export function createItemRepository({
   });
 
   const itemResolver = createItemResolver({ tradeScale });
-  const items = yaml.resolve("db/item_db.yml", itemResolver);
+  const items = resources.yaml("db/item_db.yml", itemResolver);
 
   const infoFile = resources.file(
     "itemInfo.json",

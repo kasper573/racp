@@ -6,7 +6,6 @@ import * as mysql from "mysql";
 import { readCliArgs } from "../src/lib/cli";
 import { options } from "../src/api/options";
 import { createLogger } from "../src/lib/logger";
-import { createYamlDriver } from "../src/api/rathena/YamlDriver";
 import { createUserRepository } from "../src/api/services/user/repository";
 import {
   createDatabaseDriver,
@@ -18,6 +17,7 @@ import {
   adminCharId,
   adminCharName,
 } from "../cypress/support/vars";
+import { createResourceManager } from "../src/api/resources";
 
 async function resetData() {
   const logger = createLogger(console.log).chain("removeUGC");
@@ -63,8 +63,8 @@ async function resetData() {
   }
 
   // Insert admin account and character
-  const yaml = createYamlDriver({ ...args, logger });
-  const user = createUserRepository({ ...args, yaml });
+  const { create: resources } = createResourceManager({ logger, ...args });
+  const user = createUserRepository({ resources, ...args });
   await db.login.table("login").insert({
     account_id: adminAccountId,
     userid: args.ADMIN_USER,

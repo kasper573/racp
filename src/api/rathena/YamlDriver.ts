@@ -9,21 +9,6 @@ import { gfs } from "../gfs";
 import { RepositoryOptions } from "../../lib/repo/Repository";
 import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
 
-// TODO: refactor: use factory for predefining options
-export type YamlDriver = ReturnType<typeof createYamlDriver>;
-export function createYamlDriver(
-  options: Omit<YamlRepositoryOptions<any, any>, "resolver" | "file">
-) {
-  return {
-    resolve<ET extends ZodType, Key>(
-      file: string,
-      resolver: YamlResolver<ET, Key>
-    ) {
-      return new YamlRepository({ file, resolver, ...options });
-    },
-  };
-}
-
 export interface YamlRepositoryOptions<ET extends ZodType, Key>
   extends Omit<RepositoryOptions<Map<Key, zod.infer<ET>>>, "defaultValue"> {
   rAthenaPath: string;

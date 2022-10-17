@@ -10,7 +10,6 @@ import { createPublicFileLinker } from "../lib/fs/createPublicFileLinker";
 import { createImageFormatter } from "../lib/image/createImageFormatter";
 import { createEllipsisLogFn } from "../lib/createEllipsisLogFn";
 import { readCliArgs } from "../lib/cli";
-import { createYamlDriver } from "./rathena/YamlDriver";
 import { createDatabaseDriver } from "./rathena/DatabaseDriver";
 import {
   AuthenticatorPayload,
@@ -54,7 +53,6 @@ const logger = createLogger(
 const app = express();
 const txt = createTxtDriver({ ...args, logger });
 const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
-const yaml = createYamlDriver({ ...args, logger });
 const db = createDatabaseDriver({ ...args, logger });
 const formatter = createImageFormatter({ extension: ".png", quality: 70 });
 const linker = createPublicFileLinker({
@@ -65,7 +63,6 @@ const linker = createPublicFileLinker({
 
 const resourceManager = createResourceManager({
   logger,
-  fileDirectory: path.join(process.cwd(), args.dataFolder),
   ...args,
 });
 
@@ -76,8 +73,8 @@ let router: ApiRouter;
 // prettier-ignore
 {
   const user = createUserRepository({ resources, ...args });
-  const items = createItemRepository({ ...args, txt, yaml, resources, formatter, linker, logger, });
-  const monsters = createMonsterRepository({ ...args, yaml, resources, formatter, linker, logger, });
+  const items = createItemRepository({ ...args, txt, resources, formatter, linker, logger, });
+  const monsters = createMonsterRepository({ ...args,resources, formatter, linker, logger, });
   const maps = createMapRepository({ linker, formatter, getSpawns: monsters.getSpawns, resources, logger, });
   const npcs = createNpcRepository(resources);
   const drops = createDropRepository({ items, monsters, logger });

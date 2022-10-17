@@ -1,6 +1,5 @@
 import { pick } from "lodash";
 import { RAthenaMode } from "../../options";
-import { YamlDriver } from "../../rathena/YamlDriver";
 import { ImageFormatter } from "../../../lib/image/createImageFormatter";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
 import { ImageUrlMap } from "../../common/ImageUrlMap";
@@ -16,14 +15,12 @@ export function createMonsterRepository({
   rAthenaMode,
   linker,
   formatter,
-  yaml,
   resources,
   logger: parentLogger,
 }: {
   linker: Linker;
   formatter: ImageFormatter;
   rAthenaMode: RAthenaMode;
-  yaml: YamlDriver;
   resources: ResourceFactory;
   logger: Logger;
 }) {
@@ -36,9 +33,11 @@ export function createMonsterRepository({
     logger,
   });
 
-  const monsterResolver = createMonsterResolver(rAthenaMode);
-  const monsters = yaml.resolve("db/mob_db.yml", monsterResolver);
   const spawns = resources.script(monsterSpawnType);
+  const monsters = resources.yaml(
+    "db/mob_db.yml",
+    createMonsterResolver(rAthenaMode)
+  );
 
   const getMonsters = createAsyncMemo(
     async () => Promise.all([monsters.read(), imageUrlMap.read()]),
