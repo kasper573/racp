@@ -1,6 +1,5 @@
 import * as zod from "zod";
 import { YamlDriver } from "../../rathena/YamlDriver";
-import { FileStore } from "../../../lib/fs/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { ImageUrlMap } from "../../common/ImageUrlMap";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
@@ -11,6 +10,7 @@ import { createAsyncMemo } from "../../../lib/createMemo";
 import { zodJsonProtocol } from "../../../lib/zod/zodJsonProtocol";
 import { TxtDriver } from "../../rathena/TxtDriver";
 import { defined } from "../../../lib/std/defined";
+import { ResourceFactory } from "../../resources";
 import { createItemResolver } from "./util/createItemResolver";
 import {
   rawCashStoreItemType,
@@ -25,7 +25,7 @@ export type ItemRepository = ReturnType<typeof createItemRepository>;
 export function createItemRepository({
   txt,
   yaml,
-  files,
+  resources,
   tradeScale,
   linker,
   formatter,
@@ -33,7 +33,7 @@ export function createItemRepository({
 }: {
   txt: TxtDriver;
   yaml: YamlDriver;
-  files: FileStore;
+  resources: ResourceFactory;
   tradeScale: number;
   linker: Linker;
   formatter: ImageFormatter;
@@ -48,10 +48,10 @@ export function createItemRepository({
     logger,
   });
 
-  const optionTextsFile = files.entry({
-    relativeFilename: "itemOptionTexts.json",
-    protocol: zodJsonProtocol(itemOptionTextsType),
-  });
+  const optionTextsFile = resources.file(
+    "itemOptionTexts.json",
+    zodJsonProtocol(itemOptionTextsType)
+  );
 
   const cashStoreItems = txt.resolve({
     startFolder: "db",
@@ -62,10 +62,10 @@ export function createItemRepository({
   const itemResolver = createItemResolver({ tradeScale });
   const items = yaml.resolve("db/item_db.yml", itemResolver);
 
-  const infoFile = files.entry({
-    relativeFilename: "itemInfo.json",
-    protocol: zodJsonProtocol(zod.record(itemInfoType)),
-  });
+  const infoFile = resources.file(
+    "itemInfo.json",
+    zodJsonProtocol(zod.record(itemInfoType))
+  );
 
   const getItems = createAsyncMemo(
     () => Promise.all([items.read(), infoFile.read(), imageUrlMap.read()]),

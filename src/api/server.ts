@@ -5,7 +5,6 @@ import cors = require("cors");
 import { Request as JWTRequest } from "express-jwt";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import * as morgan from "morgan";
-import { createFileStore } from "../lib/fs/createFileStore";
 import { createLogger } from "../lib/logger";
 import { createPublicFileLinker } from "../lib/fs/createPublicFileLinker";
 import { createImageFormatter } from "../lib/image/createImageFormatter";
@@ -57,10 +56,6 @@ const txt = createTxtDriver({ ...args, logger });
 const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
 const yaml = createYamlDriver({ ...args, logger });
 const db = createDatabaseDriver({ ...args, logger });
-const files = createFileStore(
-  path.join(process.cwd(), args.dataFolder),
-  logger
-);
 const formatter = createImageFormatter({ extension: ".png", quality: 70 });
 const linker = createPublicFileLinker({
   directory: path.join(process.cwd(), args.publicFolder),
@@ -68,7 +63,12 @@ const linker = createPublicFileLinker({
   port: args.apiPort,
 });
 
-const resourceManager = createResourceManager({ logger, ...args });
+const resourceManager = createResourceManager({
+  logger,
+  fileDirectory: path.join(process.cwd(), args.dataFolder),
+  ...args,
+});
+
 const resources = resourceManager.create;
 
 let router: ApiRouter;
@@ -76,13 +76,13 @@ let router: ApiRouter;
 // prettier-ignore
 {
   const user = createUserRepository({ resources, ...args });
-  const items = createItemRepository({ ...args, txt, yaml, files, formatter, linker, logger, });
+  const items = createItemRepository({ ...args, txt, yaml, resources, formatter, linker, logger, });
   const monsters = createMonsterRepository({ ...args, yaml, resources, formatter, linker, logger, });
-  const maps = createMapRepository({ files, linker, formatter, getSpawns: monsters.getSpawns, resources, logger, });
+  const maps = createMapRepository({ linker, formatter, getSpawns: monsters.getSpawns, resources, logger, });
   const npcs = createNpcRepository(resources);
   const drops = createDropRepository({ items, monsters, logger });
   const shops = createShopRepository({ resources, getItems: items.getItems, });
-  const settings = createAdminSettingsRepository(files);
+  const settings = createAdminSettingsRepository(resources);
 
   // TODO wait for all repositories to be ready
   const readyPromise = Promise.resolve(true);

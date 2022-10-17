@@ -1,6 +1,5 @@
 import { flatten, uniq } from "lodash";
 import * as zod from "zod";
-import { FileStore } from "../../../lib/fs/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { Linker } from "../../../lib/fs/createPublicFileLinker";
 import { ImageFormatter } from "../../../lib/image/createImageFormatter";
@@ -23,14 +22,12 @@ import {
 export type MapRepository = ReturnType<typeof createMapRepository>;
 
 export function createMapRepository({
-  files,
   linker,
   formatter,
   resources,
   getSpawns,
   logger: parentLogger,
 }: {
-  files: FileStore;
   linker: Linker;
   formatter: ImageFormatter;
   getSpawns: () => Promise<MonsterSpawn[]>;
@@ -48,15 +45,15 @@ export function createMapRepository({
 
   const warps = resources.script(warpType);
 
-  const infoFile = files.entry({
-    relativeFilename: "mapInfo.json",
-    protocol: zodJsonProtocol(zod.record(mapInfoType)),
-  });
+  const infoFile = resources.file(
+    "mapInfo.json",
+    zodJsonProtocol(zod.record(mapInfoType))
+  );
 
-  const boundsFile = files.entry({
-    relativeFilename: "mapBounds.json",
-    protocol: zodJsonProtocol(mapBoundsRegistryType),
-  });
+  const boundsFile = resources.file(
+    "mapBounds.json",
+    zodJsonProtocol(mapBoundsRegistryType)
+  );
 
   const getMaps = createAsyncMemo(
     () =>
