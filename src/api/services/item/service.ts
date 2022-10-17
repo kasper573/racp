@@ -51,11 +51,11 @@ export function createItemService(repo: ItemRepository) {
     countImages: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.number())
-      .query(() => repo.imageUrlMap.size()),
+      .query(() => repo.images.size()),
     uploadImages: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(zod.array(rpcFile))
-      .mutation(({ input }) => repo.imageUrlMap.update(input)),
+      .mutation(({ input }) => repo.images.update(input)),
     missingImages: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.array(itemType.shape["Id"]))

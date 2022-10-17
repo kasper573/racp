@@ -63,6 +63,8 @@ const linker = createPublicFileLinker({
 
 const resourceManager = createResourceManager({
   logger,
+  formatter,
+  linker,
   ...args,
 });
 
@@ -73,9 +75,9 @@ let router: ApiRouter;
 // prettier-ignore
 {
   const user = createUserRepository({ resources, ...args });
-  const items = createItemRepository({ ...args, txt, resources, formatter, linker, logger, });
-  const monsters = createMonsterRepository({ ...args,resources, formatter, linker, logger, });
-  const maps = createMapRepository({ linker, formatter, getSpawns: monsters.getSpawns, resources, logger, });
+  const items = createItemRepository({ ...args, txt, resources });
+  const monsters = createMonsterRepository({ ...args,resources });
+  const maps = createMapRepository({ getSpawns: monsters.getSpawns, resources });
   const npcs = createNpcRepository(resources);
   const drops = createDropRepository({ items: items.items, monsters, logger });
   const shops = createShopRepository({ resources, items: items.items, });

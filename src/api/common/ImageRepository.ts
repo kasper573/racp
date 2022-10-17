@@ -8,14 +8,21 @@ import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
 import { RepositoryOptions } from "../../lib/repo/Repository";
 import { decodeRpcFileData, RpcFile } from "./RpcFile";
 
-export interface ImageUrlMapOptions
+export interface ImageRepositoryOptions
   extends Omit<RepositoryOptions<UrlMap>, "defaultValue"> {
   formatter: ImageFormatter;
   linker: Linker;
 }
 
-export class ImageUrlMap extends ReactiveRepository<UrlMap> {
-  constructor(private options: ImageUrlMapOptions) {
+export class ImageRepository extends ReactiveRepository<UrlMap> {
+  get fileExtension() {
+    return this.options.formatter.fileExtension;
+  }
+  get directory() {
+    return this.options.linker.directory;
+  }
+
+  constructor(private options: ImageRepositoryOptions) {
     super({ defaultValue: {}, ...options });
   }
 
@@ -33,7 +40,7 @@ export class ImageUrlMap extends ReactiveRepository<UrlMap> {
     return Object.freeze(urlMap);
   }
 
-  size () {
+  size() {
     return this.read().then((map) => Object.keys(map).length);
   }
 

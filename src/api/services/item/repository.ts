@@ -1,9 +1,5 @@
 import * as zod from "zod";
 import { TxtDriver } from "../../rathena/TxtDriver";
-import { Linker } from "../../../lib/fs/createPublicFileLinker";
-import { ImageFormatter } from "../../../lib/image/createImageFormatter";
-import { Logger } from "../../../lib/logger";
-import { ImageUrlMap } from "../../common/ImageUrlMap";
 import { zodJsonProtocol } from "../../../lib/zod/zodJsonProtocol";
 import { defined } from "../../../lib/std/defined";
 import { ResourceFactory } from "../../resources";
@@ -23,24 +19,13 @@ export function createItemRepository({
   txt,
   resources,
   tradeScale,
-  linker,
-  formatter,
-  logger,
 }: {
   txt: TxtDriver;
   resources: ResourceFactory;
   tradeScale: number;
-  linker: Linker;
-  formatter: ImageFormatter;
-  logger: Logger;
 }) {
-  const imageLinker = linker.chain("items");
-  const imageName = (item: Item) => `${item.Id}${formatter.fileExtension}`;
-  const imageUrlMap = new ImageUrlMap({
-    formatter,
-    linker: imageLinker,
-    logger,
-  });
+  const images = resources.images("items");
+  const imageName = (item: Item) => `${item.Id}${images.fileExtension}`;
 
   const optionTexts = resources.file(
     "itemOptionTexts.json",
@@ -62,7 +47,7 @@ export function createItemRepository({
   );
 
   const items = itemDB
-    .and(infoFile, imageUrlMap)
+    .and(infoFile, images)
     .map(([itemDB, infoFile, imageUrlMap]) =>
       Array.from(itemDB.values()).reduce((map, item) => {
         const updatedItem: Item = {
@@ -112,7 +97,7 @@ export function createItemRepository({
     cashStoreItems,
     resourceNames,
     optionTexts,
-    imageUrlMap,
+    images,
     missingImages,
     infoCount,
   };

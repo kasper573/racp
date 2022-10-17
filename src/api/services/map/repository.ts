@@ -1,11 +1,7 @@
 import { flatten, uniq } from "lodash";
 import * as zod from "zod";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
-import { Linker } from "../../../lib/fs/createPublicFileLinker";
-import { ImageFormatter } from "../../../lib/image/createImageFormatter";
-import { ImageUrlMap } from "../../common/ImageUrlMap";
 import { trimExtension } from "../../../lib/std/trimExtension";
-import { Logger } from "../../../lib/logger";
 import { gfs } from "../../gfs";
 import { createAsyncMemo } from "../../../lib/createMemo";
 import { MonsterSpawn } from "../monster/types";
@@ -22,26 +18,14 @@ import {
 export type MapRepository = ReturnType<typeof createMapRepository>;
 
 export function createMapRepository({
-  linker,
-  formatter,
   resources,
   getSpawns,
-  logger: parentLogger,
 }: {
-  linker: Linker;
-  formatter: ImageFormatter;
   getSpawns: () => Promise<MonsterSpawn[]>;
   resources: ResourceFactory;
-  logger: Logger;
 }) {
-  const logger = parentLogger.chain("map");
-  const imageLinker = linker.chain("maps");
-  const mapImageName = (mapId: string) => `${mapId}${formatter.fileExtension}`;
-  const imageUrlMap = new ImageUrlMap({
-    formatter,
-    linker: imageLinker,
-    logger,
-  });
+  const images = resources.images("maps");
+  const mapImageName = (mapId: string) => `${mapId}${images.fileExtension}`;
 
   const warps = resources.script(warpType);
 
@@ -62,11 +46,9 @@ export function createMapRepository({
         getSpawns(),
         infoFile.read(),
         boundsFile.read(),
-        imageUrlMap.read(),
+        images.read(),
       ]),
     (warps, spawns, infoRecord, bounds, urlMap) => {
-      logger.log("Recomputing map repository");
-
       // Resolve maps via info records
       const maps = Object.entries(infoRecord ?? {}).reduce(
         (all, [key, info]) => {
@@ -104,14 +86,14 @@ export function createMapRepository({
       return infoFile.assign(parseLuaTableAs(luaCode, mapInfoType));
     },
     countImages: () =>
-      gfs.readdir(imageLinker.directory).then((dirs) => dirs.length),
+      gfs.readdir(images.directory).then((dirs) => dirs.length),
     warps: warps.read(),
-    updateImages: imageUrlMap.update,
+    updateImages: images.update,
     updateBounds: boundsFile.assign,
     destroy: () => {
       infoFile.dispose();
       boundsFile.dispose();
-      imageUrlMap.dispose();
+      images.dispose();
     },
   };
 }
