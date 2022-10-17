@@ -4,7 +4,10 @@ import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { matcher } from "../../matcher";
 import { itemInstancePropertiesType } from "../inventory/types";
 import { itemIdType } from "../item/types";
-import { RawScriptEntity, trimUniqueNpcName } from "../../rathena/ScriptDriver";
+import {
+  RawScriptEntity,
+  trimUniqueNpcName,
+} from "../../rathena/ScriptRepository";
 
 export type ShopVariant = zod.infer<typeof shopVariantType>;
 export const shopVariantType = zod.union([

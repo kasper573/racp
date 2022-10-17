@@ -1,5 +1,5 @@
 import { expect } from "@jest/globals";
-import { parseTextEntities, replaceScripts } from "./ScriptDriver";
+import { parseTextEntities, replaceScripts } from "./ScriptRepository";
 
 describe("parseTextEntities", () => {
   describe("can parse", () => {

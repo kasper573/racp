@@ -4,7 +4,7 @@ import { zodNumeric } from "../../../lib/zod/zodNumeric";
 import { matcher } from "../../matcher";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { mapIdType } from "../map/types";
-import { RawScriptEntity } from "../../rathena/ScriptDriver";
+import { RawScriptEntity } from "../../rathena/ScriptRepository";
 import { toggleRecordType } from "../../../lib/zod/zodToggle";
 
 export type MonsterDrop = zod.infer<typeof monsterDropType>;

@@ -5,14 +5,14 @@ import { Logger } from "../lib/logger";
 import { FileProtocol, FileRepository } from "../lib/repo/FileRepository";
 import { Linker } from "../lib/fs/createPublicFileLinker";
 import { ImageFormatter } from "../lib/image/createImageFormatter";
-import { YamlRepository, YamlResolver } from "./rathena/YamlDriver";
+import { YamlRepository, YamlResolver } from "./rathena/YamlRepository";
 import {
   createScriptEntityResolver,
   ScriptRepository,
-} from "./rathena/ScriptDriver";
+} from "./rathena/ScriptRepository";
 import { RAthenaMode } from "./options";
 import { ImageRepository } from "./common/ImageRepository";
-import { TxtRepository } from "./rathena/TxtDriver";
+import { TxtRepository } from "./rathena/TxtRepository";
 
 export type ResourceFactory = ReturnType<
   typeof createResourceManager
@@ -33,14 +33,6 @@ export function createResourceManager({
 }) {
   const scripts = new ScriptRepository(options);
   return createResourceManagerImpl()
-    .add(
-      "yaml",
-      <ET extends ZodType, Key>(
-        file: string,
-        resolver: YamlResolver<ET, Key>
-      ) => new YamlRepository({ file, resolver, ...options })
-    )
-    .add("script", createScriptEntityResolver(scripts))
     .add(
       "file",
       <Data>(relativeFilename: string, protocol: FileProtocol<Data>) => {
@@ -79,5 +71,13 @@ export function createResourceManager({
           entityType,
         })
     )
+    .add(
+      "yaml",
+      <ET extends ZodType, Key>(
+        file: string,
+        resolver: YamlResolver<ET, Key>
+      ) => new YamlRepository({ file, resolver, ...options })
+    )
+    .add("script", createScriptEntityResolver(scripts))
     .build();
 }
