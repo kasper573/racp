@@ -6,9 +6,9 @@ export interface RepositoryOptions<T> {
   repositoryName?: string | string[];
 }
 
-export abstract class Repository<T> {
-  protected readonly logger: Logger;
-  protected readonly defaultValue: T;
+export abstract class Repository<T = any> {
+  public readonly logger: Logger;
+  public readonly defaultValue: T;
 
   private _isInitialized = false;
   private _isDisposed = false;
@@ -60,6 +60,20 @@ export abstract class Repository<T> {
     return this.pendingReadPromise;
   }
 
+  map<Mapped>(map: (value: T) => Mapped) {
+    return new MappedRepository<T, Mapped>({
+      logger: this.logger,
+      source: this,
+      map: (val) => map(val ?? this.defaultValue),
+    });
+  }
+
+  and<Members extends RepositorySetMembers>(
+    ...add: Members
+  ): RepositorySet<[this, ...Members]> {
+    return new RepositorySet(this, ...add);
+  }
+
   /**
    * Starts any behavior that will be active until disposed
    */
@@ -86,3 +100,47 @@ export abstract class Repository<T> {
     this._isDisposed = true;
   }
 }
+
+export interface MappedRepositoryOptions<Source, Mapped>
+  extends Omit<RepositoryOptions<Mapped>, "defaultValue"> {
+  source: Repository<Source>;
+  map: (source?: Source) => Mapped;
+}
+
+export class MappedRepository<Source, Mapped> extends Repository<Mapped> {
+  constructor(private options: MappedRepositoryOptions<Source, Mapped>) {
+    super({ defaultValue: options.map(), ...options });
+  }
+
+  protected readImpl(): Promise<Mapped> {
+    return this.options.source.read().then(this.options.map);
+  }
+}
+
+export class RepositorySet<
+  Members extends RepositorySetMembers
+> extends Repository<RepositorySetValues<Members>> {
+  private members: Members;
+  constructor(...members: Members) {
+    super({
+      defaultValue: members.map(
+        (m) => m.defaultValue
+      ) as RepositorySetValues<Members>,
+      logger: members[0].logger,
+    });
+    this.members = members;
+  }
+
+  protected async readImpl() {
+    const results = await Promise.all(this.members.map((m) => m.read()));
+    return results as RepositorySetValues<Members>;
+  }
+}
+
+type RepositorySetMembers = [...Repository[]];
+
+type RepositorySetValues<Members extends RepositorySetMembers> = {
+  [K in keyof Members]: Members[K] extends RepositoryLike<infer T> ? T : never;
+};
+
+type RepositoryLike<T> = { read(): Promise<T> };
