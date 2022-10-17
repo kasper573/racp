@@ -3,7 +3,7 @@ import * as mysql from "mysql";
 import { singletons } from "../../lib/singletons";
 import { Tables } from "./DatabaseDriver.types";
 import { DBInfoDriver } from "./DBInfoDriver";
-import { createConfigDriver } from "./ConfigDriver";
+import { ConfigRepository, ConfigRepositoryOptions } from "./ConfigRepository";
 
 export type DatabaseDriver = ReturnType<typeof createDatabaseDriver>;
 
@@ -15,12 +15,16 @@ export const dbInfoConfigName = "inter_athena.conf";
  * The drivers are initialized lazily on first use.
  */
 export function createDatabaseDriver(
-  ...params: Parameters<typeof createConfigDriver>
+  options: Omit<ConfigRepositoryOptions, "configName">
 ) {
   // Automatically creating config/dbInfo drivers since nothing else is using them
   // If we need to use them for something else, we can refactor this
-  const cfg = createConfigDriver(...params);
-  const dbInfoDriver = new DBInfoDriver(cfg.resolve(dbInfoConfigName));
+  const dbInfoDriver = new DBInfoDriver(
+    new ConfigRepository({
+      ...options,
+      configName: dbInfoConfigName,
+    })
+  );
 
   const db = singletons({
     login: () => driverForDB("login_server"),

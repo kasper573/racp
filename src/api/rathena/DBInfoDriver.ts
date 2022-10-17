@@ -1,6 +1,6 @@
 import { FileRepository } from "../../lib/repo/FileRepository";
 import { typedKeys } from "../../lib/std/typedKeys";
-import { Config } from "./ConfigDriver";
+import { Config } from "./ConfigRepository";
 
 export class DBInfoDriver {
   constructor(public readonly file: FileRepository<Config>) {}

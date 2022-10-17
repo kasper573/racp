@@ -1,26 +1,22 @@
 import * as path from "path";
-import { Logger } from "../../lib/logger";
 import { FileProtocol, FileRepository } from "../../lib/repo/FileRepository";
+import { RepositoryOptions } from "../../lib/repo/Repository";
 
-export type ConfigDriver = ReturnType<typeof createConfigDriver>;
-
-export function createConfigDriver({
-  rAthenaPath,
-  logger,
-}: {
+export interface ConfigRepositoryOptions
+  extends Omit<RepositoryOptions<Config>, "defaultValue"> {
   rAthenaPath: string;
-  logger: Logger;
-}) {
-  return {
-    resolve(configName: string) {
-      return new FileRepository({
-        logger,
-        directory: path.resolve(rAthenaPath, "conf"),
-        relativeFilename: configName,
-        protocol: configFileProtocol,
-      });
-    },
-  };
+  configName: string;
+}
+
+export class ConfigRepository extends FileRepository<Config> {
+  constructor(options: ConfigRepositoryOptions) {
+    super({
+      ...options,
+      directory: path.resolve(options.rAthenaPath, "conf"),
+      relativeFilename: options.configName,
+      protocol: configFileProtocol,
+    });
+  }
 }
 
 export type Config = Record<string, string>;
