@@ -73,7 +73,7 @@ export function createMonsterService({
     searchSpawns: createSearchProcedure(
       monsterSpawnType,
       monsterSpawnFilter.type,
-      () => repo.spawns.then(),
+      () => repo.spawns,
       (entity, payload) => monsterSpawnFilter.for(payload)(entity),
       noLimitForFilter((filter) => filter?.map?.matcher === "equals")
     ),

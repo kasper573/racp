@@ -44,7 +44,7 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
   protected abstract readImpl(): Promise<T | DefaultValue>;
 
   private pendingReadPromise?: Promise<T | DefaultValue>;
-  protected async read(): Promise<T | DefaultValue> {
+  async read(): Promise<T | DefaultValue> {
     if (!this.pendingReadPromise) {
       this.pendingReadPromise = this.logger
         .track(this.readImpl(), "read")

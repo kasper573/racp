@@ -63,7 +63,7 @@ export function createDonationService({
     balance: t.procedure
       .output(zod.number())
       .query(({ ctx: { auth } }) =>
-        auth ? creditBalanceAtom(auth.id).then() : 0
+        auth ? creditBalanceAtom(auth.id).read() : 0
       ),
     order: t.procedure
       .input(moneyType)

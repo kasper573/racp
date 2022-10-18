@@ -76,7 +76,7 @@ let router: ApiRouter;
   const user = createUserRepository({ ...args, resources });
   const items = createItemRepository({ ...args, resources });
   const monsters = createMonsterRepository({ ...args, resources });
-  const drops = createDropRepository({ ...items, ...monsters, logger });
+  const drops = createDropRepository({ ...items, ...monsters });
   const shops = createShopRepository({ ...items, resources });
   const maps = createMapRepository({ ...monsters, resources });
 
@@ -94,10 +94,7 @@ let router: ApiRouter;
     npc: createNpcService(npcs),
     map: createMapService(maps),
     settings: createAdminSettingsService(settings),
-    meta: createMetaService({
-      items: items.items.map((map) => Array.from(map.values())),
-      monsters: monsters.monsters.map((map) => Array.from(map.values())),
-    }),
+    meta: createMetaService({ ...items, ...monsters }),
     donation: createDonationService({
       db,
       env: args.donationEnvironment,
