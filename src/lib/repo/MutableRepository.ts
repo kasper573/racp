@@ -1,20 +1,20 @@
-import { Repository, RepositoryOptions } from "./Repository";
+import { Maybe, Repository, RepositoryOptions } from "./Repository";
 
 export abstract class MutableRepository<
   T,
-  Required extends boolean
-> extends Repository<T, Required> {
-  constructor(options: RepositoryOptions<T, Required>) {
+  DefaultValue extends Maybe<T> = T
+> extends Repository<T, DefaultValue> {
+  constructor(options: RepositoryOptions<T, DefaultValue>) {
     super(options);
     // read/write is commonly used in higher order functions
     this.write = this.write.bind(this);
   }
 
-  protected writeImpl(value: this["defaultValue"]): Promise<void> {
+  protected writeImpl(value: T | DefaultValue): Promise<void> {
     throw new Error("Write not supported");
   }
 
-  async write(value: this["defaultValue"]): Promise<boolean> {
+  async write(value: T | DefaultValue): Promise<boolean> {
     try {
       await this.logger.track(this.writeImpl(value), "write");
       return true;
@@ -24,7 +24,7 @@ export abstract class MutableRepository<
     }
   }
 
-  transform(createValue: (currentValue?: T) => T) {
+  transform(createValue: (currentValue: T | DefaultValue) => DefaultValue) {
     return this.read().then((currentValue) =>
       this.write(createValue(currentValue))
     );

@@ -1,6 +1,6 @@
 import { zodJsonProtocol } from "../../../lib/zod/zodJsonProtocol";
 import { ResourceFactory } from "../../resources";
-import { AdminSettings, adminSettingsType } from "./types";
+import { adminSettingsType } from "./types";
 import { defaultAdminSettings } from "./defaults";
 
 export type AdminSettingsRepository = ReturnType<
@@ -8,7 +8,7 @@ export type AdminSettingsRepository = ReturnType<
 >;
 
 export function createAdminSettingsRepository(resources: ResourceFactory) {
-  const settingsFile = resources.file<AdminSettings, true>({
+  const settingsFile = resources.file({
     relativeFilename: "settings.json",
     protocol: zodJsonProtocol(adminSettingsType),
     defaultValue: defaultAdminSettings,

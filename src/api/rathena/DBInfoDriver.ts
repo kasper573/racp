@@ -3,7 +3,7 @@ import { typedKeys } from "../../lib/std/typedKeys";
 import { Config } from "./ConfigRepository";
 
 export class DBInfoDriver {
-  constructor(public readonly file: FileRepository<Config, true>) {}
+  constructor(public readonly file: FileRepository<Config>) {}
 
   async read(prefix: string): Promise<DBInfo> {
     const values = await this.file.read();

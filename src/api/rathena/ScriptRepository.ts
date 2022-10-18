@@ -19,18 +19,12 @@ export function createScriptEntityResolver(repo: ScriptRepository) {
   };
 }
 
-export type ScriptRepositoryOptions = RepositoryOptions<
-  RawScriptEntity[],
-  false
-> & {
+export type ScriptRepositoryOptions = RepositoryOptions<RawScriptEntity[]> & {
   rAthenaPath: string;
   rAthenaMode: RAthenaMode;
 };
 
-export class ScriptRepository extends ReactiveRepository<
-  RawScriptEntity[],
-  true
-> {
+export class ScriptRepository extends ReactiveRepository<RawScriptEntity[]> {
   private readonly baseFolder = path.resolve(this.options.rAthenaPath, "npc");
 
   constructor(private options: ScriptRepositoryOptions) {

@@ -8,12 +8,12 @@ import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
 import { RepositoryOptions } from "../../lib/repo/Repository";
 import { decodeRpcFileData, RpcFile } from "./RpcFile";
 
-export type ImageRepositoryOptions = RepositoryOptions<UrlMap, false> & {
+export type ImageRepositoryOptions = RepositoryOptions<UrlMap> & {
   formatter: ImageFormatter;
   linker: Linker;
 };
 
-export class ImageRepository extends ReactiveRepository<UrlMap, true> {
+export class ImageRepository extends ReactiveRepository<UrlMap> {
   get fileExtension() {
     return this.options.formatter.fileExtension;
   }

@@ -2,12 +2,12 @@ import * as path from "path";
 import { FileProtocol, FileRepository } from "../../lib/repo/FileRepository";
 import { RepositoryOptions } from "../../lib/repo/Repository";
 
-export type ConfigRepositoryOptions = RepositoryOptions<Config, false> & {
+export type ConfigRepositoryOptions = RepositoryOptions<Config> & {
   rAthenaPath: string;
   configName: string;
 };
 
-export class ConfigRepository extends FileRepository<Config, true> {
+export class ConfigRepository extends FileRepository<Config> {
   constructor(options: ConfigRepositoryOptions) {
     super({
       ...options,

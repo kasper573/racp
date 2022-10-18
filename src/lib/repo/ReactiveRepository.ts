@@ -1,10 +1,11 @@
 import { debounce } from "lodash";
 import { CachedRepository } from "./CachedRepository";
+import { Maybe } from "./Repository";
 
 export abstract class ReactiveRepository<
   T,
-  Required extends boolean
-> extends CachedRepository<T, Required> {
+  DefaultValue extends Maybe<T> = T
+> extends CachedRepository<T, DefaultValue> {
   private stopObserving?: () => void;
 
   protected abstract observeSource(onSourceChanged: Function): () => void;

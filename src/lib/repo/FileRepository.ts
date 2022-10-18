@@ -3,12 +3,12 @@ import recursiveWatch = require("recursive-watch");
 import { gfs } from "../../api/gfs";
 import { ensureDir } from "../fs/ensureDir";
 import { ReactiveRepository } from "./ReactiveRepository";
-import { RepositoryOptions } from "./Repository";
+import { Maybe, RepositoryOptions } from "./Repository";
 
 export type FileRepositoryOptions<
   T,
-  Required extends boolean
-> = RepositoryOptions<T, Required> & {
+  DefaultValue extends Maybe<T> = undefined
+> = RepositoryOptions<T, DefaultValue> & {
   directory: string;
   relativeFilename: string;
   protocol: FileProtocol<T>;
@@ -16,11 +16,11 @@ export type FileRepositoryOptions<
 
 export class FileRepository<
   T,
-  Required extends boolean = false
-> extends ReactiveRepository<T, Required> {
+  DefaultValue extends Maybe<T> = T
+> extends ReactiveRepository<T, DefaultValue> {
   readonly filename: string;
 
-  constructor(private options: FileRepositoryOptions<T, Required>) {
+  constructor(private options: FileRepositoryOptions<T, DefaultValue>) {
     super({
       repositoryName: options.relativeFilename,
       ...options,
@@ -50,7 +50,7 @@ export class FileRepository<
     }
 
     if (fileContent === undefined) {
-      return;
+      return this.defaultValue;
     }
 
     const result = this.options.protocol.parse(fileContent);
@@ -58,10 +58,10 @@ export class FileRepository<
       throw result.error;
     }
 
-    return result.data;
+    return result.data ?? this.defaultValue;
   }
 
-  protected async writeImpl(data: this["defaultValue"]) {
+  protected async writeImpl(data: T | DefaultValue) {
     if (data === undefined) {
       await gfs.rm(this.filename);
     } else {

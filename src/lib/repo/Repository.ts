@@ -1,13 +1,16 @@
 import { Logger } from "../logger";
 
-export type RepositoryOptions<T, Required extends boolean> = {
+export type Maybe<T> = T | undefined;
+
+export type RepositoryOptions<T, DefaultValue extends Maybe<T> = undefined> = {
   logger: Logger;
   repositoryName?: string | string[];
-} & (Required extends true ? { defaultValue: T } : { defaultValue?: T });
+  defaultValue?: DefaultValue;
+};
 
-export abstract class Repository<T, Required extends boolean = true> {
+export abstract class Repository<T, DefaultValue extends Maybe<T> = T> {
   public readonly logger: Logger;
-  public readonly defaultValue: RepositoryOptions<T, Required>["defaultValue"];
+  public readonly defaultValue: DefaultValue;
 
   private _isInitialized = false;
   private _isDisposed = false;
@@ -24,22 +27,22 @@ export abstract class Repository<T, Required extends boolean = true> {
     logger,
     repositoryName = [],
     defaultValue,
-  }: RepositoryOptions<T, Required>) {
+  }: RepositoryOptions<T, DefaultValue>) {
     this.logger = [
       this.constructor.name,
       ...(Array.isArray(repositoryName) ? repositoryName : [repositoryName]),
     ].reduce((logger, name) => logger.chain(name), logger);
 
-    this.defaultValue = defaultValue;
+    this.defaultValue = defaultValue as DefaultValue;
 
     // read/write is commonly used in higher order functions
     this.read = this.read.bind(this);
   }
 
-  protected abstract readImpl(): Promise<this["defaultValue"]>;
+  protected abstract readImpl(): Promise<T | DefaultValue>;
 
-  private pendingReadPromise?: Promise<this["defaultValue"]>;
-  async read(): Promise<this["defaultValue"]> {
+  private pendingReadPromise?: Promise<T | DefaultValue>;
+  async read(): Promise<T | DefaultValue> {
     if (!this.pendingReadPromise) {
       this.pendingReadPromise = this.logger
         .track(this.readImpl(), "read")
@@ -57,11 +60,11 @@ export abstract class Repository<T, Required extends boolean = true> {
   }
 
   map<Mapped>(
-    map: (value: this["defaultValue"]) => Mapped
-  ): MappedRepository<this["defaultValue"], Mapped> {
-    return new MappedRepository<this["defaultValue"], Mapped>({
+    map: (value: T | DefaultValue) => Mapped
+  ): MappedRepository<T | DefaultValue, Mapped> {
+    return new MappedRepository<T | DefaultValue, Mapped>({
       logger: this.logger,
-      source: this as Repository<this["defaultValue"], boolean>,
+      source: this as Repository<T | DefaultValue>,
       map: (val) => map(val ?? this.defaultValue),
     });
   }
@@ -100,12 +103,12 @@ export abstract class Repository<T, Required extends boolean = true> {
 }
 
 export interface MappedRepositoryOptions<Source, Mapped>
-  extends RepositoryOptions<Mapped, false> {
-  source: Repository<Source, boolean>;
+  extends RepositoryOptions<Mapped, undefined> {
+  source: Repository<Source, any>;
   map: (source?: Source) => Mapped;
 }
 
-export class MappedRepository<Source, Mapped> extends Repository<Mapped, true> {
+export class MappedRepository<Source, Mapped> extends Repository<Mapped> {
   constructor(private options: MappedRepositoryOptions<Source, Mapped>) {
     super({ defaultValue: options.map(), ...options });
   }
@@ -117,7 +120,7 @@ export class MappedRepository<Source, Mapped> extends Repository<Mapped, true> {
 
 export class RepositorySet<
   Members extends RepositorySetMembers
-> extends Repository<RepositorySetValues<Members>, true> {
+> extends Repository<RepositorySetValues<Members>> {
   private members: Members;
   constructor(...members: Members) {
     super({
@@ -135,7 +138,7 @@ export class RepositorySet<
   }
 }
 
-type RepositorySetMembers = [...Repository<any, boolean>[]];
+type RepositorySetMembers = [...Repository<any>[]];
 
 type RepositorySetValues<Members extends RepositorySetMembers> = {
   [K in keyof Members]: Members[K] extends RepositoryLike<infer T> ? T : never;

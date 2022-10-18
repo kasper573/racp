@@ -11,8 +11,7 @@ import { RepositoryOptions } from "../../lib/repo/Repository";
 import { modeFolderNames, nonEmptyLines, removeComments } from "./util/parse";
 
 export type TxtRepositoryOptions<ET extends AnyZodObject> = RepositoryOptions<
-  zod.infer<ET>[],
-  false
+  zod.infer<ET>[]
 > & {
   rAthenaPath: string;
   rAthenaMode: RAthenaMode;
@@ -22,8 +21,7 @@ export type TxtRepositoryOptions<ET extends AnyZodObject> = RepositoryOptions<
 };
 
 export class TxtRepository<ET extends AnyZodObject> extends ReactiveRepository<
-  zod.infer<ET>[],
-  true
+  zod.infer<ET>[]
 > {
   private readonly baseFolder = path.resolve(
     this.options.rAthenaPath,

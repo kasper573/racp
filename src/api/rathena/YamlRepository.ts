@@ -10,8 +10,7 @@ import { RepositoryOptions } from "../../lib/repo/Repository";
 import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
 
 export type YamlRepositoryOptions<ET extends ZodType, Key> = RepositoryOptions<
-  Map<Key, zod.infer<ET>>,
-  false
+  Map<Key, zod.infer<ET>>
 > & {
   rAthenaPath: string;
   rAthenaMode: string;
@@ -20,8 +19,7 @@ export type YamlRepositoryOptions<ET extends ZodType, Key> = RepositoryOptions<
 };
 
 export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
-  Map<Key, zod.infer<ET>>,
-  true
+  Map<Key, zod.infer<ET>>
 > {
   constructor(private options: YamlRepositoryOptions<ET, Key>) {
     super({

@@ -8,6 +8,7 @@ import {
 } from "../lib/repo/FileRepository";
 import { Linker } from "../lib/fs/createPublicFileLinker";
 import { ImageFormatter } from "../lib/image/createImageFormatter";
+import { Maybe } from "../lib/repo/Repository";
 import { YamlRepository, YamlResolver } from "./rathena/YamlRepository";
 import {
   createScriptEntityResolver,
@@ -38,20 +39,20 @@ export function createResourceManager({
   return createResourceManagerImpl()
     .add(
       "file",
-      <Data, Required extends boolean>(
+      <T, Default extends Maybe<T>>(
         inlineOptions: Omit<
-          FileRepositoryOptions<Data, Required>,
+          FileRepositoryOptions<T, Default>,
           "directory" | "logger"
         >
       ) => {
         if (!dataFolder) {
           throw new Error("Data folder not set");
         }
-        return new FileRepository<Data, Required>({
+        return new FileRepository({
           ...options,
           ...inlineOptions,
           directory: path.join(process.cwd(), dataFolder),
-        } as FileRepositoryOptions<Data, Required>);
+        });
       }
     )
     .add("images", (folderName: string) => {

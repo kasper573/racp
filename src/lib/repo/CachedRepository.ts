@@ -1,11 +1,11 @@
 import { MutableRepository } from "./MutableRepository";
-import { RepositoryOptions } from "./Repository";
+import { Maybe } from "./Repository";
 
 export abstract class CachedRepository<
   T,
-  Required extends boolean
-> extends MutableRepository<T, Required> {
-  private cache?: { value: RepositoryOptions<T, Required>["defaultValue"] };
+  DefaultValue extends Maybe<T>
+> extends MutableRepository<T, DefaultValue> {
+  private cache?: { value: T | DefaultValue };
 
   async read() {
     if (!this.cache) {
@@ -14,7 +14,7 @@ export abstract class CachedRepository<
     return this.cache.value;
   }
 
-  async write(value: this["defaultValue"]) {
+  async write(value: T | DefaultValue) {
     const previousCache = this.cache;
     this.cache = { value };
     const success = await super.write(value);

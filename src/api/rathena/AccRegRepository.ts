@@ -4,13 +4,13 @@ import { DatabaseDriver } from "./DatabaseDriver";
 
 // Abstractions for interfacing with the rathena "acc_reg_" tables in a type safe manner
 
-export type AccRegRepositoryOptions<T> = RepositoryOptions<T, false> & {
+export type AccRegRepositoryOptions<T> = RepositoryOptions<T> & {
   db: DatabaseDriver;
   accountId: number;
   key: string;
 };
 
-export class AccRegNumRepository extends MutableRepository<number, true> {
+export class AccRegNumRepository extends MutableRepository<number> {
   constructor(private options: AccRegRepositoryOptions<number>) {
     super({ defaultValue: 0, ...options });
   }
