@@ -24,7 +24,7 @@ export function createMonsterRepository({
   );
 
   const getMonsters = createAsyncMemo(
-    async () => Promise.all([monsters.read(), imageUrlMap.read()]),
+    async () => Promise.all([monsters, imageUrlMap]),
     (monsters, urlMap) => {
       return Array.from(monsters.values()).reduce(
         (monsters, monster) =>
@@ -38,7 +38,7 @@ export function createMonsterRepository({
   );
 
   const getMonsterSpawns = createAsyncMemo(
-    async () => Promise.all([spawns.read(), imageUrlMap.read()]),
+    async () => Promise.all([spawns, imageUrlMap]),
     (spawns, urlMap) => {
       return spawns.map((spawn) => ({
         ...spawn,

@@ -18,7 +18,7 @@ export function createDropRepository({
   logger: Logger;
 }) {
   const getDrops = createAsyncMemo(
-    () => Promise.all([monsters.getMonsters(), items.read()]),
+    () => Promise.all([monsters.getMonsters(), items]),
     (monsters, items) => {
       logger.log("Recomputing drop repository");
       const itemsByAegisName = groupBy(

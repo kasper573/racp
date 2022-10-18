@@ -18,7 +18,7 @@ export function createMetaService({
   monsters: MonsterRepository;
 }) {
   const compileMeta = createAsyncMemo(
-    () => Promise.all([items.read(), monsters.getMonsters()]),
+    () => Promise.all([items, monsters.getMonsters()]),
     (items, monsters) => {
       return {
         ...collectItemMeta(items),

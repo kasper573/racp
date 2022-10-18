@@ -16,7 +16,7 @@ export function createShopRepository({
   const internalShops = resources.script(internalShopType);
 
   const getShops = () =>
-    internalShops.read().then((list) =>
+    internalShops.then((list) =>
       list.map(
         (internalShop): Shop => ({
           ...internalShop,
@@ -26,7 +26,7 @@ export function createShopRepository({
     );
 
   const getShopItems = createAsyncMemo(
-    () => Promise.all([internalShops.read(), items.read()]),
+    () => Promise.all([internalShops, items]),
     (internalShops, items): ShopItem[] => {
       return internalShops.reduce((shopItems, internalShop) => {
         const shopMap =

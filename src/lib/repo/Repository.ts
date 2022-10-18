@@ -44,7 +44,7 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
   protected abstract readImpl(): Promise<T | DefaultValue>;
 
   private pendingReadPromise?: Promise<T | DefaultValue>;
-  async read(): Promise<T | DefaultValue> {
+  protected async read(): Promise<T | DefaultValue> {
     if (!this.pendingReadPromise) {
       this.pendingReadPromise = this.logger
         .track(this.readImpl(), "read")
@@ -59,6 +59,13 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
         });
     }
     return this.pendingReadPromise;
+  }
+
+  then<Resolution = T | DefaultValue, Rejection = never>(
+    resolve?: (value: T | DefaultValue) => PromiseLike<Resolution> | Resolution,
+    reject?: (rejection: Rejection) => PromiseLike<Rejection> | Rejection
+  ) {
+    return this.read().then(resolve, reject);
   }
 
   map<Mapped>(
@@ -85,9 +92,6 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
       throw new Error("Repository already initialized");
     }
     this._isInitialized = true;
-
-    // TODO remove this and replace with manual read of all repositories in server.ts
-    this.read();
   }
 
   /**
@@ -101,13 +105,6 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
       throw new Error("Repository already disposed");
     }
     this._isDisposed = true;
-  }
-
-  then<Resolution = T | DefaultValue, Rejection = never>(
-    resolve?: (value: T | DefaultValue) => PromiseLike<Resolution> | Resolution,
-    reject?: (rejection: Rejection) => PromiseLike<Rejection> | Rejection
-  ) {
-    return this.read().then(resolve, reject);
   }
 }
 
@@ -123,14 +120,14 @@ export class MappedRepository<Source, Mapped> extends Repository<Mapped> {
   }
 
   protected readImpl(): Promise<Mapped> {
-    return this.options.source.read().then(this.options.map);
+    return this.options.source.then(this.options.map);
   }
 }
 
 export class RepositorySet<
   Members extends RepositorySetMembers
 > extends Repository<RepositorySetValues<Members>> {
-  private members: Members;
+  private readonly members: Members;
   constructor(...members: Members) {
     super({
       defaultValue: members.map(
@@ -142,7 +139,7 @@ export class RepositorySet<
   }
 
   protected async readImpl() {
-    const results = await Promise.all(this.members.map((m) => m.read()));
+    const results = await Promise.all(this.members);
     return results as RepositorySetValues<Members>;
   }
 }
@@ -153,4 +150,4 @@ type RepositorySetValues<Members extends RepositorySetMembers> = {
   [K in keyof Members]: Members[K] extends RepositoryLike<infer T> ? T : never;
 };
 
-type RepositoryLike<T> = { read(): Promise<T> };
+type RepositoryLike<T> = PromiseLike<T>;

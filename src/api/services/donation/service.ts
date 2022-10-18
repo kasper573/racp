@@ -53,7 +53,7 @@ export function createDonationService({
     searchItems: createSearchProcedure(
       itemType,
       itemFilter.type,
-      () => cashStoreItems.read(),
+      () => cashStoreItems,
       (entity, payload) => itemFilter.for(payload)(entity)
     ),
     environment: t.procedure.output(donationEnvironmentType).query(() => env),
@@ -70,7 +70,7 @@ export function createDonationService({
       .output(zod.string().optional())
       .use(access(UserAccessLevel.User))
       .mutation(async ({ input: { value, currency }, ctx: { auth } }) => {
-        const client = createPayPalClient(await settingsRepo.read(), env);
+        const client = createPayPalClient(await settingsRepo, env);
         const { result }: { result?: paypal.orders.Order } =
           await client.execute(
             new paypal.orders.OrdersCreateRequest().requestBody({
@@ -99,7 +99,7 @@ export function createDonationService({
             auth: { id: accountId },
           },
         }) => {
-          const settings = await settingsRepo.read();
+          const settings = await settingsRepo;
           const client = createPayPalClient(settings, env);
 
           const { result: order }: { result?: paypal.orders.Order } =

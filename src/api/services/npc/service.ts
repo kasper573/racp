@@ -10,7 +10,7 @@ export function createNpcService(npcs: Repository<Npc[]>) {
     search: createSearchProcedure(
       npcType,
       npcFilter.type,
-      npcs.read,
+      () => npcs,
       (entity, payload) => npcFilter.for(payload)(entity),
       noLimitForFilter((filter) => filter?.mapId?.matcher === "equals")
     ),

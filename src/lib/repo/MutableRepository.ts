@@ -25,8 +25,6 @@ export abstract class MutableRepository<
   }
 
   transform(createValue: (currentValue: T | DefaultValue) => DefaultValue) {
-    return this.read().then((currentValue) =>
-      this.write(createValue(currentValue))
-    );
+    return this.then((currentValue) => this.write(createValue(currentValue)));
   }
 }

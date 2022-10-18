@@ -40,7 +40,7 @@ export class ImageRepository extends ReactiveRepository<UrlMap> {
   }
 
   size() {
-    return this.read().then((map) => Object.keys(map).length);
+    return this.then((map) => Object.keys(map).length);
   }
 
   readonly update = async (files: RpcFile[]) => {

@@ -41,7 +41,7 @@ export class AccRegNumRepository extends MutableRepository<number> {
   }
 
   protected async writeImpl(value: number) {
-    const currentValue = await this.read();
+    const currentValue = await this;
     const queryProps = await this.getQueryProps();
     let affectedRows = 0;
     if (currentValue === undefined) {

@@ -74,7 +74,7 @@ export class FileRepository<
   }
 
   readonly assign = async (changes: T) => {
-    const current = await this.read();
+    const current = await this;
     const updated = { ...current, ...changes };
     await this.write(updated);
     return updated;

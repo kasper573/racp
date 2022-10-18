@@ -40,14 +40,7 @@ export function createMapRepository({
   });
 
   const getMaps = createAsyncMemo(
-    () =>
-      Promise.all([
-        warps.read(),
-        getSpawns(),
-        infoFile.read(),
-        boundsFile.read(),
-        images.read(),
-      ]),
+    () => Promise.all([warps, getSpawns(), infoFile, boundsFile, images]),
     (warps, spawns, infoRecord, bounds, urlMap) => {
       // Resolve maps via info records
       const maps = Object.entries(infoRecord ?? {}).reduce(
@@ -87,7 +80,7 @@ export function createMapRepository({
     },
     countImages: () =>
       gfs.readdir(images.directory).then((dirs) => dirs.length),
-    warps: warps.read(),
+    warps,
     updateImages: images.update,
     updateBounds: boundsFile.assign,
     destroy: () => {

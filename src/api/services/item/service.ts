@@ -16,14 +16,14 @@ export function createItemService(repo: ItemRepository) {
     search: createSearchProcedure(
       itemType,
       itemFilter.type,
-      async () => Array.from((await repo.items.read()).values()),
+      async () => Array.from((await repo.items).values()),
       (entity, payload) => itemFilter.for(payload)(entity)
     ),
     read: t.procedure
       .input(itemIdType)
       .output(itemType)
       .query(async ({ input: itemId }) => {
-        const map = await repo.items.read();
+        const map = await repo.items;
         const item = map.get(itemId);
         if (!item) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Item not found" });
@@ -33,7 +33,7 @@ export function createItemService(repo: ItemRepository) {
     countInfo: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.number())
-      .query(() => repo.infoCount.read()),
+      .query(() => repo.infoCount.then()),
     uploadInfo: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(rpcFile)
@@ -42,7 +42,7 @@ export function createItemService(repo: ItemRepository) {
           Buffer.from(decodeRpcFileData(input.data))
         );
         await repo.updateInfo(itemInfoAsLuaCode);
-        return repo.resourceNames.read();
+        return repo.resourceNames;
       }),
     uploadOptionTexts: t.procedure
       .use(access(UserAccessLevel.Admin))
@@ -60,11 +60,11 @@ export function createItemService(repo: ItemRepository) {
       .use(access(UserAccessLevel.Admin))
       .output(zod.array(itemType.shape["Id"]))
       .query(async () => {
-        const itemsWithMissingImages = await repo.missingImages.read();
+        const itemsWithMissingImages = await repo.missingImages;
         return itemsWithMissingImages.map((m) => m.Id);
       }),
     getOptionTexts: t.procedure
       .output(itemOptionTextsType)
-      .query(() => repo.optionTexts.read().then((val) => val ?? {})),
+      .query(() => repo.optionTexts.then((val) => val ?? {})),
   });
 }

@@ -6,7 +6,7 @@ export class DBInfoDriver {
   constructor(public readonly file: FileRepository<Config>) {}
 
   async read(prefix: string): Promise<DBInfo> {
-    const values = await this.file.read();
+    const values = await this.file;
     const requireProp = (prop: keyof DBInfo) => {
       const key = createKey(prefix, prop);
       const value = values[key];
