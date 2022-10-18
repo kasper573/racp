@@ -12,7 +12,7 @@ import { findMainMenu } from "../support/actions/nav";
 before(resetData);
 
 beforeEach(() => {
-  cy.reload();
+  cy.visit("/");
 });
 
 describe("admin", () => {
@@ -43,7 +43,7 @@ describe("user", () => {
   it("can change their email", () => {
     updateProfile({ email: "new@email.com" });
     signOut();
-    cy.reload(); // Reload to clear any potential form cache
+    cy.visit("/"); // Reload to clear any potential form cache
     signIn(user.name, user.password);
     cy.findByLabelText("Email").should("have.value", "new@email.com");
   });
