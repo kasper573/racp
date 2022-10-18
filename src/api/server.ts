@@ -76,10 +76,10 @@ const drops = createDropRepository({ ...items, ...monsters });
 const shops = createShopRepository({ ...items, resources });
 const maps = createMapRepository({ ...monsters, resources });
 
-const readyPromise = Promise.all(resourceManager.instances);
+const resourcesReadyPromise = Promise.all(resourceManager.instances);
 
 const router = createApiRouter({
-  util: createUtilService(() => readyPromise),
+  util: createUtilService(() => resourcesReadyPromise),
   user: createUserService({ db, user, sign: auth.sign, ...args }),
   item: createItemService(items),
   monster: createMonsterService({ db, repo: monsters }),

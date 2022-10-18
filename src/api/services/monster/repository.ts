@@ -22,7 +22,7 @@ export function createMonsterRepository({
   const images = resources.images("monsters");
   const imageName = (id: Monster["Id"]) => `${id}${images.fileExtension}`;
 
-  const spawnDB = resources.script(monsterSpawnType);
+  const spawnDB = resources.script("spawns", monsterSpawnType);
   const monsterDB = resources.yaml(
     "db/mob_db.yml",
     createMonsterResolver(rAthenaMode)

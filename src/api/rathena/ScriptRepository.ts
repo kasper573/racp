@@ -14,8 +14,13 @@ import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
 import { modeFolderNames, nonEmptyLines, removeComments } from "./util/parse";
 
 export function createScriptEntityResolver(repo: ScriptRepository) {
-  return function resolve<ET extends AnyScriptEntityType>(entityType: ET) {
-    return repo.map("resolve", (raw) => parseRawEntitiesAs(raw, entityType));
+  return function resolve<ET extends AnyScriptEntityType>(
+    name: string,
+    entityType: ET
+  ) {
+    return repo.map(`resolve(${name})`, (raw) =>
+      parseRawEntitiesAs(raw, entityType)
+    );
   };
 }
 

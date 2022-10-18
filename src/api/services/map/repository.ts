@@ -26,7 +26,7 @@ export function createMapRepository({
   const images = resources.images("maps");
   const mapImageName = (mapId: string) => `${mapId}${images.fileExtension}`;
 
-  const warps = resources.script(warpType);
+  const warps = resources.script("warps", warpType);
 
   const info = resources.file({
     relativeFilename: "mapInfo.json",

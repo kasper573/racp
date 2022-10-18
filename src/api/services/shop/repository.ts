@@ -12,7 +12,7 @@ export function createShopRepository({
   resources: ResourceFactory;
   items: Repository<Map<ItemId, Item>>;
 }) {
-  const internalShops = resources.script(internalShopType);
+  const internalShops = resources.script("shop", internalShopType);
 
   const shops = internalShops.map("shops", (list) =>
     list.map(
