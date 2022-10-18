@@ -5,19 +5,19 @@ import { ShopRepository } from "./repository";
 
 export type ShopService = ReturnType<typeof createShopService>;
 
-export function createShopService(shops: ShopRepository) {
+export function createShopService({ shops, shopItems }: ShopRepository) {
   return t.router({
     search: createSearchProcedure(
       shopType,
       shopFilter.type,
-      shops.getShops,
+      () => shops,
       (entity, payload) => shopFilter.for(payload)(entity),
       noLimitForFilter((filter) => filter?.mapId?.matcher === "equals")
     ),
     searchItems: createSearchProcedure(
       shopItemType,
       shopItemFilter.type,
-      shops.getShopItems,
+      () => shopItems,
       (entity, payload) => shopItemFilter.for(payload)(entity),
       noLimitForFilter((filter) => filter?.id?.matcher === "=")
     ),

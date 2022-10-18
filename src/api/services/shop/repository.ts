@@ -1,5 +1,4 @@
 import { Item, ItemId } from "../item/types";
-import { createAsyncMemo } from "../../../lib/createMemo";
 import { ResourceFactory } from "../../resources";
 import { Repository } from "../../../lib/repo/Repository";
 import { internalShopType, Shop, ShopItem } from "./types";
@@ -15,19 +14,18 @@ export function createShopRepository({
 }) {
   const internalShops = resources.script(internalShopType);
 
-  const getShops = () =>
-    internalShops.then((list) =>
-      list.map(
-        (internalShop): Shop => ({
-          ...internalShop,
-          itemIds: internalShop.items.map(({ itemId }) => itemId),
-        })
-      )
-    );
+  const shops = internalShops.map((list) =>
+    list.map(
+      (internalShop): Shop => ({
+        ...internalShop,
+        itemIds: internalShop.items.map(({ itemId }) => itemId),
+      })
+    )
+  );
 
-  const getShopItems = createAsyncMemo(
-    () => Promise.all([internalShops, items]),
-    (internalShops, items): ShopItem[] => {
+  const shopItems = internalShops
+    .and(items)
+    .map(([internalShops, items]): ShopItem[] => {
       return internalShops.reduce((shopItems, internalShop) => {
         const shopMap =
           internalShop.mapId && internalShop.mapX && internalShop.mapY
@@ -51,11 +49,10 @@ export function createShopRepository({
         }
         return shopItems;
       }, [] as ShopItem[]);
-    }
-  );
+    });
 
   return {
-    getShops,
-    getShopItems,
+    shops,
+    shopItems,
   };
 }
