@@ -59,14 +59,13 @@ const linker = createPublicFileLinker({
   port: args.apiPort,
 });
 
-const resourceManager = createResourceManager({
+const { create: resources } = createResourceManager({
   logger,
   formatter,
   linker,
   ...args,
 });
 
-const resources = resourceManager.create;
 const npcs = createNpcRepository(resources);
 const settings = createAdminSettingsRepository(resources);
 const user = createUserRepository({ ...args, resources });
@@ -76,10 +75,8 @@ const drops = createDropRepository({ ...items, ...monsters });
 const shops = createShopRepository({ ...items, resources });
 const maps = createMapRepository({ ...monsters, resources });
 
-const resourcesReadyPromise = Promise.all(resourceManager.instances);
-
 const router = createApiRouter({
-  util: createUtilService(() => resourcesReadyPromise),
+  util: createUtilService(),
   user: createUserService({ db, user, sign: auth.sign, ...args }),
   item: createItemService(items),
   monster: createMonsterService({ db, repo: monsters }),
