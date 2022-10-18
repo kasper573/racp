@@ -7,5 +7,4 @@ Cypress.Keyboard.defaults({
 
 before(() => {
   cy.visit("/");
-  //cy.exec("yarn inject-rathena-fixtures", { log: true });
 });
