@@ -13,7 +13,7 @@ export function createDropRepository({
   monsters: Repository<Map<MonsterId, Monster>>;
   items: Repository<Map<ItemId, Item>>;
 }) {
-  return monsters.and(items).map(([monsters, items]) => {
+  return monsters.and(items).map("drops", ([monsters, items]) => {
     const itemsByAegisName = groupBy(
       Array.from(items.values()),
       (item) => item.AegisName

@@ -28,18 +28,20 @@ export function createMonsterRepository({
     createMonsterResolver(rAthenaMode)
   );
 
-  const monsters = monsterDB.and(images).map(([monsterDB, images]) =>
-    Array.from(monsterDB.values()).reduce(
-      (monsters, monster) =>
-        monsters.set(monster.Id, {
-          ...monster,
-          ImageUrl: images[imageName(monster.Id)],
-        }),
-      new Map<Monster["Id"], Monster>()
-    )
-  );
+  const monsters = monsterDB
+    .and(images)
+    .map("monsters", ([monsterDB, images]) =>
+      Array.from(monsterDB.values()).reduce(
+        (monsters, monster) =>
+          monsters.set(monster.Id, {
+            ...monster,
+            ImageUrl: images[imageName(monster.Id)],
+          }),
+        new Map<Monster["Id"], Monster>()
+      )
+    );
 
-  const spawns = spawnDB.and(images).map(([spawnDB, images]) =>
+  const spawns = spawnDB.and(images).map("spawns", ([spawnDB, images]) =>
     spawnDB.map(
       (spawn): MonsterSpawn => ({
         ...spawn,
@@ -48,7 +50,7 @@ export function createMonsterRepository({
     )
   );
 
-  const mvps = monsters.and(spawns).map(([monsters, spawns]) => {
+  const mvps = monsters.and(spawns).map("mvps", ([monsters, spawns]) => {
     const entries: Record<string, Mvp> = {};
     for (const spawn of spawns) {
       const monster = monsters.get(spawn.monsterId);

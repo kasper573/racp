@@ -14,7 +14,7 @@ export function createShopRepository({
 }) {
   const internalShops = resources.script(internalShopType);
 
-  const shops = internalShops.map((list) =>
+  const shops = internalShops.map("shops", (list) =>
     list.map(
       (internalShop): Shop => ({
         ...internalShop,
@@ -25,7 +25,7 @@ export function createShopRepository({
 
   const shopItems = internalShops
     .and(items)
-    .map(([internalShops, items]): ShopItem[] => {
+    .map("shopItems", ([internalShops, items]): ShopItem[] => {
       return internalShops.reduce((shopItems, internalShop) => {
         const shopMap =
           internalShop.mapId && internalShop.mapX && internalShop.mapY

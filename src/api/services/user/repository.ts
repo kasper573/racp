@@ -11,7 +11,7 @@ export function createUserRepository({
   resources: ResourceFactory;
 }) {
   const groups = resources.yaml("conf/groups.yml", UserGroupResolver);
-  const adminGroupIds = groups.map((groups) =>
+  const adminGroupIds = groups.map("adminGroupIds", (groups) =>
     Array.from(groups.values())
       .filter((group) => group.Permissions[adminPermissionName])
       .map((group) => group.Id)

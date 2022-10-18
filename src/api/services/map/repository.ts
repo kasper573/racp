@@ -41,7 +41,7 @@ export function createMapRepository({
 
   const maps = warps
     .and(spawns, info, bounds, images)
-    .map(([warps, spawns, infoRecord, bounds, urlMap]) => {
+    .map("maps", ([warps, spawns, infoRecord, bounds, urlMap]) => {
       // Resolve maps via info records
       const maps = Object.entries(infoRecord).reduce((all, [key, info]) => {
         const id = trimExtension(key);

@@ -75,12 +75,14 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
   }
 
   map<Mapped>(
+    name: string,
     map: (value: T | DefaultValue) => Mapped
   ): MappedRepository<T | DefaultValue, Mapped> {
     return new MappedRepository<T | DefaultValue, Mapped>({
       logger: this.logger,
       source: this as Repository<T | DefaultValue>,
       map: (val) => map(val ?? this.defaultValue),
+      name,
     });
   }
 
@@ -123,6 +125,7 @@ export interface MappedRepositoryOptions<Source, Mapped>
   extends RepositoryOptions<Mapped> {
   source: Repository<Source, any>;
   map: (source?: Source) => Mapped;
+  name?: string;
 }
 
 export class MappedRepository<Source, Mapped> extends Repository<Mapped> {
@@ -140,7 +143,7 @@ export class MappedRepository<Source, Mapped> extends Repository<Mapped> {
   }
 
   toString(): string {
-    return `map`;
+    return `map(${this.options.name ?? ""})`;
   }
 }
 

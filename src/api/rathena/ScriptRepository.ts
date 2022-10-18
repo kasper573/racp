@@ -15,7 +15,7 @@ import { modeFolderNames, nonEmptyLines, removeComments } from "./util/parse";
 
 export function createScriptEntityResolver(repo: ScriptRepository) {
   return function resolve<ET extends AnyScriptEntityType>(entityType: ET) {
-    return repo.map((raw) => parseRawEntitiesAs(raw, entityType));
+    return repo.map("resolve", (raw) => parseRawEntitiesAs(raw, entityType));
   };
 }
 

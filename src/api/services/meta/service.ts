@@ -15,7 +15,7 @@ export function createMetaService({
   items: Repository<Map<ItemId, Item>>;
   monsters: Repository<Map<MonsterId, Monster>>;
 }) {
-  const meta = items.and(monsters).map(([items, monsters]) => ({
+  const meta = items.and(monsters).map("meta", ([items, monsters]) => ({
     ...collectItemMeta(Array.from(items.values())),
     ...collectMonsterMeta(Array.from(monsters.values())),
   }));

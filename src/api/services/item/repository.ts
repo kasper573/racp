@@ -45,7 +45,7 @@ export function createItemRepository({
 
   const items = itemDB
     .and(infoFile, images)
-    .map(([itemDB, infoFile, imageUrlMap]) =>
+    .map("itemDB", ([itemDB, infoFile, imageUrlMap]) =>
       Array.from(itemDB.values()).reduce((map, item) => {
         const updatedItem: Item = {
           ...item,
@@ -59,7 +59,7 @@ export function createItemRepository({
 
   const cashStoreItems = items
     .and(cashItems)
-    .map(([items, cashItems]): Item[] =>
+    .map("cashStoreItems", ([items, cashItems]): Item[] =>
       defined(
         cashItems.map(({ itemId, price }) => {
           const item = items.get(itemId);
@@ -68,7 +68,7 @@ export function createItemRepository({
       )
     );
 
-  const resourceNames = infoFile.map((info = {}) =>
+  const resourceNames = infoFile.map("resourceNames", (info = {}) =>
     Object.entries(info).reduce(
       (resourceNames: Record<string, string>, [id, info]) => {
         if (info.identifiedResourceName !== undefined) {
@@ -80,11 +80,14 @@ export function createItemRepository({
     )
   );
 
-  const missingImages = items.map((map) =>
+  const missingImages = items.map("missingImages", (map) =>
     Array.from(map.values()).filter((item) => item.ImageUrl === undefined)
   );
 
-  const infoCount = infoFile.map((info = {}) => Object.keys(info).length);
+  const infoCount = infoFile.map(
+    "infoCount",
+    (info = {}) => Object.keys(info).length
+  );
 
   return {
     items,
