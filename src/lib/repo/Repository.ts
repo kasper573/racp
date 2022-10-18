@@ -1,4 +1,3 @@
-import { memoize } from "lodash";
 import { Logger } from "../logger";
 
 export type Maybe<T> = T | undefined;
@@ -74,12 +73,14 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
 
   map<Mapped>(
     name: string,
-    map: (value: T | DefaultValue) => Mapped
+    map: (value: T | DefaultValue) => Mapped,
+    getDependencyList = (value?: T | DefaultValue) => [value]
   ): MappedRepository<T | DefaultValue, Mapped> {
     return new MappedRepository<T | DefaultValue, Mapped>({
       logger: this.logger,
       source: this as Repository<T | DefaultValue>,
       map: (val) => map(val ?? this.defaultValue),
+      getDependencyList,
       name,
     });
   }
@@ -120,23 +121,27 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
 
 export interface MappedRepositoryOptions<Source, Mapped>
   extends RepositoryOptions<Mapped> {
-  source: Repository<Source, any>;
+  source: Repository<Source>;
   map: (source?: Source) => Mapped;
+  getDependencyList: (source?: Source) => DependencyList;
   name?: string;
 }
 
 export class MappedRepository<Source, Mapped> extends Repository<Mapped> {
-  private readonly memoizedMap = memoize((...args) => {
-    this.logger.log("Recomputing");
-    return this.options.map(...args);
-  });
+  private cache?: { deps: DependencyList; value: Mapped };
 
   constructor(private options: MappedRepositoryOptions<Source, Mapped>) {
     super({ defaultValue: options.map(), ...options });
   }
 
-  protected readImpl(): Promise<Mapped> {
-    return this.options.source.then(this.memoizedMap);
+  protected async readImpl(): Promise<Mapped> {
+    const source = await this.options.source;
+    const deps = this.options.getDependencyList(source);
+    if (!this.cache || !depsEqual(deps, this.cache.deps)) {
+      this.logger.log("Mapping");
+      this.cache = { deps, value: this.options.map(source) };
+    }
+    return this.cache.value;
   }
 
   toString(): string {
@@ -158,6 +163,13 @@ export class RepositorySet<
     this.members = members;
   }
 
+  map<Mapped>(
+    name: string,
+    map: (value: RepositorySetValues<Members>) => Mapped
+  ) {
+    return super.map(name, map, (values) => values ?? []);
+  }
+
   protected async readImpl() {
     const results = await Promise.all(this.members);
     return results as RepositorySetValues<Members>;
@@ -175,3 +187,17 @@ type RepositorySetValues<Members extends RepositorySetMembers> = {
 };
 
 type RepositoryLike<T> = PromiseLike<T>;
+
+export type DependencyList = unknown[];
+
+function depsEqual(a: DependencyList, b: DependencyList) {
+  if (a.length !== b.length) {
+    return false;
+  }
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) {
+      return false;
+    }
+  }
+  return true;
+}
