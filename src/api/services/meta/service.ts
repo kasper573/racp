@@ -5,7 +5,6 @@ import { Monster } from "../monster/types";
 import { t } from "../../trpc";
 import { createAsyncMemo } from "../../../lib/createMemo";
 import { Repository } from "../../../lib/repo/Repository";
-import { MonsterRepository } from "../monster/repository";
 import { metaType } from "./types";
 
 export type MetaService = ReturnType<typeof createMetaService>;
@@ -15,16 +14,14 @@ export function createMetaService({
   monsters,
 }: {
   items: Repository<Item[]>;
-  monsters: MonsterRepository;
+  monsters: Repository<Monster[]>;
 }) {
   const compileMeta = createAsyncMemo(
-    () => Promise.all([items, monsters.getMonsters()]),
-    (items, monsters) => {
-      return {
-        ...collectItemMeta(items),
-        ...collectMonsterMeta(Array.from(monsters.values())),
-      };
-    }
+    () => Promise.all([items, monsters]),
+    (items, monsters) => ({
+      ...collectItemMeta(items),
+      ...collectMonsterMeta(monsters),
+    })
   );
 
   return t.router({

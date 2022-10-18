@@ -70,16 +70,15 @@ const resources = resourceManager.create;
 
 let router: ApiRouter;
 
-// prettier-ignore
 {
-  const user = createUserRepository({ resources, ...args });
-  const items = createItemRepository({ ...args, resources });
-  const monsters = createMonsterRepository({ ...args,resources });
-  const maps = createMapRepository({ getSpawns: monsters.getSpawns, resources });
   const npcs = createNpcRepository(resources);
-  const drops = createDropRepository({ items: items.items, monsters, logger });
-  const shops = createShopRepository({ resources, items: items.items, });
   const settings = createAdminSettingsRepository(resources);
+  const user = createUserRepository({ ...args, resources });
+  const items = createItemRepository({ ...args, resources });
+  const monsters = createMonsterRepository({ ...args, resources });
+  const drops = createDropRepository({ ...items, ...monsters, logger });
+  const shops = createShopRepository({ ...items, resources });
+  const maps = createMapRepository({ ...monsters, resources });
 
   // TODO wait for all repositories to be ready
   const readyPromise = Promise.resolve(true);
@@ -94,11 +93,11 @@ let router: ApiRouter;
     shop: createShopService(shops),
     npc: createNpcService(npcs),
     map: createMapService(maps),
+    settings: createAdminSettingsService(settings),
     meta: createMetaService({
       items: items.items.map((map) => Array.from(map.values())),
-      monsters
+      monsters: monsters.monsters.map((map) => Array.from(map.values())),
     }),
-    settings: createAdminSettingsService(settings),
     donation: createDonationService({
       db,
       env: args.donationEnvironment,
@@ -106,7 +105,7 @@ let router: ApiRouter;
       settings,
       ...items,
     }),
-  })
+  });
 }
 
 app.use(auth.middleware);

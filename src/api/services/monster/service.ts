@@ -53,7 +53,7 @@ export function createMonsterService({
       mvpType,
       mvpFilter.type,
       async () => {
-        let mvps = await repo.getMvps();
+        let mvps = await repo.mvps;
         if (exposeBossStatuses) {
           const statuses = await Promise.all(
             mvps.map((boss) => queryMvpStatus(db, boss))
@@ -67,20 +67,20 @@ export function createMonsterService({
     search: createSearchProcedure(
       monsterType,
       monsterFilter.type,
-      async () => Array.from((await repo.getMonsters()).values()),
+      async () => Array.from((await repo.monsters).values()),
       (entity, payload) => monsterFilter.for(payload)(entity)
     ),
     searchSpawns: createSearchProcedure(
       monsterSpawnType,
       monsterSpawnFilter.type,
-      repo.getSpawns,
+      () => repo.spawns.then(),
       (entity, payload) => monsterSpawnFilter.for(payload)(entity),
       noLimitForFilter((filter) => filter?.map?.matcher === "equals")
     ),
     uploadImages: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(zod.array(rpcFile))
-      .mutation(({ input }) => repo.updateImages(input)),
+      .mutation(({ input }) => repo.images.update(input)),
     missingImages: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.array(monsterType.shape["Id"]))

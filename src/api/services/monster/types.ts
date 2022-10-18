@@ -27,6 +27,7 @@ export const monsterPostProcessType = zod.object({
   ImageUrl: zod.string().optional(), // Undefined means image is not present on the server
 });
 
+export type MonsterId = zod.infer<typeof monsterIdType>;
 export const monsterIdType = zod.number();
 
 export type Monster = zod.infer<typeof monsterType>;

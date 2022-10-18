@@ -7,6 +7,7 @@ import { createAsyncMemo } from "../../../lib/createMemo";
 import { MonsterSpawn } from "../monster/types";
 import { zodJsonProtocol } from "../../../lib/zod/zodJsonProtocol";
 import { ResourceFactory } from "../../resources";
+import { Repository } from "../../../lib/repo/Repository";
 import {
   mapBoundsRegistryType,
   MapId,
@@ -19,9 +20,9 @@ export type MapRepository = ReturnType<typeof createMapRepository>;
 
 export function createMapRepository({
   resources,
-  getSpawns,
+  spawns,
 }: {
-  getSpawns: () => Promise<MonsterSpawn[]>;
+  spawns: Repository<MonsterSpawn[]>;
   resources: ResourceFactory;
 }) {
   const images = resources.images("maps");
@@ -40,7 +41,7 @@ export function createMapRepository({
   });
 
   const getMaps = createAsyncMemo(
-    () => Promise.all([warps, getSpawns(), infoFile, boundsFile, images]),
+    () => Promise.all([warps, spawns, infoFile, boundsFile, images]),
     (warps, spawns, infoRecord, bounds, urlMap) => {
       // Resolve maps via info records
       const maps = Object.entries(infoRecord ?? {}).reduce(
