@@ -5,19 +5,23 @@ import { ensureDir } from "../fs/ensureDir";
 import { ReactiveRepository } from "./ReactiveRepository";
 import { RepositoryOptions } from "./Repository";
 
-export interface FileRepositoryOptions<Data>
-  extends Omit<RepositoryOptions<Data>, "defaultValue"> {
+export type FileRepositoryOptions<
+  T,
+  Required extends boolean
+> = RepositoryOptions<T, Required> & {
   directory: string;
   relativeFilename: string;
-  protocol: FileProtocol<Data>;
-}
+  protocol: FileProtocol<T>;
+};
 
-export class FileRepository<Data> extends ReactiveRepository<Data | undefined> {
+export class FileRepository<
+  T,
+  Required extends boolean = false
+> extends ReactiveRepository<T, Required> {
   readonly filename: string;
 
-  constructor(private options: FileRepositoryOptions<Data>) {
+  constructor(private options: FileRepositoryOptions<T, Required>) {
     super({
-      defaultValue: undefined,
       repositoryName: options.relativeFilename,
       ...options,
     });
@@ -57,19 +61,19 @@ export class FileRepository<Data> extends ReactiveRepository<Data | undefined> {
     return result.data;
   }
 
-  protected async writeImpl(data?: Data) {
+  protected async writeImpl(data: this["defaultValue"]) {
     if (data === undefined) {
       await gfs.rm(this.filename);
     } else {
       await gfs.writeFile(
         this.filename,
-        this.options.protocol.serialize(data),
+        this.options.protocol.serialize(data as T),
         "utf-8"
       );
     }
   }
 
-  readonly assign = async (changes: Data) => {
+  readonly assign = async (changes: T) => {
     const current = await this.read();
     const updated = { ...current, ...changes };
     await this.write(updated);

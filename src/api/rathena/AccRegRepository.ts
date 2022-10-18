@@ -4,16 +4,15 @@ import { DatabaseDriver } from "./DatabaseDriver";
 
 // Abstractions for interfacing with the rathena "acc_reg_" tables in a type safe manner
 
-export interface AccRegRepositoryOptions<T>
-  extends Omit<RepositoryOptions<T>, "defaultValue"> {
+export type AccRegRepositoryOptions<T> = RepositoryOptions<T, false> & {
   db: DatabaseDriver;
   accountId: number;
   key: string;
-}
+};
 
-export class AccRegNumRepository extends MutableRepository<number | undefined> {
+export class AccRegNumRepository extends MutableRepository<number, true> {
   constructor(private options: AccRegRepositoryOptions<number>) {
-    super({ defaultValue: undefined, ...options });
+    super({ defaultValue: 0, ...options });
   }
 
   private createQuery() {
@@ -32,7 +31,7 @@ export class AccRegNumRepository extends MutableRepository<number | undefined> {
       .where(this.queryProps)
       .select("value")
       .first()
-      .then((result) => (result !== undefined ? +result.value : undefined));
+      .then((result) => (result !== undefined ? +result.value : 0));
   }
 
   protected async writeImpl(value: number) {

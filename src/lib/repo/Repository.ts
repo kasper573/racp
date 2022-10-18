@@ -1,14 +1,13 @@
 import { Logger } from "../logger";
 
-export interface RepositoryOptions<T> {
+export type RepositoryOptions<T, Required extends boolean> = {
   logger: Logger;
-  defaultValue: T;
   repositoryName?: string | string[];
-}
+} & (Required extends true ? { defaultValue: T } : { defaultValue?: T });
 
-export abstract class Repository<T = any> {
+export abstract class Repository<T, Required extends boolean = true> {
   public readonly logger: Logger;
-  public readonly defaultValue: T;
+  public readonly defaultValue: RepositoryOptions<T, Required>["defaultValue"];
 
   private _isInitialized = false;
   private _isDisposed = false;
@@ -25,7 +24,7 @@ export abstract class Repository<T = any> {
     logger,
     repositoryName = [],
     defaultValue,
-  }: RepositoryOptions<T>) {
+  }: RepositoryOptions<T, Required>) {
     this.logger = [
       this.constructor.name,
       ...(Array.isArray(repositoryName) ? repositoryName : [repositoryName]),
@@ -37,10 +36,10 @@ export abstract class Repository<T = any> {
     this.read = this.read.bind(this);
   }
 
-  protected abstract readImpl(): Promise<T | undefined>;
+  protected abstract readImpl(): Promise<this["defaultValue"]>;
 
-  private pendingReadPromise?: Promise<T>;
-  async read(): Promise<T> {
+  private pendingReadPromise?: Promise<this["defaultValue"]>;
+  async read(): Promise<this["defaultValue"]> {
     if (!this.pendingReadPromise) {
       this.pendingReadPromise = this.logger
         .track(this.readImpl(), "read")
@@ -57,10 +56,12 @@ export abstract class Repository<T = any> {
     return this.pendingReadPromise;
   }
 
-  map<Mapped>(map: (value: T) => Mapped) {
-    return new MappedRepository<T, Mapped>({
+  map<Mapped>(
+    map: (value: this["defaultValue"]) => Mapped
+  ): MappedRepository<this["defaultValue"], Mapped> {
+    return new MappedRepository<this["defaultValue"], Mapped>({
       logger: this.logger,
-      source: this,
+      source: this as Repository<this["defaultValue"], boolean>,
       map: (val) => map(val ?? this.defaultValue),
     });
   }
@@ -99,12 +100,12 @@ export abstract class Repository<T = any> {
 }
 
 export interface MappedRepositoryOptions<Source, Mapped>
-  extends Omit<RepositoryOptions<Mapped>, "defaultValue"> {
-  source: Repository<Source>;
+  extends RepositoryOptions<Mapped, false> {
+  source: Repository<Source, boolean>;
   map: (source?: Source) => Mapped;
 }
 
-export class MappedRepository<Source, Mapped> extends Repository<Mapped> {
+export class MappedRepository<Source, Mapped> extends Repository<Mapped, true> {
   constructor(private options: MappedRepositoryOptions<Source, Mapped>) {
     super({ defaultValue: options.map(), ...options });
   }
@@ -116,7 +117,7 @@ export class MappedRepository<Source, Mapped> extends Repository<Mapped> {
 
 export class RepositorySet<
   Members extends RepositorySetMembers
-> extends Repository<RepositorySetValues<Members>> {
+> extends Repository<RepositorySetValues<Members>, true> {
   private members: Members;
   constructor(...members: Members) {
     super({
@@ -134,7 +135,7 @@ export class RepositorySet<
   }
 }
 
-type RepositorySetMembers = [...Repository[]];
+type RepositorySetMembers = [...Repository<any, boolean>[]];
 
 type RepositorySetValues<Members extends RepositorySetMembers> = {
   [K in keyof Members]: Members[K] extends RepositoryLike<infer T> ? T : never;

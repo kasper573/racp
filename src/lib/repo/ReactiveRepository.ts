@@ -1,7 +1,10 @@
 import { debounce } from "lodash";
 import { CachedRepository } from "./CachedRepository";
 
-export abstract class ReactiveRepository<T> extends CachedRepository<T> {
+export abstract class ReactiveRepository<
+  T,
+  Required extends boolean
+> extends CachedRepository<T, Required> {
   private stopObserving?: () => void;
 
   protected abstract observeSource(onSourceChanged: Function): () => void;

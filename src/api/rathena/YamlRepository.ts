@@ -9,21 +9,24 @@ import { gfs } from "../gfs";
 import { RepositoryOptions } from "../../lib/repo/Repository";
 import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
 
-export interface YamlRepositoryOptions<ET extends ZodType, Key>
-  extends Omit<RepositoryOptions<Map<Key, zod.infer<ET>>>, "defaultValue"> {
+export type YamlRepositoryOptions<ET extends ZodType, Key> = RepositoryOptions<
+  Map<Key, zod.infer<ET>>,
+  false
+> & {
   rAthenaPath: string;
   rAthenaMode: string;
   file: string;
   resolver: YamlResolver<ET, Key>;
-}
+};
 
 export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
-  Map<Key, zod.infer<ET>>
+  Map<Key, zod.infer<ET>>,
+  true
 > {
   constructor(private options: YamlRepositoryOptions<ET, Key>) {
     super({
       ...options,
-      defaultValue: new Map(),
+      defaultValue: options.defaultValue ?? new Map(),
       repositoryName: options.file,
     });
   }

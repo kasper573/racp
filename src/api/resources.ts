@@ -35,7 +35,10 @@ export function createResourceManager({
   return createResourceManagerImpl()
     .add(
       "file",
-      <Data>(relativeFilename: string, protocol: FileProtocol<Data>) => {
+      <Data, DefaultValue extends Data>(
+        relativeFilename: string,
+        protocol: FileProtocol<Data>
+      ) => {
         if (!dataFolder) {
           throw new Error("Data folder not set");
         }

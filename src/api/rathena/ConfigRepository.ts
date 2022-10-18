@@ -2,16 +2,16 @@ import * as path from "path";
 import { FileProtocol, FileRepository } from "../../lib/repo/FileRepository";
 import { RepositoryOptions } from "../../lib/repo/Repository";
 
-export interface ConfigRepositoryOptions
-  extends Omit<RepositoryOptions<Config>, "defaultValue"> {
+export type ConfigRepositoryOptions = RepositoryOptions<Config, false> & {
   rAthenaPath: string;
   configName: string;
-}
+};
 
-export class ConfigRepository extends FileRepository<Config> {
+export class ConfigRepository extends FileRepository<Config, true> {
   constructor(options: ConfigRepositoryOptions) {
     super({
       ...options,
+      defaultValue: options.defaultValue ?? {},
       directory: path.resolve(options.rAthenaPath, "conf"),
       relativeFilename: options.configName,
       protocol: configFileProtocol,

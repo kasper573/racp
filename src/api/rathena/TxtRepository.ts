@@ -10,17 +10,20 @@ import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
 import { RepositoryOptions } from "../../lib/repo/Repository";
 import { modeFolderNames, nonEmptyLines, removeComments } from "./util/parse";
 
-export interface TxtRepositoryOptions<ET extends AnyZodObject>
-  extends Omit<RepositoryOptions<zod.infer<ET>[]>, "defaultValue"> {
+export type TxtRepositoryOptions<ET extends AnyZodObject> = RepositoryOptions<
+  zod.infer<ET>[],
+  false
+> & {
   rAthenaPath: string;
   rAthenaMode: RAthenaMode;
   startFolder: string;
   relativeFilePath: string;
   entityType: ET;
-}
+};
 
 export class TxtRepository<ET extends AnyZodObject> extends ReactiveRepository<
-  zod.infer<ET>[]
+  zod.infer<ET>[],
+  true
 > {
   private readonly baseFolder = path.resolve(
     this.options.rAthenaPath,
@@ -28,9 +31,12 @@ export class TxtRepository<ET extends AnyZodObject> extends ReactiveRepository<
   );
   constructor(private options: TxtRepositoryOptions<ET>) {
     super({
-      defaultValue: [],
-      repositoryName: [options.startFolder, options.relativeFilePath],
       ...options,
+      defaultValue: options.defaultValue ?? [],
+      repositoryName: options.repositoryName ?? [
+        options.startFolder,
+        options.relativeFilePath,
+      ],
     });
   }
 

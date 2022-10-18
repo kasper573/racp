@@ -3,10 +3,10 @@ import { typedKeys } from "../../lib/std/typedKeys";
 import { Config } from "./ConfigRepository";
 
 export class DBInfoDriver {
-  constructor(public readonly file: FileRepository<Config>) {}
+  constructor(public readonly file: FileRepository<Config, true>) {}
 
   async read(prefix: string): Promise<DBInfo> {
-    const values = (await this.file.read()) ?? {};
+    const values = await this.file.read();
     const requireProp = (prop: keyof DBInfo) => {
       const key = createKey(prefix, prop);
       const value = values[key];

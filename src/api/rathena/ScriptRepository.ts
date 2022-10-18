@@ -19,17 +19,22 @@ export function createScriptEntityResolver(repo: ScriptRepository) {
   };
 }
 
-export interface ScriptRepositoryOptions
-  extends Omit<RepositoryOptions<RawScriptEntity[]>, "defaultValue"> {
+export type ScriptRepositoryOptions = RepositoryOptions<
+  RawScriptEntity[],
+  false
+> & {
   rAthenaPath: string;
   rAthenaMode: RAthenaMode;
-}
+};
 
-export class ScriptRepository extends ReactiveRepository<RawScriptEntity[]> {
+export class ScriptRepository extends ReactiveRepository<
+  RawScriptEntity[],
+  true
+> {
   private readonly baseFolder = path.resolve(this.options.rAthenaPath, "npc");
 
   constructor(private options: ScriptRepositoryOptions) {
-    super({ defaultValue: [], ...options });
+    super({ defaultValue: options.defaultValue ?? [], ...options });
   }
 
   protected observeSource(onSourceChanged: () => void) {
