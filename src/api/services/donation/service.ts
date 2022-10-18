@@ -41,14 +41,12 @@ export function createDonationService({
   logger: Logger;
 }) {
   const logger = parentLogger.chain("donation");
-  const creditBalanceAtom = async (accountId: number) =>
+  const creditBalanceAtom = (accountId: number) =>
     new AccRegNumRepository({
       db,
       logger,
       accountId,
-      key: await settingsRepo
-        .read()
-        .then(({ donations }) => donations.accRegNumKey),
+      key: () => settingsRepo.then(({ donations }) => donations.accRegNumKey),
     });
 
   return t.router({
@@ -65,11 +63,7 @@ export function createDonationService({
     balance: t.procedure
       .output(zod.number())
       .query(({ ctx: { auth } }) =>
-        auth
-          ? creditBalanceAtom(auth.id).then((atom) =>
-              atom.read().then((balance) => balance ?? 0)
-            )
-          : 0
+        auth ? creditBalanceAtom(auth.id).then() : 0
       ),
     order: t.procedure
       .input(moneyType)
@@ -153,7 +147,7 @@ export function createDonationService({
             settings.donations.exchangeRate
           );
 
-          const atom = await creditBalanceAtom(accountId);
+          const atom = creditBalanceAtom(accountId);
           const success = await atom.transform((n = 0) => n + rewardedCredits);
 
           if (success) {

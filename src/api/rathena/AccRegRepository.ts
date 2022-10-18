@@ -7,7 +7,7 @@ import { DatabaseDriver } from "./DatabaseDriver";
 export type AccRegRepositoryOptions<T> = RepositoryOptions<T> & {
   db: DatabaseDriver;
   accountId: number;
-  key: string;
+  key: string | (() => Promise<string>);
 };
 
 export class AccRegNumRepository extends MutableRepository<number> {
@@ -15,20 +15,26 @@ export class AccRegNumRepository extends MutableRepository<number> {
     super({ defaultValue: 0, ...options });
   }
 
+  private async getKey() {
+    return typeof this.options.key === "string"
+      ? this.options.key
+      : this.options.key();
+  }
+
   private createQuery() {
     return this.options.db.char.table("acc_reg_num");
   }
 
-  private get queryProps() {
+  private async getQueryProps() {
     return {
       account_id: this.options.accountId,
-      key: this.options.key,
+      key: await this.getKey(),
     };
   }
 
   protected async readImpl() {
     return this.createQuery()
-      .where(this.queryProps)
+      .where(await this.getQueryProps())
       .select("value")
       .first()
       .then((result) => (result !== undefined ? +result.value : 0));
@@ -36,14 +42,15 @@ export class AccRegNumRepository extends MutableRepository<number> {
 
   protected async writeImpl(value: number) {
     const currentValue = await this.read();
+    const queryProps = await this.getQueryProps();
     let affectedRows = 0;
     if (currentValue === undefined) {
       affectedRows = await this.createQuery()
-        .insert({ ...this.queryProps, value: value.toString() })
+        .insert({ ...queryProps, value: value.toString() })
         .then((inserted) => inserted.length);
     } else {
       affectedRows = await this.createQuery()
-        .where(this.queryProps)
+        .where(queryProps)
         .update({ value: value.toString() });
     }
     if (affectedRows === 0) {

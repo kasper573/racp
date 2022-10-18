@@ -8,7 +8,9 @@ export type RepositoryOptions<T, DefaultValue extends Maybe<T> = undefined> = {
   defaultValue?: DefaultValue;
 };
 
-export abstract class Repository<T, DefaultValue extends Maybe<T> = T> {
+export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
+  implements PromiseLike<T | DefaultValue>
+{
   public readonly logger: Logger;
   public readonly defaultValue: DefaultValue;
 
@@ -99,6 +101,13 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T> {
       throw new Error("Repository already disposed");
     }
     this._isDisposed = true;
+  }
+
+  then<Resolution = T | DefaultValue, Rejection = never>(
+    resolve?: (value: T | DefaultValue) => PromiseLike<Resolution> | Resolution,
+    reject?: (rejection: Rejection) => PromiseLike<Rejection> | Rejection
+  ) {
+    return this.read().then(resolve, reject);
   }
 }
 
