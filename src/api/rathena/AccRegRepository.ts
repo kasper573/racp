@@ -37,11 +37,11 @@ export class AccRegNumRepository extends MutableRepository<number> {
       .where(await this.getQueryProps())
       .select("value")
       .first()
-      .then((result) => (result !== undefined ? +result.value : 0));
+      .then((result) => (result !== undefined ? +result.value : undefined));
   }
 
   protected async writeImpl(value: number) {
-    const currentValue = await this;
+    const currentValue = await this.readImpl();
     const queryProps = await this.getQueryProps();
     let affectedRows = 0;
     if (currentValue === undefined) {
