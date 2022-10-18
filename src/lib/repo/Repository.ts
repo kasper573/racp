@@ -130,7 +130,7 @@ export interface MappedRepositoryOptions<Source, Mapped>
 
 export class MappedRepository<Source, Mapped> extends Repository<Mapped> {
   private readonly memoizedMap = memoize((...args) => {
-    this.options.logger.log("Recomputing");
+    this.logger.log("Recomputing");
     return this.options.map(...args);
   });
 
