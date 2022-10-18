@@ -47,7 +47,7 @@ export function createDonationService({
       logger,
       accountId,
       key: await settingsRepo
-        .getSettings()
+        .read()
         .then(({ donations }) => donations.accRegNumKey),
     });
 
@@ -76,10 +76,7 @@ export function createDonationService({
       .output(zod.string().optional())
       .use(access(UserAccessLevel.User))
       .mutation(async ({ input: { value, currency }, ctx: { auth } }) => {
-        const client = createPayPalClient(
-          await settingsRepo.getSettings(),
-          env
-        );
+        const client = createPayPalClient(await settingsRepo.read(), env);
         const { result }: { result?: paypal.orders.Order } =
           await client.execute(
             new paypal.orders.OrdersCreateRequest().requestBody({
@@ -108,7 +105,7 @@ export function createDonationService({
             auth: { id: accountId },
           },
         }) => {
-          const settings = await settingsRepo.getSettings();
+          const settings = await settingsRepo.read();
           const client = createPayPalClient(settings, env);
 
           const { result: order }: { result?: paypal.orders.Order } =
