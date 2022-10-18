@@ -29,11 +29,9 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
   private readonly _inputLogger: Logger;
   private _logger?: Logger;
   get logger(): Logger {
-    if (!this._logger) {
-      const chain = describeRepository(this);
-      this._logger = chain ? this._inputLogger.chain(chain) : this._inputLogger;
-    }
-    return this._logger;
+    return (
+      this._logger ?? (this._logger = this._inputLogger.chain(this.toString()))
+    );
   }
 
   protected constructor({
@@ -114,11 +112,10 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
     }
     this._isDisposed = true;
   }
-}
 
-function describeRepository(repo: object) {
-  const str = repo.toString();
-  return str !== "[object Object]" ? str : undefined;
+  toString() {
+    return this.constructor.name;
+  }
 }
 
 export interface MappedRepositoryOptions<Source, Mapped>
@@ -164,6 +161,10 @@ export class RepositorySet<
   protected async readImpl() {
     const results = await Promise.all(this.members);
     return results as RepositorySetValues<Members>;
+  }
+
+  toString() {
+    return `set[${this.members.length}]`;
   }
 }
 

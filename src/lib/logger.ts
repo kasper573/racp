@@ -110,10 +110,10 @@ function quantify(value: unknown) {
     return;
   }
   if (Array.isArray(value)) {
-    return value.length;
+    return `Array[${value.length}]`;
   }
   if (value instanceof Map) {
-    return value.size;
+    return `Map[${value.size}]`;
   }
   switch (typeof value) {
     case "number":
