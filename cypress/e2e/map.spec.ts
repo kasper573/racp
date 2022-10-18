@@ -8,10 +8,6 @@ import { compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/actions/search";
 import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
 
-before(() => {
-  cy.visit("/");
-});
-
 describe("search", () => {
   before(listMaps);
   generateSearchPageTests({

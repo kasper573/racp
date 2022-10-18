@@ -7,7 +7,6 @@ import { adminCharId, adminCharName } from "../support/vars";
 
 before(() => {
   resetData();
-  cy.visit("/");
   signInAsAdmin();
 
   cy.trpc((client) =>

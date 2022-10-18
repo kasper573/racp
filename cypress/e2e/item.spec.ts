@@ -15,7 +15,6 @@ import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
 
 // Some searches require assets to function
 before(() => {
-  cy.visit("/");
   signInAsAdmin();
   uploadAssets();
 });

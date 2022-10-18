@@ -6,7 +6,6 @@ import { waitForPageReady } from "../support/actions/common";
 
 before(() => {
   resetData();
-  cy.visit("/");
   signInAsAdmin();
 });
 

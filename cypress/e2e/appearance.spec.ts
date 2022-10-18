@@ -4,7 +4,6 @@ import { findTableColumn } from "../support/actions/grid";
 
 before(() => {
   resetData();
-  cy.visit("/");
   signInAsAdmin();
 });
 

@@ -17,7 +17,7 @@
     "e2e:dev": "cross-env CYPRESS_BASE_URL=http://localhost:8080 cypress open",
     "e2e:run": "cross-env CYPRESS_BASE_URL=http://localhost:8080 cypress run",
     "e2e:ci:dependencies": "concurrently \"yarn api:prod\" \"yarn app:prod\"",
-    "e2e:ci:run": "cross-var npx start-server-and-test e2e:ci:dependencies '$CYPRESS_BASE_URL|$API_READY_URL' 'cypress run'",
+    "e2e:ci:run": "cross-var npx start-server-and-test e2e:ci:dependencies $CYPRESS_BASE_URL 'cypress run'",
     "reset-data": "ts-node --files scripts/resetData.ts",
     "inject-rathena-fixtures": "ts-node --files scripts/injectRAthenaFixtures.ts",
     "codegen": "ts-node --files scripts/generateRAthenaTypes.ts",

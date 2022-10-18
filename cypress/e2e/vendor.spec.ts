@@ -21,7 +21,6 @@ import { testItemIdentifier } from "./item.actions";
 
 before(() => {
   resetData();
-  cy.visit("/");
   signInAsAdmin();
 
   cy.trpc((client) =>
