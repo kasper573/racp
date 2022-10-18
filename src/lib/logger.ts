@@ -66,9 +66,10 @@ function createFunctionLog(
   if (timeColor !== undefined) {
     timeString = colorWrap(timeColor, [timeString]).join("");
   }
-  return `(${timeString}) ${name}(${stringifyArgs(args)}) -> ${stringifyResult(
-    result
-  )}`;
+  const call = name ? `${name}(${stringifyArgs(args)})` : "";
+  return [`(${timeString})`, call, "->", stringifyResult(result)]
+    .filter(Boolean)
+    .join(" ");
 }
 
 function stringifyArgs(args: unknown[]) {

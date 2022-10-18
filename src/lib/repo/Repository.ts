@@ -5,12 +5,14 @@ export type Maybe<T> = T | undefined;
 export type RepositoryOptions<T, DefaultValue extends Maybe<T> = undefined> = {
   logger: Logger;
   defaultValue?: DefaultValue;
+  logReads?: boolean;
 };
 
 export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
   implements PromiseLike<T | DefaultValue>
 {
   public readonly defaultValue: DefaultValue;
+  protected readonly logReads: boolean;
 
   private _isInitialized = false;
   private _isDisposed = false;
@@ -36,11 +38,13 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
   protected constructor({
     logger,
     defaultValue,
+    logReads = true,
   }: RepositoryOptions<T, DefaultValue>) {
     this._inputLogger = logger;
     this.defaultValue = defaultValue as DefaultValue;
+    this.logReads = logReads;
 
-    // read/write is commonly used in higher order functions
+    // read is commonly used in higher order functions
     this.read = this.read.bind(this);
   }
 
@@ -49,8 +53,11 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
   private pendingReadPromise?: Promise<T | DefaultValue>;
   async read(): Promise<T | DefaultValue> {
     if (!this.pendingReadPromise) {
-      this.pendingReadPromise = this.logger
-        .track(this.readImpl(), "read")
+      let promise = this.readImpl();
+      if (this.logReads) {
+        promise = this.logger.track(promise, "read");
+      }
+      this.pendingReadPromise = promise
         .then((value) => {
           delete this.pendingReadPromise;
           return value ?? this.defaultValue;
@@ -129,17 +136,20 @@ export interface MappedRepositoryOptions<Source, Mapped>
 
 export class MappedRepository<Source, Mapped> extends Repository<Mapped> {
   private cache?: { deps: DependencyList; value: Mapped };
+  private mapWithLogging = this.logger.wrap(this.options.map, "map");
 
   constructor(private options: MappedRepositoryOptions<Source, Mapped>) {
-    super({ defaultValue: options.map(), ...options });
+    super({ defaultValue: options.map(), logReads: false, ...options });
   }
 
   protected async readImpl(): Promise<Mapped> {
     const source = await this.options.source;
     const deps = this.options.getDependencyList(source);
     if (!this.cache || !depsEqual(deps, this.cache.deps)) {
-      this.logger.log("Mapping");
-      this.cache = { deps, value: this.options.map(source) };
+      this.cache = {
+        deps,
+        value: this.logger.wrap(() => this.options.map(source), "")(),
+      };
     }
     return this.cache.value;
   }
@@ -159,6 +169,7 @@ export class RepositorySet<
         (m) => m.defaultValue
       ) as RepositorySetValues<Members>,
       logger: members[0].logger,
+      logReads: false,
     });
     this.members = members;
   }
