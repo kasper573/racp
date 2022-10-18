@@ -1,30 +1,35 @@
-export function createResourceManager() {
-  return new ResourceManagerBuilder({});
+export function createResourceManager<Shape>() {
+  return new ResourceManagerBuilder<Shape, {}>({});
 }
 
-class ResourceManagerBuilder<Factories extends ResourceFactories> {
+class ResourceManagerBuilder<
+  Shape,
+  Factories extends ResourceFactories<Shape>
+> {
   constructor(private factories: Factories) {}
 
-  add<Name extends string, Factory extends ResourceFactory>(
+  add<Name extends string, Factory extends ResourceFactory<Shape>>(
     name: Name,
     factory: Factory
   ) {
-    return new ResourceManagerBuilder<Factories & Record<Name, Factory>>({
-      ...this.factories,
-      [name]: factory,
-    });
+    return new ResourceManagerBuilder<Shape, Factories & Record<Name, Factory>>(
+      {
+        ...this.factories,
+        [name]: factory,
+      }
+    );
   }
 
   build() {
-    return new ResourceManager<Factories>(this.factories);
+    return new ResourceManager<Shape, Factories>(this.factories);
   }
 }
 
-class ResourceManager<Factories extends ResourceFactories> {
-  private readonly _instances: Resource[] = [];
+class ResourceManager<Shape, Factories extends ResourceFactories<Shape>> {
+  private readonly _instances: Resource<Shape>[] = [];
   readonly create: Factories;
 
-  get instances(): ReadonlyArray<Resource> {
+  get instances(): ReadonlyArray<Resource<Shape>> {
     return this._instances;
   }
 
@@ -32,7 +37,7 @@ class ResourceManager<Factories extends ResourceFactories> {
     this.create = bindFactories(factories, this._instances);
   }
 
-  dispose(instance: Resource) {
+  dispose(instance: Resource<Shape>) {
     const index = this._instances.indexOf(instance);
     if (index !== -1) {
       this._instances.splice(index, 1);
@@ -41,9 +46,9 @@ class ResourceManager<Factories extends ResourceFactories> {
   }
 }
 
-function bindFactories<Factories extends ResourceFactories>(
+function bindFactories<Shape, Factories extends ResourceFactories<Shape>>(
   factories: Factories,
-  instances: Resource[]
+  instances: Resource<Shape>[]
 ): Factories {
   return Object.entries(factories).reduce(
     (acc, [name, factory]) => ({
@@ -59,11 +64,11 @@ function bindFactories<Factories extends ResourceFactories>(
   );
 }
 
-type ResourceFactories = Record<string, ResourceFactory>;
+type ResourceFactories<Shape> = Record<string, ResourceFactory<Shape>>;
 
-type ResourceFactory = (...args: any[]) => Resource;
+type ResourceFactory<Shape> = (...args: any[]) => Resource<Shape>;
 
-export interface Resource {
+export type Resource<Shape> = Shape & {
   dispose?: () => void;
   initialize?: () => void;
-}
+};

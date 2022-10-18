@@ -8,7 +8,7 @@ import {
 } from "../lib/repo/FileRepository";
 import { Linker } from "../lib/fs/createPublicFileLinker";
 import { ImageFormatter } from "../lib/image/createImageFormatter";
-import { Maybe } from "../lib/repo/Repository";
+import { Maybe, Repository } from "../lib/repo/Repository";
 import { YamlRepository, YamlResolver } from "./rathena/YamlRepository";
 import {
   createScriptEntityResolver,
@@ -36,7 +36,7 @@ export function createResourceManager({
   formatter?: ImageFormatter;
 }) {
   const scripts = new ScriptRepository(options);
-  return createResourceManagerImpl()
+  return createResourceManagerImpl<Repository<any>>()
     .add(
       "file",
       <T, Default extends Maybe<T>>(

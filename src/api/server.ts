@@ -27,7 +27,7 @@ import { createMapService } from "./services/map/service";
 import { createMapRepository } from "./services/map/repository";
 import { createUserRepository } from "./services/user/repository";
 import { timeColor } from "./common/timeColor";
-import { ApiRouter, createApiRouter } from "./router";
+import { createApiRouter } from "./router";
 import { createDropRepository } from "./services/drop/repository";
 import { createDropService } from "./services/drop/service";
 import { createVendorService } from "./services/vendor/service";
@@ -67,43 +67,37 @@ const resourceManager = createResourceManager({
 });
 
 const resources = resourceManager.create;
+const npcs = createNpcRepository(resources);
+const settings = createAdminSettingsRepository(resources);
+const user = createUserRepository({ ...args, resources });
+const items = createItemRepository({ ...args, resources });
+const monsters = createMonsterRepository({ ...args, resources });
+const drops = createDropRepository({ ...items, ...monsters });
+const shops = createShopRepository({ ...items, resources });
+const maps = createMapRepository({ ...monsters, resources });
 
-let router: ApiRouter;
+const readyPromise = Promise.all(resourceManager.instances);
 
-{
-  const npcs = createNpcRepository(resources);
-  const settings = createAdminSettingsRepository(resources);
-  const user = createUserRepository({ ...args, resources });
-  const items = createItemRepository({ ...args, resources });
-  const monsters = createMonsterRepository({ ...args, resources });
-  const drops = createDropRepository({ ...items, ...monsters });
-  const shops = createShopRepository({ ...items, resources });
-  const maps = createMapRepository({ ...monsters, resources });
-
-  // TODO wait for all repositories to be ready
-  const readyPromise = Promise.resolve(true);
-
-  router = createApiRouter({
-    util: createUtilService(() => readyPromise),
-    user: createUserService({ db, user, sign: auth.sign, ...args }),
-    item: createItemService(items),
-    monster: createMonsterService({ db, repo: monsters }),
-    drop: createDropService(drops),
-    vendor: createVendorService({ db, items }),
-    shop: createShopService(shops),
-    npc: createNpcService(npcs),
-    map: createMapService(maps),
-    settings: createAdminSettingsService(settings),
-    meta: createMetaService({ ...items, ...monsters }),
-    donation: createDonationService({
-      db,
-      env: args.donationEnvironment,
-      logger,
-      settings,
-      ...items,
-    }),
-  });
-}
+const router = createApiRouter({
+  util: createUtilService(() => readyPromise),
+  user: createUserService({ db, user, sign: auth.sign, ...args }),
+  item: createItemService(items),
+  monster: createMonsterService({ db, repo: monsters }),
+  drop: createDropService(drops),
+  vendor: createVendorService({ db, items }),
+  shop: createShopService(shops),
+  npc: createNpcService(npcs),
+  map: createMapService(maps),
+  settings: createAdminSettingsService(settings),
+  meta: createMetaService({ ...items, ...monsters }),
+  donation: createDonationService({
+    db,
+    env: args.donationEnvironment,
+    logger,
+    settings,
+    ...items,
+  }),
+});
 
 app.use(auth.middleware);
 app.use(cors());
