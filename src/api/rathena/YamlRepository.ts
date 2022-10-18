@@ -25,7 +25,6 @@ export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
     super({
       ...options,
       defaultValue: options.defaultValue ?? new Map(),
-      repositoryName: options.file,
     });
   }
 
@@ -89,6 +88,10 @@ export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
       return;
     }
     return result.data;
+  }
+
+  toString() {
+    return `yaml(${this.options.file})`;
   }
 }
 

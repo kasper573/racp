@@ -21,10 +21,7 @@ export class FileRepository<
   readonly filename: string;
 
   constructor(private options: FileRepositoryOptions<T, DefaultValue>) {
-    super({
-      repositoryName: options.relativeFilename,
-      ...options,
-    });
+    super(options);
 
     ensureDir(this.options.directory);
     this.filename = path.resolve(
@@ -79,6 +76,12 @@ export class FileRepository<
     await this.write(updated);
     return updated;
   };
+
+  toString() {
+    return `file(${path.basename(this.options.directory)}/${
+      this.options.relativeFilename
+    })`;
+  }
 }
 
 export interface FileProtocol<Data> {

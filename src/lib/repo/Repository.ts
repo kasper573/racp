@@ -1,17 +1,16 @@
+import { memoize } from "lodash";
 import { Logger } from "../logger";
 
 export type Maybe<T> = T | undefined;
 
 export type RepositoryOptions<T, DefaultValue extends Maybe<T> = undefined> = {
   logger: Logger;
-  repositoryName?: string | string[];
   defaultValue?: DefaultValue;
 };
 
 export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
   implements PromiseLike<T | DefaultValue>
 {
-  public readonly logger: Logger;
   public readonly defaultValue: DefaultValue;
 
   private _isInitialized = false;
@@ -25,16 +24,23 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
     return this._isDisposed;
   }
 
+  // Lazy resolve of logger because it needs to read
+  // this.toString() which may not be available until after the constructor
+  private readonly _inputLogger: Logger;
+  private _logger?: Logger;
+  get logger(): Logger {
+    if (!this._logger) {
+      const chain = describeRepository(this);
+      this._logger = chain ? this._inputLogger.chain(chain) : this._inputLogger;
+    }
+    return this._logger;
+  }
+
   protected constructor({
     logger,
-    repositoryName = [],
     defaultValue,
   }: RepositoryOptions<T, DefaultValue>) {
-    this.logger = [
-      this.constructor.name,
-      ...(Array.isArray(repositoryName) ? repositoryName : [repositoryName]),
-    ].reduce((logger, name) => logger.chain(name), logger);
-
+    this._inputLogger = logger;
     this.defaultValue = defaultValue as DefaultValue;
 
     // read/write is commonly used in higher order functions
@@ -108,19 +114,33 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
   }
 }
 
+function describeRepository(repo: object) {
+  const str = repo.toString();
+  return str !== "[object Object]" ? str : undefined;
+}
+
 export interface MappedRepositoryOptions<Source, Mapped>
-  extends RepositoryOptions<Mapped, undefined> {
+  extends RepositoryOptions<Mapped> {
   source: Repository<Source, any>;
   map: (source?: Source) => Mapped;
 }
 
 export class MappedRepository<Source, Mapped> extends Repository<Mapped> {
+  private readonly memoizedMap = memoize((...args) => {
+    this.options.logger.log("Recomputing");
+    return this.options.map(...args);
+  });
+
   constructor(private options: MappedRepositoryOptions<Source, Mapped>) {
     super({ defaultValue: options.map(), ...options });
   }
 
   protected readImpl(): Promise<Mapped> {
-    return this.options.source.then(this.options.map);
+    return this.options.source.then(this.memoizedMap);
+  }
+
+  toString(): string {
+    return `map`;
   }
 }
 

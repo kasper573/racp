@@ -31,10 +31,6 @@ export class TxtRepository<ET extends AnyZodObject> extends ReactiveRepository<
     super({
       ...options,
       defaultValue: options.defaultValue ?? [],
-      repositoryName: options.repositoryName ?? [
-        options.startFolder,
-        options.relativeFilePath,
-      ],
     });
   }
 
@@ -89,6 +85,10 @@ export class TxtRepository<ET extends AnyZodObject> extends ReactiveRepository<
     );
 
     return defined(entities.flat());
+  }
+
+  toString(): string {
+    return `txt(${this.options.startFolder}/${this.options.relativeFilePath})`;
   }
 }
 

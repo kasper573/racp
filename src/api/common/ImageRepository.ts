@@ -55,6 +55,10 @@ export class ImageRepository extends ReactiveRepository<UrlMap> {
       )
     );
   };
+
+  toString(): string {
+    return `images(${path.basename(this.directory)})`;
+  }
 }
 
 export type UrlMap = Readonly<Record<string, string>>;
