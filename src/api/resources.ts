@@ -2,7 +2,10 @@ import * as path from "path";
 import { AnyZodObject, ZodType } from "zod";
 import { createResourceManager as createResourceManagerImpl } from "../lib/createResourceManager";
 import { Logger } from "../lib/logger";
-import { FileProtocol, FileRepository } from "../lib/repo/FileRepository";
+import {
+  FileRepository,
+  FileRepositoryOptions,
+} from "../lib/repo/FileRepository";
 import { Linker } from "../lib/fs/createPublicFileLinker";
 import { ImageFormatter } from "../lib/image/createImageFormatter";
 import { YamlRepository, YamlResolver } from "./rathena/YamlRepository";
@@ -35,19 +38,20 @@ export function createResourceManager({
   return createResourceManagerImpl()
     .add(
       "file",
-      <Data, DefaultValue extends Data>(
-        relativeFilename: string,
-        protocol: FileProtocol<Data>
+      <Data, Required extends boolean>(
+        inlineOptions: Omit<
+          FileRepositoryOptions<Data, Required>,
+          "directory" | "logger"
+        >
       ) => {
         if (!dataFolder) {
           throw new Error("Data folder not set");
         }
-        return new FileRepository({
-          directory: path.join(process.cwd(), dataFolder),
-          relativeFilename,
-          protocol,
+        return new FileRepository<Data, Required>({
           ...options,
-        });
+          ...inlineOptions,
+          directory: path.join(process.cwd(), dataFolder),
+        } as FileRepositoryOptions<Data, Required>);
       }
     )
     .add("images", (folderName: string) => {

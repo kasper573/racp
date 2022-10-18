@@ -24,10 +24,10 @@ export function createItemRepository({
   const images = resources.images("items");
   const imageName = (item: Item) => `${item.Id}${images.fileExtension}`;
 
-  const optionTexts = resources.file(
-    "itemOptionTexts.json",
-    zodJsonProtocol(itemOptionTextsType)
-  );
+  const optionTexts = resources.file({
+    relativeFilename: "itemOptionTexts.json",
+    protocol: zodJsonProtocol(itemOptionTextsType),
+  });
 
   const cashItems = resources.txt(
     "db",
@@ -38,10 +38,10 @@ export function createItemRepository({
   const itemResolver = createItemResolver({ tradeScale });
   const itemDB = resources.yaml("db/item_db.yml", itemResolver);
 
-  const infoFile = resources.file(
-    "itemInfo.json",
-    zodJsonProtocol(zod.record(itemInfoType))
-  );
+  const infoFile = resources.file({
+    relativeFilename: "itemInfo.json",
+    protocol: zodJsonProtocol(zod.record(itemInfoType)),
+  });
 
   const items = itemDB
     .and(infoFile, images)

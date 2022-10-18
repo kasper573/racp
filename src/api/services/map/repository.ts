@@ -29,15 +29,15 @@ export function createMapRepository({
 
   const warps = resources.script(warpType);
 
-  const infoFile = resources.file(
-    "mapInfo.json",
-    zodJsonProtocol(zod.record(mapInfoType))
-  );
+  const infoFile = resources.file({
+    relativeFilename: "mapInfo.json",
+    protocol: zodJsonProtocol(zod.record(mapInfoType)),
+  });
 
-  const boundsFile = resources.file(
-    "mapBounds.json",
-    zodJsonProtocol(mapBoundsRegistryType)
-  );
+  const boundsFile = resources.file({
+    relativeFilename: "mapBounds.json",
+    protocol: zodJsonProtocol(mapBoundsRegistryType),
+  });
 
   const getMaps = createAsyncMemo(
     () =>
