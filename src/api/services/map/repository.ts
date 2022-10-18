@@ -2,8 +2,6 @@ import { flatten, uniq } from "lodash";
 import * as zod from "zod";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { trimExtension } from "../../../lib/std/trimExtension";
-import { gfs } from "../../gfs";
-import { createAsyncMemo } from "../../../lib/createMemo";
 import { MonsterSpawn } from "../monster/types";
 import { zodJsonProtocol } from "../../../lib/zod/zodJsonProtocol";
 import { ResourceFactory } from "../../resources";
@@ -30,27 +28,25 @@ export function createMapRepository({
 
   const warps = resources.script(warpType);
 
-  const infoFile = resources.file({
+  const info = resources.file({
     relativeFilename: "mapInfo.json",
     protocol: zodJsonProtocol(zod.record(mapInfoType)),
+    defaultValue: {},
   });
 
-  const boundsFile = resources.file({
+  const bounds = resources.file({
     relativeFilename: "mapBounds.json",
     protocol: zodJsonProtocol(mapBoundsRegistryType),
   });
 
-  const getMaps = createAsyncMemo(
-    () => Promise.all([warps, spawns, infoFile, boundsFile, images]),
-    (warps, spawns, infoRecord, bounds, urlMap) => {
+  const maps = warps
+    .and(spawns, info, bounds, images)
+    .map(([warps, spawns, infoRecord, bounds, urlMap]) => {
       // Resolve maps via info records
-      const maps = Object.entries(infoRecord ?? {}).reduce(
-        (all, [key, info]) => {
-          const id = trimExtension(key);
-          return all.set(id, { ...info, id });
-        },
-        new Map<MapId, MapInfo>()
-      );
+      const maps = Object.entries(infoRecord).reduce((all, [key, info]) => {
+        const id = trimExtension(key);
+        return all.set(id, { ...info, id });
+      }, new Map<MapId, MapInfo>());
 
       // Resolve maps via npc entries
       const mapIdsFromWarpsAndSpawns = uniq([
@@ -71,23 +67,16 @@ export function createMapRepository({
       }
 
       return maps;
-    }
-  );
+    });
 
   return {
-    getMaps,
-    updateInfo(luaCode: string) {
-      return infoFile.assign(parseLuaTableAs(luaCode, mapInfoType));
-    },
-    countImages: () =>
-      gfs.readdir(images.directory).then((dirs) => dirs.length),
+    info,
+    maps,
     warps,
-    updateImages: images.update,
-    updateBounds: boundsFile.assign,
-    destroy: () => {
-      infoFile.dispose();
-      boundsFile.dispose();
-      images.dispose();
+    images,
+    bounds,
+    updateInfo(luaCode: string) {
+      return info.assign(parseLuaTableAs(luaCode, mapInfoType));
     },
   };
 }

@@ -24,7 +24,7 @@ export function createMapService(repo: MapRepository) {
     search: createSearchProcedure(
       mapInfoType,
       mapInfoFilter.type,
-      async () => Array.from((await repo.getMaps()).values()),
+      async () => Array.from((await repo.maps).values()),
       (entity, payload) => mapInfoFilter.for(payload)(entity)
     ),
     searchWarps: createSearchProcedure(
@@ -38,7 +38,7 @@ export function createMapService(repo: MapRepository) {
       .input(mapIdType)
       .output(mapInfoType)
       .query(async ({ input: mapId }) => {
-        const item = (await repo.getMaps()).get(mapId);
+        const item = (await repo.maps).get(mapId);
         if (!item) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Map not found" });
         }
@@ -47,15 +47,15 @@ export function createMapService(repo: MapRepository) {
     countImages: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.number())
-      .query(() => repo.countImages()),
+      .query(() => repo.images.size()),
     uploadImages: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(zod.array(rpcFile))
-      .mutation(({ input }) => repo.updateImages(input)),
+      .mutation(({ input }) => repo.images.update(input)),
     countInfo: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.number())
-      .query(async () => (await repo.getMaps()).size),
+      .query(() => repo.info.then((info) => Object.keys(info).length)),
     uploadInfo: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(rpcFile)
@@ -68,15 +68,14 @@ export function createMapService(repo: MapRepository) {
     updateBounds: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(mapBoundsRegistryType)
-      .mutation(({ input }) => repo.updateBounds(input)),
+      .mutation(({ input }) => repo.bounds.assign(input)),
     countBounds: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.number())
       .query(
         async () =>
-          Array.from((await repo.getMaps()).values()).filter(
-            (map) => !!map.bounds
-          ).length
+          Array.from((await repo.maps).values()).filter((map) => !!map.bounds)
+            .length
       ),
     missingData: t.procedure
       .use(access(UserAccessLevel.Admin))
@@ -87,7 +86,7 @@ export function createMapService(repo: MapRepository) {
         })
       )
       .query(async () => {
-        const maps = Array.from((await repo.getMaps()).values());
+        const maps = Array.from((await repo.maps).values());
         const images = defined(
           maps.map(({ id, imageUrl }) => (!imageUrl ? id : undefined))
         );
