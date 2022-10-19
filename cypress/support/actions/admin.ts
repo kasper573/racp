@@ -18,8 +18,8 @@ export function uploadAssets() {
   cy.selectFileByName("data", `${fixtures}/data.grf`);
   cy.findByRole("button", { name: "Upload" }).click();
 
-  // For some reason there is flakiness in how long the upload takes only in cypress.
-  // Most of the time it's fast, but for the off chance that it's slow we raise the timeout.
+  // Uploads will cause the API to rebuild cache a lot which can take some time,
+  // so having a long timeout here is a good safety measure against flake.
   cy.contains("Upload completed", { timeout: 60000 });
   cy.contains("Errors during upload").should("not.exist");
 
