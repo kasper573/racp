@@ -2,6 +2,8 @@ import { createTRPCReact, httpBatchLink } from "@trpc/react";
 import { createTRPCProxyClient } from "@trpc/client";
 import { ApiRouter } from "../../api/router";
 
+export const CANCEL_INVALIDATE = Symbol("CANCEL_INVALIDATE");
+
 export const trpc = createTRPCReact<ApiRouter>({
   // Invalidate any and all queries whenever a mutation is performed
   // This is to emulate the automatic invalidation that rtk-query would provide (which is what we would want).
@@ -9,8 +11,10 @@ export const trpc = createTRPCReact<ApiRouter>({
   unstable_overrides: {
     useMutation: {
       async onSuccess(opts) {
-        await opts.originalFn();
-        await opts.queryClient.invalidateQueries();
+        const res = await opts.originalFn();
+        if (res !== CANCEL_INVALIDATE) {
+          await opts.queryClient.invalidateQueries();
+        }
       },
     },
   },

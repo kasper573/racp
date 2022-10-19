@@ -1,11 +1,12 @@
 import { chunk, flatten, pick } from "lodash";
 import * as zod from "zod";
 import { useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   cropSurroundingColors,
   RGB,
 } from "../../../lib/image/cropSurroundingColors";
-import { trpc } from "../../state/client";
+import { CANCEL_INVALIDATE, trpc } from "../../state/client";
 import { encodeRpcFileData, RpcFile } from "../../../api/common/RpcFile";
 import { GRF } from "../../../lib/grf/types/GRF";
 import { GAT } from "../../../lib/grf/types/GAT";
@@ -26,22 +27,27 @@ import { canvasToBlob } from "../../../lib/image/canvasToBlob";
 import { imageDataToCanvas } from "../../../lib/image/imageDataToCanvas";
 
 export function useAssetUploader() {
+  // Since we're uploading so much we don't want mutations to invalidate cache.
+  // We'll invalidate it manually when we're done.
+  const opts = { onSuccess: () => CANCEL_INVALIDATE };
+  const queryClient = useQueryClient();
+
   const { mutateAsync: uploadMapImages, ...mapImageUpload } =
-    trpc.map.uploadImages.useMutation();
+    trpc.map.uploadImages.useMutation(opts);
   const { mutateAsync: uploadMapInfo, ...mapInfoUpload } =
-    trpc.map.uploadInfo.useMutation();
+    trpc.map.uploadInfo.useMutation(opts);
   const { mutateAsync: updateMapBounds, ...mapBoundsUpdate } =
-    trpc.map.updateBounds.useMutation();
+    trpc.map.updateBounds.useMutation(opts);
   const { mutateAsync: updateItemInfo, ...itemInfoUpload } =
-    trpc.item.uploadInfo.useMutation();
+    trpc.item.uploadInfo.useMutation(opts);
   const { mutateAsync: uploadItemImages, ...itemImageUpload } =
-    trpc.item.uploadImages.useMutation();
+    trpc.item.uploadImages.useMutation(opts);
   const { mutateAsync: uploadMonsterImages, ...monsterImageUpload } =
-    trpc.monster.uploadImages.useMutation();
+    trpc.monster.uploadImages.useMutation(opts);
   const { mutateAsync: uploadItemOptionTexts } =
-    trpc.item.uploadOptionTexts.useMutation();
+    trpc.item.uploadOptionTexts.useMutation(opts);
   const { mutateAsync: reduceLuaTableFiles } =
-    trpc.util.reduceLuaTableFiles.useMutation();
+    trpc.util.reduceLuaTableFiles.useMutation(opts);
 
   const tracker = useTaskScheduler();
 
@@ -205,6 +211,9 @@ export function useAssetUploader() {
     await uploadMapData(grf, mapInfoFile);
     await uploadMonsterData(grf);
     await uploadItemData(grf, itemInfoFile);
+
+    // Done, invalidate query cache
+    queryClient.invalidateQueries();
   }
 
   return {
