@@ -43,7 +43,7 @@ export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
     } = this.options;
 
     const imports: ImportNode[] = [{ Path: file, Mode: rAthenaMode }];
-    const entities = new Map<Key, zod.infer<ET>>();
+    const map = new Map<Key, zod.infer<ET>>();
 
     while (imports.length) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -56,17 +56,22 @@ export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
         const { Body, Footer } = res;
         for (const raw of Body ?? []) {
           const entity = entityType.parse(raw);
-          entities.set(getKey(entity), entity);
+          map.set(getKey(entity), entity);
         }
         imports.push(...(Footer?.Imports ?? []));
       }
     }
 
-    Array.from(entities.values()).map((entity) =>
-      postProcess(entity, entities)
-    );
+    for (const entity of map.values()) {
+      postProcess(entity, map);
+    }
 
-    return entities;
+    // Order by key
+    return new Map<Key, zod.infer<ET>>(
+      [...map.entries()].sort(([, a], [, b]) =>
+        `${getKey(a)}`.localeCompare(`${getKey(b)}`)
+      )
+    );
   }
 
   private async loadNode(file: string): Promise<DBNode | undefined> {
