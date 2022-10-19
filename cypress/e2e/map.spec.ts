@@ -46,7 +46,7 @@ describe("details", () => {
     findTableColumn("Name").contains(/Test Npc/i);
   });
 
-  describe.only("shop list", () => {
+  describe("shop list", () => {
     before(() => {
       gotoMap("test_map");
       cy.findByRole("tab", { name: /shops/i }).click();
@@ -66,7 +66,7 @@ describe("details", () => {
   });
 });
 
-describe.only("assets", () => {
+describe("assets", () => {
   before(() => {
     signInAsAdmin();
     uploadAssets();
