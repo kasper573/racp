@@ -1,7 +1,7 @@
 Body:
-  - Id: 501
-    AegisName: Red_Potion
-    Name: Red Potion
+  - Id: 99999999
+    AegisName: test_item
+    Name: Test Item
     Type: Healing
     Buy: 10
     Weight: 70

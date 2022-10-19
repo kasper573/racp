@@ -1,0 +1,13 @@
+tbl = {
+	[99999999] = {
+		unidentifiedDisplayName = "Test Item Display Name",
+		unidentifiedResourceName = "test_item",
+		unidentifiedDescriptionName = { "Test Item Unidentified Description" },
+		identifiedDisplayName = "Test Item Identified Display Name",
+		identifiedResourceName = "test_item",
+		identifiedDescriptionName = { "Test Item Identified Description" },
+		slotCount = 0,
+		ClassNum = 0,
+		costume = false
+	},
+}

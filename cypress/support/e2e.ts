@@ -7,9 +7,7 @@ Cypress.Keyboard.defaults({
 });
 
 before(() => {
+  cy.exec("yarn inject-rathena-fixtures");
   cy.visit("/");
-
-  // Sometimes tests start before the API is ready.
-  // This may cause tests to time out, so we wait for it to be ready first.
-  waitForApiReady();
+  waitForApiReady(); // Fixture injection resets API cache, so we need to wait.
 });

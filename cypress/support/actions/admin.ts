@@ -13,9 +13,9 @@ export function signInAsAdmin() {
 export function uploadAssets() {
   const fixtures = Cypress.config("fixturesFolder");
   gotoMainMenuPage("Assets", { menuName: "Admin" });
-  cy.selectFileByName("mapInfo", `${fixtures}/mapInfo_prontera.lub`);
-  cy.selectFileByName("itemInfo", `${fixtures}/itemInfo_red-potion.lub`);
-  cy.selectFileByName("data", `${fixtures}/prontera_poring_red-potion.grf`);
+  cy.selectFileByName("mapInfo", `${fixtures}/mapInfo.lub`);
+  cy.selectFileByName("itemInfo", `${fixtures}/itemInfo.lub`);
+  cy.selectFileByName("data", `${fixtures}/data.grf`);
   cy.findByRole("button", { name: "Upload" }).click();
 
   // For some reason there is flakiness in how long the upload takes only in cypress.

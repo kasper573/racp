@@ -1,7 +1,7 @@
 Body:
-  - Id: 1002
-    AegisName: PORING
-    Name: Poring
+  - Id: 99999999
+    AegisName: test_monster
+    Name: Test Monster
     Level: 1
     Hp: 60
     BaseExp: 150
@@ -26,5 +26,5 @@ Body:
     DamageMotion: 480
     Ai: 02
     Drops:
-      - Item: Red_Potion
+      - Item: test_item
         Rate: 7000
