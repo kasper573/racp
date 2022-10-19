@@ -20,55 +20,55 @@ describe("search", () => {
   generateSearchPageTests({
     searches: {
       id: {
-        input: (menu) => menu().findByLabelText("ID").type("501"),
-        verify: () => findRowById(501),
+        input: (menu) => menu().findByLabelText("ID").type("-1"),
+        verify: () => findRowById(-1),
       },
       name: {
-        input: (menu) => menu().findByLabelText("Name").type("potion"),
-        verify: () => expectTableColumn("Name", () => /potion/i),
+        input: (menu) => menu().findByLabelText("Name").type("test item"),
+        verify: () => expectTableColumn("Name", () => /test item/i),
       },
       "primary type": {
         input: (menu) => menu().get(`#PrimaryType`).select("Weapon"),
-        verify: () => findTableColumn("Name").contains("Sword"),
+        verify: () => findTableColumn("Name").contains(/test item/i),
       },
       "sub type": {
         input: (menu) => {
           menu().get(`#PrimaryType`).select("Weapon");
-          menu().get("#Subtype").select("Katar");
+          menu().get("#Subtype").select("1hSword");
         },
-        verify: () => findTableColumn("Name").contains("Jur"),
+        verify: () => findTableColumn("Name").contains(/test item/i),
       },
       class: {
-        input: (menu) => menu().get("#Class").select("Third"),
-        verify: () => findTableColumn("Name").contains("Witch's Staff"),
+        input: (menu) => menu().get("#Class").select("Fourth"),
+        verify: () => findTableColumn("Name").contains(/test item/i),
       },
       job: {
-        input: (menu) => menu().get("#Job").select("Summoner"),
-        verify: () => findTableColumn("Name").contains(/Foxtail/i),
+        input: (menu) => menu().get("#Job").select("Alchemist"),
+        verify: () => findTableColumn("Name").contains(/test item/i),
       },
       element: {
         input: (menu) => menu().get("#Element").select("Dark"),
-        verify: () => findTableColumn("Name").contains("Shadow Armor Scroll"),
+        verify: () => findTableColumn("Name").contains(/test item/i),
       },
       status: {
         input: (menu) => menu().get("#Status").select("Bleeding"),
-        verify: () => findTableColumn("Name").contains("Muscle Cutter"),
+        verify: () => findTableColumn("Name").contains(/test item/i),
       },
       race: {
-        input: (menu) => menu().get("#Race").select("Angel"),
-        verify: () => findTableColumn("Name").contains("Royal Knuckle"),
+        input: (menu) => menu().get("#Race").select("Demon"),
+        verify: () => findTableColumn("Name").contains(/test item/i),
       },
       description: {
         input: (menu) =>
           menu()
             .findByLabelText("Description contains")
             .type("Identified Description"),
-        verify: () => findTableColumn("Name").contains("Red Potion"),
+        verify: () => findTableColumn("Name").contains(/test item/i),
       },
       script: {
         input: (menu) =>
-          menu().findByLabelText("Script contains").type("getrefine()"),
-        verify: () => findTableColumn("Name").contains("Death Guidance"),
+          menu().findByLabelText("Script contains").type("bAtkEle"),
+        verify: () => findTableColumn("Name").contains(/test item/i),
       },
       slots: {
         input: (menu) => menu().within(() => menuSlide("Slots", [2, 3])),
@@ -104,31 +104,29 @@ describe("search", () => {
 });
 
 describe("details", () => {
-  before(() => gotoItem(505));
+  before(() => gotoItem(-1));
 
   it("can list droppers", () => {
-    findTableColumn("Monster").contains(/doppelganger/i);
+    findTableColumn("Monster").contains(/test monster/i);
   });
 
   it("can list sellers", () => {
-    findTableColumn("Shop").contains(/para_ptn10/i);
+    findTableColumn("Shop").contains(/test merchant/i);
   });
 });
 
 describe("assets", () => {
-  before(() => gotoItem(501));
+  before(() => gotoItem(-1));
 
-  it("exists", () => cy.contains("Red Potion"));
+  it("exists", () => cy.contains(/test item/i));
 
   it("has client texts", () => {
-    cy.contains("Red Potion Identified Display Name");
-    cy.contains("Red Potion Identified Description");
+    cy.contains("Test Item Identified Display Name");
+    cy.contains("Test Item Identified Description");
   });
 
   it("has image", () => {
-    cy.findByRole("img", { name: "Red Potion" }).isFixtureImage(
-      "red_potion.png"
-    );
+    cy.findByRole("img", { name: "Test Item" }).isFixtureImage("test_item.png");
   });
 });
 

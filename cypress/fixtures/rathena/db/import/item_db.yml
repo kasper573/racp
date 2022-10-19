@@ -2,8 +2,23 @@ Body:
   - Id: -1
     AegisName: test_item
     Name: Test Item
-    Type: Healing
-    Buy: 10
-    Weight: 70
+    Type: Weapon
+    SubType: 1hSword
+    Buy: 100
+    Weight: 500
+    Attack: 25
+    Range: 1
+    Slots: 3
+    Jobs:
+      Alchemist: true
+    Classes:
+      Fourth: true
+    Locations:
+      Right_Hand: true
+    WeaponLevel: 1
+    EquipLevelMin: 2
+    Refineable: true
     Script: |
-      itemheal rand(45,65),0;
+      bonus bAtkEle,Ele_Dark;
+      bonus bComaRace,RC_Demon,50;
+      bonus bAddEff,Eff_Bleeding,500;
