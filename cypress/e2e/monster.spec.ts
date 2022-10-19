@@ -16,15 +16,15 @@ describe("search", () => {
   generateSearchPageTests({
     searches: {
       id: {
-        input: (menu) => menu().findByLabelText("ID").type("1309"),
-        verify: () => findRowById(1309),
+        input: (menu) => menu().findByLabelText("ID").type("-1"),
+        verify: () => findRowById(-1),
       },
       name: {
-        input: (menu) => menu().findByLabelText("Name").type("dopp"),
-        verify: () => expectTableColumn("Name", () => /dopp/i),
+        input: (menu) => menu().findByLabelText("Name").type("test monster"),
+        verify: () => expectTableColumn("Name", () => /test monster/i),
       },
       race: {
-        input: (menu) => menu().get("#Race").select("Angel"),
+        input: (menu) => menu().get("#Race").select("Plant"),
         verify: () => findTableColumn("Name").contains("Angeling"),
       },
       element: {

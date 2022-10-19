@@ -1,5 +1,5 @@
 Body:
-  - Id: 99999999
+  - Id: -1
     AegisName: test_item
     Name: Test Item
     Type: Healing
