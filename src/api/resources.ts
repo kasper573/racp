@@ -35,8 +35,9 @@ export function createResourceManager({
   linker?: Linker;
   formatter?: ImageFormatter;
 }) {
-  const scripts = new ScriptRepository(options);
-  return createResourceManagerImpl<Repository<any>>()
+  let scripts: ScriptRepository;
+
+  const manager = createResourceManagerImpl<Repository<any>>()
     .add(
       "file",
       <T, Default extends Maybe<T>>(
@@ -86,6 +87,13 @@ export function createResourceManager({
         resolver: YamlResolver<ET, Key>
       ) => new YamlRepository({ file, resolver, ...options })
     )
-    .add("script", createScriptEntityResolver(scripts))
+    .add(
+      "script",
+      createScriptEntityResolver(() => scripts)
+    )
     .build();
+
+  scripts = manager.createUsing(() => new ScriptRepository(options));
+
+  return manager;
 }
