@@ -1,9 +1,8 @@
 import { range } from "lodash";
 import { listVendings } from "../support/actions/nav";
 import {
+  ensureRAthenaFixturesAndAssets,
   resetData,
-  signInAsAdmin,
-  uploadAssets,
 } from "../support/actions/admin";
 import { expectTableColumn, findTableColumn } from "../support/actions/grid";
 import {
@@ -21,8 +20,7 @@ import { testItemIdentifier } from "./item.actions";
 
 before(() => {
   resetData();
-  signInAsAdmin();
-
+  ensureRAthenaFixturesAndAssets();
   cy.trpc((client) =>
     client?.vendor.insertItems.mutate({
       items: range(0, 50).map(() => mockItem()),
@@ -88,7 +86,6 @@ describe("assets", () => {
         ],
       }),
     ];
-    uploadAssets();
     cy.trpc((client) =>
       client?.vendor.insertItems.mutate({
         items,

@@ -6,7 +6,9 @@ import {
 } from "../support/actions/grid";
 import { compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/actions/search";
-import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
+import { ensureRAthenaFixturesAndAssets } from "../support/actions/admin";
+
+before(ensureRAthenaFixturesAndAssets);
 
 describe("search", () => {
   before(listMaps);
@@ -67,11 +69,7 @@ describe("details", () => {
 });
 
 describe("assets", () => {
-  before(() => {
-    signInAsAdmin();
-    uploadAssets();
-    gotoMap("test_map");
-  });
+  before(() => gotoMap("test_map"));
 
   it("exists", () => cy.contains("Test Map"));
 

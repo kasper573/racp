@@ -11,13 +11,9 @@ import {
 } from "../support/util";
 import { menuSlide } from "../support/actions/common";
 import { generateSearchPageTests } from "../support/actions/search";
-import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
+import { ensureRAthenaFixturesAndAssets } from "../support/actions/admin";
 
-// Some searches require assets to function
-before(() => {
-  signInAsAdmin();
-  uploadAssets();
-});
+before(ensureRAthenaFixturesAndAssets);
 
 describe("search", () => {
   before(listItems);

@@ -22,8 +22,15 @@ export function uploadAssets() {
   // so having a long timeout here is a good safety measure against flake.
   cy.contains("Upload completed", { timeout: 60000 });
   cy.contains("Errors during upload").should("not.exist");
+}
 
-  // Uploads will cause API to clear cache.
-  // Waiting for the API to be ready here in batch saves time in following tests.
+export function injectRAthenaFixtures() {
+  cy.exec("yarn inject-rathena-fixtures");
+}
+
+export function ensureRAthenaFixturesAndAssets() {
+  cy.exec("yarn inject-rathena-fixtures");
+  signInAsAdmin();
+  uploadAssets();
   waitForApiReady();
 }

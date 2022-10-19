@@ -7,7 +7,9 @@ import {
 import { menuSlide } from "../support/actions/common";
 import { compareNumeric, compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/actions/search";
-import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
+import { ensureRAthenaFixturesAndAssets } from "../support/actions/admin";
+
+before(ensureRAthenaFixturesAndAssets);
 
 describe("search", () => {
   before(listMonsters);
@@ -135,11 +137,7 @@ describe("details", () => {
 });
 
 describe("assets", () => {
-  before(() => {
-    signInAsAdmin();
-    uploadAssets();
-    gotoMonster(1002);
-  });
+  before(() => gotoMonster(1002));
 
   it("exists", () => cy.contains("Poring"));
 
