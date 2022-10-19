@@ -6,7 +6,7 @@ export function loggerToMorgan(logger: Logger) {
     (tokens, req, res) =>
       [
         tokens.method(req, res),
-        decodeURI(tokens.url(req, res) ?? ""),
+        decodeURIComponent(tokens.url(req, res) ?? ""),
         tokens.status(req, res),
         tokens.res(req, res, "content-length"),
         "-",
