@@ -32,7 +32,7 @@ export class FileRepository<
 
   protected observeSource(onSourceChanged: () => void) {
     return recursiveWatch(this.options.directory, (changedFile) => {
-      if (changedFile === this.options.relativeFilename) {
+      if (changedFile === this.filename) {
         onSourceChanged();
       }
     });
