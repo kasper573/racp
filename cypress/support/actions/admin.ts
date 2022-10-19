@@ -1,5 +1,6 @@
 import { signIn } from "./user";
 import { gotoMainMenuPage } from "./nav";
+import { waitForApiReady } from "./common";
 
 export function resetData() {
   cy.exec("yarn run reset-data", { log: true });
@@ -21,4 +22,8 @@ export function uploadAssets() {
   // Most of the time it's fast, but for the off chance that it's slow we raise the timeout.
   cy.contains("Upload completed", { timeout: 60000 });
   cy.contains("Errors during upload").should("not.exist");
+
+  // Uploads will cause API to clear cache.
+  // Waiting for the API to be ready here in batch saves time in following tests.
+  waitForApiReady();
 }
