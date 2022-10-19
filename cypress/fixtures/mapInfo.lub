@@ -1,6 +1,6 @@
 mapTbl = {
 	["test_map.rsw"] = {
-		displayName = "Test Map Name",
+		displayName = "Test Map",
 		notifyEnter = true, 
 		signName = {
 			subTitle = "Test Map Sign Subtitle",
@@ -8,4 +8,13 @@ mapTbl = {
 		},
 		backgroundBmp = "test_map_bg"
 	},
+	["test_map2.rsw"] = {
+        displayName = "Test Map 2",
+        notifyEnter = true,
+        signName = {
+            subTitle = "Test Map 2 Sign Subtitle",
+            mainTitle = "Test Map 2 Sign Main Title",
+        },
+        backgroundBmp = "test_map_2_bg"
+    },
 }
