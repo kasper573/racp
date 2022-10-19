@@ -25,6 +25,8 @@ Body:
     AttackMotion: 672
     DamageMotion: 480
     Ai: 02
+    Modes:
+      Mvp: true
     Drops:
       - Item: test_item
         Rate: 7000
