@@ -25,7 +25,14 @@ class ResourceManagerBuilder<
   }
 }
 
-class ResourceManager<Shape, Factories extends ResourceFactories<Shape>> {
+/**
+ * Do not use this directly. You should only create resource managers using the builder.
+ * @deprecated
+ */
+export class ResourceManager<
+  Shape,
+  Factories extends ResourceFactories<Shape>
+> {
   private readonly _instances: Resource<Shape>[] = [];
   readonly create: Factories;
 
@@ -34,7 +41,23 @@ class ResourceManager<Shape, Factories extends ResourceFactories<Shape>> {
   }
 
   constructor(factories: Factories) {
-    this.create = bindFactories(factories, this._instances);
+    this.create = Object.entries(factories).reduce(
+      (bound, [name, factory]) => ({
+        ...bound,
+        [name]: (...args) => this.createUsing(factory, ...args),
+      }),
+      {} as Factories
+    );
+  }
+
+  createUsing<Factory extends ResourceFactory<Shape>>(
+    factory: Factory,
+    ...args: Parameters<Factory>
+  ): ReturnType<Factory> {
+    const instance = factory(...args);
+    this._instances.push(instance);
+    instance.initialize?.();
+    return instance as ReturnType<Factory>;
   }
 
   dispose(instance: Resource<Shape>) {
@@ -44,24 +67,6 @@ class ResourceManager<Shape, Factories extends ResourceFactories<Shape>> {
       instance.dispose?.();
     }
   }
-}
-
-function bindFactories<Shape, Factories extends ResourceFactories<Shape>>(
-  factories: Factories,
-  instances: Resource<Shape>[]
-): Factories {
-  return Object.entries(factories).reduce(
-    (acc, [name, factory]) => ({
-      ...acc,
-      [name]: (...args) => {
-        const instance = factory(...args);
-        instances.push(instance);
-        instance.initialize?.();
-        return instance;
-      },
-    }),
-    {} as Factories
-  );
 }
 
 type ResourceFactories<Shape> = Record<string, ResourceFactory<Shape>>;

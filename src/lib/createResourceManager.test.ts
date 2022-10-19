@@ -1,5 +1,9 @@
 import { expect } from "@jest/globals";
-import { createResourceManager } from "./createResourceManager";
+import {
+  createResourceManager,
+  Resource,
+  ResourceManager,
+} from "./createResourceManager";
 
 describe("createResourceManager", () => {
   it("empty manager has no factories", () => {
@@ -35,44 +39,54 @@ describe("createResourceManager", () => {
       expect(m.instances).toEqual([]);
     });
 
-    it("memorizes created instances", () => {
-      const instance = {};
-      const m = createResourceManager()
-        .add("foo", () => instance)
-        .build();
-      m.create.foo();
-      expect(m.instances).toContain(instance);
+    describe(`add("x", ...) -> manager.create.x()`, () => {
+      factoryTests((instance) => {
+        const m = createResourceManager()
+          .add("x", () => instance)
+          .build();
+        m.create.x();
+        return m;
+      });
     });
 
-    it("can remove memorized instance", () => {
-      const instance = {};
-      const m = createResourceManager()
-        .add("foo", () => instance)
-        .build();
-      m.create.foo();
-      m.dispose(instance);
-      expect(m.instances).toEqual([]);
-    });
-
-    it("initializes created instances", () => {
-      const initialize = jest.fn();
-      const instance = { initialize };
-      const m = createResourceManager()
-        .add("foo", () => instance)
-        .build();
-      m.create.foo();
-      expect(initialize).toHaveBeenCalled();
-    });
-
-    it("can dispose instance", () => {
-      const dispose = jest.fn();
-      const instance = { dispose };
-      const m = createResourceManager()
-        .add("foo", () => instance)
-        .build();
-      m.create.foo();
-      m.dispose(instance);
-      expect(dispose).toHaveBeenCalled();
+    describe("createUsing(...)", () => {
+      factoryTests((instance) => {
+        const m = createResourceManager().build();
+        m.createUsing(() => instance);
+        return m;
+      });
     });
   });
 });
+
+function factoryTests(
+  setup: (instance: Resource<unknown>) => ResourceManager<unknown, {}>
+) {
+  it("memorizes created instances", () => {
+    const instance = {};
+    const m = setup(instance);
+    expect(m.instances).toContain(instance);
+  });
+
+  it("can remove memorized instance", () => {
+    const instance = {};
+    const m = setup(instance);
+    m.dispose(instance);
+    expect(m.instances).toEqual([]);
+  });
+
+  it("initializes created instances", () => {
+    const initialize = jest.fn();
+    const instance = { initialize };
+    const m = setup(instance);
+    expect(initialize).toHaveBeenCalled();
+  });
+
+  it("can dispose instance", () => {
+    const dispose = jest.fn();
+    const instance = { dispose };
+    const m = setup(instance);
+    m.dispose(instance);
+    expect(dispose).toHaveBeenCalled();
+  });
+}
