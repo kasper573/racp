@@ -4,12 +4,12 @@ import * as express from "express";
 import cors = require("cors");
 import { Request as JWTRequest } from "express-jwt";
 import * as trpcExpress from "@trpc/server/adapters/express";
-import * as morgan from "morgan";
 import { createLogger } from "../lib/logger";
 import { createPublicFileLinker } from "../lib/fs/createPublicFileLinker";
 import { createImageFormatter } from "../lib/image/createImageFormatter";
 import { createEllipsisLogFn } from "../lib/createEllipsisLogFn";
 import { readCliArgs } from "../lib/cli";
+import { loggerToMorgan } from "../lib/loggerToMorgan";
 import { createDatabaseDriver } from "./rathena/DatabaseDriver";
 import {
   AuthenticatorPayload,
@@ -100,9 +100,7 @@ const router = createApiRouter({
 app.use(auth.middleware);
 app.use(cors());
 app.use(express.static(linker.directory));
-app.use(
-  morgan(":method :url :status :res[content-length] - :response-time ms")
-);
+app.use(loggerToMorgan(logger.chain("http")));
 app.use(
   trpcExpress.createExpressMiddleware({
     onError({ error, path }) {
