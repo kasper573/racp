@@ -13,6 +13,11 @@ export function waitForPageReady() {
   cy.findByTestId("loading-spinner").should("not.exist");
 }
 
+export function waitForApiReady() {
+  // Wait time is arbitrary, but enough to safely assume API has finished (re)loading resources.
+  cy.trpc((client) => client?.util.ready.query(), { timeout: 60000 });
+}
+
 export function unwrap<T>(query: JQuery<T>) {
   const values: T[] = [];
   for (let i = 0; i < query.length; i++) {
