@@ -25,22 +25,22 @@ describe("search", () => {
       },
       race: {
         input: (menu) => menu().get("#Race").select("Plant"),
-        verify: () => findTableColumn("Name").contains("Angeling"),
+        verify: () => findTableColumn("Name").contains(/test monster/i),
       },
       element: {
-        input: (menu) => menu().get("#Element").select("Earth"),
-        verify: () => findTableColumn("Name").contains("Fabre"),
+        input: (menu) => menu().get("#Element").select("Water"),
+        verify: () => findTableColumn("Name").contains(/test monster/i),
       },
       size: {
-        input: (menu) => menu().get("#Size").select("Small"),
-        verify: () => findTableColumn("Name").contains("Familiar"),
+        input: (menu) => menu().get("#Size").select("Medium"),
+        verify: () => findTableColumn("Name").contains(/test monster/i),
       },
       level: {
-        input: (menu) => menu().within(() => menuSlide("Level", [50, 55])),
+        input: (menu) => menu().within(() => menuSlide("Level", [10, 20])),
         verify: () =>
           expectTableColumn(
             "Level",
-            () => (text) => +text >= 50 && +text <= 55
+            () => (text) => +text >= 10 && +text <= 20
           ),
       },
       "move speed": {
@@ -99,8 +99,8 @@ describe("search", () => {
           ),
       },
       modes: {
-        input: (menu) => menu().get("#Modes").select("RandomTarget"),
-        verify: () => findTableColumn("Name").contains(/cecil damon/i),
+        input: (menu) => menu().get("#Modes").select("Looter"),
+        verify: () => findTableColumn("Name").contains(/test monster/i),
       },
     },
     sorts: {
@@ -123,25 +123,27 @@ describe("search", () => {
 });
 
 describe("details", () => {
-  before(() => gotoMonster(1002));
+  before(() => gotoMonster(-1));
 
   it("can list spawns", () => {
     cy.findByRole("tab", { name: /spawns/i }).click();
-    findTableColumn("Map").contains(/xmas_dun01/i);
+    findTableColumn("Map").contains(/test_map/i);
   });
 
   it("can list drops", () => {
     cy.findByRole("tab", { name: /drops/i }).click();
-    findTableColumn("Name").contains(/Jellopy/i);
+    findTableColumn("Name").contains(/test item/i);
   });
 });
 
 describe("assets", () => {
-  before(() => gotoMonster(1002));
+  before(() => gotoMonster(-1));
 
-  it("exists", () => cy.contains("Poring"));
+  it("exists", () => cy.contains("Test Monster"));
 
   it("has image", () => {
-    cy.findByRole("img", { name: "Poring" }).isFixtureImage("poring.png");
+    cy.findByRole("img", { name: "Test Monster" }).isFixtureImage(
+      "test_monster.png"
+    );
   });
 });

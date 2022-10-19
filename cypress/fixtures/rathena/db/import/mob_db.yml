@@ -2,7 +2,7 @@ Body:
   - Id: -1
     AegisName: test_monster
     Name: Test Monster
-    Level: 1
+    Level: 15
     Hp: 60
     BaseExp: 150
     JobExp: 40
