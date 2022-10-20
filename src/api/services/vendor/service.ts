@@ -90,7 +90,7 @@ export function createVendorService({
       .input(searchItemsTypes.queryType)
       .output(searchItemsTypes.resultType)
       .query(async ({ input }) => {
-        const items = await itemRepo.getItems();
+        const items = await itemRepo.items;
 
         // prettier-ignore
         let query = db.map

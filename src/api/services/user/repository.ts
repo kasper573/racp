@@ -1,17 +1,17 @@
-import { YamlDriver } from "../../rathena/YamlDriver";
+import { ResourceFactory } from "../../resources";
 import { UserGroupResolver } from "./util/UserGroupResolver";
 
 export type UserRepository = ReturnType<typeof createUserRepository>;
 
 export function createUserRepository({
-  yaml,
   adminPermissionName = "",
+  resources,
 }: {
-  yaml: YamlDriver;
   adminPermissionName?: string;
+  resources: ResourceFactory;
 }) {
-  const groups = yaml.resolve("conf/groups.yml", UserGroupResolver);
-  const adminGroupIds = groups.then((groups) =>
+  const groups = resources.yaml("conf/groups.yml", UserGroupResolver);
+  const adminGroupIds = groups.map("adminGroupIds", (groups) =>
     Array.from(groups.values())
       .filter((group) => group.Permissions[adminPermissionName])
       .map((group) => group.Id)

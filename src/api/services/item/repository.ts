@@ -1,97 +1,75 @@
 import * as zod from "zod";
-import { YamlDriver } from "../../rathena/YamlDriver";
-import { FileStore } from "../../../lib/fs/createFileStore";
-import { parseLuaTableAs } from "../../common/parseLuaTableAs";
-import { createImageRepository } from "../../common/createImageRepository";
-import { Linker } from "../../../lib/fs/createPublicFileLinker";
-import { ImageFormatter } from "../../../lib/image/createImageFormatter";
-import { Logger } from "../../../lib/logger";
-import { gfs } from "../../gfs";
-import { createAsyncMemo } from "../../../lib/createMemo";
 import { zodJsonProtocol } from "../../../lib/zod/zodJsonProtocol";
-import { TxtDriver } from "../../rathena/TxtDriver";
 import { defined } from "../../../lib/std/defined";
+import { ResourceFactory } from "../../resources";
+import { parseLuaTableAs } from "../../common/parseLuaTableAs";
 import { createItemResolver } from "./util/createItemResolver";
 import {
-  rawCashStoreItemType,
   Item,
   ItemId,
   itemInfoType,
   itemOptionTextsType,
+  rawCashStoreItemType,
 } from "./types";
 
 export type ItemRepository = ReturnType<typeof createItemRepository>;
 
 export function createItemRepository({
-  txt,
-  yaml,
-  files,
+  resources,
   tradeScale,
-  linker,
-  formatter,
-  logger: parentLogger,
 }: {
-  txt: TxtDriver;
-  yaml: YamlDriver;
-  files: FileStore;
+  resources: ResourceFactory;
   tradeScale: number;
-  linker: Linker;
-  formatter: ImageFormatter;
-  logger: Logger;
 }) {
-  const logger = parentLogger.chain("item");
-  const imageLinker = linker.chain("items");
-  const imageName = (item: Item) => `${item.Id}${formatter.fileExtension}`;
-  const imageRepository = createImageRepository(formatter, imageLinker, logger);
+  const images = resources.images("items");
+  const imageName = (item: Item) => `${item.Id}${images.fileExtension}`;
 
-  const optionTextsFile = files.entry(
-    "itemOptionTexts.json",
-    zodJsonProtocol(itemOptionTextsType)
-  );
+  const optionTexts = resources.file({
+    relativeFilename: "itemOptionTexts.json",
+    protocol: zodJsonProtocol(itemOptionTextsType),
+  });
 
-  const cashStoreItemsPromise = txt.resolve(
+  const cashItems = resources.txt(
     "db",
     "item_cash_db.txt",
     rawCashStoreItemType
   );
 
   const itemResolver = createItemResolver({ tradeScale });
-  const itemsPromise = yaml.resolve("db/item_db.yml", itemResolver);
-  const infoFile = files.entry(
-    "itemInfo.json",
-    zodJsonProtocol(zod.record(itemInfoType))
-  );
+  const itemDB = resources.yaml("db/item_db.yml", itemResolver);
 
-  const getItems = createAsyncMemo(
-    async () =>
-      [await itemsPromise, infoFile?.data, imageRepository.urlMap] as const,
-    (plainItems, info, urlMap) => {
-      logger.log("Recomputing item repository");
-      return Array.from(plainItems.values()).reduce((map, item) => {
+  const infoFile = resources.file({
+    relativeFilename: "itemInfo.json",
+    protocol: zodJsonProtocol(zod.record(itemInfoType)),
+  });
+
+  const items = itemDB
+    .and(infoFile, images)
+    .map("itemDB", ([itemDB, infoFile, imageUrlMap]) =>
+      Array.from(itemDB.values()).reduce((map, item) => {
         const updatedItem: Item = {
           ...item,
-          Info: info?.[item.Id],
-          ImageUrl: urlMap[imageName(item)],
+          Info: infoFile?.[item.Id],
+          ImageUrl: imageUrlMap[imageName(item)],
         };
         itemResolver.postProcess?.(updatedItem, map);
         return map.set(item.Id, updatedItem);
-      }, new Map<ItemId, Item>());
-    }
-  );
+      }, new Map<ItemId, Item>())
+    );
 
-  const getCashStoreItems = createAsyncMemo(
-    () => Promise.all([cashStoreItemsPromise, getItems()]),
-    (cashItems, items): Item[] =>
+  const cashStoreItems = items
+    .and(cashItems)
+    .map("cashStoreItems", ([items, cashItems]): Item[] =>
       defined(
         cashItems.map(({ itemId, price }) => {
           const item = items.get(itemId);
           return item ? { ...item, Buy: price } : undefined;
         })
       )
-  );
+    );
 
-  function getResourceNames() {
-    return Object.entries(infoFile.data ?? {}).reduce(
+  const resourceNames = infoFile.map("resourceNames", (info = {}) =>
+    Object.entries(info).reduce(
       (resourceNames: Record<string, string>, [id, info]) => {
         if (info.identifiedResourceName !== undefined) {
           resourceNames[id] = info.identifiedResourceName;
@@ -99,29 +77,28 @@ export function createItemRepository({
         return resourceNames;
       },
       {}
-    );
-  }
+    )
+  );
+
+  const missingImages = items.map("missingImages", (map) =>
+    Array.from(map.values()).filter((item) => item.ImageUrl === undefined)
+  );
+
+  const infoCount = infoFile.map(
+    "infoCount",
+    (info = {}) => Object.keys(info).length
+  );
 
   return {
-    getItems,
-    getCashStoreItems,
-    getOptionTexts: () => optionTextsFile.data ?? {},
-    updateOptionTexts: optionTextsFile.assign,
+    items,
     updateInfo(luaCode: string) {
       return infoFile.assign(parseLuaTableAs(luaCode, itemInfoType));
     },
-    getResourceNames,
-    countInfo: () => Object.keys(infoFile.data ?? {}).length,
-    countImages: () =>
-      gfs.readdir(imageLinker.directory).then((dirs) => dirs.length),
-    updateImages: imageRepository.update,
-    missingImages: () =>
-      getItems().then((map) =>
-        Array.from(map.values()).filter((item) => item.ImageUrl === undefined)
-      ),
-    destroy: () => {
-      infoFile.close();
-      imageRepository.close();
-    },
+    cashStoreItems,
+    resourceNames,
+    optionTexts,
+    images,
+    missingImages,
+    infoCount,
   };
 }

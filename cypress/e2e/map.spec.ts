@@ -6,23 +6,22 @@ import {
 } from "../support/actions/grid";
 import { compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/actions/search";
-import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
+import { ensureAssets } from "../support/actions/admin";
+import { testMapId } from "../fixtures/ids";
 
-before(() => {
-  cy.visit("/");
-});
+before(ensureAssets);
 
 describe("search", () => {
   before(listMaps);
   generateSearchPageTests({
     searches: {
       id: {
-        input: (menu) => menu().findByLabelText("ID").type("prontera"),
-        verify: () => findRowById("prontera"),
+        input: (menu) => menu().findByLabelText("ID").type(testMapId),
+        verify: () => findRowById(testMapId),
       },
       name: {
-        input: (menu) => menu().findByLabelText("Name").type("prt_"),
-        verify: () => expectTableColumn("Name", () => /prt_/i),
+        input: (menu) => menu().findByLabelText("Name").type("test map"),
+        verify: () => expectTableColumn("Name", () => /test map/i),
       },
     },
     sorts: {
@@ -33,52 +32,53 @@ describe("search", () => {
 });
 
 describe("details", () => {
-  before(() => gotoMap("prt_fild01"));
+  before(() => gotoMap(testMapId));
 
   it("can list warps", () => {
     cy.findByRole("tab", { name: /warps/i }).click();
-    findTableColumn("Destination").contains(/prt_maze01/i);
+    findTableColumn("Destination").contains(/test_map2/i);
   });
 
   it("can list monsters", () => {
     cy.findByRole("tab", { name: /monsters/i }).click();
-    findTableColumn("Name").contains(/Lunatic Ringleader/i);
+    findTableColumn("Name").contains(/Test Monster/i);
+  });
+
+  it("can list npcs", () => {
+    cy.findByRole("tab", { name: /npcs/i }).click();
+    findTableColumn("Name").contains(/Test Npc/i);
   });
 
   describe("shop list", () => {
     before(() => {
-      gotoMap("prontera");
+      gotoMap(testMapId);
       cy.findByRole("tab", { name: /shops/i }).click();
     });
 
     it("contains the right shops", () => {
-      findTableColumn("Name").contains(/Vendor from Milk Ranch/i);
+      findTableColumn("Name").contains(/Test Merchant/i);
     });
 
     it("can show show items", () => {
-      cy.findAllByRole("link", { name: /Fruit Gardener/i })
+      cy.findAllByRole("link", { name: /Test Merchant/i })
         .first()
         .click();
 
-      findTableColumn("Name").contains(/apple/i);
+      findTableColumn("Name").contains(/Test Item/i);
     });
   });
 });
 
 describe("assets", () => {
-  before(() => {
-    signInAsAdmin();
-    uploadAssets();
-    gotoMap("prontera");
-  });
+  before(() => gotoMap(testMapId));
 
-  it("exists", () => cy.contains("Prontera"));
+  it("exists", () => cy.contains("Test Map"));
 
   it("has pins", () => {
     cy.findAllByTestId("Map pin").should("exist");
   });
 
   it("has image", () => {
-    cy.findByRole("img", { name: "Map" }).isFixtureImage("prontera.png");
+    cy.findByRole("img", { name: "Map" }).isFixtureImage("test_map.png");
   });
 });

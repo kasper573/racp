@@ -1,5 +1,5 @@
 import { memoize } from "lodash";
-import { createYamlResolver } from "../../../rathena/YamlDriver";
+import { createYamlResolver } from "../../../rathena/YamlRepository";
 import { RAthenaMode } from "../../../options";
 import { Monster, MonsterPostProcess, monsterType } from "../types";
 import { typedAssign } from "../../../../lib/std/typedAssign";

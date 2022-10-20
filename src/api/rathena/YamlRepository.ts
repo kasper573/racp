@@ -3,25 +3,74 @@ import * as zod from "zod";
 import { ZodType } from "zod";
 import * as yaml from "yaml";
 import { isPlainObject } from "lodash";
+import recursiveWatch = require("recursive-watch");
 import { typedKeys } from "../../lib/std/typedKeys";
-import { Logger } from "../../lib/logger";
 import { gfs } from "../gfs";
+import { RepositoryOptions } from "../../lib/repo/Repository";
+import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
 
-export type YamlDriver = ReturnType<typeof createYamlDriver>;
-
-export function createYamlDriver({
-  rAthenaPath,
-  rAthenaMode,
-  logger: parentLogger,
-}: {
+export type YamlRepositoryOptions<ET extends ZodType, Key> = RepositoryOptions<
+  Map<Key, zod.infer<ET>>
+> & {
   rAthenaPath: string;
   rAthenaMode: string;
-  logger: Logger;
-}) {
-  const logger = parentLogger.chain("yaml");
+  file: string;
+  resolver: YamlResolver<ET, Key>;
+};
 
-  async function loadNode(file: string): Promise<DBNode | undefined> {
-    const filePath = path.resolve(rAthenaPath, file);
+export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
+  Map<Key, zod.infer<ET>>
+> {
+  constructor(private options: YamlRepositoryOptions<ET, Key>) {
+    super({
+      ...options,
+      defaultValue: options.defaultValue ?? new Map(),
+    });
+  }
+
+  protected observeSource(onSourceChanged: () => void): () => void {
+    return recursiveWatch(
+      path.dirname(path.resolve(this.options.rAthenaPath, this.options.file)),
+      onSourceChanged
+    );
+  }
+
+  protected async readImpl() {
+    const {
+      rAthenaMode,
+      file,
+      resolver: { entityType, getKey, postProcess = noop },
+    } = this.options;
+
+    const imports: ImportNode[] = [{ Path: file, Mode: rAthenaMode }];
+    const registry = new Map<Key, zod.infer<ET>>();
+
+    while (imports.length) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const imp = imports.shift()!;
+      if (!imp.Mode || imp.Mode === rAthenaMode) {
+        const res = await this.loadNode(imp.Path);
+        if (!res) {
+          continue;
+        }
+        const { Body, Footer } = res;
+        for (const raw of Body ?? []) {
+          const entity = entityType.parse(raw);
+          registry.set(getKey(entity), entity);
+        }
+        imports.push(...(Footer?.Imports ?? []));
+      }
+    }
+
+    for (const entity of registry.values()) {
+      postProcess(entity, registry);
+    }
+
+    return registry;
+  }
+
+  private async loadNode(file: string): Promise<DBNode | undefined> {
+    const filePath = path.resolve(this.options.rAthenaPath, file);
     let content: string;
     try {
       content = await gfs.readFile(filePath, "utf-8");
@@ -30,43 +79,20 @@ export function createYamlDriver({
     }
     const unknownObject = yaml.parse(content);
     filterNulls(unknownObject);
-    return dbNode.parse(unknownObject);
+    const result = dbNode.safeParse(unknownObject);
+    if (!result.success) {
+      this.logger.error(
+        "Ignoring node. Unexpected YAML structure. Error info: ",
+        JSON.stringify({ file, issues: result.error.issues }, null, 2)
+      );
+      return;
+    }
+    return result.data;
   }
 
-  const resolve = logger.wrap(async function resolve<ET extends ZodType, Key>(
-    file: string,
-    { entityType, getKey, postProcess = noop }: YamlResolver<ET, Key>
-  ): Promise<Map<Key, zod.infer<ET>>> {
-    const imports: ImportNode[] = [{ Path: file, Mode: rAthenaMode }];
-    const entities = new Map<Key, zod.infer<ET>>();
-
-    while (imports.length) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const imp = imports.shift()!;
-      if (!imp.Mode || imp.Mode === rAthenaMode) {
-        const res = await loadNode(imp.Path);
-        if (!res) {
-          continue;
-        }
-        const { Body, Footer } = res;
-        for (const raw of Body ?? []) {
-          const entity = entityType.parse(raw);
-          entities.set(getKey(entity), entity);
-        }
-        imports.push(...(Footer?.Imports ?? []));
-      }
-    }
-
-    Array.from(entities.values()).map((entity) =>
-      postProcess(entity, entities)
-    );
-
-    return entities;
-  });
-
-  return {
-    resolve,
-  };
+  toString() {
+    return `yaml(${this.options.file})`;
+  }
 }
 
 export interface YamlResolver<ET extends ZodType, Key> {
@@ -107,7 +133,7 @@ const bodyNode = zod.array(zod.unknown());
 
 type DBNode = zod.infer<typeof dbNode>;
 const dbNode = zod.object({
-  Header: headerNode,
+  Header: headerNode.optional(),
   Body: bodyNode.optional(),
   Footer: footerNode.optional(),
 });

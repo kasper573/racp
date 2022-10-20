@@ -49,7 +49,7 @@ export function parseLuaTable(
 
 export type LuaRefResolver = (exp: MemberExpression) => unknown;
 
-function resolve(exp: Expression, ref: LuaRefResolver) {
+function resolve(exp: Expression, ref: LuaRefResolver): unknown {
   switch (exp.type) {
     case "Identifier":
       return exp.name;
@@ -59,6 +59,11 @@ function resolve(exp: Expression, ref: LuaRefResolver) {
       return trimQuotes((exp.value as string | null) ?? exp.raw ?? "");
     case "BooleanLiteral":
       return exp.value;
+    case "UnaryExpression":
+      if (exp.operator === "-") {
+        return -parseFloat(`${resolve(exp.argument, ref)}`);
+      }
+      throw new Error(`Unsupported unary operator: ${exp.operator}`);
     case "TableConstructorExpression":
       return parseLuaTable(exp, ref);
     case "MemberExpression":

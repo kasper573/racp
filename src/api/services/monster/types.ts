@@ -4,7 +4,7 @@ import { zodNumeric } from "../../../lib/zod/zodNumeric";
 import { matcher } from "../../matcher";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { mapIdType } from "../map/types";
-import { RawScriptEntity } from "../../rathena/ScriptDriver";
+import { RawScriptEntity } from "../../rathena/ScriptRepository";
 import { toggleRecordType } from "../../../lib/zod/zodToggle";
 
 export type MonsterDrop = zod.infer<typeof monsterDropType>;
@@ -27,6 +27,7 @@ export const monsterPostProcessType = zod.object({
   ImageUrl: zod.string().optional(), // Undefined means image is not present on the server
 });
 
+export type MonsterId = zod.infer<typeof monsterIdType>;
 export const monsterIdType = zod.number();
 
 export type Monster = zod.infer<typeof monsterType>;

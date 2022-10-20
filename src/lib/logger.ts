@@ -66,9 +66,10 @@ function createFunctionLog(
   if (timeColor !== undefined) {
     timeString = colorWrap(timeColor, [timeString]).join("");
   }
-  return `(${timeString}) ${name}(${stringifyArgs(args)}) -> ${stringifyResult(
-    result
-  )}`;
+  const call = name ? `${name}(${stringifyArgs(args)})` : "";
+  return [`(${timeString})`, call, "->", stringifyResult(result)]
+    .filter(Boolean)
+    .join(" ");
 }
 
 function stringifyArgs(args: unknown[]) {
@@ -110,10 +111,10 @@ function quantify(value: unknown) {
     return;
   }
   if (Array.isArray(value)) {
-    return value.length;
+    return `Array[${value.length}]`;
   }
   if (value instanceof Map) {
-    return value.size;
+    return `Map[${value.size}]`;
   }
   switch (typeof value) {
     case "number":

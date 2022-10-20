@@ -12,10 +12,10 @@ import {
   currencyType,
   moneyType,
 } from "../settings/types";
-import { AccRegNumDriver } from "../../rathena/AccRegDriver";
+import { AccRegNumRepository } from "../../rathena/AccRegRepository";
 import { createSearchProcedure } from "../../common/search";
-import { itemFilter, itemType } from "../item/types";
-import { ItemRepository } from "../item/repository";
+import { Item, itemFilter, itemType } from "../item/types";
+import { Repository } from "../../../lib/repo/Repository";
 import {
   donationCaptureResultType,
   DonationEnvironment,
@@ -30,26 +30,30 @@ export type DonationService = ReturnType<typeof createDonationService>;
 export function createDonationService({
   db,
   env,
-  settings,
-  items,
+  settings: settingsRepo,
+  cashStoreItems,
   logger: parentLogger,
 }: {
   db: DatabaseDriver;
   env: DonationEnvironment;
   settings: AdminSettingsRepository;
-  items: ItemRepository;
+  cashStoreItems: Repository<Item[]>;
   logger: Logger;
 }) {
   const logger = parentLogger.chain("donation");
-  const creditBalanceAtom = new AccRegNumDriver(db, logger).createKeyAtom(
-    () => settings.getSettings().donations.accRegNumKey
-  );
+  const creditBalanceAtom = (accountId: number) =>
+    new AccRegNumRepository({
+      db,
+      logger,
+      accountId,
+      key: () => settingsRepo.then(({ donations }) => donations.accRegNumKey),
+    });
 
   return t.router({
     searchItems: createSearchProcedure(
       itemType,
       itemFilter.type,
-      async () => Array.from((await items.getCashStoreItems()).values()),
+      () => cashStoreItems,
       (entity, payload) => itemFilter.for(payload)(entity)
     ),
     environment: t.procedure.output(donationEnvironmentType).query(() => env),
@@ -59,16 +63,14 @@ export function createDonationService({
     balance: t.procedure
       .output(zod.number())
       .query(({ ctx: { auth } }) =>
-        auth
-          ? creditBalanceAtom.read(auth.id).then((balance) => balance ?? 0)
-          : 0
+        auth ? creditBalanceAtom(auth.id).read() : 0
       ),
     order: t.procedure
       .input(moneyType)
       .output(zod.string().optional())
       .use(access(UserAccessLevel.User))
       .mutation(async ({ input: { value, currency }, ctx: { auth } }) => {
-        const client = createPayPalClient(settings.getSettings(), env);
+        const client = createPayPalClient(await settingsRepo, env);
         const { result }: { result?: paypal.orders.Order } =
           await client.execute(
             new paypal.orders.OrdersCreateRequest().requestBody({
@@ -97,7 +99,8 @@ export function createDonationService({
             auth: { id: accountId },
           },
         }) => {
-          const client = createPayPalClient(settings.getSettings(), env);
+          const settings = await settingsRepo;
+          const client = createPayPalClient(settings, env);
 
           const { result: order }: { result?: paypal.orders.Order } =
             await client.execute(new paypal.orders.OrdersGetRequest(orderID));
@@ -139,17 +142,13 @@ export function createDonationService({
             return { status: "noPaymentsReceived" };
           }
 
-          logger.warn("Received", capture.amount.value);
-
           const rewardedCredits = calculateRewardedCredits(
             +capture.amount.value,
-            settings.getSettings().donations.exchangeRate
+            settings.donations.exchangeRate
           );
 
-          const success = await creditBalanceAtom.write(
-            accountId,
-            (n = 0) => n + rewardedCredits
-          );
+          const atom = creditBalanceAtom(accountId);
+          const success = await atom.transform((n = 0) => n + rewardedCredits);
 
           if (success) {
             return { status: "creditsAwarded", rewardedCredits };

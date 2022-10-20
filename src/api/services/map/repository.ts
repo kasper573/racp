@@ -1,17 +1,11 @@
 import { flatten, uniq } from "lodash";
 import * as zod from "zod";
-import { FileStore } from "../../../lib/fs/createFileStore";
 import { parseLuaTableAs } from "../../common/parseLuaTableAs";
-import { Linker } from "../../../lib/fs/createPublicFileLinker";
-import { ImageFormatter } from "../../../lib/image/createImageFormatter";
-import { ScriptDriver } from "../../rathena/ScriptDriver";
-import { createImageRepository } from "../../common/createImageRepository";
 import { trimExtension } from "../../../lib/std/trimExtension";
-import { Logger } from "../../../lib/logger";
-import { gfs } from "../../gfs";
-import { createAsyncMemo } from "../../../lib/createMemo";
 import { MonsterSpawn } from "../monster/types";
 import { zodJsonProtocol } from "../../../lib/zod/zodJsonProtocol";
+import { ResourceFactory } from "../../resources";
+import { Repository } from "../../../lib/repo/Repository";
 import {
   mapBoundsRegistryType,
   MapId,
@@ -23,60 +17,36 @@ import {
 export type MapRepository = ReturnType<typeof createMapRepository>;
 
 export function createMapRepository({
-  files,
-  linker,
-  formatter,
-  script,
-  getSpawns,
-  logger: parentLogger,
+  resources,
+  spawns,
 }: {
-  files: FileStore;
-  linker: Linker;
-  formatter: ImageFormatter;
-  getSpawns: () => Promise<MonsterSpawn[]>;
-  script: ScriptDriver;
-  logger: Logger;
+  spawns: Repository<MonsterSpawn[]>;
+  resources: ResourceFactory;
 }) {
-  const logger = parentLogger.chain("map");
-  const imageLinker = linker.chain("maps");
-  const mapImageName = (mapId: string) => `${mapId}${formatter.fileExtension}`;
-  const imageRepository = createImageRepository(formatter, imageLinker, logger);
+  const images = resources.images("maps");
+  const mapImageName = (mapId: string) => `${mapId}${images.fileExtension}`;
 
-  const warpsPromise = logger.track(
-    script.resolve(warpType),
-    "script.resolve",
-    "warp"
-  );
+  const warps = resources.script("warps", warpType);
 
-  const infoFile = files.entry(
-    "mapInfo.json",
-    zodJsonProtocol(zod.record(mapInfoType))
-  );
-  const boundsFile = files.entry(
-    "mapBounds.json",
-    zodJsonProtocol(mapBoundsRegistryType)
-  );
+  const info = resources.file({
+    relativeFilename: "mapInfo.json",
+    protocol: zodJsonProtocol(zod.record(mapInfoType)),
+    defaultValue: {},
+  });
 
-  const getMaps = createAsyncMemo(
-    async () =>
-      [
-        await warpsPromise,
-        await getSpawns(),
-        infoFile.data,
-        boundsFile.data,
-        imageRepository.urlMap,
-      ] as const,
-    (warps, spawns, infoRecord, bounds, urlMap) => {
-      logger.log("Recomputing map repository");
+  const bounds = resources.file({
+    relativeFilename: "mapBounds.json",
+    protocol: zodJsonProtocol(mapBoundsRegistryType),
+  });
 
+  const maps = warps
+    .and(spawns, info, bounds, images)
+    .map("maps", ([warps, spawns, infoRecord, bounds, urlMap]) => {
       // Resolve maps via info records
-      const maps = Object.entries(infoRecord ?? {}).reduce(
-        (all, [key, info]) => {
-          const id = trimExtension(key);
-          return all.set(id, { ...info, id });
-        },
-        new Map<MapId, MapInfo>()
-      );
+      const maps = Object.entries(infoRecord).reduce((all, [key, info]) => {
+        const id = trimExtension(key);
+        return all.set(id, { ...info, id });
+      }, new Map<MapId, MapInfo>());
 
       // Resolve maps via npc entries
       const mapIdsFromWarpsAndSpawns = uniq([
@@ -97,23 +67,16 @@ export function createMapRepository({
       }
 
       return maps;
-    }
-  );
+    });
 
   return {
-    getMaps,
+    info,
+    maps,
+    warps,
+    images,
+    bounds,
     updateInfo(luaCode: string) {
-      return infoFile.assign(parseLuaTableAs(luaCode, mapInfoType));
-    },
-    countImages: () =>
-      gfs.readdir(imageLinker.directory).then((dirs) => dirs.length),
-    warps: warpsPromise,
-    updateImages: imageRepository.update,
-    updateBounds: boundsFile.assign,
-    destroy: () => {
-      infoFile.close();
-      boundsFile.close();
-      imageRepository.close();
+      return info.assign(parseLuaTableAs(luaCode, mapInfoType));
     },
   };
 }

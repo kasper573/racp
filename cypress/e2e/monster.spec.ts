@@ -7,42 +7,50 @@ import {
 import { menuSlide } from "../support/actions/common";
 import { compareNumeric, compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/actions/search";
-import { signInAsAdmin, uploadAssets } from "../support/actions/admin";
+import { ensureAssets } from "../support/actions/admin";
+import { testMonsterId } from "../fixtures/ids";
 
-before(() => {
-  cy.visit("/");
-});
+before(ensureAssets);
 
 describe("search", () => {
   before(listMonsters);
   generateSearchPageTests({
     searches: {
       id: {
-        input: (menu) => menu().findByLabelText("ID").type("1309"),
-        verify: () => findRowById(1309),
+        input: (menu) => menu().findByLabelText("ID").type(`${testMonsterId}`),
+        verify: () => findRowById(testMonsterId),
       },
       name: {
-        input: (menu) => menu().findByLabelText("Name").type("dopp"),
-        verify: () => expectTableColumn("Name", () => /dopp/i),
+        input: (menu) => menu().findByLabelText("Name").type("test monster"),
+        verify: () => expectTableColumn("Name", () => /test monster/i),
       },
       race: {
-        input: (menu) => menu().get("#Race").select("Angel"),
-        verify: () => findTableColumn("Name").contains("Angeling"),
+        input: (menu) => {
+          menu().findByLabelText("ID").type(`${testMonsterId}`);
+          menu().get("#Race").select("Plant");
+        },
+        verify: () => findTableColumn("Name").contains(/test monster/i),
       },
       element: {
-        input: (menu) => menu().get("#Element").select("Earth"),
-        verify: () => findTableColumn("Name").contains("Fabre"),
+        input: (menu) => {
+          menu().findByLabelText("ID").type(`${testMonsterId}`);
+          menu().get("#Element").select("Water");
+        },
+        verify: () => findTableColumn("Name").contains(/test monster/i),
       },
       size: {
-        input: (menu) => menu().get("#Size").select("Small"),
-        verify: () => findTableColumn("Name").contains("Familiar"),
+        input: (menu) => {
+          menu().findByLabelText("ID").type(`${testMonsterId}`);
+          menu().get("#Size").select("Medium");
+        },
+        verify: () => findTableColumn("Name").contains(/test monster/i),
       },
       level: {
-        input: (menu) => menu().within(() => menuSlide("Level", [50, 55])),
+        input: (menu) => menu().within(() => menuSlide("Level", [10, 20])),
         verify: () =>
           expectTableColumn(
             "Level",
-            () => (text) => +text >= 50 && +text <= 55
+            () => (text) => +text >= 10 && +text <= 20
           ),
       },
       "move speed": {
@@ -101,8 +109,11 @@ describe("search", () => {
           ),
       },
       modes: {
-        input: (menu) => menu().get("#Modes").select("RandomTarget"),
-        verify: () => findTableColumn("Name").contains(/cecil damon/i),
+        input: (menu) => {
+          menu().findByLabelText("ID").type(`${testMonsterId}`);
+          menu().get("#Modes").select("Looter");
+        },
+        verify: () => findTableColumn("Name").contains(/test monster/i),
       },
     },
     sorts: {
@@ -125,29 +136,27 @@ describe("search", () => {
 });
 
 describe("details", () => {
-  before(() => gotoMonster(1002));
+  before(() => gotoMonster(testMonsterId));
 
   it("can list spawns", () => {
     cy.findByRole("tab", { name: /spawns/i }).click();
-    findTableColumn("Map").contains(/xmas_dun01/i);
+    findTableColumn("Map").contains(/test_map/i);
   });
 
   it("can list drops", () => {
     cy.findByRole("tab", { name: /drops/i }).click();
-    findTableColumn("Name").contains(/Jellopy/i);
+    findTableColumn("Name").contains(/test item/i);
   });
 });
 
 describe("assets", () => {
-  before(() => {
-    signInAsAdmin();
-    uploadAssets();
-    gotoMonster(1002);
-  });
+  before(() => gotoMonster(testMonsterId));
 
-  it("exists", () => cy.contains("Poring"));
+  it("exists", () => cy.contains("Test Monster"));
 
   it("has image", () => {
-    cy.findByRole("img", { name: "Poring" }).isFixtureImage("poring.png");
+    cy.findByRole("img", { name: "Test Monster" }).isFixtureImage(
+      "test_monster.png"
+    );
   });
 });

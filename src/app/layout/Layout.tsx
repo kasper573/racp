@@ -1,4 +1,4 @@
-import { ReactNode, Suspense, useState } from "react";
+import { CSSProperties, ReactNode, Suspense, useEffect, useState } from "react";
 import {
   AppBar,
   Box,
@@ -10,54 +10,49 @@ import {
   IconButton,
   Stack,
   Fade,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { Helmet } from "react-helmet-async";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { LoadingPage } from "../pages/LoadingPage";
 import { trpc } from "../state/client";
+import { useDocumentReadyState } from "../../lib/hooks/useDocumentReadyState";
 import { globalStyles } from "./globalStyles";
 import { Toolbar } from "./Toolbar";
 import { Menu } from "./Menu";
 import { Logo } from "./Logo";
 
 export function Layout({ children }: { children?: ReactNode }) {
-  const [isDrawerOpen, setDrawerOpen] = useState(false);
-  const closeDrawer = () => setDrawerOpen(false);
+  const theme = useTheme();
+  const isDocumentReady = useDocumentReadyState() !== "loading";
+  const isDrawerPermanent = !useMediaQuery(theme.breakpoints.down("md"));
+  const [isDrawerOpen, setDrawerOpen] = useState(isDrawerPermanent);
   const { data: settings } = trpc.settings.readPublic.useQuery();
+
+  useEffect(() => setDrawerOpen(isDrawerPermanent), [isDrawerPermanent]);
+
+  function handleDrawerCloseRequest() {
+    if (!isDrawerPermanent) {
+      setDrawerOpen(false);
+    }
+  }
 
   const drawerWidth = 240;
   const maxContentWidth = "xl" as const;
-  const contentBounds = {
-    width: { sm: `calc(100% - ${drawerWidth}px)` },
-    ml: { sm: `${drawerWidth}px` },
+  const contentBounds: CSSProperties = {
+    width: isDrawerPermanent ? `calc(100% - ${drawerWidth}px)` : undefined,
+    marginLeft: isDrawerPermanent ? `${drawerWidth}px` : undefined,
     display: "flex",
     flexDirection: "column",
     flex: 1,
   };
 
-  const sxShowOnSmallDevices = { display: { xs: "block", sm: "none" } };
-  const sxShowOnLargeDevices = { display: { xs: "none", sm: "block" } };
-
-  const drawerContent = (
-    <>
-      <MuiToolbar>
-        <Fade in={!!settings?.pageTitle}>
-          <div>
-            <Logo>{settings?.pageTitle}</Logo>
-          </div>
-        </Fade>
-      </MuiToolbar>
-      <Divider />
-      <Menu onItemSelected={closeDrawer} />
-    </>
-  );
-
-  const drawerBoundsStyle = {
-    "& .MuiDrawer-paper": {
-      boxSizing: "border-box",
-      width: drawerWidth,
-    },
-  };
+  if (!isDocumentReady) {
+    // Since we depend on media queries we have to delay rendering until document is ready.
+    // Without this delay, the drawer will flicker on mobile page load.
+    return null;
+  }
 
   return (
     <>
@@ -70,7 +65,7 @@ export function Layout({ children }: { children?: ReactNode }) {
         <MuiToolbar disableGutters>
           <Container maxWidth={maxContentWidth} sx={{ display: "flex" }}>
             <Toolbar>
-              <Box sx={sxShowOnSmallDevices}>
+              {!isDrawerPermanent && (
                 <Stack direction="row" spacing={1} alignItems="center">
                   <IconButton
                     aria-label="Open main menu"
@@ -84,30 +79,31 @@ export function Layout({ children }: { children?: ReactNode }) {
                     </div>
                   </Fade>
                 </Stack>
-              </Box>
+              )}
             </Toolbar>
           </Container>
         </MuiToolbar>
       </AppBar>
       <MuiDrawer
-        variant="temporary"
+        variant={isDrawerPermanent ? "permanent" : "temporary"}
         open={isDrawerOpen}
-        onClose={closeDrawer}
+        onClose={handleDrawerCloseRequest}
         sx={{
-          ...drawerBoundsStyle,
-          ...sxShowOnSmallDevices,
+          "& .MuiDrawer-paper": {
+            boxSizing: "border-box",
+            width: drawerWidth,
+          },
         }}
       >
-        {drawerContent}
-      </MuiDrawer>
-      <MuiDrawer
-        variant="permanent"
-        sx={{
-          ...drawerBoundsStyle,
-          ...sxShowOnLargeDevices,
-        }}
-      >
-        {drawerContent}
+        <MuiToolbar>
+          <Fade in={!!settings?.pageTitle}>
+            <div>
+              <Logo>{settings?.pageTitle}</Logo>
+            </div>
+          </Fade>
+        </MuiToolbar>
+        <Divider />
+        <Menu onItemSelected={handleDrawerCloseRequest} />
       </MuiDrawer>
       <Box component="main" sx={contentBounds}>
         <MuiToolbar />

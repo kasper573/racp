@@ -76,7 +76,7 @@ export const noLimitForFilter =
     isNoLimitFilter(filter) ? numMatches : undefined;
 
 export function createSearchController<Entity, Filter>(
-  getEntities: () => Promise<Entity[]>,
+  getEntities: () => PromiseLike<Entity[]>,
   isMatch: (item: Entity, filter: Filter) => boolean,
   getMaxLimit?: (numMatches: number, filter?: Filter) => number | undefined
 ) {
@@ -114,7 +114,7 @@ export function createSearchController<Entity, Filter>(
 export function createSearchProcedure<ET extends ZodType, FT extends ZodType>(
   entityType: ET,
   filterType: FT,
-  getEntities: () => Promise<zod.infer<ET>[]>,
+  getEntities: () => PromiseLike<zod.infer<ET>[]>,
   isMatch: (item: zod.infer<ET>, filter: zod.infer<FT>) => boolean,
   getMaxLimit?: (
     numMatches: number,

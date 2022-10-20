@@ -1,39 +1,31 @@
-import { Logger } from "../../../lib/logger";
-import { ScriptDriver } from "../../rathena/ScriptDriver";
 import { Item, ItemId } from "../item/types";
-import { createAsyncMemo } from "../../../lib/createMemo";
+import { ResourceFactory } from "../../resources";
+import { Repository } from "../../../lib/repo/Repository";
 import { internalShopType, Shop, ShopItem } from "./types";
 
 export type ShopRepository = ReturnType<typeof createShopRepository>;
 
 export function createShopRepository({
-  script,
-  logger,
-  getItems,
+  resources,
+  items,
 }: {
-  script: ScriptDriver;
-  logger: Logger;
-  getItems: () => Promise<Map<ItemId, Item>>;
+  resources: ResourceFactory;
+  items: Repository<Map<ItemId, Item>>;
 }) {
-  const internalShopsPromise = logger.track(
-    script.resolve(internalShopType),
-    "script.resolve",
-    "shop"
+  const internalShops = resources.script("shop", internalShopType);
+
+  const shops = internalShops.map("shops", (list) =>
+    list.map(
+      (internalShop): Shop => ({
+        ...internalShop,
+        itemIds: internalShop.items.map(({ itemId }) => itemId),
+      })
+    )
   );
 
-  const getShops = () =>
-    internalShopsPromise.then((list) =>
-      list.map(
-        (internalShop): Shop => ({
-          ...internalShop,
-          itemIds: internalShop.items.map(({ itemId }) => itemId),
-        })
-      )
-    );
-
-  const getShopItems = createAsyncMemo(
-    () => Promise.all([internalShopsPromise, getItems()]),
-    (internalShops, items): ShopItem[] => {
+  const shopItems = internalShops
+    .and(items)
+    .map("shopItems", ([internalShops, items]): ShopItem[] => {
       return internalShops.reduce((shopItems, internalShop) => {
         const shopMap =
           internalShop.mapId && internalShop.mapX && internalShop.mapY
@@ -57,11 +49,10 @@ export function createShopRepository({
         }
         return shopItems;
       }, [] as ShopItem[]);
-    }
-  );
+    });
 
   return {
-    getShops,
-    getShopItems,
+    shops,
+    shopItems,
   };
 }

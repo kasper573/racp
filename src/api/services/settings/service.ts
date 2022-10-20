@@ -12,14 +12,14 @@ export function createAdminSettingsService(settings: AdminSettingsRepository) {
   return t.router({
     readPublic: t.procedure
       .output(adminPublicSettingsType)
-      .query(() => settings.getSettings()),
+      .query(settings.read),
     read: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(adminSettingsType)
-      .query(settings.getSettings),
+      .query(settings.read),
     update: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(adminSettingsType)
-      .mutation(({ input }) => settings.updateSettings(input)),
+      .mutation(({ input }) => settings.write(input)),
   });
 }

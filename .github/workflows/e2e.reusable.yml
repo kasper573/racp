@@ -5,6 +5,10 @@ on:
         description: "Cypress project ID"
         required: false
     inputs:
+      name:
+        description: "Name of test"
+        required: true
+        type: string
       width:
         description: "Cypress viewport width"
         required: true
@@ -23,9 +27,9 @@ jobs:
         image: mariadb:latest
         ports: [3306]
         env:
-          MYSQL_USER: ragnarok
-          MYSQL_PASSWORD: ragnarok
-          MYSQL_DATABASE: ragnarok
+          MYSQL_USER: racp
+          MYSQL_PASSWORD: racp
+          MYSQL_DATABASE: racp
           MYSQL_ROOT_PASSWORD: racp
           MYSQL_ROOT_HOST: "%"
     env:
@@ -35,6 +39,7 @@ jobs:
       exposeInternalErrors: true
       apiBaseUrl: http://localhost:8081
       rAthenaPath: ./node_modules/rathena
+      CYPRESS_CI: true
       CYPRESS_BASE_URL: http://localhost:8080
       CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
     steps:
@@ -62,9 +67,12 @@ jobs:
         env:
           MYSQL_PORT: 3306
           MYSQL_HOST: db
-          MYSQL_USER: ragnarok
-          MYSQL_PASSWORD: ragnarok
-          MYSQL_DATABASE: ragnarok
+          MYSQL_USER: racp
+          MYSQL_PASSWORD: racp
+          MYSQL_DATABASE: racp
+
+      - name: Inject RAthena fixtures
+        run: yarn inject-rathena-fixtures
 
       - name: Run cypress
         run: yarn e2e:ci:run
@@ -72,14 +80,23 @@ jobs:
           CYPRESS_VIEWPORT_WIDTH: ${{ inputs.width }}
           CYPRESS_VIEWPORT_HEIGHT: ${{ inputs.height }}
 
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: E2E Test Report (${{ inputs.name }})
+          path: cypress/reports/**/*.xml
+          reporter: java-junit
+          fail-on-error: false
+
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: cypress-screenshots-${{ inputs.width}}x${{ inputs.height }}
+          name: cypress-screenshots-${{ inputs.name }}
           path: cypress/screenshots
 
       - uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: cypress-videos-${{ inputs.width}}x${{ inputs.height }}
+          name: cypress-videos-${{ inputs.name }}
           path: cypress/videos

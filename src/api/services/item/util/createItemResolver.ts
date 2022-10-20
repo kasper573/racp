@@ -1,5 +1,5 @@
 import * as zod from "zod";
-import { createYamlResolver } from "../../../rathena/YamlDriver";
+import { createYamlResolver } from "../../../rathena/YamlRepository";
 import { Item, itemPostProcessType, itemType } from "../types";
 import { defined } from "../../../../lib/std/defined";
 import { clientTextContent } from "../../../common/clientTextType";

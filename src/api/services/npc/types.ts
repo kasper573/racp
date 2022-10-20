@@ -2,7 +2,10 @@ import * as zod from "zod";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { matcher } from "../../matcher";
 import { ZodCustomObject } from "../../../lib/zod/ZodCustomObject";
-import { RawScriptEntity, trimUniqueNpcName } from "../../rathena/ScriptDriver";
+import {
+  RawScriptEntity,
+  trimUniqueNpcName,
+} from "../../rathena/ScriptRepository";
 
 export type NpcId = Npc["id"];
 export type Npc = zod.infer<typeof npcType>;

@@ -1,5 +1,5 @@
 import { groupBy } from "lodash";
-import { createYamlResolver } from "../../../rathena/YamlDriver";
+import { createYamlResolver } from "../../../rathena/YamlRepository";
 import { userGroupType } from "../types";
 
 export const UserGroupResolver = createYamlResolver(userGroupType, {

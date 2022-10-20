@@ -6,14 +6,23 @@ export function testItemIdentifier(
     name,
     cards,
     slots,
+    refine,
     enchants,
-  }: { name: string; slots: number; cards: string[]; enchants: string[] }
+  }: {
+    refine: number;
+    name: string;
+    slots: number;
+    cards: string[];
+    enchants: string[];
+  }
 ) {
   describe("item identifier", () => {
     it("has cards and enchants summarized in display name", () => {
       findIdentifier().should(
         "have.text",
-        `${name} [${cards.length}/${slots}] [${enchants.length} ea]`
+        `${refine ? `+${refine} ` : ""}${name} [${cards.length}/${slots}] [${
+          enchants.length
+        } ea]`
       );
     });
 
@@ -22,7 +31,7 @@ export function testItemIdentifier(
       waitForPageReady();
       cy.findByLabelText("Item tooltip").within(() => {
         cy.wrap(cards).each((card: string) => {
-          cy.findByText(card).should("exist");
+          cy.contains(card);
         });
       });
     });
@@ -32,7 +41,7 @@ export function testItemIdentifier(
       waitForPageReady();
       cy.findByLabelText("Item tooltip").within(() => {
         cy.wrap(enchants).each((enchant: string) => {
-          cy.findByText(enchant).should("exist");
+          cy.contains(enchant);
         });
       });
     });

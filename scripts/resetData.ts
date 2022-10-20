@@ -6,8 +6,6 @@ import * as mysql from "mysql";
 import { readCliArgs } from "../src/lib/cli";
 import { options } from "../src/api/options";
 import { createLogger } from "../src/lib/logger";
-import { createConfigDriver } from "../src/api/rathena/ConfigDriver";
-import { createYamlDriver } from "../src/api/rathena/YamlDriver";
 import { createUserRepository } from "../src/api/services/user/repository";
 import {
   createDatabaseDriver,
@@ -19,6 +17,7 @@ import {
   adminCharId,
   adminCharName,
 } from "../cypress/support/vars";
+import { createResourceManager } from "../src/api/resources";
 
 async function resetData() {
   const logger = createLogger(console.log).chain("removeUGC");
@@ -45,11 +44,11 @@ async function resetData() {
   ]);
 
   // Reset databases
-  const cfg = createConfigDriver({ ...args, logger });
-  const db = createDatabaseDriver(cfg);
+
+  const db = createDatabaseDriver({ ...args, logger });
   for (const { driver, group } of await groupDatabaseDrivers(db)) {
     await driver.useConnection(async (conn) => {
-      const { database } = await driver.dbInfo;
+      const { database } = await driver.dbInfo();
       logger.log(`Truncating database for drivers: ${group}`);
       await runSqlQuery(conn, createTruncateDBQuery(database));
       const sqlFiles = uniq(
@@ -64,8 +63,8 @@ async function resetData() {
   }
 
   // Insert admin account and character
-  const yaml = createYamlDriver({ ...args, logger });
-  const user = createUserRepository({ ...args, yaml });
+  const { create: resources } = createResourceManager({ logger, ...args });
+  const user = createUserRepository({ resources, ...args });
   await db.login.table("login").insert({
     account_id: adminAccountId,
     userid: args.ADMIN_USER,
@@ -94,7 +93,7 @@ const sqlFilesPerDb: Record<string, string> = {
 };
 
 async function groupDatabaseDrivers(db: DatabaseDriver) {
-  const dbInfos = await Promise.all(db.all.map((one) => one.dbInfo));
+  const dbInfos = await Promise.all(db.all.map((one) => one.dbInfo()));
   const ids = dbInfos.map((one) => `${one.host}:${one.port}:${one.database}`);
   const lookup = Object.values(
     groupBy(db.all, (one) => ids[db.all.indexOf(one)])

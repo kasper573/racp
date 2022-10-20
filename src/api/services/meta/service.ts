@@ -1,11 +1,9 @@
-import { Item } from "../item/types";
-import { dedupe, dedupeRecordInsert } from "../../rathena/dedupe";
+import { Item, ItemId } from "../item/types";
+import { dedupe, dedupeRecordInsert } from "../../rathena/util/dedupe";
 import { ClientTextNode } from "../../common/clientTextType";
-import { ItemRepository } from "../item/repository";
-import { MonsterRepository } from "../monster/repository";
-import { Monster } from "../monster/types";
+import { Monster, MonsterId } from "../monster/types";
 import { t } from "../../trpc";
-import { createAsyncMemo } from "../../../lib/createMemo";
+import { Repository } from "../../../lib/repo/Repository";
 import { metaType } from "./types";
 
 export type MetaService = ReturnType<typeof createMetaService>;
@@ -14,21 +12,16 @@ export function createMetaService({
   items,
   monsters,
 }: {
-  items: ItemRepository;
-  monsters: MonsterRepository;
+  items: Repository<Map<ItemId, Item>>;
+  monsters: Repository<Map<MonsterId, Monster>>;
 }) {
-  const compileMeta = createAsyncMemo(
-    () => Promise.all([items.getItems(), monsters.getMonsters()]),
-    (items, monsters) => {
-      return {
-        ...collectItemMeta(Array.from(items.values())),
-        ...collectMonsterMeta(Array.from(monsters.values())),
-      };
-    }
-  );
+  const meta = items.and(monsters).map("meta", ([items, monsters]) => ({
+    ...collectItemMeta(Array.from(items.values())),
+    ...collectMonsterMeta(Array.from(monsters.values())),
+  }));
 
   return t.router({
-    read: t.procedure.output(metaType).query(compileMeta),
+    read: t.procedure.output(metaType).query(() => meta.then()),
   });
 }
 

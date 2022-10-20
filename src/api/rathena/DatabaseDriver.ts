@@ -1,24 +1,39 @@
 import knex, { Knex } from "knex";
 import * as mysql from "mysql";
 import { singletons } from "../../lib/singletons";
-import { ConfigDriver, dbInfoConfigName } from "./ConfigDriver";
 import { Tables } from "./DatabaseDriver.types";
+import { DBInfoDriver } from "./DBInfoDriver";
+import { ConfigRepository, ConfigRepositoryOptions } from "./ConfigRepository";
 
 export type DatabaseDriver = ReturnType<typeof createDatabaseDriver>;
+
+export const dbInfoConfigName = "inter_athena.conf";
 
 /**
  * Typesafe knex interface with rAthena mysql database.
  * Each property is a driver for the database of the same name.
  * The drivers are initialized lazily on first use.
  */
-export function createDatabaseDriver(cfg: ConfigDriver) {
+export function createDatabaseDriver(
+  options: Omit<ConfigRepositoryOptions, "configName">
+) {
+  // Automatically creating config/dbInfo drivers since nothing else is using them
+  // If we need to use them for something else, we can refactor this
+  const dbInfoDriver = new DBInfoDriver(
+    new ConfigRepository({
+      ...options,
+      configName: dbInfoConfigName,
+    })
+  );
+
   const db = singletons({
-    login: () => driverForDB(cfg, "login_server"),
-    map: () => driverForDB(cfg, "map_server"),
-    char: () => driverForDB(cfg, "char_server"),
-    log: () => driverForDB(cfg, "log_db"),
+    login: () => driverForDB("login_server"),
+    map: () => driverForDB("map_server"),
+    char: () => driverForDB("char_server"),
+    log: () => driverForDB("log_db"),
     destroy: () => destroy,
     all: (): DBDriver[] => [db.login, db.map, db.char, db.log],
+    info: () => dbInfoDriver,
   });
 
   function destroy() {
@@ -29,30 +44,25 @@ export function createDatabaseDriver(cfg: ConfigDriver) {
 
   const drivers: Record<string, Knex> = {};
 
-  const dbInfoConfig = cfg.load(dbInfoConfigName);
-
   type DBDriver = ReturnType<typeof driverForDB>;
-  function driverForDB(cfg: ConfigDriver, dbPrefix: string) {
-    const dbInfo = dbInfoConfig.then((config) =>
-      cfg.presets.createDBInfo(config, dbPrefix)
-    );
-
+  function driverForDB(dbPrefix: string) {
+    const getDBInfo = () => dbInfoDriver.read(dbPrefix);
     const driver = knex({
       client: "mysql",
-      connection: () => dbInfo,
+      connection: getDBInfo,
     });
 
     drivers[dbPrefix] = driver;
 
     return {
-      dbInfo,
+      dbInfo: getDBInfo,
       name: dbPrefix,
       table: <TableName extends keyof Tables>(tableName: TableName) => {
         type Entity = Tables[TableName];
         return driver<Entity, Entity[]>(tableName);
       },
       async useConnection(use: (conn: mysql.Connection) => Promise<void>) {
-        const info = await dbInfo;
+        const info = await getDBInfo();
         const conn = mysql.createConnection({
           ...info,
           multipleStatements: true,

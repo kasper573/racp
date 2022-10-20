@@ -6,6 +6,7 @@ node_modules
 cypress/downloads
 cypress/videos
 cypress/screenshots
+cypress/reports
 docker-volumes
 .env.local
 .idea

@@ -1,109 +1,89 @@
 import { pick } from "lodash";
 import { RAthenaMode } from "../../options";
-import { YamlDriver } from "../../rathena/YamlDriver";
-import { ScriptDriver } from "../../rathena/ScriptDriver";
-import { ImageFormatter } from "../../../lib/image/createImageFormatter";
-import { Linker } from "../../../lib/fs/createPublicFileLinker";
-import { createImageRepository } from "../../common/createImageRepository";
-import { Logger } from "../../../lib/logger";
-import { createAsyncMemo } from "../../../lib/createMemo";
-import { Mvp, createMvpId, Monster, monsterSpawnType } from "./types";
+import { ResourceFactory } from "../../resources";
+import {
+  Mvp,
+  createMvpId,
+  Monster,
+  monsterSpawnType,
+  MonsterSpawn,
+} from "./types";
 import { createMonsterResolver } from "./util/createMonsterResolver";
 
 export type MonsterRepository = ReturnType<typeof createMonsterRepository>;
 
 export function createMonsterRepository({
   rAthenaMode,
-  linker,
-  formatter,
-  yaml,
-  script,
-  logger: parentLogger,
+  resources,
 }: {
-  linker: Linker;
-  formatter: ImageFormatter;
   rAthenaMode: RAthenaMode;
-  yaml: YamlDriver;
-  script: ScriptDriver;
-  logger: Logger;
+  resources: ResourceFactory;
 }) {
-  const logger = parentLogger.chain("monster");
-  const imageLinker = linker.chain("monsters");
-  const imageName = (id: Monster["Id"]) => `${id}${formatter.fileExtension}`;
-  const imageRepository = createImageRepository(formatter, imageLinker, logger);
+  const images = resources.images("monsters");
+  const imageName = (id: Monster["Id"]) => `${id}${images.fileExtension}`;
 
-  const monsterResolver = createMonsterResolver(rAthenaMode);
-  const monstersPromise = yaml.resolve("db/mob_db.yml", monsterResolver);
-  const spawnsPromise = logger.track(
-    script.resolve(monsterSpawnType),
-    "script.resolve",
-    "monsterSpawn"
+  const spawnDB = resources.script("spawns", monsterSpawnType);
+  const monsterDB = resources.yaml(
+    "db/mob_db.yml",
+    createMonsterResolver(rAthenaMode)
   );
 
-  const getMonsters = createAsyncMemo(
-    async () => [await monstersPromise, imageRepository.urlMap] as const,
-    (monsters, urlMap) => {
-      logger.log("Recomputing monster repository");
-      return Array.from(monsters.values()).reduce(
+  const monsters = monsterDB
+    .and(images)
+    .map("monsters", ([monsterDB, images]) =>
+      Array.from(monsterDB.values()).reduce(
         (monsters, monster) =>
           monsters.set(monster.Id, {
             ...monster,
-            ImageUrl: urlMap[imageName(monster.Id)],
+            ImageUrl: images[imageName(monster.Id)],
           }),
         new Map<Monster["Id"], Monster>()
-      );
-    }
-  );
+      )
+    );
 
-  const getMonsterSpawns = createAsyncMemo(
-    async () => [await spawnsPromise, imageRepository.urlMap] as const,
-    (spawns, urlMap) => {
-      logger.log("Recomputing monster spawn repository");
-      return spawns.map((spawn) => ({
+  const spawns = spawnDB.and(images).map("spawns", ([spawnDB, images]) =>
+    spawnDB.map(
+      (spawn): MonsterSpawn => ({
         ...spawn,
-        imageUrl: urlMap[imageName(spawn.monsterId)],
-      }));
-    }
+        imageUrl: images[imageName(spawn.monsterId)],
+      })
+    )
   );
 
-  const getMvps = createAsyncMemo(
-    () => Promise.all([getMonsters(), getMonsterSpawns()]),
-    (monsters, spawns) => {
-      const entries: Record<string, Mvp> = {};
-      for (const spawn of spawns) {
-        const monster = monsters.get(spawn.monsterId);
-        if (!monster?.Modes["Mvp"]) {
-          continue;
-        }
-        const bossId = createMvpId(monster, spawn);
-        if (!entries[bossId]) {
-          entries[bossId] = {
-            id: bossId,
-            monsterId: monster.Id,
-            name: monster.Name,
-            imageUrl: monster.ImageUrl,
-            mapId: spawn.map,
-            mapName: spawn.map,
-            ...pick(spawn, "spawnDelay", "spawnWindow"),
-          };
-        }
+  const mvps = monsters.and(spawns).map("mvps", ([monsters, spawns]) => {
+    const entries: Record<string, Mvp> = {};
+    for (const spawn of spawns) {
+      const monster = monsters.get(spawn.monsterId);
+      if (!monster?.Modes["Mvp"]) {
+        continue;
       }
-
-      return Object.values(entries);
+      const bossId = createMvpId(monster, spawn);
+      if (!entries[bossId]) {
+        entries[bossId] = {
+          id: bossId,
+          monsterId: monster.Id,
+          name: monster.Name,
+          imageUrl: monster.ImageUrl,
+          mapId: spawn.map,
+          mapName: spawn.map,
+          ...pick(spawn, "spawnDelay", "spawnWindow"),
+        };
+      }
     }
-  );
+
+    return Object.values(entries);
+  });
 
   return {
-    getSpawns: getMonsterSpawns,
-    getMonsters,
-    getMvps,
-    updateImages: imageRepository.update,
+    spawns,
+    monsters,
+    mvps,
+    images,
     missingImages: () =>
-      getMonsters().then((map) =>
+      monsters.then((map) =>
         Array.from(map.values()).filter(
           (monster) => monster.ImageUrl === undefined
         )
       ),
-    destroy: () => imageRepository.close(),
   };
 }

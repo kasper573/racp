@@ -4,7 +4,7 @@ import { matcher } from "../../matcher";
 import { trimQuotes } from "../../../lib/std/trimQuotes";
 import { createSegmentedObject } from "../../../lib/zod/ZodSegmentedObject";
 import { zodNumeric } from "../../../lib/zod/zodNumeric";
-import { RawScriptEntity } from "../../rathena/ScriptDriver";
+import { RawScriptEntity } from "../../rathena/ScriptRepository";
 
 export type MapId = zod.infer<typeof mapIdType>;
 export const mapIdType = zod.string();

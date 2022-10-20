@@ -1,5 +1,5 @@
-import { FileStore } from "../../../lib/fs/createFileStore";
 import { zodJsonProtocol } from "../../../lib/zod/zodJsonProtocol";
+import { ResourceFactory } from "../../resources";
 import { adminSettingsType } from "./types";
 import { defaultAdminSettings } from "./defaults";
 
@@ -7,13 +7,10 @@ export type AdminSettingsRepository = ReturnType<
   typeof createAdminSettingsRepository
 >;
 
-export function createAdminSettingsRepository(files: FileStore) {
-  const settingsFile = files.entry(
-    "settings.json",
-    zodJsonProtocol(adminSettingsType)
-  );
-  return {
-    getSettings: () => settingsFile.data ?? defaultAdminSettings,
-    updateSettings: settingsFile.write,
-  };
+export function createAdminSettingsRepository(resources: ResourceFactory) {
+  return resources.file({
+    relativeFilename: "settings.json",
+    protocol: zodJsonProtocol(adminSettingsType),
+    defaultValue: defaultAdminSettings,
+  });
 }

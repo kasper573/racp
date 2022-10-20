@@ -1,10 +1,6 @@
 import { range } from "lodash";
 import { listVendings } from "../support/actions/nav";
-import {
-  resetData,
-  signInAsAdmin,
-  uploadAssets,
-} from "../support/actions/admin";
+
 import { expectTableColumn, findTableColumn } from "../support/actions/grid";
 import {
   generateSearchPageTests,
@@ -17,16 +13,31 @@ import {
 } from "../support/util";
 import { VendorItem } from "../../src/api/services/vendor/types";
 import { waitForPageReady } from "../support/actions/common";
+import { testItemId, testMapId } from "../fixtures/ids";
+import { ensureAssets, resetData } from "../support/actions/admin";
 import { testItemIdentifier } from "./item.actions";
 
 before(() => {
   resetData();
-  cy.visit("/");
-  signInAsAdmin();
+
+  ensureAssets();
 
   cy.trpc((client) =>
     client?.vendor.insertItems.mutate({
-      items: range(0, 50).map(() => mockItem()),
+      items: [
+        ...range(0, 50).map(() => mockItem()),
+        mockItem({
+          itemId: testItemId,
+          cardIds: [testItemId],
+          refine: 1,
+          options: [
+            // These item options exist in the data.grf fixture
+            { id: 1, value: 100 },
+            { id: 2, value: 50 },
+            { id: 10, value: 15 },
+          ],
+        }),
+      ],
       charId: 0,
       accountId: 0,
     })
@@ -38,16 +49,17 @@ before(() => {
 generateSearchPageTests({
   searches: {
     id: {
-      input: (menu) => menu().findByLabelText("Item ID").type("501"),
-      verify: () => expectTableColumn("Item", () => /red potion/i),
+      input: (menu) =>
+        menu().findByLabelText("Item ID").type(testItemId.toString()),
+      verify: () => expectTableColumn("Item", () => /test item/i),
     },
     name: {
-      input: (menu) => menu().findByLabelText("Item name").type("potion"),
-      verify: () => expectTableColumn("Item", () => /potion/i),
+      input: (menu) => menu().findByLabelText("Item name").type("test"),
+      verify: () => expectTableColumn("Item", () => /test/i),
     },
     vendor: {
-      input: (menu) => menu().findByLabelText("Vendor").type("4"),
-      verify: () => expectTableColumn("Vendor", () => /4/i),
+      input: (menu) => menu().findByLabelText("Vendor").type("Vendor 4"),
+      verify: () => expectTableColumn("Vendor", () => /vendor 4/i),
     },
     price: {
       input: (menu) => {
@@ -78,56 +90,43 @@ generateSearchPageTests({
 
 describe("assets", () => {
   before(() => {
-    const items = [
-      mockItem({
-        itemId: 1108,
-        cardIds: [4209, 4190],
-        options: [
-          { id: 1, value: 100 },
-          { id: 2, value: 50 },
-          { id: 10, value: 15 },
-        ],
-      }),
-    ];
-    uploadAssets();
-    cy.trpc((client) =>
-      client?.vendor.insertItems.mutate({
-        items,
-        charId: 0,
-        accountId: 0,
-      })
+    withFilterMenu(() =>
+      cy.findByLabelText("Item ID").type(testItemId.toString())
     );
-    listVendings();
-    withFilterMenu(() => cy.findByLabelText("Item ID").type("1108"));
     waitForPageReady();
   });
 
   testItemIdentifier(() => findTableColumn("Item").findByRole("link"), {
-    name: "Blade",
-    slots: 4,
-    cards: ["Violy Card", "Wraith Card"],
+    name: "Test Item",
+    slots: 3,
+    refine: 1,
+    cards: ["Test Item"],
     enchants: ["Health Points +100", "Spell Points +50", "Movement Speed +15%"],
   });
 });
 
-let idCounter = 0;
+let seed = 0;
 function mockItem(props: Partial<VendorItem> = {}) {
-  let seed = idCounter++;
+  seed++;
   return {
     id: `${seed}_${seed}`,
     price: seed * 100,
     amount: seed % 10,
     refine: seed % 10,
-    itemId: 501 + seed,
     vendorId: seed,
-    vendorTitle: `Title ${seed}`,
+    vendorTitle: `Vendor ${seed}`,
     identified: seed % 2 === 0,
-    map: "prontera",
+    map: testMapId,
     options: [],
     cardIds: [],
     name: "",
     x: seed,
     y: seed,
+
+    // Slight dependency on rAthena structure, but it's so minor it's okay.
+    // rAthena item ids start at 500 and goes up. It's extremely unlikely this will change.
+    itemId: 500 + seed,
+
     ...props,
   };
 }

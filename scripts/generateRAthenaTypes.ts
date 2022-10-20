@@ -8,9 +8,9 @@ import { readCliArgs } from "../src/lib/cli";
 import { options } from "../src/api/options";
 import { createLogger } from "../src/lib/logger";
 import {
-  createConfigDriver,
+  createDatabaseDriver,
   dbInfoConfigName,
-} from "../src/api/rathena/ConfigDriver";
+} from "../src/api/rathena/DatabaseDriver";
 
 /**
  * Generates zod type & typescript definitions of the rAthena mysql database
@@ -26,7 +26,7 @@ async function generate() {
     },
   });
 
-  const cfg = createConfigDriver({
+  const db = createDatabaseDriver({
     rAthenaPath,
     logger: createLogger(console.log),
   });
@@ -34,7 +34,7 @@ async function generate() {
   const tsString = await sqlts.toTypeScript({
     client: "mysql",
     template: path.resolve(__dirname, "DatabaseDriver.codegen.hbs"),
-    connection: await cfg.presets.dbInfo(template),
+    connection: await db.info.read(template),
     tableNameCasing: "pascal",
     enumNameCasing: "pascal",
     globalOptionality: "required",

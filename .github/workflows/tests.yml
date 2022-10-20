@@ -33,6 +33,7 @@ jobs:
     with:
       width: 1366
       height: 768
+      name: widescreen
     secrets: inherit
 
   e2e-portrait:
@@ -40,6 +41,7 @@ jobs:
     with:
       width: 428
       height: 926
+      name: portrait
     secrets: inherit
 
   e2e-landscape:
@@ -47,4 +49,5 @@ jobs:
     with:
       width: 926
       height: 428
+      name: landscape
     secrets: inherit

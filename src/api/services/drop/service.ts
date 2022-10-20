@@ -10,7 +10,7 @@ export function createDropService(drops: DropRepository) {
     search: createSearchProcedure(
       itemDropType,
       itemDropFilter.type,
-      drops.getDrops,
+      () => drops,
       (entity, payload) => itemDropFilter.for(payload)(entity),
       noLimitForFilter((filter) => filter?.ItemId?.matcher === "=")
     ),

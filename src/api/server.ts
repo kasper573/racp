@@ -4,15 +4,12 @@ import * as express from "express";
 import cors = require("cors");
 import { Request as JWTRequest } from "express-jwt";
 import * as trpcExpress from "@trpc/server/adapters/express";
-import * as morgan from "morgan";
-import { createFileStore } from "../lib/fs/createFileStore";
 import { createLogger } from "../lib/logger";
 import { createPublicFileLinker } from "../lib/fs/createPublicFileLinker";
 import { createImageFormatter } from "../lib/image/createImageFormatter";
 import { createEllipsisLogFn } from "../lib/createEllipsisLogFn";
 import { readCliArgs } from "../lib/cli";
-import { createYamlDriver } from "./rathena/YamlDriver";
-import { createConfigDriver } from "./rathena/ConfigDriver";
+import { loggerToMorgan } from "../lib/loggerToMorgan";
 import { createDatabaseDriver } from "./rathena/DatabaseDriver";
 import {
   AuthenticatorPayload,
@@ -23,7 +20,6 @@ import { createUtilService } from "./services/util/service";
 import { createItemService } from "./services/item/service";
 import { options } from "./options";
 import { createMonsterService } from "./services/monster/service";
-import { createScriptDriver } from "./rathena/ScriptDriver";
 import { createMetaService } from "./services/meta/service";
 import { createItemRepository } from "./services/item/repository";
 import { createMonsterRepository } from "./services/monster/repository";
@@ -31,7 +27,7 @@ import { createMapService } from "./services/map/service";
 import { createMapRepository } from "./services/map/repository";
 import { createUserRepository } from "./services/user/repository";
 import { timeColor } from "./common/timeColor";
-import { ApiRouter, createApiRouter } from "./router";
+import { createApiRouter } from "./router";
 import { createDropRepository } from "./services/drop/repository";
 import { createDropService } from "./services/drop/service";
 import { createVendorService } from "./services/vendor/service";
@@ -42,7 +38,7 @@ import { createNpcService } from "./services/npc/service";
 import { createAdminSettingsService } from "./services/settings/service";
 import { createDonationService } from "./services/donation/service";
 import { createAdminSettingsRepository } from "./services/settings/repository";
-import { createTxtDriver } from "./rathena/TxtDriver";
+import { createResourceManager } from "./resources";
 
 const args = readCliArgs(options);
 const logger = createLogger(
@@ -54,16 +50,8 @@ const logger = createLogger(
 );
 
 const app = express();
-const txt = createTxtDriver({ ...args, logger });
 const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
-const yaml = createYamlDriver({ ...args, logger });
-const config = createConfigDriver({ ...args, logger });
-const db = createDatabaseDriver(config);
-const files = createFileStore(
-  path.join(process.cwd(), args.dataFolder),
-  logger
-);
-const script = createScriptDriver({ ...args, logger });
+const db = createDatabaseDriver({ ...args, logger });
 const formatter = createImageFormatter({ extension: ".png", quality: 70 });
 const linker = createPublicFileLinker({
   directory: path.join(process.cwd(), args.publicFolder),
@@ -71,47 +59,48 @@ const linker = createPublicFileLinker({
   port: args.apiPort,
 });
 
-let router: ApiRouter;
+const resourceManager = createResourceManager({
+  logger,
+  formatter,
+  linker,
+  ...args,
+});
 
-// prettier-ignore
-{
-  const user = createUserRepository({ yaml, ...args });
-  const items = createItemRepository({ ...args, txt, yaml, files, formatter, linker, logger, });
-  const monsters = createMonsterRepository({ ...args, yaml, script, formatter, linker, logger, });
-  const maps = createMapRepository({ files, linker, formatter, getSpawns: monsters.getSpawns, script, logger, });
-  const npcs = createNpcRepository({ script, logger });
-  const drops = createDropRepository({ items, monsters, logger });
-  const shops = createShopRepository({ script, logger, getItems: items.getItems, });
-  const settings = createAdminSettingsRepository(files);
+const resources = resourceManager.create;
+const npcs = createNpcRepository(resources);
+const settings = createAdminSettingsRepository(resources);
+const user = createUserRepository({ ...args, resources });
+const items = createItemRepository({ ...args, resources });
+const monsters = createMonsterRepository({ ...args, resources });
+const drops = createDropRepository({ ...items, ...monsters });
+const shops = createShopRepository({ ...items, resources });
+const maps = createMapRepository({ ...monsters, resources });
 
-  router = createApiRouter({
-    util: createUtilService(),
-    user: createUserService({ db, user, sign: auth.sign, ...args }),
-    item: createItemService(items),
-    monster: createMonsterService({ db, repo: monsters }),
-    drop: createDropService(drops),
-    vendor: createVendorService({ db, items }),
-    shop: createShopService(shops),
-    npc: createNpcService(npcs),
-    map: createMapService(maps),
-    meta: createMetaService({ items, monsters }),
-    settings: createAdminSettingsService(settings),
-    donation: createDonationService({
-      db,
-      env: args.donationEnvironment,
-      settings,
-      items,
-      logger,
-    }),
-  })
-}
+const router = createApiRouter({
+  util: createUtilService(() => Promise.all(resourceManager.instances)),
+  user: createUserService({ db, user, sign: auth.sign, ...args }),
+  item: createItemService(items),
+  monster: createMonsterService({ db, repo: monsters }),
+  drop: createDropService(drops),
+  vendor: createVendorService({ db, items }),
+  shop: createShopService(shops),
+  npc: createNpcService(npcs),
+  map: createMapService(maps),
+  settings: createAdminSettingsService(settings),
+  meta: createMetaService({ ...items, ...monsters }),
+  donation: createDonationService({
+    db,
+    env: args.donationEnvironment,
+    logger,
+    settings,
+    ...items,
+  }),
+});
 
 app.use(auth.middleware);
 app.use(cors());
 app.use(express.static(linker.directory));
-app.use(
-  morgan(":method :url :status :res[content-length] - :response-time ms")
-);
+app.use(loggerToMorgan(logger.chain("http")));
 app.use(
   trpcExpress.createExpressMiddleware({
     onError({ error, path }) {
@@ -128,5 +117,5 @@ app.use(
 );
 
 http.createServer(app).listen(args.apiPort, "0.0.0.0", () => {
-  console.log(`API is running on port ${args.apiPort}`);
+  logger.log(`API is running on port ${args.apiPort}`);
 });
