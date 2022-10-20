@@ -17,8 +17,7 @@ describe("search", () => {
   generateSearchPageTests({
     searches: {
       id: {
-        input: (menu) =>
-          menu().findByLabelText("ID").type(testMonsterId.toString()),
+        input: (menu) => menu().findByLabelText("ID").type(`${testMonsterId}`),
         verify: () => findRowById(testMonsterId),
       },
       name: {
@@ -26,15 +25,24 @@ describe("search", () => {
         verify: () => expectTableColumn("Name", () => /test monster/i),
       },
       race: {
-        input: (menu) => menu().get("#Race").select("Plant"),
+        input: (menu) => {
+          menu().findByLabelText("ID").type(`${testMonsterId}`);
+          menu().get("#Race").select("Plant");
+        },
         verify: () => findTableColumn("Name").contains(/test monster/i),
       },
       element: {
-        input: (menu) => menu().get("#Element").select("Water"),
+        input: (menu) => {
+          menu().findByLabelText("ID").type(`${testMonsterId}`);
+          menu().get("#Element").select("Water");
+        },
         verify: () => findTableColumn("Name").contains(/test monster/i),
       },
       size: {
-        input: (menu) => menu().get("#Size").select("Medium"),
+        input: (menu) => {
+          menu().findByLabelText("ID").type(`${testMonsterId}`);
+          menu().get("#Size").select("Medium");
+        },
         verify: () => findTableColumn("Name").contains(/test monster/i),
       },
       level: {
@@ -101,7 +109,10 @@ describe("search", () => {
           ),
       },
       modes: {
-        input: (menu) => menu().get("#Modes").select("Looter"),
+        input: (menu) => {
+          menu().findByLabelText("ID").type(`${testMonsterId}`);
+          menu().get("#Modes").select("Looter");
+        },
         verify: () => findTableColumn("Name").contains(/test monster/i),
       },
     },

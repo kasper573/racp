@@ -21,8 +21,7 @@ describe("search", () => {
   generateSearchPageTests({
     searches: {
       id: {
-        input: (menu) =>
-          menu().findByLabelText("ID").type(testItemId.toString()),
+        input: (menu) => menu().findByLabelText("ID").type(`${testItemId}`),
         verify: () => findRowById(testItemId),
       },
       name: {
@@ -30,34 +29,53 @@ describe("search", () => {
         verify: () => expectTableColumn("Name", () => /test item/i),
       },
       "primary type": {
-        input: (menu) => menu().get(`#PrimaryType`).select("Weapon"),
+        input: (menu) => {
+          menu().findByLabelText("ID").type(`${testItemId}`);
+          menu().get(`#PrimaryType`).select("Weapon");
+        },
         verify: () => findTableColumn("Name").contains(/test item/i),
       },
       "sub type": {
         input: (menu) => {
+          menu().findByLabelText("ID").type(`${testItemId}`);
           menu().get(`#PrimaryType`).select("Weapon");
           menu().get("#Subtype").select("1hSword");
         },
         verify: () => findTableColumn("Name").contains(/test item/i),
       },
       class: {
-        input: (menu) => menu().get("#Class").select("Fourth"),
+        input: (menu) => {
+          menu().findByLabelText("ID").type(`${testItemId}`);
+          menu().get("#Class").select("Fourth");
+        },
         verify: () => findTableColumn("Name").contains(/test item/i),
       },
       job: {
-        input: (menu) => menu().get("#Job").select("Alchemist"),
+        input: (menu) => {
+          menu().findByLabelText("ID").type(`${testItemId}`);
+          menu().get("#Job").select("Alchemist");
+        },
         verify: () => findTableColumn("Name").contains(/test item/i),
       },
       element: {
-        input: (menu) => menu().get("#Element").select("Dark"),
+        input: (menu) => {
+          menu().findByLabelText("ID").type(`${testItemId}`);
+          menu().get("#Element").select("Dark");
+        },
         verify: () => findTableColumn("Name").contains(/test item/i),
       },
       status: {
-        input: (menu) => menu().get("#Status").select("Bleeding"),
+        input: (menu) => {
+          menu().findByLabelText("ID").type(`${testItemId}`);
+          menu().get("#Status").select("Bleeding");
+        },
         verify: () => findTableColumn("Name").contains(/test item/i),
       },
       race: {
-        input: (menu) => menu().get("#Race").select("Demon"),
+        input: (menu) => {
+          menu().findByLabelText("ID").type(`${testItemId}`);
+          menu().get("#Race").select("Demon");
+        },
         verify: () => findTableColumn("Name").contains(/test item/i),
       },
       description: {
@@ -68,8 +86,10 @@ describe("search", () => {
         verify: () => findTableColumn("Name").contains(/test item/i),
       },
       script: {
-        input: (menu) =>
-          menu().findByLabelText("Script contains").type("bAtkEle"),
+        input: (menu) => {
+          menu().findByLabelText("ID").type(`${testItemId}`);
+          menu().findByLabelText("Script contains").type("bAtkEle");
+        },
         verify: () => findTableColumn("Name").contains(/test item/i),
       },
       slots: {
