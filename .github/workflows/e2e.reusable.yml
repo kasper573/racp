@@ -39,7 +39,7 @@ jobs:
       exposeInternalErrors: true
       apiBaseUrl: http://localhost:8081
       rAthenaPath: ./node_modules/rathena
-      CI: true
+      CYPRESS_CI: true
       CYPRESS_BASE_URL: http://localhost:8080
       CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
     steps:
@@ -59,8 +59,8 @@ jobs:
 
       - name: Allow access to rathena and cypress directories
         run: |
-          chmod -R 777 ./node_modules/rathena
-          chmod -R 777 ./cypress
+          chmod -R a+rwX ./node_modules/rathena
+          chmod -R a+rwX ./cypress
 
       - name: Configure rAthena
         run: yarn configure-rathena
