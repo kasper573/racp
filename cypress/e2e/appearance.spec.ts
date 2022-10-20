@@ -1,9 +1,11 @@
 import { resetData, signInAsAdmin } from "../support/actions/admin";
 import { gotoMainMenuPage } from "../support/actions/nav";
 import { findTableColumn } from "../support/actions/grid";
+import { waitForApiReady } from "../support/actions/common";
 
 before(() => {
   resetData();
+  waitForApiReady(); // Necessary because to observe zeny colors we need items
   signInAsAdmin();
 });
 
