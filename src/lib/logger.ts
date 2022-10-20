@@ -1,26 +1,28 @@
-import { isPlainObject } from "lodash";
-
-const colorWrap = (codes: AnsiColors, args: unknown[]) => [
-  ...codes.map((code) => `\x1b[${code}m`),
-  ...args,
-  "\x1b[0m", // Reset attributes
-];
-
 export function createLogger(
-  logFn: LogFn,
+  output: LogFns | LogFn,
   options: LoggerOptions = {}
 ): Logger {
-  const { name, timeColor, errorColor = [31], warnColor = [33] } = options;
-  const log = name ? createNamedLogFn(logFn, name) : logFn;
-  const chain = (name: string) => createLogger(log, { ...options, name });
-  const error: LogFn = (...args) => log(...colorWrap(errorColor, args));
-  const warn: LogFn = (...args) => log(...colorWrap(warnColor, args));
+  const logFns =
+    typeof output === "function"
+      ? { log: output, warn: output, error: output }
+      : output;
+
+  const {
+    name,
+    prefix = defaultLogPrefix,
+    format = defaultLogFormat,
+  } = options;
+
+  const log = name ? prefix(logFns.log, name) : logFns.log;
+  const warn = name ? prefix(logFns.warn, name) : logFns.warn;
+  const error = name ? prefix(logFns.error, name) : logFns.error;
+  const chain = (name: string) => createLogger(logFns, { ...options, name });
 
   function track<T>(promise: Promise<T>, name: string, ...args: unknown[]) {
     const startTime = Date.now();
-    return promise.then((value) => {
-      log(createFunctionLog(name, args, value, startTime, timeColor));
-      return value;
+    return promise.then((result) => {
+      log(format({ name, args, result, startTime, endTime: Date.now() }));
+      return result;
     });
   }
 
@@ -39,7 +41,7 @@ export function createLogger(
         if (result instanceof Promise) {
           return track(result, name, ...args);
         } else {
-          log(createFunctionLog(name, args, result, startTime, timeColor));
+          log(format({ name, args, result, startTime, endTime: Date.now() }));
           return result;
         }
       }
@@ -49,90 +51,38 @@ export function createLogger(
   };
 }
 
-function createNamedLogFn(logFn: LogFn, name: string): LogFn {
-  return (...args) => logFn(`[${name}]`, ...args);
+export const defaultLogPrefix =
+  (logFn: LogFn, name: string) =>
+  (...args: unknown[]) =>
+    logFn(`[${name}]`, ...args);
+
+export const defaultLogFormat = ({
+  name,
+  args,
+  result,
+  startTime,
+  endTime,
+}: LoggerFormattingOptions) =>
+  `${name}(${args.join(", ")}) -> ${result} in ${endTime - startTime}ms`;
+
+export interface LogFns {
+  log: LogFn;
+  warn: LogFn;
+  error: LogFn;
 }
 
-function createFunctionLog(
-  name: string,
-  args: unknown[],
-  result: unknown,
-  startTime: number,
-  getTimeColor?: TimeColorResolver
-) {
-  const timeSpent = Date.now() - startTime;
-  let timeString = `${timeSpent}ms`;
-  let timeColor = getTimeColor?.(timeSpent);
-  if (timeColor !== undefined) {
-    timeString = colorWrap(timeColor, [timeString]).join("");
-  }
-  const call = name ? `${name}(${stringifyArgs(args)})` : "";
-  return [`(${timeString})`, call, "->", stringifyResult(result)]
-    .filter(Boolean)
-    .join(" ");
+export interface LoggerFormattingOptions {
+  name: string;
+  args: unknown[];
+  result: unknown;
+  startTime: number;
+  endTime: number;
 }
-
-function stringifyArgs(args: unknown[]) {
-  return (
-    args
-      .filter(Boolean)
-      .map((arg) =>
-        typeof arg === "number"
-          ? `${arg}`
-          : JSON.stringify(arg, simplifyComplexObjects).replaceAll(
-              /[\r\n]/g,
-              ""
-            )
-      )[0] ?? ""
-  );
-}
-
-function stringifyResult(result: unknown) {
-  const quantity = quantify(result);
-  if (quantity !== undefined) {
-    return `${quantity}`;
-  } else {
-    return `${typeof result}`;
-  }
-}
-
-function simplifyComplexObjects(key: string, value: unknown) {
-  if (Array.isArray(value)) {
-    return value.slice(0, 3).concat("...");
-  }
-  if (value && typeof value === "object" && !isPlainObject(value)) {
-    return value.constructor.name;
-  }
-  return value;
-}
-
-function quantify(value: unknown) {
-  if (value === undefined || value === null) {
-    return;
-  }
-  if (Array.isArray(value)) {
-    return `Array[${value.length}]`;
-  }
-  if (value instanceof Map) {
-    return `Map[${value.size}]`;
-  }
-  switch (typeof value) {
-    case "number":
-    case "bigint":
-    case "boolean":
-      return value;
-  }
-}
-
-type AnsiColors = number[];
-
-export type TimeColorResolver = (ms: number) => AnsiColors | undefined;
 
 export interface LoggerOptions {
   name?: string;
-  timeColor?: TimeColorResolver;
-  errorColor?: AnsiColors;
-  warnColor?: AnsiColors;
+  format?: (options: LoggerFormattingOptions) => string;
+  prefix?: (logFn: LogFn, prefix: string) => LogFn;
 }
 
 export interface Logger {

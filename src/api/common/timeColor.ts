@@ -1,4 +1,4 @@
-enum AnsiColor {
+export enum AnsiColor {
   FgBlack = 30,
   FgRed = 31,
   FgGreen = 32,
@@ -17,7 +17,7 @@ enum AnsiColor {
   BgWhite = 47,
 }
 
-export function timeColor(timeSpentMs: number): AnsiColor[] {
+export function getTimeColor(timeSpentMs: number): AnsiColor[] {
   if (timeSpentMs < 50) {
     return [AnsiColor.BgGreen, AnsiColor.FgBlack];
   }

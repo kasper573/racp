@@ -7,7 +7,6 @@ import * as trpcExpress from "@trpc/server/adapters/express";
 import { createLogger } from "../lib/logger";
 import { createPublicFileLinker } from "../lib/fs/createPublicFileLinker";
 import { createImageFormatter } from "../lib/image/createImageFormatter";
-import { createEllipsisLogFn } from "../lib/createEllipsisLogFn";
 import { readCliArgs } from "../lib/cli";
 import { loggerToMorgan } from "../lib/loggerToMorgan";
 import { createDatabaseDriver } from "./rathena/DatabaseDriver";
@@ -26,7 +25,6 @@ import { createMonsterRepository } from "./services/monster/repository";
 import { createMapService } from "./services/map/service";
 import { createMapRepository } from "./services/map/repository";
 import { createUserRepository } from "./services/user/repository";
-import { timeColor } from "./common/timeColor";
 import { createApiRouter } from "./router";
 import { createDropRepository } from "./services/drop/repository";
 import { createDropService } from "./services/drop/service";
@@ -39,15 +37,10 @@ import { createAdminSettingsService } from "./services/settings/service";
 import { createDonationService } from "./services/donation/service";
 import { createAdminSettingsRepository } from "./services/settings/repository";
 import { createResourceManager } from "./resources";
+import { coloredConsole, logFormat } from "./common/logFormat";
 
 const args = readCliArgs(options);
-const logger = createLogger(
-  {
-    verbose: console.log,
-    truncated: createEllipsisLogFn(process.stdout),
-  }[args.log],
-  { timeColor }
-);
+const logger = createLogger(coloredConsole, { format: logFormat });
 
 const app = express();
 const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
