@@ -7,6 +7,7 @@ import {
 import { compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/actions/search";
 import { ensureRAthenaFixturesAndAssets } from "../support/actions/admin";
+import { testMapId } from "../fixtures/ids";
 
 before(ensureRAthenaFixturesAndAssets);
 
@@ -15,8 +16,8 @@ describe("search", () => {
   generateSearchPageTests({
     searches: {
       id: {
-        input: (menu) => menu().findByLabelText("ID").type("test_map"),
-        verify: () => findRowById("test_map"),
+        input: (menu) => menu().findByLabelText("ID").type(testMapId),
+        verify: () => findRowById(testMapId),
       },
       name: {
         input: (menu) => menu().findByLabelText("Name").type("test map"),
@@ -31,7 +32,7 @@ describe("search", () => {
 });
 
 describe("details", () => {
-  before(() => gotoMap("test_map"));
+  before(() => gotoMap(testMapId));
 
   it("can list warps", () => {
     cy.findByRole("tab", { name: /warps/i }).click();
@@ -50,7 +51,7 @@ describe("details", () => {
 
   describe("shop list", () => {
     before(() => {
-      gotoMap("test_map");
+      gotoMap(testMapId);
       cy.findByRole("tab", { name: /shops/i }).click();
     });
 
@@ -69,7 +70,7 @@ describe("details", () => {
 });
 
 describe("assets", () => {
-  before(() => gotoMap("test_map"));
+  before(() => gotoMap(testMapId));
 
   it("exists", () => cy.contains("Test Map"));
 

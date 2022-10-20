@@ -12,6 +12,7 @@ import {
 import { menuSlide } from "../support/actions/common";
 import { generateSearchPageTests } from "../support/actions/search";
 import { ensureRAthenaFixturesAndAssets } from "../support/actions/admin";
+import { testItemId } from "../fixtures/ids";
 
 before(ensureRAthenaFixturesAndAssets);
 
@@ -20,8 +21,9 @@ describe("search", () => {
   generateSearchPageTests({
     searches: {
       id: {
-        input: (menu) => menu().findByLabelText("ID").type("-1"),
-        verify: () => findRowById(-1),
+        input: (menu) =>
+          menu().findByLabelText("ID").type(testItemId.toString()),
+        verify: () => findRowById(testItemId),
       },
       name: {
         input: (menu) => menu().findByLabelText("Name").type("test item"),
@@ -104,7 +106,7 @@ describe("search", () => {
 });
 
 describe("details", () => {
-  before(() => gotoItem(-1));
+  before(() => gotoItem(testItemId));
 
   it("can list droppers", () => {
     findTableColumn("Monster").contains(/test monster/i);
@@ -116,7 +118,7 @@ describe("details", () => {
 });
 
 describe("assets", () => {
-  before(() => gotoItem(-1));
+  before(() => gotoItem(testItemId));
 
   it("exists", () => cy.contains(/test item/i));
 

@@ -1,5 +1,5 @@
 tbl = {
-	[-1] = {
+	[123456789] = {
 		unidentifiedDisplayName = "Test Item Display Name",
 		unidentifiedResourceName = "test_item",
 		unidentifiedDescriptionName = { "Test Item Unidentified Description" },

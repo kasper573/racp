@@ -29,7 +29,7 @@ export function injectRAthenaFixtures() {
 }
 
 export function ensureRAthenaFixturesAndAssets() {
-  cy.exec("yarn inject-rathena-fixtures");
+  injectRAthenaFixtures();
   signInAsAdmin();
   uploadAssets();
   waitForApiReady();

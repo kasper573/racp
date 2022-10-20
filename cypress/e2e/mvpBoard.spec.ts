@@ -7,6 +7,7 @@ import {
   resetData,
 } from "../support/actions/admin";
 import { adminCharId, adminCharName } from "../support/vars";
+import { testMapId, testMonsterId } from "../fixtures/ids";
 
 before(() => {
   resetData();
@@ -15,8 +16,8 @@ before(() => {
   cy.trpc((client) =>
     client?.monster.insertMvps.mutate([
       {
-        map: "test_map",
-        monster_id: -1, // Test Monster
+        map: testMapId,
+        monster_id: testMonsterId,
         kill_char_id: adminCharId,
       },
     ])
@@ -29,7 +30,8 @@ describe("search", () => {
   generateSearchPageTests({
     searches: {
       monsterId: {
-        input: (menu) => menu().findByLabelText("Monster ID").type("-1"),
+        input: (menu) =>
+          menu().findByLabelText("Monster ID").type(testMonsterId.toString()),
         verify: () => expectTableColumn("Monster", () => /test monster/i),
       },
       monsterName: {
@@ -37,7 +39,7 @@ describe("search", () => {
         verify: () => expectTableColumn("Monster", () => /test monster/i),
       },
       mapId: {
-        input: (menu) => menu().findByLabelText("Map ID").type("test_map"),
+        input: (menu) => menu().findByLabelText("Map ID").type(testMapId),
         verify: () => expectTableColumn("Monster", () => /test monster/i),
       },
       mapName: {

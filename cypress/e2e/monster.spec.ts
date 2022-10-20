@@ -8,6 +8,7 @@ import { menuSlide } from "../support/actions/common";
 import { compareNumeric, compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/actions/search";
 import { ensureRAthenaFixturesAndAssets } from "../support/actions/admin";
+import { testMonsterId } from "../fixtures/ids";
 
 before(ensureRAthenaFixturesAndAssets);
 
@@ -16,8 +17,9 @@ describe("search", () => {
   generateSearchPageTests({
     searches: {
       id: {
-        input: (menu) => menu().findByLabelText("ID").type("-1"),
-        verify: () => findRowById(-1),
+        input: (menu) =>
+          menu().findByLabelText("ID").type(testMonsterId.toString()),
+        verify: () => findRowById(testMonsterId),
       },
       name: {
         input: (menu) => menu().findByLabelText("Name").type("test monster"),
@@ -123,7 +125,7 @@ describe("search", () => {
 });
 
 describe("details", () => {
-  before(() => gotoMonster(-1));
+  before(() => gotoMonster(testMonsterId));
 
   it("can list spawns", () => {
     cy.findByRole("tab", { name: /spawns/i }).click();
@@ -137,7 +139,7 @@ describe("details", () => {
 });
 
 describe("assets", () => {
-  before(() => gotoMonster(-1));
+  before(() => gotoMonster(testMonsterId));
 
   it("exists", () => cy.contains("Test Monster"));
 
