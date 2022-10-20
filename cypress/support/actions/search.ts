@@ -58,17 +58,15 @@ export function generateSearchPageTests({
     before(() => withFilterMenu(clearFilters));
 
     Object.entries(sorts).forEach(([name, compareFn]) => {
-      describe(name, () => {
-        it("asc", () => {
-          sortGridBy(name, "asc");
-          waitForPageReady();
-          findTableColumn(name).shouldBeSortedBy(compareFn);
-        });
-        it("desc", () => {
-          sortGridBy(name, "desc");
-          waitForPageReady();
-          findTableColumn(name).shouldBeSortedBy(invertCompareFn(compareFn));
-        });
+      it(`${name} (asc)`, () => {
+        sortGridBy(name, "asc");
+        waitForPageReady();
+        findTableColumn(name).shouldBeSortedBy(compareFn);
+      });
+      it(`${name} (desc)`, () => {
+        sortGridBy(name, "desc");
+        waitForPageReady();
+        findTableColumn(name).shouldBeSortedBy(invertCompareFn(compareFn));
       });
     });
   });
