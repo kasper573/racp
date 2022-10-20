@@ -8,6 +8,7 @@ import { compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/actions/search";
 import { ensureAssets } from "../support/actions/admin";
 import { testMapId } from "../fixtures/ids";
+import { waitForPageReady } from "../support/actions/common";
 
 before(ensureAssets);
 
@@ -36,16 +37,19 @@ describe("details", () => {
 
   it("can list warps", () => {
     cy.findByRole("tab", { name: /warps/i }).click();
+    waitForPageReady();
     findTableColumn("Destination").contains(/test_map2/i);
   });
 
   it("can list monsters", () => {
     cy.findByRole("tab", { name: /monsters/i }).click();
+    waitForPageReady();
     findTableColumn("Name").contains(/Test Monster/i);
   });
 
   it("can list npcs", () => {
     cy.findByRole("tab", { name: /npcs/i }).click();
+    waitForPageReady();
     findTableColumn("Name").contains(/Test Npc/i);
   });
 
@@ -53,6 +57,7 @@ describe("details", () => {
     before(() => {
       gotoMap(testMapId);
       cy.findByRole("tab", { name: /shops/i }).click();
+      waitForPageReady();
     });
 
     it("contains the right shops", () => {
