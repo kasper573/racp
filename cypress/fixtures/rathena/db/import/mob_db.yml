@@ -1,5 +1,5 @@
 Body:
-  - Id: 123456789
+  - Id: 32767
     AegisName: test_monster
     Name: Test Monster
     Level: 15
