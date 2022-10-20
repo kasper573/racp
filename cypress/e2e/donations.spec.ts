@@ -1,6 +1,6 @@
 import { resetData, signInAsAdmin } from "../support/actions/admin";
 import { gotoMainMenuPage, findMainMenuItem } from "../support/actions/nav";
-import { waitForPageReady } from "../support/actions/common";
+import { followLink, waitForPageReady } from "../support/actions/common";
 import { expectTableData } from "../support/actions/grid";
 
 // Note: To test this suite you must run the RACP API with the fake donation environment
@@ -105,8 +105,7 @@ describe("donating", () => {
 
 it("can list redeemable items", () => {
   updateSettingsAndGotoDonations(enableDonations);
-  cy.findByRole("link", { name: /redeemable items/i }).click();
-  waitForPageReady();
+  followLink(/redeemable items/i);
   expectTableData([["Test Item [3]", "50 credits"]]);
 });
 

@@ -16,6 +16,11 @@ export function waitForPageReady() {
   cy.findByTestId("loading-spinner", { timeout: 60000 }).should("not.exist");
 }
 
+export function followLink(name?: string | RegExp) {
+  cy.findByRole("link", { name }).click();
+  waitForPageReady();
+}
+
 export function unwrap<T>(query: JQuery<T>) {
   const values: T[] = [];
   for (let i = 0; i < query.length; i++) {

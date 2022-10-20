@@ -1,6 +1,6 @@
 import { ignoreCase } from "../util";
 import { findRowById } from "./grid";
-import { waitForPageReady } from "./common";
+import { followLink, waitForPageReady } from "./common";
 import { withFilterMenu } from "./search";
 
 export function listMaps() {
@@ -9,7 +9,7 @@ export function listMaps() {
 
 export function gotoMap(id: string) {
   listMaps();
-  searchByIdAndClickLink(id);
+  searchByIdAndFollowLink(id);
 }
 
 export function listMonsters() {
@@ -18,7 +18,7 @@ export function listMonsters() {
 
 export function gotoMonster(id: number) {
   listMonsters();
-  searchByIdAndClickLink(id);
+  searchByIdAndFollowLink(id);
 }
 
 export function listItems() {
@@ -31,7 +31,7 @@ export function listVendings() {
 
 export function gotoItem(id: number) {
   listItems();
-  searchByIdAndClickLink(id);
+  searchByIdAndFollowLink(id);
 }
 
 export function findMainMenuItem(
@@ -57,9 +57,8 @@ export function findMainMenu(name: string = "public menu") {
   });
 }
 
-function searchByIdAndClickLink(id: string | number) {
+function searchByIdAndFollowLink(id: string | number) {
   withFilterMenu(() => cy.findByLabelText("ID").type(`${id}`));
   waitForPageReady(); // Wait for search to finish
-  findRowById(`${id}`).findByRole("link").click();
-  waitForPageReady(); // Wait for page to load
+  findRowById(`${id}`).within(() => followLink());
 }
