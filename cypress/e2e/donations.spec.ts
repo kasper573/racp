@@ -1,4 +1,8 @@
-import { resetData, signInAsAdmin } from "../support/actions/admin";
+import {
+  injectRAthenaFixtures,
+  resetData,
+  signInAsAdmin,
+} from "../support/actions/admin";
 import { gotoMainMenuPage, findMainMenuItem } from "../support/actions/nav";
 import { waitForApiReady, waitForPageReady } from "../support/actions/common";
 import { expectTableData } from "../support/actions/grid";
@@ -7,7 +11,9 @@ import { expectTableData } from "../support/actions/grid";
 
 before(() => {
   resetData();
+  injectRAthenaFixtures();
   signInAsAdmin();
+  waitForApiReady();
 });
 
 beforeEach(() => {
@@ -104,7 +110,6 @@ describe("donating", () => {
 });
 
 it("can list redeemable items", () => {
-  waitForApiReady();
   updateSettingsAndGotoDonations(enableDonations);
   cy.findByRole("link", { name: /redeemable items/i }).click();
   expectTableData([["Test Item [3]", "50 credits"]]);
