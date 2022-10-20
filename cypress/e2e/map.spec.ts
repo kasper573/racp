@@ -6,10 +6,10 @@ import {
 } from "../support/actions/grid";
 import { compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/actions/search";
-import { ensureRAthenaFixturesAndAssets } from "../support/actions/admin";
+import { ensureAssets } from "../support/actions/admin";
 import { testMapId } from "../fixtures/ids";
 
-before(ensureRAthenaFixturesAndAssets);
+before(ensureAssets);
 
 describe("search", () => {
   before(listMaps);

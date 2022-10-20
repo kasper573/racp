@@ -1,6 +1,5 @@
 import { signIn } from "./user";
 import { gotoMainMenuPage } from "./nav";
-import { waitForApiReady } from "./common";
 
 export function resetData() {
   cy.exec("yarn run reset-data", { log: true });
@@ -24,13 +23,7 @@ export function uploadAssets() {
   cy.contains("Errors during upload").should("not.exist");
 }
 
-export function injectRAthenaFixtures() {
-  cy.exec("yarn inject-rathena-fixtures");
-}
-
-export function ensureRAthenaFixturesAndAssets() {
-  injectRAthenaFixtures();
+export function ensureAssets() {
   signInAsAdmin();
   uploadAssets();
-  waitForApiReady();
 }

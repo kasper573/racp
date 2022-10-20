@@ -11,10 +11,10 @@ import {
 } from "../support/util";
 import { menuSlide } from "../support/actions/common";
 import { generateSearchPageTests } from "../support/actions/search";
-import { ensureRAthenaFixturesAndAssets } from "../support/actions/admin";
+import { ensureAssets } from "../support/actions/admin";
 import { testItemId } from "../fixtures/ids";
 
-before(ensureRAthenaFixturesAndAssets);
+before(ensureAssets);
 
 describe("search", () => {
   before(listItems);

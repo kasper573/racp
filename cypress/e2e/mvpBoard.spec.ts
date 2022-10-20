@@ -2,16 +2,13 @@ import { gotoMainMenuPage } from "../support/actions/nav";
 import { expectTableColumn, findTableColumn } from "../support/actions/grid";
 import { compareNumeric, compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/actions/search";
-import {
-  ensureRAthenaFixturesAndAssets,
-  resetData,
-} from "../support/actions/admin";
+import { ensureAssets, resetData } from "../support/actions/admin";
 import { adminCharId, adminCharName } from "../support/vars";
 import { testMapId, testMonsterId } from "../fixtures/ids";
 
 before(() => {
   resetData();
-  ensureRAthenaFixturesAndAssets();
+  ensureAssets();
 
   cy.trpc((client) =>
     client?.monster.insertMvps.mutate([

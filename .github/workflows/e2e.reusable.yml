@@ -39,6 +39,7 @@ jobs:
       exposeInternalErrors: true
       apiBaseUrl: http://localhost:8081
       rAthenaPath: ./node_modules/rathena
+      CI: true
       CYPRESS_BASE_URL: http://localhost:8080
       CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
     steps:
@@ -69,6 +70,9 @@ jobs:
           MYSQL_USER: racp
           MYSQL_PASSWORD: racp
           MYSQL_DATABASE: racp
+
+      - name: Inject RAthena fixtures
+        run: yarn inject-rathena-fixtures
 
       - name: Run cypress
         run: yarn e2e:ci:run

@@ -1,19 +1,13 @@
-import {
-  injectRAthenaFixtures,
-  resetData,
-  signInAsAdmin,
-} from "../support/actions/admin";
+import { resetData, signInAsAdmin } from "../support/actions/admin";
 import { gotoMainMenuPage, findMainMenuItem } from "../support/actions/nav";
-import { waitForApiReady, waitForPageReady } from "../support/actions/common";
+import { waitForPageReady } from "../support/actions/common";
 import { expectTableData } from "../support/actions/grid";
 
 // Note: To test this suite you must run the RACP API with the fake donation environment
 
 before(() => {
   resetData();
-  injectRAthenaFixtures();
   signInAsAdmin();
-  waitForApiReady();
 });
 
 beforeEach(() => {
@@ -112,6 +106,7 @@ describe("donating", () => {
 it("can list redeemable items", () => {
   updateSettingsAndGotoDonations(enableDonations);
   cy.findByRole("link", { name: /redeemable items/i }).click();
+  waitForPageReady();
   expectTableData([["Test Item [3]", "50 credits"]]);
 });
 

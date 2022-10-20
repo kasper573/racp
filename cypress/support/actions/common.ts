@@ -8,14 +8,12 @@ export function menuSlide(name: string, newValueOrValues: number | number[]) {
 }
 
 export function waitForPageReady() {
-  // Wait time is arbitrary, but enough to safely assume page has finished loading initial resources.
+  // Wait time is arbitrary, but enough to safely assume network is idle
   cy.waitForNetworkIdle(200);
-  cy.findByTestId("loading-spinner").should("not.exist");
-}
-
-export function waitForApiReady() {
-  // Wait time is arbitrary, but enough to safely assume API has finished (re)loading resources.
-  cy.trpc((client) => client?.util.ready.query(), { timeout: 60000 });
+  // Long wait time is because a lot of e2e tests involve admin operations
+  // which cause the API to rebuild cache, which may take a while.
+  // It's a bit ugly, but it works great.
+  cy.findByTestId("loading-spinner", { timeout: 60000 }).should("not.exist");
 }
 
 export function unwrap<T>(query: JQuery<T>) {

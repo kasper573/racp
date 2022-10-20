@@ -14,16 +14,13 @@ import {
 import { VendorItem } from "../../src/api/services/vendor/types";
 import { waitForPageReady } from "../support/actions/common";
 import { testItemId, testMapId } from "../fixtures/ids";
-import {
-  ensureRAthenaFixturesAndAssets,
-  resetData,
-} from "../support/actions/admin";
+import { ensureAssets, resetData } from "../support/actions/admin";
 import { testItemIdentifier } from "./item.actions";
 
 before(() => {
   resetData();
 
-  ensureRAthenaFixturesAndAssets();
+  ensureAssets();
 
   cy.trpc((client) =>
     client?.vendor.insertItems.mutate({
