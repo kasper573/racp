@@ -8,17 +8,21 @@ export function menuSlide(name: string, newValueOrValues: number | number[]) {
 }
 
 export function waitForPageReady() {
-  // Wait time is arbitrary, but enough to safely assume network is idle
-  cy.waitForNetworkIdle(200);
-  // Long wait time is because a lot of e2e tests involve admin operations
-  // which cause the API to rebuild cache, which may take a while.
-  // It's a bit ugly, but it works great.
-  cy.findByTestId("loading-spinner", { timeout: 60000 }).should("not.exist");
-}
+  cy.waitForNetworkIdle(200); // Make sure page has been loaded
 
-export function followLink(name?: string | RegExp) {
-  cy.findByRole("link", { name }).click();
-  waitForPageReady();
+  // Page is ready when no loading spinner has been visible for 1 second
+  cy.get("body").then(($body) =>
+    cy.shouldFor(
+      () => $body.find(`[data-testid="loading-spinner"]`).length === 0,
+      1000,
+      {
+        // Long timeout because a lot of e2e tests involve admin operations
+        // which cause the API to rebuild cache, which may take a while.
+        timeout: 60000,
+        name: "No loading spinner",
+      }
+    )
+  );
 }
 
 export function unwrap<T>(query: JQuery<T>) {
