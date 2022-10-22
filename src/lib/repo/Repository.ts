@@ -81,7 +81,7 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
   map<Mapped>(
     name: string,
     map: (value: T | DefaultValue) => Mapped,
-    getDependencyList = (value?: T | DefaultValue) => [value]
+    getDependencyList = (value?: T | DefaultValue): DependencyList => [value]
   ): MappedRepository<T | DefaultValue, Mapped> {
     return new MappedRepository<T | DefaultValue, Mapped>({
       logger: this.logger,
