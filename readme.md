@@ -59,7 +59,7 @@ To run RACP you will need the following software installed on your machine:
 - Run `yarn app:dev` to start the app in dev mode.
 - Visit `http://localhost:8080/` in your browser.
 - (Optional) Run `yarn unit` to run the unit tests (add `--watch` to keep the runner active).
-- (Optional) Run `yarn e2e:dev` to run open the E2E test development tool.
+- (Optional) Run `yarn cypress open` to run open the E2E test development tool.
 
 ### Developing against a custom rAthena instance
 
