@@ -36,15 +36,25 @@ export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
   }
 
   protected async readImpl() {
-    const {
-      rAthenaMode,
-      file,
-      resolver: { entityType, getKey, postProcess = noop },
-    } = this.options;
+    const { entityType, getKey, postProcess = noop } = this.options.resolver;
 
-    const imports: ImportNode[] = [{ Path: file, Mode: rAthenaMode }];
     const registry = new Map<Key, zod.infer<ET>>();
+    for (const rawEntity of await this.loadRaw()) {
+      const entity = entityType.parse(rawEntity);
+      registry.set(getKey(entity), entity);
+    }
 
+    for (const entity of registry.values()) {
+      postProcess(entity, registry);
+    }
+
+    return registry;
+  }
+
+  private async loadRaw() {
+    const { rAthenaMode, file } = this.options;
+    const imports: ImportNode[] = [{ Path: file, Mode: rAthenaMode }];
+    const raw: unknown[] = [];
     while (imports.length) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const imp = imports.shift()!;
@@ -54,19 +64,11 @@ export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
           continue;
         }
         const { Body, Footer } = res;
-        for (const raw of Body ?? []) {
-          const entity = entityType.parse(raw);
-          registry.set(getKey(entity), entity);
-        }
+        raw.push(...(Body ?? []));
         imports.push(...(Footer?.Imports ?? []));
       }
     }
-
-    for (const entity of registry.values()) {
-      postProcess(entity, registry);
-    }
-
-    return registry;
+    return raw;
   }
 
   private async loadNode(file: string): Promise<DBNode | undefined> {
