@@ -1,6 +1,5 @@
 import { without } from "lodash";
 import { CompareFn, invertCompareFn } from "../util";
-import { waitForPageReady } from "./common";
 import { findDataRowIds, findTableColumn, sortGridBy } from "./grid";
 
 const clearFilters = () => cy.findByRole("button", { name: /clear/i }).click();
@@ -27,7 +26,7 @@ export function generateSearchPageTests({
   it("can paginate", () => {
     findDataRowIds().then((idsBeforePagination) => {
       cy.findByRole("button", { name: "Go to next page" }).click();
-      waitForPageReady();
+
       findDataRowIds().then((idsAfterPagination) => {
         const newIds = without(idsAfterPagination, ...idsBeforePagination);
         expect(newIds).to.deep.equal(
@@ -48,7 +47,6 @@ export function generateSearchPageTests({
           clearFilters();
           input(menu);
         });
-        waitForPageReady();
         verify();
       });
     });
@@ -60,12 +58,10 @@ export function generateSearchPageTests({
     Object.entries(sorts).forEach(([name, compareFn]) => {
       it(`${name} (asc)`, () => {
         sortGridBy(name, "asc");
-        waitForPageReady();
         findTableColumn(name).shouldBeSortedBy(compareFn);
       });
       it(`${name} (desc)`, () => {
         sortGridBy(name, "desc");
-        waitForPageReady();
         findTableColumn(name).shouldBeSortedBy(invertCompareFn(compareFn));
       });
     });

@@ -15,11 +15,18 @@ export default defineConfig({
   chromeWebSecurity: false,
 
   e2e: {
-    requestTimeout: 60000, // Very high to avoid flakiness caused by admin operations causing API to clear cache
     specPattern: "cypress/**/*.spec.ts",
     setupNodeEvents(on, config) {
       return dotenvFlowPlugin(config, undefined, true);
     },
+
+    // These timeouts are very high to avoid flakiness due to API calls sometimes being slow in CI.
+    // This is primarily due to a design flaw which makes the API preload a lot of data,
+    // which often gets cache invalidated by admin operations done in various tests.
+    // The proper solution is to make the API completely stateless,
+    // but that's a lot of work, so this will do in the meantime.
+    requestTimeout: 60000,
+    defaultCommandTimeout: 60000,
   },
 
   component: {

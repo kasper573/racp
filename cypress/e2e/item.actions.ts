@@ -1,5 +1,3 @@
-import { waitForPageReady } from "../support/actions/common";
-
 export function testItemIdentifier(
   findIdentifier: () => Cypress.Chainable,
   {
@@ -28,7 +26,6 @@ export function testItemIdentifier(
 
     it("has cards detailed in tooltip", () => {
       findIdentifier().trigger("mouseover");
-      waitForPageReady();
       cy.findByLabelText("Item tooltip").within(() => {
         cy.wrap(cards).each((card: string) => {
           cy.contains(card);
@@ -38,7 +35,6 @@ export function testItemIdentifier(
 
     it("has enchants detailed in tooltip", () => {
       findIdentifier().trigger("mouseover");
-      waitForPageReady();
       cy.findByLabelText("Item tooltip").within(() => {
         cy.wrap(enchants).each((enchant: string) => {
           cy.contains(enchant);

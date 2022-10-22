@@ -12,7 +12,6 @@ import {
   compareThousands,
 } from "../support/util";
 import { VendorItem } from "../../src/api/services/vendor/types";
-import { waitForPageReady } from "../support/actions/common";
 import { testItemId, testMapId } from "../fixtures/ids";
 import { ensureAssets, resetData } from "../support/actions/admin";
 import { testItemIdentifier } from "./item.actions";
@@ -93,7 +92,6 @@ describe("assets", () => {
     withFilterMenu(() =>
       cy.findByLabelText("Item ID").type(testItemId.toString())
     );
-    waitForPageReady();
   });
 
   testItemIdentifier(() => findTableColumn("Item").findByRole("link"), {

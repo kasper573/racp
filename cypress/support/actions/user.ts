@@ -1,5 +1,4 @@
 import { ignoreCase } from "../util";
-import { waitForPageReady } from "./common";
 
 export function openUserMenu() {
   cy.findByRole("button", { name: ignoreCase("open user menu") }).click();
@@ -40,7 +39,6 @@ export function updateProfile({
     cy.findByLabelText("New password (confirm)").clear().type(password);
   }
   cy.findByRole("button", { name: "Save" }).click();
-  waitForPageReady();
 }
 
 export function signIn(
@@ -55,7 +53,6 @@ export function signIn(
     cy.findByRole("button", { name: "Sign in" }).click();
     if (waitForRedirect) {
       cy.url().should("not.equal", urlForSignInPage);
-      waitForPageReady();
     }
   });
 }

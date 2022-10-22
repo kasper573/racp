@@ -4,7 +4,7 @@ import {
   findRowById,
   findTableColumn,
 } from "../support/actions/grid";
-import { menuSlide, waitForPageReady } from "../support/actions/common";
+import { menuSlide } from "../support/actions/common";
 import { compareNumeric, compareStrings } from "../support/util";
 import { generateSearchPageTests } from "../support/actions/search";
 import { ensureAssets } from "../support/actions/admin";
@@ -140,13 +140,11 @@ describe("details", () => {
 
   it("can list spawns", () => {
     cy.findByRole("tab", { name: /spawns/i }).click();
-    waitForPageReady();
     findTableColumn("Map").contains(/test_map/i);
   });
 
   it("can list drops", () => {
     cy.findByRole("tab", { name: /drops/i }).click();
-    waitForPageReady();
     findTableColumn("Name").contains(/test item/i);
   });
 });

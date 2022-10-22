@@ -1,6 +1,5 @@
 import { ignoreCase } from "../util";
 import { findRowById } from "./grid";
-import { waitForPageReady } from "./common";
 import { withFilterMenu } from "./search";
 
 export function listMaps() {
@@ -42,9 +41,7 @@ export function findMainMenuItem(
 }
 
 export function gotoMainMenuPage(...args: Parameters<typeof findMainMenuItem>) {
-  waitForPageReady(); // Wait for any pending requests to finish before navigating
   findMainMenuItem(...args).click();
-  waitForPageReady(); // Wait for any initial requests to finish before proceeding
 }
 
 export function findMainMenu(name: string = "public menu") {
@@ -59,7 +56,5 @@ export function findMainMenu(name: string = "public menu") {
 
 function searchByIdAndFollowLink(id: string | number) {
   withFilterMenu(() => cy.findByLabelText("ID").type(`${id}`));
-  waitForPageReady(); // Wait for search to finish
   findRowById(`${id}`).findByRole("link").click();
-  waitForPageReady();
 }
