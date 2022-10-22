@@ -1,6 +1,6 @@
 import { ignoreCase } from "../util";
 import { findRowById } from "./grid";
-import { followLink, waitForPageReady } from "./common";
+import { waitForPageReady } from "./common";
 import { withFilterMenu } from "./search";
 
 export function listMaps() {
@@ -60,5 +60,6 @@ export function findMainMenu(name: string = "public menu") {
 function searchByIdAndFollowLink(id: string | number) {
   withFilterMenu(() => cy.findByLabelText("ID").type(`${id}`));
   waitForPageReady(); // Wait for search to finish
-  findRowById(`${id}`).within(() => followLink());
+  findRowById(`${id}`).findByRole("link").click();
+  waitForPageReady();
 }
