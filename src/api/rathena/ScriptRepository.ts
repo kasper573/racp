@@ -7,10 +7,10 @@ import { base64encode } from "byte-base64";
 import recursiveWatch = require("recursive-watch");
 import { RAthenaMode } from "../options";
 import { gfs } from "../gfs";
-import { defined } from "../../lib/std/defined";
 import { createSegmentedObject } from "../../lib/zod/ZodSegmentedObject";
 import { RepositoryOptions } from "../../lib/repo/Repository";
 import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
+import { defined } from "../../lib/std/defined";
 import { modeFolderNames, nonEmptyLines, removeComments } from "./util/parse";
 
 export function createScriptEntityResolver(getRepo: () => ScriptRepository) {
@@ -18,8 +18,10 @@ export function createScriptEntityResolver(getRepo: () => ScriptRepository) {
     name: string,
     entityType: ET
   ) {
-    return getRepo().map(`resolve(${name})`, (raw) =>
-      parseRawEntitiesAs(raw, entityType)
+    return getRepo().map(
+      `resolve(${name})`,
+      (raw) => parseRawEntitiesAs(raw, entityType),
+      (raw) => [raw, entityType]
     );
   };
 }
