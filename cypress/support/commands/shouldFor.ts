@@ -8,7 +8,8 @@ Cypress.Commands.add(
     condition,
     requiredDuration,
     {
-      resolution = 10,
+      name = "Condition",
+      interval = 10,
       timeout = Math.max(
         requiredDuration * 10,
         Cypress.config("defaultCommandTimeout")
@@ -22,14 +23,14 @@ Cypress.Commands.add(
           const commandStart = Date.now();
           let conditionStart = Date.now();
           let lastResult = false;
-          cy.log(`Waiting for condition to be true for ${requiredDuration}ms`);
+          cy.log(`${name}: Waiting to be true for ${requiredDuration}ms`);
           const intervalId = setInterval(() => {
             const now = Date.now();
             const result = condition();
             if (!result) {
               if (lastResult) {
                 cy.log(
-                  `Condition became false after being true for ${
+                  `${name}: Became false after being true for ${
                     now - conditionStart
                   }ms`
                 );
@@ -41,17 +42,17 @@ Cypress.Commands.add(
             const commandDuration = now - commandStart;
             if (commandDuration >= timeout) {
               clearInterval(intervalId);
-              reject(new Error(`Condition not met within ${timeout}ms`));
+              reject(new Error(`${name}: Not met within ${timeout}ms`));
               return;
             }
 
             const conditionDuration = now - conditionStart;
             if (conditionDuration >= requiredDuration) {
-              cy.log(`Condition was true for ${requiredDuration}ms`);
+              cy.log(`${name}: Was true for ${requiredDuration}ms`);
               clearInterval(intervalId);
               resolve();
             }
-          }, resolution);
+          }, interval);
         })
     );
   }
@@ -63,7 +64,7 @@ declare global {
       shouldFor(
         condition: () => boolean,
         requiredDuration: number,
-        options?: { timeout?: number; resolution?: number }
+        options?: { timeout?: number; interval?: number; name?: string }
       ): Chainable<void>;
     }
   }
