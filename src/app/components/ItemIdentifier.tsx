@@ -1,7 +1,11 @@
 import { Paper, Tooltip, Typography } from "@mui/material";
-import { ComponentProps, forwardRef, HTMLAttributes } from "react";
+import { ComponentProps, forwardRef, HTMLAttributes, ReactNode } from "react";
 import { router } from "../router";
-import { Item, ItemId, ItemOptionTexts } from "../../api/services/item/types";
+import {
+  Item,
+  ItemFilter,
+  ItemOptionTexts,
+} from "../../api/services/item/types";
 import { ItemDrop } from "../../api/services/drop/types";
 import { VendorItem } from "../../api/services/vendor/types";
 import {
@@ -85,13 +89,41 @@ export function ItemIdentifier({
   );
 }
 
-export function ItemIdentifierById({
-  itemId,
+export function ItemIdentifierByName({
+  name = "",
   ...props
-}: ItemIdentifierBaseProps & { itemId: ItemId }) {
-  const { data: item, error, isLoading } = trpc.item.read.useQuery(itemId);
+}: ItemIdentifierBaseProps & { name?: string }) {
+  if (!name) {
+    return null;
+  }
+  return (
+    <ItemIdentifierByFilter
+      fallback={name}
+      filter={{
+        NameList: {
+          value: name,
+          matcher: "someItemEquals",
+          options: { caseSensitive: false },
+        },
+      }}
+    />
+  );
+}
+
+export function ItemIdentifierByFilter({
+  filter,
+  fallback,
+  ...props
+}: ItemIdentifierBaseProps & { filter: ItemFilter; fallback?: ReactNode }) {
+  const { data: { entities: [item] = [] } = {} } = trpc.item.search.useQuery({
+    filter: filter,
+    limit: 1,
+  });
   if (item) {
     return <ItemIdentifier item={item} {...props} />;
+  }
+  if (fallback) {
+    return <>{fallback}</>;
   }
   return null;
 }
