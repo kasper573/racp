@@ -16,9 +16,10 @@ import {
   Paid,
   PersonAdd,
   PestControlRodent,
-  Redeem, School,
+  Redeem,
+  School,
   Settings,
-  Storefront
+  Storefront,
 } from "@mui/icons-material";
 import { UserAccessLevel } from "../api/services/user/types";
 import { zodRouteParam } from "../lib/zod/zodRouteParam";
