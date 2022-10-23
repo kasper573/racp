@@ -1,6 +1,8 @@
 import * as zod from "zod";
 import { ZodRawShape, ZodType } from "zod";
 import { toggleRecordType } from "../../../lib/zod/zodToggle";
+import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
+import { matcher } from "../../matcher";
 
 export type SkillId = zod.infer<typeof skillIdType>;
 export const skillIdType = zod.number();
@@ -81,6 +83,9 @@ export const skillType = zod.object({
     .optional(),
   Status: zod.string().optional(),
 });
+
+export type SkillFilter = zod.infer<typeof skillFilter.type>;
+export const skillFilter = createEntityFilter(matcher, skillType);
 
 function levelScaling<
   T extends ZodType,

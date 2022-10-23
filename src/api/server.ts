@@ -39,6 +39,7 @@ import { createAdminSettingsRepository } from "./services/settings/repository";
 import { createResourceManager } from "./resources";
 import { coloredConsole, logFormat } from "./common/logFormat";
 import { createSkillRepository } from "./services/skill/repository";
+import { createSkillService } from "./services/skill/service";
 
 const args = readCliArgs(options);
 const logger = createLogger(coloredConsole, { format: logFormat });
@@ -69,13 +70,14 @@ const monsters = createMonsterRepository({ ...args, resources });
 const drops = createDropRepository({ ...items, ...monsters });
 const shops = createShopRepository({ ...items, resources });
 const maps = createMapRepository({ ...monsters, resources });
-const skills = createSkillRepository({ resources });
+const skills = createSkillRepository(resources);
 
 const router = createApiRouter({
   util: createUtilService(),
   user: createUserService({ db, user, sign: auth.sign, ...args }),
   item: createItemService(items),
   monster: createMonsterService({ db, repo: monsters }),
+  skill: createSkillService(skills),
   drop: createDropService(drops),
   vendor: createVendorService({ db, items }),
   shop: createShopService(shops),
