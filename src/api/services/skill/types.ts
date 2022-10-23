@@ -11,6 +11,7 @@ export type Skill = zod.infer<typeof skillType>;
 export const skillType = zod.object({
   Id: skillIdType,
   Name: zod.string(),
+  DisplayName: zod.string().default(""), // Custom, not in rAthena data
   Description: zod.string(),
   MaxLevel: zod.number(),
   Type: zod.string().default("None"),
