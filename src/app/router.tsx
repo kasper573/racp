@@ -16,9 +16,9 @@ import {
   Paid,
   PersonAdd,
   PestControlRodent,
-  Redeem,
+  Redeem, School,
   Settings,
-  Storefront,
+  Storefront
 } from "@mui/icons-material";
 import { UserAccessLevel } from "../api/services/user/types";
 import { zodRouteParam } from "../lib/zod/zodRouteParam";
@@ -26,6 +26,7 @@ import { itemFilter } from "../api/services/item/types";
 import { monsterFilter, mvpFilter } from "../api/services/monster/types";
 import { mapInfoFilter } from "../api/services/map/types";
 import { vendorItemFilter } from "../api/services/vendor/types";
+import { skillFilter } from "../api/services/skill/types";
 import { requireAuth } from "./util/requireAuth";
 import { requireSettings } from "./util/requireSettings";
 
@@ -75,6 +76,23 @@ export const router = OptionsRouter(defaultOptions, (route) => ({
       }),
       view: route("view/:id", {
         component: lazy(() => import("./pages/ItemViewPage")),
+        params: { id: intParser },
+      }),
+    })
+  ),
+  skill: route(
+    "skill",
+    {
+      component: () => <Redirect to={router.skill().search({})} />,
+      options: { title: "Skills", icon: <School /> },
+    },
+    (route) => ({
+      search: route("search/:filter?", {
+        component: lazy(() => import("./pages/SkillSearchPage")),
+        params: { filter: zodRouteParam(skillFilter.type.default({})) },
+      }),
+      view: route("view/:id", {
+        component: lazy(() => import("./pages/SkillViewPage")),
         params: { id: intParser },
       }),
     })
