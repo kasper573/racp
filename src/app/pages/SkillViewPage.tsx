@@ -8,6 +8,8 @@ import { CommonPageGrid } from "../components/CommonPageGrid";
 import { renderToggles } from "../util/renderToggles";
 import { renderLevelScaling } from "../util/renderLevelScaling";
 import { durationString } from "../../lib/std/durationString";
+import { ItemIdentifierByName } from "../components/ItemIdentifier";
+import { Zeny } from "../components/Zeny";
 import { LoadingPage } from "./LoadingPage";
 
 export default function SkillViewPage() {
@@ -58,6 +60,49 @@ export default function SkillViewPage() {
                 />
               ),
             },
+          ]}
+        />
+        <TabbedPaper
+          tabs={[
+            {
+              label: "Requirements",
+              content: (
+                <KVTable
+                  // prettier-ignore
+                  rows={{
+                "HP cost": renderLevelScaling(skill.Requires.HpCost, "Amount"),
+                "SP cost": renderLevelScaling(skill.Requires.SpCost, "Amount"),
+                "AP cost": renderLevelScaling(skill.Requires.ApCost, "Amount"),
+                "HP% cost": renderLevelScaling(skill.Requires.HpRateCost, "Amount"),
+                "SP% cost": renderLevelScaling(skill.Requires.SpRateCost, "Amount"),
+                "AP% cost": renderLevelScaling(skill.Requires.ApRateCost, "Amount"),
+                "Max HP": renderLevelScaling(skill.Requires.MaxHpTrigger, "Amount"),
+                "Zeny cost": renderLevelScaling(skill.Requires.ZenyCost, "Amount", (n) => <Zeny value={n} />),
+                "Spirit sphere cost": renderLevelScaling(skill.Requires.SpiritSphereCost, "Amount"),
+                "Item cost": renderLevelScaling(
+                  skill.Requires.ItemCost,
+                  "Amount",
+                  (n, o) => <>
+                    {n}
+                    {o?.Item && (
+                      <ItemIdentifierByName name={o.Item}/>
+                    )}
+                  </>
+                ),
+                Weapon: renderToggles(skill.Requires.Weapon),
+                Ammo: renderToggles(skill.Requires.Ammo),
+                "Ammo amount": renderLevelScaling(skill.Requires.AmmoAmount, "Amount"),
+                Equipment: renderToggles(skill.Requires.Equipment),
+                Status: renderToggles(skill.Requires.Status),
+                State: skill.Requires.State,
+              }}
+                />
+              ),
+            },
+          ]}
+        />
+        <TabbedPaper
+          tabs={[
             {
               label: "Timing",
               content: (
@@ -75,32 +120,6 @@ export default function SkillViewPage() {
                     "After cast act delay": renderLevelScaling(skill.AfterCastActDelay, "Time", timeString),
                     "After cast walk delay": renderLevelScaling(skill.AfterCastWalkDelay, "Time", timeString),
                     "Cast delay flags": renderToggles(skill.CastDelayFlags),
-                  }}
-                />
-              ),
-            },
-            {
-              label: "Requirements",
-              content: (
-                <KVTable
-                  // prettier-ignore
-                  rows={{
-                    "HP cost": renderLevelScaling(skill.Requires.HpCost, "Amount"),
-                    "SP cost": renderLevelScaling(skill.Requires.SpCost, "Amount"),
-                    "AP cost": renderLevelScaling(skill.Requires.ApCost, "Amount"),
-                    "Hp% cost": renderLevelScaling(skill.Requires.HpRateCost, "Amount"),
-                    "SP% cost": renderLevelScaling(skill.Requires.SpRateCost, "Amount"),
-                    "AP% cost": renderLevelScaling(skill.Requires.ApRateCost, "Amount"),
-                    "Max HP": renderLevelScaling(skill.Requires.MaxHpTrigger, "Amount"),
-                    "Zeny cost": renderLevelScaling(skill.Requires.ZenyCost, "Amount"),
-                    "Spirit sphere cost": renderLevelScaling(skill.Requires.SpiritSphereCost, "Amount"),
-                    "Item cost": renderLevelScaling(skill.Requires.ItemCost, "Amount", (n, o) => `${n} ${o?.Item ?? ""}`),
-                    Weapon: renderToggles(skill.Requires.Weapon),
-                    Ammo: renderToggles(skill.Requires.Ammo),
-                    "Ammo amount": renderLevelScaling(skill.Requires.AmmoAmount, "Amount"),
-                    Equipment: renderToggles(skill.Requires.Equipment),
-                    Status: renderToggles(skill.Requires.Status),
-                    State: skill.Requires.State,
                   }}
                 />
               ),
