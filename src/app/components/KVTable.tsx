@@ -1,4 +1,4 @@
-import { ComponentProps } from "react";
+import { ComponentProps, isValidElement, ReactElement } from "react";
 import { Table, TableBody, TableCell, TableRow } from "@mui/material";
 
 export function KVTable({
@@ -11,7 +11,11 @@ export function KVTable({
         {Object.entries(rows).map(([key, value], index) => (
           <TableRow key={index}>
             <TableCell>{key}</TableCell>
-            <TableCell>{`${value}`}</TableCell>
+            <TableCell>
+              {isValidElement(value as any)
+                ? (value as ReactElement)
+                : `${value}`.trim() || "-"}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
