@@ -37,7 +37,7 @@ export const ShopItemGrid = DataGrid.define(trpc.shop.searchItems.useQuery)({
     price: {
       headerName: "Price",
       renderCell({ value }) {
-        return <Zeny variant="body2" value={value} />;
+        return <Zeny value={value} />;
       },
     },
   },

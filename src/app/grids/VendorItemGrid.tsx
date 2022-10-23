@@ -20,7 +20,7 @@ export const VendorItemGrid = DataGrid.define(trpc.vendor.searchItems.useQuery)(
       price: {
         headerName: "Price",
         renderCell({ value }) {
-          return <Zeny variant="body2" value={value} />;
+          return <Zeny value={value} />;
         },
       },
       amount: "Amount",

@@ -15,9 +15,7 @@ export const ItemGrid = DataGrid.define(trpc.item.search.useQuery)({
     Sell: {
       headerName: "Sell Value",
       renderCell({ row: item }) {
-        return item.Sell !== undefined ? (
-          <Zeny variant="body2" value={item.Sell} />
-        ) : undefined;
+        return item.Sell !== undefined ? <Zeny value={item.Sell} /> : undefined;
       },
     },
     Weight: "Weight",
