@@ -45,10 +45,6 @@ function find<T, V>(list: T[], select: (item: T) => V | undefined) {
   }
 }
 
-export type LuaParseResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: unknown };
-
 export function bufferToLuaCode(buffer: Buffer): string {
   // RO lub files are encoded with IBM code page 1252.
   // without this decoding step, resource names will not match the ones in the GRF files.
