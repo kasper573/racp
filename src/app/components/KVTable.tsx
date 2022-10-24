@@ -10,7 +10,7 @@ export function KVTable({
       <TableBody>
         {Object.entries(rows).map(([key, value], index) => (
           <TableRow key={index}>
-            <TableCell>{key}</TableCell>
+            <TableCell sx={{ whiteSpace: "nowrap" }}>{key}</TableCell>
             <TableCell>
               {isValidElement(value as any)
                 ? (value as ReactElement)

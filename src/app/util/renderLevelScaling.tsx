@@ -1,4 +1,4 @@
-import { Tooltip } from "@mui/material";
+import { Box, Tooltip } from "@mui/material";
 import { ReactNode } from "react";
 import {
   LevelScaling,
@@ -25,7 +25,9 @@ export function renderLevelScaling<
         <Tooltip
           title={item.Level !== undefined ? `LVL ${item.Level}` : "All levels"}
         >
-          <span>{format(item[valueProp], item)}</span>
+          <Box component="span" sx={{ whiteSpace: "nowrap" }}>
+            {format(item[valueProp], item)}
+          </Box>
         </Tooltip>
       )),
       " / "
