@@ -21,7 +21,7 @@ export function SkillSearchFilterForm({
 
   return (
     <>
-      <TextField label="ID" optional {...field("Id", "=")} />
+      <TextField label="ID" type="number" optional {...field("Id", "=")} />
       <TextField label="Name" optional {...field("DisplayName", "contains")} />
     </>
   );
