@@ -15,6 +15,7 @@ import { InfoTooltip } from "../components/InfoTooltip";
 import { CommonPageGrid } from "../components/CommonPageGrid";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 import { Spaceless } from "../components/Spaceless";
+import { renderToggles } from "../util/renderToggles";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MonsterViewPage(): ReactElement {
@@ -62,7 +63,7 @@ export default function MonsterViewPage(): ReactElement {
                       Exp: `${monster.BaseExp} Base / ${monster.JobExp} Job / ${monster.MvpExp} Mvp`,
                       Ranges: `${monster.AttackRange} Attack / ${monster.SkillRange} Skill / ${monster.ChaseRange} Chase`,
                       Element: `${monster.Element} (Level ${monster.ElementLevel})`,
-                      Modes: Object.keys(monster.Modes).join(", "),
+                      Modes: renderToggles(monster.Modes),
                     }}
                   />
                 ),

@@ -20,7 +20,12 @@ export function Zeny({
     [value, colorStops]
   );
   return (
-    <Typography sx={{ color, ...sx }} {...props}>
+    <Typography
+      sx={{ color, ...sx }}
+      variant="body2"
+      component="span"
+      {...props}
+    >
       {value.toLocaleString("en-US") + "z"}
     </Typography>
   );

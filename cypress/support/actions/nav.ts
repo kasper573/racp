@@ -25,13 +25,22 @@ export function listItems() {
   gotoMainMenuPage("items");
 }
 
-export function listVendings() {
-  gotoMainMenuPage("vendings");
-}
-
 export function gotoItem(id: number) {
   listItems();
   searchByIdAndFollowLink(id);
+}
+
+export function listSkills() {
+  gotoMainMenuPage("skills");
+}
+
+export function gotoSkill(id: number) {
+  listSkills();
+  searchByIdAndFollowLink(id);
+}
+
+export function listVendings() {
+  gotoMainMenuPage("vendings");
 }
 
 export function findMainMenuItem(

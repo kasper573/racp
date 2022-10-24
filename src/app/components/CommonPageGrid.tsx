@@ -10,7 +10,7 @@ export function CommonPageGrid({
   const childrenArray = Children.toArray(children);
   const columns = splitIntoColumns(childrenArray, columnCount);
   return (
-    <Stack direction="row" spacing={2} sx={{ width: "100%", ...sx }} {...props}>
+    <Stack direction="row" spacing={3} sx={{ width: "100%", ...sx }} {...props}>
       {columns.map((column, index) => (
         <Stack key={index} direction="column" spacing={2} sx={{ flex: 1 }}>
           {column}

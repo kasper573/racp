@@ -8,7 +8,6 @@ import { router } from "../router";
 import { ClientTextBlock } from "../components/ClientText/ClientText";
 import { TabbedPaper } from "../components/TabbedPaper";
 import { Script } from "../components/Script";
-import { resolveToggles } from "../../lib/zod/zodToggle";
 import { ItemDropGrid } from "../grids/ItemDropGrid";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 import { CommonPageGrid } from "../components/CommonPageGrid";
@@ -17,6 +16,7 @@ import { ItemDisplayName } from "../components/ItemIdentifier";
 import { Spaceless } from "../components/Spaceless";
 import { ShopItemGrid } from "../grids/ShopItemGrid";
 import { TabSwitch } from "../components/TabSwitch";
+import { renderToggles } from "../util/renderToggles";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ItemViewPage(): ReactElement {
@@ -42,7 +42,6 @@ export default function ItemViewPage(): ReactElement {
   const hasDifferentClientName =
     clientName !== undefined && clientName !== item.Name;
 
-  const jobs = resolveToggles(item.Jobs);
   const scripts = Object.entries(
     pick(item, "Script", "EquipScript", "UnEquipScript")
   );
@@ -93,7 +92,7 @@ export default function ItemViewPage(): ReactElement {
             tabs={[
               {
                 label: "Applicable jobs",
-                content: <>{jobs.length > 0 ? jobs.join(", ") : "None"}</>,
+                content: <>{renderToggles(item.Jobs)}</>,
               },
             ]}
           />

@@ -12,6 +12,7 @@ const publicRoutes = (settings?: AdminPublicSettings) =>
     router.item,
     router.monster,
     router.map,
+    router.skill,
     router.vendor,
     router.mvp,
     settings?.donations.enabled ? router.donation : undefined,

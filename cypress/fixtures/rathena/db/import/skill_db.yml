@@ -1,0 +1,23 @@
+Body:
+  - Id: 9999999
+    Name: TEST_SKILL
+    Description: Test Skill
+    MaxLevel: 3
+    Type: Weapon
+    TargetType: Attack
+    Range: -1
+    Hit: Single
+    HitCount: 1
+    Element: Weapon
+    Status: Stun
+    Duration2: 4500
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 8
+        - Level: 2
+          Amount: 8
+        - Level: 3
+          Amount: 8
+      Weapon:
+        Fist: true
