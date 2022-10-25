@@ -55,10 +55,12 @@ describe("tsr", () => {
   });
 
   it("can create the url for a single route", () => {
-    const route = t.route
-      .path("some-route/:foo/:bar")
-      .params({ foo: zod.string(), bar: zod.string() });
-    const url = route.url({ foo: "hello", bar: "world" });
+    const router = t.router({
+      someRoute: t.route
+        .path("some-route/:foo/:bar")
+        .params({ foo: zod.string(), bar: zod.string() }),
+    });
+    const { url } = router.someRoute({ foo: "hello", bar: "world" });
     expect(url).toBe("/some-route/hello/world");
   });
 
@@ -72,7 +74,7 @@ describe("tsr", () => {
         }),
     });
 
-    const url = router.foo.bar.url({ foo: 1337, bar: "world" });
+    const { url } = router.foo({ foo: 1337 }).bar({ bar: "world" });
     expect(url).toBe("foo/1337/bar/world");
   });
 

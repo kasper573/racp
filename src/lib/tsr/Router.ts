@@ -1,38 +1,47 @@
 import {
+  InferRouteParams,
   Route,
-  RouteBuilderMethods,
   RouteDefinition,
   RouteParams,
-  RouteParamsType,
+  RouteUrl,
 } from "./Route";
 
 export function createRouter<RootDef extends RouteDefinition>(
   root: Route<RootDef>
 ): Router<RootDef> {
-  throw new Error("Not implemented");
+  return {
+    url() {
+      return "" as RouteUrl;
+    },
+    match(location: string) {
+      throw new Error("Not implemented");
+    },
+  } as any;
 }
 
-export type Router<RootDef extends RouteDefinition> = ResolvedRoute<RootDef> & {
-  match(
-    location: string
-  ): RouterMatch<Route<RouteDefinition<RootDef["tsr"]>>>[];
-};
+export type Router<RootDef extends RouteDefinition> =
+  RouteChildrenResolvers<RootDef> & {
+    match(
+      location: string
+    ): RouterMatch<Route<RouteDefinition<RootDef["tsr"]>>>[];
+  };
 
 export interface RouterMatch<R extends Route = any> {
   route: R;
   params: RouteParams<R>;
 }
 
-export type ResolvedRoute<
-  Def extends RouteDefinition,
-  InheritedParams extends RouteParamsType = {}
-> = Omit<Route<Def["params"] & InheritedParams>, keyof RouteBuilderMethods> &
-  Readonly<{
-    [K in keyof Def["children"]]: ResolvedRoute<
-      RouteDefinitionFor<Def["children"][K]>,
-      Def["params"] & InheritedParams
-    >;
-  }>;
+export interface RouteResolver<Def extends RouteDefinition> {
+  (params: InferRouteParams<Def["params"]>): RouteChildrenResolvers<Def> & {
+    url: RouteUrl;
+  };
+}
+
+export type RouteChildrenResolvers<Def extends RouteDefinition> = Readonly<{
+  [K in keyof Def["children"]]: RouteResolver<
+    RouteDefinitionFor<Def["children"][K]>
+  >;
+}>;
 
 type RouteDefinitionFor<T extends Route> = T extends Route<infer Def>
   ? Def

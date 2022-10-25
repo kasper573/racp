@@ -44,10 +44,6 @@ export class RouteBuilderMethods<Def extends RouteDefinition = any> {
 export class Route<
   Def extends RouteDefinition = any
 > extends RouteBuilderMethods<Def> {
-  url(params: InferRouteParams<Def["params"]>): RouteUrl {
-    throw new Error("Not implemented");
-  }
-
   readonly render: Def["renderer"] = this.definition.renderer;
 }
 
