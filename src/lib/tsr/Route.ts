@@ -1,6 +1,5 @@
 import * as zod from "zod";
 import { ZodOptionalType, ZodRawShape, ZodTypeAny } from "zod";
-import { TokensToRegexpOptions } from "path-to-regexp";
 import { TSRDefinition } from "./tsr";
 import { PathParams } from "./PathParams";
 
@@ -11,11 +10,11 @@ export class RouteBuilderMethods<Def extends RouteDefinition = any> {
     this.definition = definition;
   }
 
-  path<Path extends string>(path: Path, pathOptions?: RoutePathOptions) {
+  path<Path extends string>(path: Path, matchOptions?: RouteMatchOptions) {
     return new Route({
       ...this.definition,
       path,
-      pathOptions,
+      matchOptions,
     } as RouteDefinition<Def["tsr"], Path, Def["params"], Def["children"]>);
   }
 
@@ -68,7 +67,7 @@ export interface RouteDefinition<
   meta: TSRDef["meta"];
   renderer: RouteRenderer<InferRouteParams<ParamsType>, TSRDef["renderResult"]>;
   children: Children;
-  pathOptions?: RoutePathOptions;
+  matchOptions?: RouteMatchOptions;
 }
 
 export type RouteRenderer<Params, RenderResult> = (props: {
@@ -100,7 +99,7 @@ export type InferRouteParams<T extends RouteParamsType> = zod.objectOutputType<
   ZodTypeAny
 >;
 
-export type RoutePathOptions = Pick<
-  TokensToRegexpOptions,
-  "strict" | "sensitive" | "end"
->;
+export type RouteMatchOptions = {
+  strict?: boolean;
+  exact?: boolean;
+};

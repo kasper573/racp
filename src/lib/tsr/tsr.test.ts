@@ -88,13 +88,11 @@ describe("tsr", () => {
     expect(active).toHaveLength(0);
   });
 
-  it("matcher respects path options", () => {
-    const strict = t.route.path("strict", { strict: true, end: true });
-    const loose = t.route.path("loose", { strict: false, end: true });
+  it("matcher respects match options", () => {
+    const strict = t.route.path("strict", { strict: true, exact: true });
+    const loose = t.route.path("loose", { strict: false, exact: true });
     const router = t.router({ strict, loose });
 
-    // We only test one scenario which is safe enough to assume the options are passed on to path-to-regexp.
-    // Testing the rest of the options is not worth the effort since we already trust path-to-regexp to be well tested.
     let matches = router.match("/strict/");
     expect(matches).toHaveLength(0);
 

@@ -1,6 +1,9 @@
 import {
   compile as createPathFormatter,
   match as createPathMatcher,
+  ParseOptions,
+  RegexpToFunctionOptions,
+  TokensToRegexpOptions,
 } from "path-to-regexp";
 import * as zod from "zod";
 import {
@@ -8,6 +11,7 @@ import {
   Route,
   RouteDefinition,
   RouteMap,
+  RouteMatchOptions,
   RouteParams,
   RouteParamsType,
   RouteUrl,
@@ -66,11 +70,10 @@ function createRouteResolver<
   );
 
   const paramsToPath = createPathFormatter<AccumulatedParams>(pathTemplate);
-  const pathToParams = createPathMatcher<AccumulatedParams>(pathTemplate, {
-    decode: decodeURIComponent,
-    end: false,
-    ...route.definition.pathOptions,
-  });
+  const pathToParams = createPathMatcher<AccumulatedParams>(
+    pathTemplate,
+    translateMatchOptions(route.definition.matchOptions)
+  );
 
   const resolver = Object.assign(
     paramsToPath,
@@ -104,7 +107,7 @@ function createRouteResolver<
   return resolver;
 }
 
-export type Router<RootDef extends RouteDefinition> = RouteResolver<
+export type Router<RootDef extends RouteDefinition = any> = RouteResolver<
   RootDef,
   {}
 >;
@@ -153,4 +156,17 @@ function coercePrimitives(
     }
     return acc;
   }, {} as Record<string, unknown>);
+}
+
+function translateMatchOptions({
+  strict = false,
+  exact = false,
+}: RouteMatchOptions = {}): ParseOptions &
+  TokensToRegexpOptions &
+  RegexpToFunctionOptions {
+  return {
+    decode: decodeURIComponent,
+    strict,
+    end: exact,
+  };
 }
