@@ -13,7 +13,9 @@ export function createRouter<RootDef extends RouteDefinition>(
 }
 
 export type Router<RootDef extends RouteDefinition> = ResolvedRoute<RootDef> & {
-  match(location: string): RouterMatch[];
+  match(
+    location: string
+  ): RouterMatch<Route<RouteDefinition<RootDef["tsr"]>>>[];
 };
 
 export interface RouterMatch<R extends Route = any> {

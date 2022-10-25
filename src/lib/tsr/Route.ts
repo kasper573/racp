@@ -10,7 +10,8 @@ export function createRoute<Def extends RouteDefinition = any>(
 
 export interface Route<Def extends RouteDefinition = any>
   extends RouteBuilderMethods<Def> {
-  url(params: InferRouteParams<Def["params"]>): RouteUrl;
+  url: (params: InferRouteParams<Def["params"]>) => RouteUrl;
+  render: Def["renderer"];
 }
 
 export interface RouteBuilderMethods<Def extends RouteDefinition = any> {

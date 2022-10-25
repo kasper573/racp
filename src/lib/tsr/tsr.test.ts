@@ -78,7 +78,7 @@ describe("tsr", () => {
 
   it("can render without params", () => {
     const route = t.route.renderer(() => "Hello world");
-    const result = t.renderer.render([{ route, params: {} }]);
+    const result = route.render({ params: {} });
     expect(result).toBe("Hello world");
   });
 
@@ -88,7 +88,7 @@ describe("tsr", () => {
       .params({ foo: zod.number() })
       .renderer(({ params }) => JSON.stringify(params));
 
-    const result = t.renderer.render([{ route, params: { foo: 123 } }]);
+    const result = route.render({ params: { foo: 123 } });
     expect(result).toBe(`{"foo":123}`);
   });
 
@@ -102,7 +102,10 @@ describe("tsr", () => {
         }),
     });
     const match = router.match("/foo/bar");
-    const result = t.renderer.render(match);
+    const result = match.reduce(
+      (children, { route, params }) => route.render({ params, children }),
+      ""
+    );
     expect(result).toBe("<foo>bar</foo>");
   });
 });
