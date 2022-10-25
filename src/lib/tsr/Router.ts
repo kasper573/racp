@@ -12,12 +12,7 @@ import {
 export function createRouter<RootDef extends RouteDefinition>(
   root: Route<RootDef>
 ): Router<RootDef> {
-  return {
-    ...createRouteResolvers(root.definition.children, [root]),
-    match(location: string) {
-      throw new Error("Not implemented");
-    },
-  };
+  return createRouteResolver(root, []);
 }
 
 function createRouteResolvers<
@@ -41,24 +36,26 @@ function createRouteResolver<
 
   const createUrl = compile(path);
 
-  function resolver(params: Def["params"] & InheritedParams): RouteUrl {
+  function createRouteUrl(params: Def["params"] & InheritedParams): RouteUrl {
     return createUrl(params) as RouteUrl;
   }
 
-  return Object.assign(
-    resolver,
+  const resolver = Object.assign(
+    createRouteUrl,
     createRouteResolvers(route.definition.children, ancestors.concat(route))
   ) as RouteResolver<Def, InheritedParams>;
+
+  resolver.match = () => {
+    throw new Error("Not implemented");
+  };
+
+  return resolver;
 }
 
-export type Router<RootDef extends RouteDefinition> = RouteResolverMap<
-  RootDef["children"],
+export type Router<RootDef extends RouteDefinition> = RouteResolver<
+  RootDef,
   {}
-> & {
-  match(
-    location: string
-  ): RouterMatch<Route<RouteDefinition<RootDef["tsr"]>>>[];
-};
+>;
 
 export interface RouterMatch<R extends Route = any> {
   route: R;
@@ -70,6 +67,7 @@ export type RouteResolver<
   InheritedParams extends RouteParamsType
 > = RouteResolverMap<Def["children"], Def["params"] & InheritedParams> & {
   (params: InferRouteParams<Def["params"] & InheritedParams>): RouteUrl;
+  match(location: string): RouterMatch<Route<RouteDefinition<Def["tsr"]>>>[];
 };
 
 export type RouteResolverMap<
