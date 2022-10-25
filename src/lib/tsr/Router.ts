@@ -4,6 +4,7 @@ import {
   RouteDefinition,
   RouteMap,
   RouteParams,
+  RouteParamsType,
   RouteUrl,
 } from "./Route";
 
@@ -18,14 +19,29 @@ export function createRouter<RootDef extends RouteDefinition>(
   };
 }
 
-function createRouteResolvers<Routes extends RouteMap>(
-  routes: Routes
-): RouteResolverMap<Routes> {
-  throw new Error("Not implemented");
+function createRouteResolvers<
+  Routes extends RouteMap,
+  InheritedParams extends RouteParamsType
+>(routes: Routes) {
+  return Object.entries(routes).reduce((resolvers, [name, route]) => {
+    resolvers[name as keyof Routes] = createRouteResolver(route);
+    return resolvers;
+  }, {} as RouteResolverMap<Routes, InheritedParams>);
+}
+
+function createRouteResolver<
+  Def extends RouteDefinition,
+  InheritedParams extends RouteParamsType
+>(route: Route<Def>): RouteResolver<Def, InheritedParams> {
+  return {
+    url: () => "" as RouteUrl,
+    ...createRouteResolvers(route.definition.children),
+  };
 }
 
 export type Router<RootDef extends RouteDefinition> = RouteResolverMap<
-  RootDef["children"]
+  RootDef["children"],
+  {}
 > & {
   match(
     location: string
@@ -37,17 +53,22 @@ export interface RouterMatch<R extends Route = any> {
   params: RouteParams<R>;
 }
 
-export interface RouteResolver<Def extends RouteDefinition> {
-  (params: InferRouteParams<Def["params"]>): RouteResolverMap<
-    Def["children"]
-  > & {
-    url: RouteUrl;
-  };
-}
+export type RouteResolver<
+  Def extends RouteDefinition,
+  InheritedParams extends RouteParamsType
+> = RouteResolverMap<Def["children"], Def["params"] & InheritedParams> & {
+  url(params: InferRouteParams<Def["params"] & InheritedParams>): RouteUrl;
+};
 
-export type RouteResolverMap<Routes extends RouteMap> = Readonly<{
-  [K in keyof Routes]: RouteResolver<RouteDefinitionFor<Routes[K]>>;
-}>;
+export type RouteResolverMap<
+  Routes extends RouteMap,
+  InheritedParams extends RouteParamsType
+> = {
+  [K in keyof Routes]: RouteResolver<
+    RouteDefinitionFor<Routes[K]>,
+    InheritedParams
+  >;
+};
 
 type RouteDefinitionFor<T extends Route> = T extends Route<infer Def>
   ? Def
