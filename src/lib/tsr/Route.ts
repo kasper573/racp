@@ -1,6 +1,8 @@
 import * as zod from "zod";
-import { ZodRawShape, ZodTypeAny } from "zod";
+import { ZodOptionalType, ZodRawShape, ZodTypeAny } from "zod";
+import { TokensToRegexpOptions } from "path-to-regexp";
 import { TSRDefinition } from "./tsr";
+import { PathParams } from "./PathParams";
 
 export class RouteBuilderMethods<Def extends RouteDefinition = any> {
   readonly definition: Readonly<Def>;
@@ -9,13 +11,12 @@ export class RouteBuilderMethods<Def extends RouteDefinition = any> {
     this.definition = definition;
   }
 
-  path<Path extends string>(path: Path) {
-    return new Route({ ...this.definition, path } as RouteDefinition<
-      Def["tsr"],
-      Path,
-      Def["params"],
-      Def["children"]
-    >);
+  path<Path extends string>(path: Path, pathOptions?: RoutePathOptions) {
+    return new Route({
+      ...this.definition,
+      path,
+      pathOptions,
+    } as RouteDefinition<Def["tsr"], Path, Def["params"], Def["children"]>);
   }
 
   params<ParamsType extends RouteParamsTypeFor<Def["path"]>>(
@@ -67,6 +68,7 @@ export interface RouteDefinition<
   meta: TSRDef["meta"];
   renderer: RouteRenderer<InferRouteParams<ParamsType>, TSRDef["renderResult"]>;
   children: Children;
+  pathOptions?: RoutePathOptions;
 }
 
 export type RouteRenderer<Params, RenderResult> = (props: {
@@ -86,20 +88,19 @@ export type RouteParams<T extends Route> = InferRouteParams<
 export type RouteParamsType = ZodRawShape;
 
 export type RouteParamsTypeFor<Path extends string> = {
-  [K in PathParamNames<Path>]: ZodTypeAny;
+  [K in keyof PathParams<Path>]: IsOptional<PathParams<Path>[K]> extends true
+    ? ZodOptionalType<any>
+    : ZodTypeAny;
 };
 
-export type PathParamNames<Path extends string> = keyof PathParams<Path>;
-
-export type PathParams<Path extends string> = string extends Path
-  ? Record<string, string>
-  : Path extends `${infer Start}:${infer Param}/${infer Rest}`
-  ? { [k in Param | keyof PathParams<Rest>]: string }
-  : Path extends `${infer Start}:${infer Param}`
-  ? { [k in Param]: string }
-  : {};
+type IsOptional<T> = undefined extends T ? true : false;
 
 export type InferRouteParams<T extends RouteParamsType> = zod.objectOutputType<
   T,
   ZodTypeAny
+>;
+
+export type RoutePathOptions = Pick<
+  TokensToRegexpOptions,
+  "strict" | "sensitive" | "end"
 >;

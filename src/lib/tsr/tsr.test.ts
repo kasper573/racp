@@ -1,7 +1,8 @@
 import { expect } from "@jest/globals";
 import * as zod from "zod";
+import { omit } from "lodash";
 import { RouterMatch } from "./Router";
-import { Route } from "./Route";
+import { Route, RouteParams } from "./Route";
 import { TSRBuilder } from "./tsr";
 
 describe("tsr", () => {
@@ -12,9 +13,8 @@ describe("tsr", () => {
       path: "" as const,
       params: {},
       meta: { title: "" },
-      renderer: (props: { params: {}; children?: string }): string => {
-        throw new Error("Route has no renderer");
-      },
+      renderer: (props: { params: {}; children?: string }): string =>
+        `${props.children ?? ""}`,
       children: {},
     });
 
@@ -27,31 +27,82 @@ describe("tsr", () => {
       otherRoute,
     });
 
-    const matches = router.match("/foo/123");
+    const [match] = router.match("/foo/123");
 
-    expectRouterMatches(matches, [fooRoute], [{ num: 123 }]);
+    expectRouterMatch(match, fooRoute, { num: 123 });
   });
 
-  it("can identify multiple matching routes", () => {
+  it("picks the first of multiple matching routes", () => {
     const otherRoute = t.route.path("other");
     const numRoute = t.route.path("foo/:num").params({ num: zod.number() });
     const strRoute = t.route.path("foo/:str").params({ str: zod.string() });
 
     const router = t.router({ numRoute, strRoute, otherRoute });
+    const [match] = router.match("/foo/123");
 
-    const matches = router.match("/foo/123");
+    expectRouterMatch(match, numRoute, { num: 123 });
+  });
 
-    expectRouterMatches(
-      matches,
-      [numRoute, strRoute],
-      [{ num: 123 }, { str: "123" }]
-    );
+  it("returns the deepest route when matching multiple routes at different depths", () => {
+    const list = t.route.path("foo");
+    const view = t.route.path(":id?").params({ id: zod.string().optional() });
+
+    const router = t.router({
+      list: list.children({
+        view,
+      }),
+    });
+
+    const matches = router.match("/foo/bar");
+
+    expect(matches.length).toBe(3);
+    expectRouterMatch(matches[0], view, { id: "bar" });
+    expectRouterMatch(matches[1], list, { id: "bar" });
+    expectRouterMatch(matches[2], t.route, { id: "bar" });
+  });
+
+  it("returns correct breadcrumbs when matching nested routes", () => {
+    const foo = t.route.path("foo");
+    const bar = t.route.path("bar");
+    const baz = t.route.path("baz");
+
+    const router = t.router({
+      foo: foo.children({
+        bar: bar.children({
+          baz,
+        }),
+      }),
+    });
+
+    const matches = router.match("/foo/bar");
+
+    expect(matches.length).toBe(3);
+    expectRouterMatch(matches[0], bar, {});
+    expectRouterMatch(matches[1], foo, {});
+    expectRouterMatch(matches[2], t.route, {});
   });
 
   it("can identify when no route matches", () => {
     const router = t.router({ single: t.route.path("some-route") });
     const active = router.match("/not-that-route");
     expect(active).toHaveLength(0);
+  });
+
+  it("matcher respects path options", () => {
+    const strict = t.route.path("strict", { strict: true, end: true });
+    const loose = t.route.path("loose", { strict: false, end: true });
+    const router = t.router({ strict, loose });
+
+    // We only test one scenario which is safe enough to assume the options are passed on to path-to-regexp.
+    // Testing the rest of the options is not worth the effort since we already trust path-to-regexp to be well tested.
+    let matches = router.match("/strict/");
+    expect(matches).toHaveLength(0);
+
+    matches = router.match("/strict");
+    expectRouterMatch(matches[0], strict, {});
+
+    matches = router.match("/loose/");
+    expectRouterMatch(matches[0], loose, {});
   });
 
   it("can create the url for a single route", () => {
@@ -112,15 +163,13 @@ describe("tsr", () => {
   });
 });
 
-function expectRouterMatches(
-  matches: RouterMatch[],
-  expectedRoutes: Route[],
-  expectedParams: unknown[]
+function expectRouterMatch<R extends Route>(
+  match: RouterMatch,
+  expectedRoute: R,
+  expectedParams: RouteParams<R>
 ) {
-  expect(matches).toHaveLength(2);
-
-  for (let i = 0; i < expectedRoutes.length; i++) {
-    expect(matches[i].route).toBe(expectedRoutes[i]);
-    expect(matches[i].params).toBe(expectedParams[i]);
-  }
+  expect(omit(match.route.definition, "children")).toEqual(
+    omit(expectedRoute.definition, "children")
+  );
+  expect(match.params).toEqual(expectedParams);
 }

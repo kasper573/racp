@@ -16,15 +16,28 @@ import {
 export function createRouter<RootDef extends RouteDefinition>(
   root: Route<RootDef>
 ): Router<RootDef> {
-  return createRouteResolver(root, []);
+  let all: RouteResolver[] = [];
+  const router = createRouteResolver(root, [], all, false) as Router<RootDef>;
+  router.match = (location) => {
+    const deepestMatches = all
+      .map((r) => r.match(location))
+      .filter((r) => r.length > 0)
+      .sort((a, b) => b.length - a.length);
+    return deepestMatches[0] || [];
+  };
+  return router;
 }
 
 function createRouteResolvers<
   Routes extends RouteMap,
   InheritedParams extends RouteParamsType
->(routes: Routes, ancestors: Route[]) {
+>(routes: Routes, ancestors: Route[], registry: RouteResolver[]) {
   return Object.entries(routes).reduce((resolvers, [name, route]) => {
-    resolvers[name as keyof Routes] = createRouteResolver(route, ancestors);
+    resolvers[name as keyof Routes] = createRouteResolver(
+      route,
+      ancestors,
+      registry
+    );
     return resolvers;
   }, {} as RouteResolverMap<Routes, InheritedParams>);
 }
@@ -32,7 +45,12 @@ function createRouteResolvers<
 function createRouteResolver<
   Def extends RouteDefinition,
   InheritedParams extends RouteParamsType
->(route: Route<Def>, ancestors: Route[]) {
+>(
+  route: Route<Def>,
+  ancestors: Route[],
+  registry: RouteResolver[],
+  addToRegistry = true
+) {
   const pathTemplate = ancestors
     .concat(route)
     .map((r) => r.definition.path)
@@ -50,11 +68,13 @@ function createRouteResolver<
   const paramsToPath = createPathFormatter<AccumulatedParams>(pathTemplate);
   const pathToParams = createPathMatcher<AccumulatedParams>(pathTemplate, {
     decode: decodeURIComponent,
+    end: false,
+    ...route.definition.pathOptions,
   });
 
   const resolver = Object.assign(
     paramsToPath,
-    createRouteResolvers(route.definition.children, ancestorsAndSelf)
+    createRouteResolvers(route.definition.children, ancestorsAndSelf, registry)
   ) as RouteResolver<Def, InheritedParams>;
 
   resolver.match = (location) => {
@@ -62,7 +82,9 @@ function createRouteResolver<
     if (!matchResult) {
       return [];
     }
-    const parseResult = accumulatedParamsType.safeParse(matchResult.params);
+    const parseResult = accumulatedParamsType.safeParse(
+      coercePrimitives(matchResult.params, accumulatedParamsType.shape)
+    );
     if (!parseResult.success) {
       return [];
     }
@@ -74,6 +96,10 @@ function createRouteResolver<
         route,
       }));
   };
+
+  if (addToRegistry) {
+    registry.push(resolver as RouteResolver);
+  }
 
   return resolver;
 }
@@ -89,8 +115,8 @@ export interface RouterMatch<R extends Route = any> {
 }
 
 export type RouteResolver<
-  Def extends RouteDefinition,
-  InheritedParams extends RouteParamsType
+  Def extends RouteDefinition = any,
+  InheritedParams extends RouteParamsType = {}
 > = RouteResolverMap<Def["children"], Def["params"] & InheritedParams> & {
   (params: InferRouteParams<Def["params"] & InheritedParams>): RouteUrl;
   match(location: string): RouterMatch<Route<RouteDefinition<Def["tsr"]>>>[];
@@ -109,3 +135,22 @@ export type RouteResolverMap<
 type RouteDefinitionFor<T extends Route> = T extends Route<infer Def>
   ? Def
   : never;
+
+function coercePrimitives(
+  params: Record<string, string>,
+  shape: RouteParamsType
+) {
+  return Object.entries(params).reduce((acc, [key, value]) => {
+    const field = shape[key];
+    if (field instanceof zod.ZodString) {
+      acc[key] = value;
+    } else if (field instanceof zod.ZodNumber) {
+      acc[key] = Number(value);
+    } else if (field instanceof zod.ZodBoolean) {
+      acc[key] = value === "true";
+    } else {
+      acc[key] = value;
+    }
+    return acc;
+  }, {} as Record<string, unknown>);
+}
