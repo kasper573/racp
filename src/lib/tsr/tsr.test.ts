@@ -12,7 +12,7 @@ describe("tsr", () => {
       path: "" as const,
       params: {},
       meta: { title: "" },
-      renderer: (params: {}): string => {
+      renderer: (props: { params: {}; children?: string }): string => {
         throw new Error("Route has no renderer");
       },
       children: {},
@@ -86,10 +86,24 @@ describe("tsr", () => {
     const route = t.route
       .path("/:foo")
       .params({ foo: zod.number() })
-      .renderer((params) => JSON.stringify(params));
+      .renderer(({ params }) => JSON.stringify(params));
 
     const result = t.renderer.render([{ route, params: { foo: 123 } }]);
     expect(result).toBe(`{"foo":123}`);
+  });
+
+  it("can match and render nested routes", () => {
+    const router = t.router({
+      foo: t.route
+        .path("foo")
+        .renderer(({ children }) => `<foo>${children}</foo>`)
+        .children({
+          bar: t.route.path("bar").renderer(() => `bar`),
+        }),
+    });
+    const match = router.match("/foo/bar");
+    const result = t.renderer.render(match);
+    expect(result).toBe("<foo>bar</foo>");
   });
 });
 

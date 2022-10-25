@@ -10,7 +10,6 @@ export function createRoute<Def extends RouteDefinition = any>(
 
 export interface Route<Def extends RouteDefinition = any>
   extends RouteBuilderMethods<Def> {
-  readonly definition: Readonly<Def>;
   url(params: InferRouteParams<Def["params"]>): RouteUrl;
 }
 
@@ -50,10 +49,10 @@ export interface RouteDefinition<
   children: Children;
 }
 
-export type RouteRenderer<Params, RenderResult> = (
-  params: Params,
-  renderedChildren?: RenderResult
-) => RenderResult;
+export type RouteRenderer<Params, RenderResult> = (props: {
+  params: Params;
+  children?: RenderResult;
+}) => RenderResult;
 
 export type RouteMap<TSRDef extends TSRDefinition = any> = Record<
   string,
