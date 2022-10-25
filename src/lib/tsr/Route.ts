@@ -5,32 +5,39 @@ import { TSRDefinition } from "./tsr";
 export class RouteBuilderMethods<Def extends RouteDefinition = any> {
   constructor(protected definition: Def) {}
 
-  path<Path extends string>(
-    path: Path
-  ): Route<RouteDefinition<Def["tsr"], Path, Def["params"], Def["children"]>> {
-    throw new Error("Not implemented");
+  path<Path extends string>(path: Path) {
+    return new Route({ ...this.definition, path } as RouteDefinition<
+      Def["tsr"],
+      Path,
+      Def["params"],
+      Def["children"]
+    >);
   }
 
-  params<ParamsType extends RouteParamsType>(
-    params: ParamsType
-  ): Route<
-    RouteDefinition<Def["tsr"], Def["path"], ParamsType, Def["children"]>
-  > {
-    throw new Error("Not implemented");
+  params<ParamsType extends RouteParamsType>(params: ParamsType) {
+    return new Route({ ...this.definition, params } as RouteDefinition<
+      Def["tsr"],
+      Def["path"],
+      ParamsType,
+      Def["children"]
+    >);
   }
 
-  meta(meta: Def["meta"]): Route<Def> {
-    throw new Error("Not implemented");
+  meta(meta: Def["meta"]) {
+    return new Route<Def>({ ...this.definition, meta });
   }
 
   renderer(renderer: Def["renderer"]): Route<Def> {
-    throw new Error("Not implemented");
+    return new Route<Def>({ ...this.definition, renderer });
   }
 
-  children<Children extends RouteMap<Def["tsr"]>>(
-    children: Children
-  ): Route<RouteDefinition<Def["tsr"], Def["path"], Def["params"], Children>> {
-    throw new Error("Not implemented");
+  children<Children extends RouteMap<Def["tsr"]>>(children: Children) {
+    return new Route({ ...this.definition, children } as RouteDefinition<
+      Def["tsr"],
+      Def["path"],
+      Def["params"],
+      Children
+    >);
   }
 }
 
