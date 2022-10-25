@@ -18,7 +18,9 @@ export class RouteBuilderMethods<Def extends RouteDefinition = any> {
     >);
   }
 
-  params<ParamsType extends RouteParamsType>(params: ParamsType) {
+  params<ParamsType extends RouteParamsTypeFor<Def["path"]>>(
+    params: ParamsType
+  ) {
     return new Route({ ...this.definition, params } as RouteDefinition<
       Def["tsr"],
       Def["path"],
@@ -56,7 +58,7 @@ export type RouteUrl = "NominalString<RouteUrl>";
 export interface RouteDefinition<
   TSRDef extends TSRDefinition = any,
   Path extends string = any,
-  ParamsType extends RouteParamsType = any,
+  ParamsType extends RouteParamsTypeFor<Path> = any,
   Children extends RouteMap<TSRDef> = any
 > {
   tsr: TSRDef;
@@ -82,6 +84,20 @@ export type RouteParams<T extends Route> = InferRouteParams<
 >;
 
 export type RouteParamsType = ZodRawShape;
+
+export type RouteParamsTypeFor<Path extends string> = {
+  [K in PathParamNames<Path>]: ZodTypeAny;
+};
+
+export type PathParamNames<Path extends string> = keyof PathParams<Path>;
+
+export type PathParams<Path extends string> = string extends Path
+  ? Record<string, string>
+  : Path extends `${infer Start}:${infer Param}/${infer Rest}`
+  ? { [k in Param | keyof PathParams<Rest>]: string }
+  : Path extends `${infer Start}:${infer Param}`
+  ? { [k in Param]: string }
+  : {};
 
 export type InferRouteParams<T extends RouteParamsType> = zod.objectOutputType<
   T,
