@@ -78,15 +78,18 @@ describe("tsr", () => {
 
   it("can render without params", () => {
     const route = t.route.renderer(() => "Hello world");
-    const result = route.definition.renderer({});
+    const router = t.router({ route });
+    const result = router.render("");
     expect(result).toBe("Hello world");
   });
 
   it("can render with params", () => {
     const route = t.route
+      .path("/:foo")
       .params({ foo: zod.number() })
       .renderer((params) => JSON.stringify(params));
-    const result = route.definition.renderer({ foo: 123 });
+    const router = t.router({ route });
+    const result = router.render("/123");
     expect(result).toBe(`{"foo":123}`);
   });
 });
