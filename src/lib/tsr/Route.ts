@@ -2,36 +2,46 @@ import * as zod from "zod";
 import { ZodRawShape, ZodTypeAny } from "zod";
 import { TSRDefinition } from "./tsr";
 
-export function createRoute<Def extends RouteDefinition = any>(
-  def: Def
-): Route<Def> {
-  throw new Error("Not implemented");
-}
+export class RouteBuilderMethods<Def extends RouteDefinition = any> {
+  constructor(protected definition: Def) {}
 
-export interface Route<Def extends RouteDefinition = any>
-  extends RouteBuilderMethods<Def> {
-  url: (params: InferRouteParams<Def["params"]>) => RouteUrl;
-  render: Def["renderer"];
-}
-
-export interface RouteBuilderMethods<Def extends RouteDefinition = any> {
   path<Path extends string>(
     path: Path
-  ): Route<RouteDefinition<Def["tsr"], Path, Def["params"], Def["children"]>>;
+  ): Route<RouteDefinition<Def["tsr"], Path, Def["params"], Def["children"]>> {
+    throw new Error("Not implemented");
+  }
 
   params<ParamsType extends RouteParamsType>(
     params: ParamsType
   ): Route<
     RouteDefinition<Def["tsr"], Def["path"], ParamsType, Def["children"]>
-  >;
+  > {
+    throw new Error("Not implemented");
+  }
 
-  meta(meta: Def["meta"]): Route<Def>;
+  meta(meta: Def["meta"]): Route<Def> {
+    throw new Error("Not implemented");
+  }
 
-  renderer: (renderer: Def["renderer"]) => Route<Def>;
+  renderer(renderer: Def["renderer"]): Route<Def> {
+    throw new Error("Not implemented");
+  }
 
   children<Children extends RouteMap<Def["tsr"]>>(
     children: Children
-  ): Route<RouteDefinition<Def["tsr"], Def["path"], Def["params"], Children>>;
+  ): Route<RouteDefinition<Def["tsr"], Def["path"], Def["params"], Children>> {
+    throw new Error("Not implemented");
+  }
+}
+
+export class Route<
+  Def extends RouteDefinition = any
+> extends RouteBuilderMethods<Def> {
+  url(params: InferRouteParams<Def["params"]>): RouteUrl {
+    throw new Error("Not implemented");
+  }
+
+  readonly render: Def["renderer"] = this.definition.renderer;
 }
 
 export type RouteUrl = "NominalString<RouteUrl>";

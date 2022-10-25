@@ -1,5 +1,6 @@
-import { createRoute, RouteMap, RouteDefinition } from "./Route";
+import { RouteMap, RouteDefinition } from "./Route";
 import { createRouter } from "./Router";
+import { Route } from "./Route";
 
 export class TSRBuilder<TSRDef extends TSRDefinition> {
   meta<Meta>(): TSRBuilder<TSRDefinition<Meta, TSRDef["renderResult"]>> {
@@ -23,7 +24,7 @@ export class TSRBuilder<TSRDef extends TSRDefinition> {
 export class TSR<RouteTemplate extends RouteDefinition = any> {
   constructor(private routeTemplate: RouteTemplate) {}
 
-  readonly route = createRoute(this.routeTemplate);
+  readonly route = new Route(this.routeTemplate);
 
   router<Graph extends RouteMap<RouteTemplate["tsr"]>>(graph: Graph) {
     return createRouter(this.route.children(graph));
