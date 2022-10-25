@@ -8,9 +8,13 @@ export function createRoute<Def extends RouteDefinition = any>(
   throw new Error("Not implemented");
 }
 
-export interface Route<Def extends RouteDefinition = any> {
-  readonly createUrl: RouteUrlFactory<Def["params"]>;
+export interface Route<Def extends RouteDefinition = any>
+  extends RouteBuilderMethods<Def> {
+  readonly definition: Readonly<Def>;
+  url(params: InferRouteParams<Def["params"]>): RouteUrl;
+}
 
+export interface RouteBuilderMethods<Def extends RouteDefinition = any> {
   path<Path extends string>(
     path: Path
   ): Route<RouteDefinition<Def["tsr"], Path, Def["params"], Def["children"]>>;
@@ -31,10 +35,6 @@ export interface Route<Def extends RouteDefinition = any> {
 }
 
 export type RouteUrl = "NominalString<RouteUrl>";
-
-export type RouteUrlFactory<Params extends RouteParamsType> = (
-  params: InferRouteParams<Params>
-) => RouteUrl;
 
 export interface RouteDefinition<
   TSRDef extends TSRDefinition = any,

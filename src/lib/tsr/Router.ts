@@ -1,9 +1,9 @@
 import {
   Route,
+  RouteBuilderMethods,
   RouteDefinition,
   RouteParams,
   RouteParamsType,
-  RouteUrlFactory,
 } from "./Route";
 
 export function createRouter<RootDef extends RouteDefinition>(
@@ -24,15 +24,13 @@ export interface RouterMatch<R extends Route = any> {
 export type ResolvedRoute<
   Def extends RouteDefinition,
   InheritedParams extends RouteParamsType = {}
-> = {
-  definition: Def;
-  createUrl: RouteUrlFactory<Def["params"] & InheritedParams>;
-} & Readonly<{
-  [K in keyof Def["children"]]: ResolvedRoute<
-    RouteDefinitionFor<Def["children"][K]>,
-    Def["params"] & InheritedParams
-  >;
-}>;
+> = Omit<Route<Def["params"] & InheritedParams>, keyof RouteBuilderMethods> &
+  Readonly<{
+    [K in keyof Def["children"]]: ResolvedRoute<
+      RouteDefinitionFor<Def["children"][K]>,
+      Def["params"] & InheritedParams
+    >;
+  }>;
 
 type RouteDefinitionFor<T extends Route> = T extends Route<infer Def>
   ? Def

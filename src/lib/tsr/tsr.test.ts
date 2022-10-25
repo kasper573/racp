@@ -58,7 +58,7 @@ describe("tsr", () => {
     const route = t.route
       .path("some-route/:foo/:bar")
       .params({ foo: zod.string(), bar: zod.string() });
-    const url = route.createUrl({ foo: "hello", bar: "world" });
+    const url = route.url({ foo: "hello", bar: "world" });
     expect(url).toBe("/some-route/hello/world");
   });
 
@@ -72,7 +72,7 @@ describe("tsr", () => {
         }),
     });
 
-    const url = router.foo.bar.createUrl({ foo: 1337, bar: "world" });
+    const url = router.foo.bar.url({ foo: 1337, bar: "world" });
     expect(url).toBe("foo/1337/bar/world");
   });
 
