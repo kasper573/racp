@@ -1,3 +1,4 @@
+import { createRenderer } from "./Renderer";
 import { createRoute, RouteMap, RouteDefinition } from "./Route";
 import { createRouter } from "./Router";
 
@@ -28,6 +29,8 @@ export class TSR<RouteTemplate extends RouteDefinition = any> {
   router<Graph extends RouteMap<RouteTemplate["tsr"]>>(graph: Graph) {
     return createRouter(this.route.children(graph));
   }
+
+  readonly renderer = createRenderer<RouteTemplate["tsr"]>();
 }
 
 export interface TSRDefinition<Meta = any, RenderResult = any> {
