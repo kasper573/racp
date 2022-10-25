@@ -1,4 +1,8 @@
-import { compile } from "path-to-regexp";
+import {
+  compile as createPathFormatter,
+  match as createPathMatcher,
+} from "path-to-regexp";
+import * as zod from "zod";
 import {
   InferRouteParams,
   Route,
@@ -29,24 +33,46 @@ function createRouteResolver<
   Def extends RouteDefinition,
   InheritedParams extends RouteParamsType
 >(route: Route<Def>, ancestors: Route[]) {
-  const path = ancestors
+  const pathTemplate = ancestors
     .concat(route)
     .map((r) => r.definition.path)
     .join("/");
 
-  const createUrl = compile(path);
+  const ancestorsAndSelf = ancestors.concat(route);
+  type AccumulatedParams = InheritedParams & Def["params"];
+  const accumulatedParamsType = zod.object(
+    ancestorsAndSelf.reduce(
+      (acc, r) => ({ ...acc, ...r.definition.params }),
+      {} as AccumulatedParams
+    )
+  );
 
-  function createRouteUrl(params: Def["params"] & InheritedParams): RouteUrl {
-    return createUrl(params) as RouteUrl;
-  }
+  const paramsToPath = createPathFormatter<AccumulatedParams>(pathTemplate);
+  const pathToParams = createPathMatcher<AccumulatedParams>(pathTemplate, {
+    decode: decodeURIComponent,
+  });
 
   const resolver = Object.assign(
-    createRouteUrl,
-    createRouteResolvers(route.definition.children, ancestors.concat(route))
+    paramsToPath,
+    createRouteResolvers(route.definition.children, ancestorsAndSelf)
   ) as RouteResolver<Def, InheritedParams>;
 
-  resolver.match = () => {
-    throw new Error("Not implemented");
+  resolver.match = (location) => {
+    const matchResult = pathToParams(location);
+    if (!matchResult) {
+      return [];
+    }
+    const parseResult = accumulatedParamsType.safeParse(matchResult.params);
+    if (!parseResult.success) {
+      return [];
+    }
+    return ancestorsAndSelf
+      .slice()
+      .reverse()
+      .map((route) => ({
+        params: parseResult.data,
+        route,
+      }));
   };
 
   return resolver;
