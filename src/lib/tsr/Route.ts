@@ -3,7 +3,11 @@ import { ZodRawShape, ZodTypeAny } from "zod";
 import { TSRDefinition } from "./tsr";
 
 export class RouteBuilderMethods<Def extends RouteDefinition = any> {
-  constructor(protected definition: Def) {}
+  readonly definition: Readonly<Def>;
+
+  constructor(definition: Def) {
+    this.definition = definition;
+  }
 
   path<Path extends string>(path: Path) {
     return new Route({ ...this.definition, path } as RouteDefinition<
