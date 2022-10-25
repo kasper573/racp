@@ -75,7 +75,7 @@ describe("tsr", () => {
     });
 
     const url = router.foo.bar({ foo: 1337, bar: "world" });
-    expect(url).toBe("foo/1337/bar/world");
+    expect(url).toBe("/foo/1337/bar/world");
   });
 
   it("can render without params", () => {

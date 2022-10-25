@@ -1,3 +1,4 @@
+import { compile } from "path-to-regexp";
 import {
   InferRouteParams,
   Route,
@@ -12,7 +13,7 @@ export function createRouter<RootDef extends RouteDefinition>(
   root: Route<RootDef>
 ): Router<RootDef> {
   return {
-    ...createRouteResolvers(root.definition.children),
+    ...createRouteResolvers(root.definition.children, [root]),
     match(location: string) {
       throw new Error("Not implemented");
     },
@@ -22,9 +23,9 @@ export function createRouter<RootDef extends RouteDefinition>(
 function createRouteResolvers<
   Routes extends RouteMap,
   InheritedParams extends RouteParamsType
->(routes: Routes) {
+>(routes: Routes, ancestors: Route[]) {
   return Object.entries(routes).reduce((resolvers, [name, route]) => {
-    resolvers[name as keyof Routes] = createRouteResolver(route);
+    resolvers[name as keyof Routes] = createRouteResolver(route, ancestors);
     return resolvers;
   }, {} as RouteResolverMap<Routes, InheritedParams>);
 }
@@ -32,13 +33,21 @@ function createRouteResolvers<
 function createRouteResolver<
   Def extends RouteDefinition,
   InheritedParams extends RouteParamsType
->(route: Route<Def>) {
+>(route: Route<Def>, ancestors: Route[]) {
+  const path = ancestors
+    .concat(route)
+    .map((r) => r.definition.path)
+    .join("/");
+
+  const createUrl = compile(path);
+
   function resolver(params: Def["params"] & InheritedParams): RouteUrl {
-    return "" as RouteUrl;
+    return createUrl(params) as RouteUrl;
   }
+
   return Object.assign(
     resolver,
-    createRouteResolvers(route.definition.children)
+    createRouteResolvers(route.definition.children, ancestors.concat(route))
   ) as RouteResolver<Def, InheritedParams>;
 }
 

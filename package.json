@@ -103,6 +103,7 @@
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
     "node-fetch": "2.6.7",
+    "path-to-regexp": "^6.2.1",
     "prettier": "2.6.2",
     "rathena": "https://github.com/rathena/rathena.git#4a43856",
     "react": "18.2.0",
