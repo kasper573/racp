@@ -9,7 +9,6 @@ export function createRoute<Def extends RouteDefinition = any>(
 }
 
 export interface Route<Def extends RouteDefinition = any> {
-  readonly definition: Def;
   readonly createUrl: RouteUrlFactory<Def["params"]>;
 
   path<Path extends string>(
