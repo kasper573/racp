@@ -32,11 +32,14 @@ function createRouteResolvers<
 function createRouteResolver<
   Def extends RouteDefinition,
   InheritedParams extends RouteParamsType
->(route: Route<Def>): RouteResolver<Def, InheritedParams> {
-  return {
-    url: () => "" as RouteUrl,
-    ...createRouteResolvers(route.definition.children),
-  };
+>(route: Route<Def>) {
+  function resolver(params: Def["params"] & InheritedParams): RouteUrl {
+    return "" as RouteUrl;
+  }
+  return Object.assign(
+    resolver,
+    createRouteResolvers(route.definition.children)
+  ) as RouteResolver<Def, InheritedParams>;
 }
 
 export type Router<RootDef extends RouteDefinition> = RouteResolverMap<
@@ -57,7 +60,7 @@ export type RouteResolver<
   Def extends RouteDefinition,
   InheritedParams extends RouteParamsType
 > = RouteResolverMap<Def["children"], Def["params"] & InheritedParams> & {
-  url(params: InferRouteParams<Def["params"] & InheritedParams>): RouteUrl;
+  (params: InferRouteParams<Def["params"] & InheritedParams>): RouteUrl;
 };
 
 export type RouteResolverMap<
