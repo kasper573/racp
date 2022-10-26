@@ -1,5 +1,5 @@
 import { useContext, useMemo } from "react";
-import { normalizeLocation } from "../normalizeLocation";
+import { normalizeLocation } from "../utils/normalizeLocation";
 import { ReactRouter, RouterContext } from "./RouterContext";
 
 export type RouterSwitchVariant = "tree" | "leaf";

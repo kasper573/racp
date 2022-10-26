@@ -1,15 +1,13 @@
 import { RouteMap, RouteDefinition, RouteMiddleware } from "./Route";
 import { createRouter, ParamCodec } from "./Router";
 import { Route } from "./Route";
+import { createDefaultParamCodec } from "./utils/createDefaultParamCodec";
 
 export class TSRBuilder<TSRDef extends TSRDefinition> {
   private definition = {
     meta: undefined as TSRDef["meta"],
     renderResult: undefined as TSRDef["renderResult"],
-    codec: {
-      encode: encodeURIComponent,
-      decode: decodeURIComponent,
-    },
+    codec: createDefaultParamCodec(),
     separator: "/",
   } as unknown as TSRDef;
 

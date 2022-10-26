@@ -3,7 +3,7 @@ import {
   match as createPathMatcher,
 } from "path-to-regexp";
 import * as zod from "zod";
-import { ZodDefault, ZodEffects, ZodNullable, ZodOptional, ZodType } from "zod";
+import { ZodType, ZodTypeAny } from "zod";
 import {
   InferRouteParams,
   Route,
@@ -52,8 +52,14 @@ function createRouteResolver<
   registry: RouteResolver[],
   addToRegistry = true
 ) {
+  type ParamsType = Def["params"] & InheritedParams;
+  type EncodedParams = Record<string, string>;
+
   const {
-    tsr: { separator, codec },
+    tsr: {
+      separator,
+      codec: { encode, decode },
+    },
     matchOptions,
   } = route.definition;
 
@@ -63,29 +69,25 @@ function createRouteResolver<
     .join(separator);
 
   const ancestorsAndSelf = ancestors.concat(route);
-  type AccumulatedParams = Def["params"] & InheritedParams;
-  const accumulatedParamsType = zod.object(
+  const paramsType = zod.object(
     ancestorsAndSelf.reduce(
       (acc, r) => ({ ...acc, ...r.definition.params }),
-      {} as AccumulatedParams
+      {} as ParamsType
     )
   );
 
-  const paramsToPath = createPathFormatter(pathTemplate, {
-    encode: codec.encode,
+  const encodedParamsToPath = createPathFormatter<EncodedParams>(pathTemplate);
+  const pathToEncodedParams = createPathMatcher<EncodedParams>(pathTemplate, {
+    end: matchOptions?.exact ?? false,
+    strict: matchOptions?.strict ?? false,
   });
 
-  const pathToUnsafeParams = createPathMatcher<Record<string, string>>(
-    pathTemplate,
-    {
-      decode: codec.decode,
-      strict: matchOptions?.strict ?? false,
-      end: matchOptions?.exact ?? false,
-    }
-  );
-
-  const createLocation: RouteLocationFactory<AccumulatedParams> = (params) => {
-    return paramsToPath(params) as RouterLocation;
+  const createLocation: RouteLocationFactory<ParamsType> = (params) => {
+    const encoded = Object.entries(params).reduce(
+      (a, [k, v]) => ({ ...a, [k]: encode(v, paramsType.shape[k]) }),
+      {}
+    );
+    return encodedParamsToPath(encoded) as RouterLocation;
   };
 
   const resolver = Object.assign(
@@ -95,18 +97,21 @@ function createRouteResolver<
 
   resolver.meta = route.definition.meta;
   resolver.match = (location) => {
-    const match = pathToUnsafeParams(location);
-    if (!match) {
+    const encoded = pathToEncodedParams(location);
+    if (!encoded) {
       return;
     }
-    const coerced = coercePrimitives(match.params, accumulatedParamsType.shape);
-    const parsed = accumulatedParamsType.safeParse(coerced);
-    if (!parsed.success) {
-      console.error(parsed.error);
+    let decoded;
+    try {
+      decoded = Object.entries(encoded.params).reduce(
+        (a, [k, v]) => ({ ...a, [k]: decode(v, paramsType.shape[k]) }),
+        {}
+      );
+    } catch (e) {
       return;
     }
     return {
-      params: parsed.data,
+      params: decoded,
       breadcrumbs: ancestorsAndSelf.slice().reverse(),
     };
   };
@@ -153,42 +158,11 @@ export type RouteResolverMap<
   >;
 };
 
-export interface ParamCodec {
-  encode: (value: string) => string;
-  decode: (value: string) => string;
+export interface ParamCodec<Base extends ZodType = ZodTypeAny> {
+  encode: <T extends Base>(value: zod.infer<T>, type: T) => string;
+  decode: <T extends Base>(encoded: string, type: T) => zod.infer<T>;
 }
 
 type RouteDefinitionFor<T extends Route> = T extends Route<infer Def>
   ? Def
   : never;
-
-function coercePrimitives(
-  params: Record<string, string>,
-  shape: RouteParamsType
-) {
-  return Object.entries(params).reduce((acc, [key, value]) => {
-    const desiredType = normalizeType(shape[key]);
-    if (desiredType instanceof zod.ZodString) {
-      acc[key] = value;
-    } else if (desiredType instanceof zod.ZodNumber) {
-      acc[key] = Number(value);
-    } else if (desiredType instanceof zod.ZodBoolean) {
-      acc[key] = value === "true";
-    } else {
-      acc[key] = value;
-    }
-    return acc;
-  }, {} as Record<string, unknown>);
-}
-
-function normalizeType(type: ZodType) {
-  while (
-    type instanceof ZodEffects ||
-    type instanceof ZodOptional ||
-    type instanceof ZodNullable ||
-    type instanceof ZodDefault
-  ) {
-    type = type instanceof ZodEffects ? type.innerType() : type._def.innerType;
-  }
-  return type;
-}
