@@ -95,17 +95,17 @@ describe("tsr", () => {
     expectRouterMatch(match, [loose], {});
   });
 
-  it("can create the url for a single route", () => {
+  it("can convert params to location for a single route", () => {
     const router = t.router({
       someRoute: t.route
         .path("some-route/:foo/:bar")
         .params({ foo: zod.string(), bar: zod.string() }),
     });
-    const url = router.someRoute({ foo: "hello", bar: "world" });
-    expect(url).toBe("/some-route/hello/world");
+    const location = router.someRoute({ foo: "hello", bar: "world" });
+    expect(location).toBe("/some-route/hello/world");
   });
 
-  it("can create the url for a nested route", () => {
+  it("can convert params to location for a nested route", () => {
     const router = t.router({
       foo: t.route
         .path("foo/:foo")
@@ -115,8 +115,8 @@ describe("tsr", () => {
         }),
     });
 
-    const url = router.foo.bar({ foo: 1337, bar: "world" });
-    expect(url).toBe("/foo/1337/bar/world");
+    const location = router.foo.bar({ foo: 1337, bar: "world" });
+    expect(location).toBe("/foo/1337/bar/world");
   });
 
   it("can render without params", () => {

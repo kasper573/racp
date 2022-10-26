@@ -6,7 +6,7 @@ import {
 } from "@mui/material";
 import { ComponentProps, forwardRef } from "react";
 import { RouterLink, RouterLinkProps } from "../../lib/tsr/react/RouterLink";
-import { RouteUrl } from "../../lib/tsr/Route";
+import { RouterLocation } from "../../lib/tsr/Route";
 import { useLocation } from "../../lib/tsr/react/useLocation";
 
 export type AdditionalLinkProps = Pick<RouterLinkProps, "to">;
@@ -62,7 +62,7 @@ export function LinkMenuItem(
   );
 }
 
-function useIsActive(to: RouteUrl) {
+function useIsActive(to: RouterLocation) {
   const location = useLocation();
   return location.pathname.startsWith(to);
 }

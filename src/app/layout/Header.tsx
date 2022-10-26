@@ -1,7 +1,7 @@
 import { Breadcrumbs, Stack, useTheme } from "@mui/material";
 import { ComponentProps, ReactNode } from "react";
 import { Link } from "../components/Link";
-import { RouteUrl } from "../../lib/tsr/Route";
+import { RouterLocation } from "../../lib/tsr/Route";
 import { RouteResolver } from "../../lib/tsr/Router";
 
 export function Header<Arg>({
@@ -18,7 +18,7 @@ export function Header<Arg>({
 
   if (back) {
     let backTitle: string;
-    let backTo: RouteUrl;
+    let backTo: RouterLocation;
     if (Array.isArray(back)) {
       const [route, routeArg] = back;
       backTitle = route.options.title;

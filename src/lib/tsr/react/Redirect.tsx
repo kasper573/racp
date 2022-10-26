@@ -1,8 +1,8 @@
 import { useContext, useEffect } from "react";
-import { RouteUrl } from "../Route";
+import { RouterLocation } from "../Route";
 import { RouterContext } from "./RouterContext";
 
-export function Redirect({ to }: { to: RouteUrl }) {
+export function Redirect({ to }: { to: RouterLocation }) {
   const { history } = useContext(RouterContext);
 
   useEffect(() => {

@@ -6,7 +6,7 @@ import { router } from "../router";
 import { t } from "../tsr";
 import { Redirect } from "../../lib/tsr/react/Redirect";
 import { useLocation } from "../../lib/tsr/react/useLocation";
-import { normalizeLocation } from "../../lib/tsr/react/normalizeLocation";
+import { normalizeLocation } from "../../lib/tsr/normalizeLocation";
 
 export function requireAuth(requiredAccess = UserAccessLevel.User) {
   return t.middleware((LockedComponent) => (props) => {

@@ -1,7 +1,7 @@
 import { useContext, useMemo } from "react";
+import { normalizeLocation } from "../normalizeLocation";
 import { ReactRouter, RouterContext } from "./RouterContext";
 import { useLocation } from "./useLocation";
-import { normalizeLocation } from "./normalizeLocation";
 
 export function RouterSwitch({ router }: { router: ReactRouter }) {
   const { history } = useContext(RouterContext);

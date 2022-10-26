@@ -23,7 +23,7 @@ import { mapInfoFilter } from "../api/services/map/types";
 import { vendorItemFilter } from "../api/services/vendor/types";
 import { skillFilter } from "../api/services/skill/types";
 import { Redirect } from "../lib/tsr/react/Redirect";
-import { RouteUrl } from "../lib/tsr/Route";
+import { RouterLocation } from "../lib/tsr/Route";
 import { zodLiteralString } from "../lib/zod/zodLiteralString";
 import { requireAuth } from "./util/requireAuth";
 import { requireSettings } from "./util/requireSettings";
@@ -45,7 +45,7 @@ export const router = t.router({
         .middleware(requireAuth(UserAccessLevel.User)),
       login: t.route
         .path("login/&:destination?")
-        .params({ destination: zodLiteralString<RouteUrl>().optional() })
+        .params({ destination: zodLiteralString<RouterLocation>().optional() })
         .renderer(lazy(() => import("./pages/LoginPage")))
         .meta({ title: "Sign in", icon: <Login /> }),
       register: t.route

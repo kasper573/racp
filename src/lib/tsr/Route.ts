@@ -70,7 +70,7 @@ export class Route<
   );
 }
 
-export type RouteUrl = "NominalString<RouteUrl>";
+export type RouterLocation = "NominalString<RouterLocation>";
 
 export interface RouteDefinition<
   TSRDef extends TSRDefinition = any,

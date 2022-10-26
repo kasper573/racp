@@ -14,7 +14,7 @@ import {
   RouteMatchOptions,
   RouteParams,
   RouteParamsType,
-  RouteUrl,
+  RouterLocation,
 } from "./Route";
 
 export function createRouter<RootDef extends RouteDefinition>(
@@ -121,7 +121,7 @@ export type RouteResolver<
 > = RouteResolverMap<Def["children"], Def["params"] & InheritedParams> & {
   meta: Def["meta"];
 
-  (params: InferRouteParams<Def["params"] & InheritedParams>): RouteUrl;
+  (params: InferRouteParams<Def["params"] & InheritedParams>): RouterLocation;
 
   match(
     location: string
