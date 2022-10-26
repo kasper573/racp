@@ -75,7 +75,7 @@ export function Layout({ children }: { children?: ReactNode }) {
                   </IconButton>
                   <Fade in={!!settings?.pageTitle}>
                     <div>
-                      <Logo icon={false}>{settings?.pageTitle}</Logo>
+                      <Logo>{settings?.pageTitle}</Logo>
                     </div>
                   </Fade>
                 </Stack>
@@ -95,11 +95,11 @@ export function Layout({ children }: { children?: ReactNode }) {
           },
         }}
       >
-        <MuiToolbar>
+        <MuiToolbar sx={{ "&": { padding: 0 } }}>
           <Fade in={!!settings?.pageTitle}>
-            <div>
+            <Box sx={{ display: "flex", justifyContent: "center", flex: 1 }}>
               <Logo>{settings?.pageTitle}</Logo>
-            </div>
+            </Box>
           </Fade>
         </MuiToolbar>
         <Divider />
