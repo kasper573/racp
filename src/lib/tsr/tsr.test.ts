@@ -119,6 +119,53 @@ describe("tsr", () => {
     expect(location).toBe("/foo/1337/bar/world");
   });
 
+  it("can convert complex params to location", () => {
+    const router = t.router({
+      someRoute: t.route.path("before/:foo/after").params({
+        foo: zod.object({
+          arr: zod.array(zod.string()),
+          num: zod.number(),
+          bln: zod.boolean(),
+        }),
+      }),
+    });
+    const params = {
+      foo: {
+        arr: ["hello", "world"],
+        num: 123,
+        bln: true,
+      },
+    };
+    const location = router.someRoute(params);
+    expect(location).toBe(
+      `/before/${encodeURIComponent(JSON.stringify(params.foo))}/after`
+    );
+  });
+
+  it("can match route with complex params", () => {
+    const router = t.router({
+      someRoute: t.route.path("before/:foo/after").params({
+        foo: zod.object({
+          arr: zod.array(zod.string()),
+          num: zod.number(),
+          bln: zod.boolean(),
+        }),
+      }),
+    });
+    const params = {
+      foo: {
+        arr: ["hello", "world"],
+        num: 123,
+        bln: true,
+      },
+    };
+    const location = `/before/${encodeURIComponent(
+      JSON.stringify(params.foo)
+    )}/after`;
+    const match = router.match(location);
+    expect(match?.params).toEqual(params);
+  });
+
   it("can render without params", () => {
     const route = t.route.renderer(() => "Hello world");
     const result = route.render({ params: {} });
