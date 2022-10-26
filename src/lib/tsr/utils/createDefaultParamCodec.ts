@@ -4,8 +4,18 @@ import { ParamCodec } from "../Router";
 import { normalizeZodType } from "./normalizeZodType";
 
 /**
- * Since we support arbitrary zod types for params we serialize and deserialize
- * complex values by default, on top of regular uri encoding and type coercion.
+ * # Notes on codecs in general:
+ * TSR only extracts and plots parameters by name by default,
+ * even though runtime type information is always available for all parameters.
+ *
+ * The remaining formatting and parsing is left to the codec,
+ * to allow users to choose/write their own codec.
+ *
+ * # The default codec:
+ * Since we support arbitrary types for params, this codec serializes
+ * complex value types  on top of regular uri encoding.
+ * It also performs type coercion for primitives.
+ * This is necessary to support numbers and booleans in the url.
  */
 export function createDefaultParamCodec(
   serializeComplex = JSON.stringify,
