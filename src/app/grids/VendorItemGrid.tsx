@@ -33,7 +33,7 @@ export const VendorItemGrid = DataGrid.define(trpc.vendor.searchItems.useQuery)(
         renderCell({ row: item }) {
           return (
             <Link
-              to={router.map().view({
+              to={router.map.view({
                 id: item.map,
                 x: item.x,
                 y: item.y,

@@ -27,7 +27,7 @@ export const MvpGrid = DataGrid.define(trpc.monster.searchMvps.useQuery)({
       headerName: "Map",
       renderCell({ row: mvp }) {
         return (
-          <Link to={router.map().view({ id: mvp.mapId })}>{mvp.mapName}</Link>
+          <Link to={router.map.view({ id: mvp.mapId })}>{mvp.mapName}</Link>
         );
       },
     },

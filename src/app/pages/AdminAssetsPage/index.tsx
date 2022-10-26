@@ -53,7 +53,7 @@ export default function AdminAssetsPage() {
           <AccordionDetails>
             <LargeStringList
               values={missingMonsterImages}
-              link={(id) => router.monster().view({ id })}
+              link={(id) => router.monster.view({ id })}
             />
           </AccordionDetails>
         </Accordion>
@@ -69,7 +69,7 @@ export default function AdminAssetsPage() {
           <AccordionDetails>
             <LargeStringList
               values={missingItemImages}
-              link={(id) => router.item().view({ id })}
+              link={(id) => router.item.view({ id })}
             />
           </AccordionDetails>
         </Accordion>
@@ -85,7 +85,7 @@ export default function AdminAssetsPage() {
           <AccordionDetails>
             <LargeStringList
               values={missingMapData.images}
-              link={(id) => router.map().view({ id })}
+              link={(id) => router.map.view({ id })}
             />
           </AccordionDetails>
         </Accordion>
@@ -101,7 +101,7 @@ export default function AdminAssetsPage() {
           <AccordionDetails>
             <LargeStringList
               values={missingMapData.bounds}
-              link={(id) => router.map().view({ id })}
+              link={(id) => router.map.view({ id })}
             />
           </AccordionDetails>
         </Accordion>

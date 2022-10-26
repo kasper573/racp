@@ -104,8 +104,8 @@ export type RouteMap<TSRDef extends TSRDefinition = any> = Record<
   Route<RouteDefinition<TSRDef>>
 >;
 
-export type RouteParams<T extends Route> = InferRouteParams<
-  T extends Route<infer Def> ? Def["params"] : never
+export type RouteParams<T extends Route | RouteDefinition> = InferRouteParams<
+  (T extends Route<infer Def> ? Def : T)["params"]
 >;
 
 export type RouteParamsType = ZodRawShape;

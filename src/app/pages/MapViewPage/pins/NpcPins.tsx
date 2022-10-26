@@ -24,7 +24,7 @@ export const NpcPins = memo(
                 {...mouseBindings}
                 label={
                   <LinkOnMap
-                    to={router.map().view({
+                    to={router.map.view({
                       id: npc.mapId,
                       x: npc.mapX,
                       y: npc.mapY,

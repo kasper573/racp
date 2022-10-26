@@ -29,7 +29,7 @@ export const SpawnPins = memo(
                   {swarm.groups.map((group, index) => (
                     <LinkOnMap
                       key={index}
-                      to={router.monster().view({ id: group.id })}
+                      to={router.monster.view({ id: group.id })}
                       sx={{ lineHeight: "1em" }}
                     >
                       <PinLabel color={monsterColor}>

@@ -63,7 +63,7 @@ export function ItemIdentifier({
 
   let displayName = <ItemDisplayName {...props} />;
   if (link) {
-    displayName = <Link to={router.item().view({ id })}>{displayName}</Link>;
+    displayName = <Link to={router.item.view({ id })}>{displayName}</Link>;
   }
 
   const { cardIds, options } = props;

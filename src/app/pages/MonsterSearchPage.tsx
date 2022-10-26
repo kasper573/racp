@@ -1,13 +1,13 @@
 import { Header } from "../layout/Header";
 import { MonsterSearchFilterForm } from "../forms/MonsterSearchFilterForm";
 import { MonsterGrid } from "../grids/MonsterGrid";
-import { useRouteState } from "../../lib/hooks/useRouteState";
+import { useRouteState } from "../../lib/tsr/react/useRouteState";
 import { router } from "../router";
 import { FilterMenu } from "../components/FilterMenu";
 
 export default function MonsterSearchPage() {
   const [filter = {}, setFilter] = useRouteState(
-    router.monster().search,
+    router.monster.search,
     "filter"
   );
   return (

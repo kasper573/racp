@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import { Typography } from "@mui/material";
-import { useRouteParams } from "../../lib/hooks/useRouteParams";
+import { useRouteParams } from "../../lib/tsr/react/useRouteParams";
 import { router } from "../router";
 import { Link } from "../components/Link";
 import { CenteredContent } from "../components/CenteredContent";
@@ -10,7 +10,7 @@ import { LoginPayload } from "../../api/services/user/types";
 import { useLogin } from "../state/auth";
 
 export default function LoginPage() {
-  const { destination } = useRouteParams(router.user().login);
+  const { destination } = useRouteParams(router.user.login);
   const [loginPayload, setLoginPayload] = useState<LoginPayload>({
     username: "",
     password: "",
@@ -37,7 +37,7 @@ export default function LoginPage() {
 
         <Typography sx={{ textAlign: "right" }}>
           Not a member?{" "}
-          <Link to={router.user().register()}>Create a new account</Link>.
+          <Link to={router.user.register({})}>Create a new account</Link>.
         </Typography>
       </CenteredContent>
     </>

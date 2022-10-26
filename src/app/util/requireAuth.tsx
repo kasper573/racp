@@ -1,29 +1,29 @@
-import { Redirect, RouteMiddleware } from "react-typesafe-routes";
-import { useLocation } from "react-router-dom";
 import { useStore } from "zustand";
 import { UserAccessLevel } from "../../api/services/user/types";
 import { authStore } from "../state/auth";
-import { RestrictedPage } from "../pages/RestrictedPage";
+import { NoAccessPage } from "../pages/NoAccessPage";
 import { router } from "../router";
+import { t } from "../tsr";
+import { Redirect } from "../../lib/tsr/react/Redirect";
+import { useLocation } from "../../lib/tsr/react/useLocation";
+import { normalizeLocation } from "../../lib/tsr/react/normalizeLocation";
 
-export function requireAuth(
-  requiredAccess = UserAccessLevel.User
-): RouteMiddleware {
-  return (next) => {
+export function requireAuth(requiredAccess = UserAccessLevel.User) {
+  return t.middleware((LockedComponent) => (props) => {
     const location = useLocation();
     const access = useStore(authStore).profile?.access;
     if (access === undefined) {
-      return () => (
+      return (
         <Redirect
-          to={router.user().login({
-            destination: `${location.pathname}${location.search}`,
+          to={router.user.login({
+            destination: normalizeLocation(location),
           })}
         />
       );
     }
     if (access < requiredAccess) {
-      return () => <RestrictedPage />;
+      return <NoAccessPage />;
     }
-    return next;
-  };
+    return <LockedComponent {...props} />;
+  });
 }

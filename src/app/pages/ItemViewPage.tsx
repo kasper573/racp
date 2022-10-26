@@ -1,7 +1,7 @@
 import { Fragment, ReactElement } from "react";
 import { Box, Paper, Stack } from "@mui/material";
 import { pick } from "lodash";
-import { useRouteParams } from "../../lib/hooks/useRouteParams";
+import { useRouteParams } from "../../lib/tsr/react/useRouteParams";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
 import { router } from "../router";
@@ -20,7 +20,7 @@ import { renderToggles } from "../util/renderToggles";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ItemViewPage(): ReactElement {
-  const { id } = useRouteParams(router.item().view);
+  const { id } = useRouteParams(router.item.view);
   const { data: item, isLoading, error } = trpc.item.read.useQuery(id);
   const { data: { entities: drops = [] } = {} } = trpc.drop.search.useQuery({
     filter: { ItemId: { value: id, matcher: "=" } },

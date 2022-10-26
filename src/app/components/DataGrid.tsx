@@ -25,6 +25,7 @@ import { SearchQuery, SearchResult, SearchSort } from "../../api/common/search";
 import { useWindowSize, WindowSize } from "../../lib/hooks/useWindowSize";
 import { useOnChange } from "../../lib/hooks/useOnChange";
 import { useLatest } from "../../lib/hooks/useLatest";
+import { RouteUrl } from "../../lib/tsr/Route";
 import { Link } from "./Link";
 import { LoadingSpinner } from "./LoadingSpinner";
 
@@ -219,7 +220,7 @@ interface ColumnConventionProps<Entity, Id extends GridRowId> {
   columns:
     | Partial<Record<keyof Entity, ColumnConventionEntry<Entity>>>
     | Record<string, GridColDef<Entity>>;
-  link?: (entity: Entity) => { $: string } | undefined;
+  link?: (entity: Entity) => RouteUrl | undefined;
   windowWidth?: WindowSize["width"];
 }
 

@@ -5,7 +5,7 @@ import { router } from "../router";
 
 export function Logo({
   children,
-  to = router.home(),
+  to = router.home({}),
   icon = true,
   ...props
 }: { icon?: boolean } & Partial<ComponentProps<typeof Link>>) {

@@ -4,11 +4,11 @@ import {
   ListItemButton,
   MenuItem,
 } from "@mui/material";
-import { Link as RouterLink, useLocation } from "react-router-dom";
-import { Link as RTRLink } from "react-typesafe-routes";
 import { ComponentProps, forwardRef } from "react";
+import { RouterLink, RouterLinkProps } from "../../lib/tsr/react/RouterLink";
+import { RouteUrl } from "../../lib/tsr/Route";
+import { useLocation } from "../../lib/tsr/react/useLocation";
 
-type RouterLinkProps = ComponentProps<typeof RTRLink>;
 export type AdditionalLinkProps = Pick<RouterLinkProps, "to">;
 
 export type LinkTo = AdditionalLinkProps["to"];
@@ -17,7 +17,7 @@ export const LinkBase = MuiLink;
 
 const LinkBehavior = forwardRef<HTMLAnchorElement, RouterLinkProps>(
   function Link({ to, role, ...props }, ref) {
-    return <RouterLink ref={ref} to={to.$} {...props} role={role} />;
+    return <RouterLink ref={ref} to={to} {...props} role={role} />;
   }
 );
 
@@ -62,7 +62,7 @@ export function LinkMenuItem(
   );
 }
 
-function useIsActive(to: { $: string }) {
+function useIsActive(to: RouteUrl) {
   const location = useLocation();
-  return location.pathname.startsWith(to.$);
+  return location.pathname.startsWith(to);
 }

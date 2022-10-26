@@ -11,7 +11,7 @@ export const SkillGrid = DataGrid.define(trpc.skill.search.useQuery)({
       headerName: "Name",
       renderCell({ row: skill }) {
         return (
-          <Link to={router.skill().view({ id: skill.Id })}>
+          <Link to={router.skill.view({ id: skill.Id })}>
             {skill.DisplayName}
           </Link>
         );

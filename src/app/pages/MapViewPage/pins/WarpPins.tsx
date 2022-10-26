@@ -30,7 +30,7 @@ export const WarpPins = memo(
                   {...mouseBindings}
                   label={
                     <LinkOnMap
-                      to={router.map().view({
+                      to={router.map.view({
                         id: warp.toMap,
                         x: warp.toX,
                         y: warp.toY,

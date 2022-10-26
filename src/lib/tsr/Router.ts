@@ -80,6 +80,7 @@ function createRouteResolver<
     createRouteResolvers(route.definition.children, ancestorsAndSelf, registry)
   ) as RouteResolver<Def, InheritedParams>;
 
+  resolver.meta = route.definition.meta;
   resolver.match = (location) => {
     const matchResult = pathToParams(location);
     if (!matchResult) {
@@ -118,7 +119,10 @@ export type RouteResolver<
   Def extends RouteDefinition = any,
   InheritedParams extends RouteParamsType = {}
 > = RouteResolverMap<Def["children"], Def["params"] & InheritedParams> & {
+  meta: Def["meta"];
+
   (params: InferRouteParams<Def["params"] & InheritedParams>): RouteUrl;
+
   match(
     location: string
   ): RouterMatch<Route<RouteDefinition<Def["tsr"]>>> | undefined;

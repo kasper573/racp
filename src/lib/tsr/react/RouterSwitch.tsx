@@ -1,42 +1,31 @@
-import { History, Location } from "history";
-import { ReactElement, useEffect, useMemo, useState } from "react";
-import { Router } from "../Router";
-import { RouteDefinition } from "../Route";
-import { TSRDefinition } from "../tsr";
+import { useContext, useMemo } from "react";
+import { ReactRouter, RouterContext } from "./RouterContext";
+import { useLocation } from "./useLocation";
+import { normalizeLocation } from "./normalizeLocation";
 
-export type ReactRouter = Router<
-  RouteDefinition<TSRDefinition<any, ReactElement | null>>
->;
+export function RouterSwitch({ router }: { router: ReactRouter }) {
+  const { history } = useContext(RouterContext);
+  const location = useLocation();
+  const match = useMemo(
+    () => router.match(normalizeLocation(location)),
+    [router, location]
+  );
 
-export function RouterSwitch({
-  router,
-  history,
-}: {
-  router: ReactRouter;
-  history: History;
-}) {
-  const location = useHistoryLocation(history);
   const rendered = useMemo(
     () =>
-      router
-        .match(normalizeLocation(location))
-        .reduce(
-          (children, { route: { render: Element }, params }) => (
-            <Element params={params}>{children}</Element>
-          ),
-          <></>
+      match &&
+      match.breadcrumbs.reduce(
+        (children, { render: Element }) => (
+          <Element params={match.params}>{children}</Element>
         ),
-    [location, router]
+        <></>
+      ),
+    [match]
   );
-  return rendered;
-}
 
-function useHistoryLocation(history: History) {
-  const [location, setLocation] = useState(history.location);
-  useEffect(() => history.listen(setLocation), [history]);
-  return location;
-}
-
-function normalizeLocation(location: Location): string {
-  return location.pathname + location.search;
+  return (
+    <RouterContext.Provider value={{ history, match }}>
+      {rendered}
+    </RouterContext.Provider>
+  );
 }

@@ -1,6 +1,6 @@
 import { Header } from "../layout/Header";
 import { router } from "../router";
-import { useRouteParams } from "../../lib/hooks/useRouteParams";
+import { useRouteParams } from "../../lib/tsr/react/useRouteParams";
 import { trpc } from "../state/client";
 import { TabbedPaper } from "../components/TabbedPaper";
 import { KVTable } from "../components/KVTable";
@@ -13,7 +13,7 @@ import { Zeny } from "../components/Zeny";
 import { LoadingPage } from "./LoadingPage";
 
 export default function SkillViewPage() {
-  const { id } = useRouteParams(router.skill().view);
+  const { id } = useRouteParams(router.skill.view);
   const { data: { entities: [skill] = [] } = {}, isLoading } =
     trpc.skill.search.useQuery({
       filter: { Id: { value: id, matcher: "=" } },

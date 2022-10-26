@@ -18,7 +18,7 @@ const publicRoutes = (settings?: AdminPublicSettings) =>
     settings?.donations.enabled ? router.donation : undefined,
   ]);
 
-const protectedRoutes = Object.values(router.admin.children);
+const protectedRoutes = [router.admin.settings, router.admin.assets];
 
 export function Menu({ onItemSelected }: { onItemSelected?: () => void }) {
   const { data: settings } = trpc.settings.readPublic.useQuery();

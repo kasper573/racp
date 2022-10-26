@@ -18,7 +18,7 @@ export function MonsterIdentifier({
 }: MonsterIdentifierProps) {
   return (
     <IconWithLabel alt={name} src={imageUrl} {...props}>
-      <Link to={router.monster().view({ id })}>{name}</Link>
+      <Link to={router.monster.view({ id })}>{name}</Link>
     </IconWithLabel>
   );
 }

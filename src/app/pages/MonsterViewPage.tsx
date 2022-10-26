@@ -1,8 +1,7 @@
 import { ReactElement } from "react";
 import { Box, Stack } from "@mui/material";
 import { pick } from "lodash";
-import { useHistory } from "react-router";
-import { useRouteParams } from "../../lib/hooks/useRouteParams";
+import { useRouteParams } from "../../lib/tsr/react/useRouteParams";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
 import { router } from "../router";
@@ -16,11 +15,12 @@ import { CommonPageGrid } from "../components/CommonPageGrid";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 import { Spaceless } from "../components/Spaceless";
 import { renderToggles } from "../util/renderToggles";
+import { useHistory } from "../../lib/tsr/react/useHistory";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MonsterViewPage(): ReactElement {
   const history = useHistory();
-  const { id, tab = "spawns" } = useRouteParams(router.monster().view);
+  const { id, tab = "spawns" } = useRouteParams(router.monster.view);
   const { data, isLoading, error } = trpc.monster.search.useQuery({
     filter: { Id: { value: id, matcher: "=" } },
     limit: 1,
@@ -103,7 +103,7 @@ export default function MonsterViewPage(): ReactElement {
           <TabSwitch
             activeTabId={tab}
             onChange={(e, tab) =>
-              history.replace(router.monster().view({ id, tab }).$)
+              history.replace(router.monster.view({ id, tab }))
             }
             tabs={[
               {

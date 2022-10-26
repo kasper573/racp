@@ -12,7 +12,7 @@ export const NpcGrid = DataGrid.define(trpc.npc.search.useQuery)({
       renderCell({ row: npc }) {
         return (
           <Link
-            to={router.map().view({
+            to={router.map.view({
               id: npc.mapId,
               x: npc.mapX,
               y: npc.mapY,

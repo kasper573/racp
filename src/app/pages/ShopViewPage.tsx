@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
 import { ReactElement } from "react";
 import { Header } from "../layout/Header";
-import { useRouteParams } from "../../lib/hooks/useRouteParams";
+import { useRouteParams } from "../../lib/tsr/react/useRouteParams";
 import { router } from "../router";
 import { trpc } from "../state/client";
 import { ShopItemGrid } from "../grids/ShopItemGrid";
@@ -35,9 +35,11 @@ export default function ShopViewPage(): ReactElement {
           <>
             &nbsp;@&nbsp;
             <Link
-              to={router
-                .map()
-                .view({ id: shop.mapId, x: shop.mapX, y: shop.mapY })}
+              to={router.map.view({
+                id: shop.mapId,
+                x: shop.mapX,
+                y: shop.mapY,
+              })}
             >
               {shop.mapId}
             </Link>

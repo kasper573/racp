@@ -1,10 +1,10 @@
-import { useHistory } from "react-router";
 import { History } from "history";
 import { createStore, useStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { useCallback } from "react";
 import { loginRedirect, logoutRedirect } from "../router";
 import { UserProfile } from "../../api/services/user/types";
+import { useHistory } from "../../lib/tsr/react/useHistory";
 import { trpc } from "./client";
 
 export const authStore = createStore<{

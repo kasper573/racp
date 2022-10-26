@@ -31,7 +31,7 @@ export default function DonationsPage() {
           {line}
         </Typography>
       ))}
-      <Link to={router.donation().items({})} sx={{ mb: 2 }}>
+      <Link to={router.donation.items({})} sx={{ mb: 2 }}>
         Redeemable items
       </Link>
       <Header sx={{ mb: 3 }}>Make a donation</Header>
@@ -50,7 +50,7 @@ export default function DonationsPage() {
       <Auth exact={UserAccessLevel.Guest}>
         <Typography>
           You must be{" "}
-          <Link to={router.user().login({ destination: router.donation().$ })}>
+          <Link to={router.user.login({ destination: router.donation({}) })}>
             signed in
           </Link>{" "}
           to make a donation.

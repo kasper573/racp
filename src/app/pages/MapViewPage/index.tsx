@@ -1,11 +1,10 @@
 import { Stack, Tooltip } from "@mui/material";
 import { useState } from "react";
-import { useHistory } from "react-router";
 import { Place } from "@mui/icons-material";
 import { Header } from "../../layout/Header";
 import { trpc } from "../../state/client";
 import { router } from "../../router";
-import { useRouteParams } from "../../../lib/hooks/useRouteParams";
+import { useRouteParams } from "../../../lib/tsr/react/useRouteParams";
 import { Point } from "../../../lib/geometry";
 import { LoadingPage } from "../LoadingPage";
 import { CommonPageGrid } from "../../components/CommonPageGrid";
@@ -16,6 +15,7 @@ import { ShopGrid } from "../../grids/ShopGrid";
 import { Select } from "../../controls/Select";
 import { NpcGrid } from "../../grids/NpcGrid";
 
+import { useHistory } from "../../../lib/tsr/react/useHistory";
 import { useHighlighter } from "./useHighlighter";
 import { WarpPins } from "./pins/WarpPins";
 import { SpawnPins } from "./pins/SpawnPins";
@@ -33,7 +33,7 @@ export default function MapViewPage() {
   const [visiblePins, setVisiblePins] = useState<PinName[] | undefined>(
     Array.from(pinOptions)
   );
-  const routeParams = useRouteParams(router.map().view);
+  const routeParams = useRouteParams(router.map.view);
   const { id, x, y, tab, title: routePointTitle } = routeParams;
   const {
     data: map,
@@ -127,7 +127,7 @@ export default function MapViewPage() {
           <TabSwitch
             activeTabId={tab ?? "warps"}
             onChange={(e, tab) =>
-              history.replace(router.map().view({ ...routeParams, tab }).$)
+              history.replace(router.map.view({ ...routeParams, tab }))
             }
             tabs={[
               {

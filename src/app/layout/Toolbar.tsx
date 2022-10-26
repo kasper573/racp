@@ -70,12 +70,12 @@ export function Toolbar({ children }: { children?: ReactNode }) {
               />
             </ListItem>
             <Divider sx={{ mb: 1 }} />
-            <LinkMenuItem to={router.user().settings()}>Settings</LinkMenuItem>
+            <LinkMenuItem to={router.user.settings({})}>Settings</LinkMenuItem>
             <MenuItem onClick={logout}>Sign out</MenuItem>
           </Auth>
           <Auth exact={UserAccessLevel.Guest}>
-            <LinkMenuItem to={router.user().login({})}>Sign in</LinkMenuItem>
-            <LinkMenuItem to={router.user().register()}>Register</LinkMenuItem>
+            <LinkMenuItem to={router.user.login({})}>Sign in</LinkMenuItem>
+            <LinkMenuItem to={router.user.register({})}>Register</LinkMenuItem>
           </Auth>
         </MenuOn>
       </Box>

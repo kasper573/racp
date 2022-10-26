@@ -12,7 +12,7 @@ export const WarpGrid = DataGrid.define(trpc.map.searchWarps.useQuery)({
       renderCell({ value, row: warp }) {
         return (
           <Link
-            to={router.map().view({ id: warp.toMap, x: warp.toX, y: warp.toY })}
+            to={router.map.view({ id: warp.toMap, x: warp.toX, y: warp.toY })}
           >
             {value} ({warp.toX}, {warp.toY})
           </Link>
