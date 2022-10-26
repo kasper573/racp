@@ -1,5 +1,8 @@
 import { ReactElement } from "react";
+import { base64decode, base64encode } from "byte-base64";
+import { isEmpty, isPlainObject, isUndefined, omitBy } from "lodash";
 import { TSRBuilder } from "../lib/tsr/tsr";
+import { createDefaultParamCodec } from "../lib/tsr/utils/createDefaultParamCodec";
 
 const defaultOptions = {
   title: "",
@@ -9,6 +12,13 @@ const defaultOptions = {
 export const t = new TSRBuilder()
   .meta<typeof defaultOptions>()
   .renders<ReactElement | null>()
+  .codec(
+    createDefaultParamCodec(
+      (x) =>
+        isEmpty(compact(x)) ? undefined : base64encode(JSON.stringify(x)),
+      (s) => (isEmpty(s) ? [] : JSON.parse(base64decode(s)))
+    )
+  )
   .build({
     path: "" as const,
     params: {},
@@ -17,3 +27,6 @@ export const t = new TSRBuilder()
     children: {},
     middlewares: [],
   });
+
+const compact = (o: unknown) =>
+  isPlainObject(o) ? omitBy(o as object, isUndefined) : o;

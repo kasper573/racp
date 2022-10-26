@@ -18,14 +18,14 @@ import { normalizeZodType } from "./normalizeZodType";
  * This is necessary to support numbers and booleans in the url.
  */
 export function createDefaultParamCodec(
-  serializeComplex = JSON.stringify,
+  serializeComplex: (v: unknown) => string | undefined = JSON.stringify,
   parseComplex = JSON.parse
 ): ParamCodec {
   return {
     encode: (value, _type) => {
       const type = normalizeZodType(_type);
       const str = isPrimitive(type) ? `${value}` : serializeComplex(value);
-      return encodeURIComponent(str);
+      return str !== undefined ? encodeURIComponent(str) : str;
     },
     decode: (value, _type) => {
       value = decodeURIComponent(value);

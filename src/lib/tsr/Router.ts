@@ -159,7 +159,7 @@ export type RouteResolverMap<
 };
 
 export interface ParamCodec<Base extends ZodType = ZodTypeAny> {
-  encode: <T extends Base>(value: zod.infer<T>, type: T) => string;
+  encode: <T extends Base>(value: zod.infer<T>, type: T) => string | undefined;
   decode: <T extends Base>(encoded: string, type: T) => zod.infer<T>;
 }
 
