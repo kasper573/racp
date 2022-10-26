@@ -154,11 +154,11 @@ describe("tsr", () => {
     const router = t.router({
       foo: t.route
         .renderer(({ children }) => `<foo>${children}</foo>`)
-        .middleware(
+        .use(
           (next) => (props) =>
             next({ ...props, children: `<inner>${props.children}</inner>` })
         )
-        .middleware((next) => (props) => `<outer>${next(props)}</outer>`),
+        .use((next) => (props) => `<outer>${next(props)}</outer>`),
     });
     const match = router.match("/");
     const result = renderMatch(match, "bar");

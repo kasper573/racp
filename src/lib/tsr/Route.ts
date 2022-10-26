@@ -37,7 +37,7 @@ export class RouteBuilderMethods<Def extends RouteDefinition = any> {
     return new Route<Def>({ ...this.definition, renderer });
   }
 
-  middleware(
+  use(
     ...additionalMiddlewares: Array<
       RouteMiddleware<
         InferRouteParams<Def["params"]>,

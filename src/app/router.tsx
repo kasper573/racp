@@ -42,7 +42,7 @@ export const router = t.router({
         .path("settings")
         .renderer(lazy(() => import("./pages/UserSettingsPage")))
         .meta({ title: "Settings", icon: <AccountCircle /> })
-        .middleware(requireAuth(UserAccessLevel.User)),
+        .use(requireAuth(UserAccessLevel.User)),
       login: t.route
         .path("login/&:destination?")
         .params({ destination: zodLiteralString<RouterLocation>().optional() })
@@ -134,7 +134,7 @@ export const router = t.router({
     .path("donation")
     .renderer(lazy(() => import("./pages/DonationsPage")))
     .meta({ title: "Donation", icon: <Paid /> })
-    .middleware(requireSettings((settings) => settings.donations.enabled))
+    .use(requireSettings((settings) => settings.donations.enabled))
     .children({
       items: t.route
         .path("items/:filter?")
@@ -145,7 +145,7 @@ export const router = t.router({
     .path("admin")
     .renderer(() => <Redirect to={router.admin.settings({})} />)
     .meta({ title: "Admin", icon: <AdminPanelSettings /> })
-    .middleware(requireAuth(UserAccessLevel.Admin))
+    .use(requireAuth(UserAccessLevel.Admin))
     .children({
       settings: t.route
         .path("settings")
