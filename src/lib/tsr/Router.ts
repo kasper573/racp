@@ -55,10 +55,12 @@ function createRouteResolver<
   registry: RouteResolver[],
   addToRegistry = true
 ) {
+  const { separator, protocol } = route.definition.tsr;
+
   const pathTemplate = ancestors
     .concat(route)
     .map((r) => r.definition.path)
-    .join("/");
+    .join(separator);
 
   const ancestorsAndSelf = ancestors.concat(route);
   type AccumulatedParams = Def["params"] & InheritedParams;
@@ -76,7 +78,7 @@ function createRouteResolver<
   );
 
   const createLocation: RouteLocationFactory<AccumulatedParams> = (params) => {
-    return paramsToPath(params) as RouterLocation;
+    return paramsToPath(protocol.serialize(params)) as RouterLocation;
   };
 
   const resolver = Object.assign(
@@ -90,9 +92,8 @@ function createRouteResolver<
     if (!matchResult) {
       return;
     }
-    const parseResult = accumulatedParamsType.safeParse(
-      coercePrimitives(matchResult.params, accumulatedParamsType.shape)
-    );
+    const deserialized = protocol.parse(matchResult.params);
+    const parseResult = accumulatedParamsType.safeParse(deserialized);
     if (!parseResult.success) {
       return;
     }
@@ -149,28 +150,26 @@ export interface RouteParamSerializationProtocol {
   stringify(paramValue: unknown): string;
 }
 
+export class RouteParamRecordSerializationProtocol {
+  constructor(private protocol: RouteParamSerializationProtocol) {}
+  serialize(params: Record<string, unknown>): Record<string, string> {
+    return Object.entries(params).reduce(
+      (acc, [k, v]) => ({ ...acc, [k]: this.protocol.stringify(v) }),
+      {}
+    );
+  }
+
+  parse(serialized: Record<string, string>): Record<string, unknown> {
+    return Object.entries(serialized).reduce(
+      (acc, [k, v]) => ({ ...acc, [k]: this.protocol.parse(v) }),
+      {}
+    );
+  }
+}
+
 type RouteDefinitionFor<T extends Route> = T extends Route<infer Def>
   ? Def
   : never;
-
-function coercePrimitives(
-  params: Record<string, string>,
-  shape: RouteParamsType
-) {
-  return Object.entries(params).reduce((acc, [key, value]) => {
-    const field = shape[key];
-    if (field instanceof zod.ZodString) {
-      acc[key] = value;
-    } else if (field instanceof zod.ZodNumber) {
-      acc[key] = Number(value);
-    } else if (field instanceof zod.ZodBoolean) {
-      acc[key] = value === "true";
-    } else {
-      acc[key] = value;
-    }
-    return acc;
-  }, {} as Record<string, unknown>);
-}
 
 function translateMatchOptions({
   strict = false,

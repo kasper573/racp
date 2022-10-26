@@ -1,30 +1,40 @@
 import { RouteMap, RouteDefinition, RouteMiddleware } from "./Route";
-import { createRouter, RouteParamSerializationProtocol } from "./Router";
+import {
+  createRouter,
+  RouteParamRecordSerializationProtocol,
+  RouteParamSerializationProtocol,
+} from "./Router";
 import { Route } from "./Route";
 
 export class TSRBuilder<TSRDef extends TSRDefinition> {
-  private protocol: RouteParamSerializationProtocol = JSON;
+  private definition = {
+    meta: undefined as TSRDef["meta"],
+    renderResult: undefined as TSRDef["renderResult"],
+    protocol: new RouteParamRecordSerializationProtocol(JSON),
+    separator: "/",
+  } as unknown as TSRDef;
 
   meta<Meta>(): TSRBuilder<TSRDefinition<Meta, TSRDef["renderResult"]>> {
     return this;
   }
 
-  renderResult<RenderResult>(): TSRBuilder<
+  renders<RenderResult>(): TSRBuilder<
     TSRDefinition<TSRDef["meta"], RenderResult>
   > {
     return this;
   }
 
-  serializationProtocol(protocol: RouteParamSerializationProtocol) {
-    this.protocol = protocol;
+  protocol(protocol: RouteParamSerializationProtocol) {
+    this.definition.protocol = new RouteParamRecordSerializationProtocol(
+      protocol
+    );
     return this;
   }
 
   build<RouteTemplate extends Omit<RouteDefinition<TSRDef>, "tsr">>(
     template: RouteTemplate
   ) {
-    const tsr = { serializationProtocol: this.protocol } as TSRDef;
-    return new TSR({ ...template, tsr });
+    return new TSR({ ...template, tsr: this.definition });
   }
 }
 
@@ -45,5 +55,6 @@ export class TSR<RouteTemplate extends RouteDefinition = any> {
 export interface TSRDefinition<Meta = any, RenderResult = any> {
   meta: Meta;
   renderResult: RenderResult;
-  serializationProtocol: RouteParamSerializationProtocol;
+  protocol: RouteParamRecordSerializationProtocol;
+  separator: string;
 }

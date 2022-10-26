@@ -73,7 +73,7 @@ export class Route<
 export type RouterLocation = "NominalString<RouterLocation>";
 
 export interface RouteDefinition<
-  TSRDef extends TSRDefinition = any,
+  TSRDef extends TSRDefinition = TSRDefinition,
   Path extends string = any,
   ParamsType extends RouteParamsTypeFor<Path> = any,
   Children extends RouteMap<TSRDef> = any
@@ -90,7 +90,7 @@ export interface RouteDefinition<
   matchOptions?: RouteMatchOptions;
 }
 
-export type RouteMiddleware<Params, RenderResult> = (
+export type RouteMiddleware<Params = any, RenderResult = any> = (
   nextRenderer: RouteRenderer<Params, RenderResult>
 ) => RouteRenderer<Params, RenderResult>;
 
@@ -99,7 +99,7 @@ export type RouteRenderer<Params, RenderResult> = (props: {
   children?: RenderResult;
 }) => RenderResult;
 
-export type RouteMap<TSRDef extends TSRDefinition = any> = Record<
+export type RouteMap<TSRDef extends TSRDefinition = TSRDefinition> = Record<
   string,
   Route<RouteDefinition<TSRDef>>
 >;

@@ -157,7 +157,7 @@ export const router = t.router({
         .meta({ title: "Assets", icon: <Image /> }),
     }),
   notFound: t.route
-    .path("*")
+    .path("")
     .renderer(lazy(() => import("./pages/NotFoundPage"))),
 });
 

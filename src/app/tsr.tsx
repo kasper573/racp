@@ -9,8 +9,8 @@ const defaultOptions = {
 
 export const t = new TSRBuilder()
   .meta<typeof defaultOptions>()
-  .renderResult<ReactElement | null>()
-  .serializationProtocol({
+  .renders<ReactElement | null>()
+  .protocol({
     parse: (s) => JSON.parse(base64decode(s)),
     stringify: (x) => base64encode(JSON.stringify(x)),
   })
