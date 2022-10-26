@@ -35,7 +35,7 @@ export const router = t.router({
     .renderer(lazy(() => import("./pages/HomePage")))
     .meta({ title: "Home", icon: <Home /> }),
   user: t.route
-    .path("user")
+    .path("user", { exact: true })
     .renderer(() => <Redirect to={router.user.settings({})} />)
     .children({
       settings: t.route
@@ -54,7 +54,7 @@ export const router = t.router({
         .meta({ title: "Register", icon: <PersonAdd /> }),
     }),
   item: t.route
-    .path("item")
+    .path("item", { exact: true })
     .renderer(() => <Redirect to={router.item.search({})} />)
     .meta({ title: "Items", icon: <Redeem /> })
     .children({
@@ -68,7 +68,7 @@ export const router = t.router({
         .renderer(lazy(() => import("./pages/ItemViewPage"))),
     }),
   skill: t.route
-    .path("skill")
+    .path("skill", { exact: true })
     .renderer(() => <Redirect to={router.skill.search({})} />)
     .meta({ title: "Skills", icon: <School /> })
     .children({
@@ -91,7 +91,7 @@ export const router = t.router({
     .renderer(lazy(() => import("./pages/MvpSearchPage")))
     .meta({ title: "Mvps", icon: <EmojiEvents /> }),
   monster: t.route
-    .path("monster")
+    .path("monster", { exact: true })
     .renderer(() => <Redirect to={router.monster.search({})} />)
     .meta({ title: "Monsters", icon: <PestControlRodent /> })
     .children({
@@ -105,7 +105,7 @@ export const router = t.router({
         .renderer(lazy(() => import("./pages/MonsterViewPage"))),
     }),
   map: t.route
-    .path("map")
+    .path("map", { exact: true })
     .renderer(() => <Redirect to={router.map.search({})} />)
     .meta({ title: "Maps", icon: <Map /> })
     .children({
@@ -142,7 +142,7 @@ export const router = t.router({
         .renderer(lazy(() => import("./pages/DonationItemsPage"))),
     }),
   admin: t.route
-    .path("admin")
+    .path("admin", { exact: true })
     .renderer(() => <Redirect to={router.admin.settings({})} />)
     .meta({ title: "Admin", icon: <AdminPanelSettings /> })
     .use(requireAuth(UserAccessLevel.Admin))
