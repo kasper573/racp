@@ -61,7 +61,7 @@ function createRouteResolver<
     .join("/");
 
   const ancestorsAndSelf = ancestors.concat(route);
-  type AccumulatedParams = InheritedParams & Def["params"];
+  type AccumulatedParams = Def["params"] & InheritedParams;
   const accumulatedParamsType = zod.object(
     ancestorsAndSelf.reduce(
       (acc, r) => ({ ...acc, ...r.definition.params }),
@@ -69,14 +69,18 @@ function createRouteResolver<
     )
   );
 
-  const paramsToPath = createPathFormatter<AccumulatedParams>(pathTemplate);
+  const paramsToPath = createPathFormatter(pathTemplate);
   const pathToParams = createPathMatcher<AccumulatedParams>(
     pathTemplate,
     translateMatchOptions(route.definition.matchOptions)
   );
 
+  const createLocation: RouteLocationFactory<AccumulatedParams> = (params) => {
+    return paramsToPath(params) as RouterLocation;
+  };
+
   const resolver = Object.assign(
-    paramsToPath,
+    createLocation,
     createRouteResolvers(route.definition.children, ancestorsAndSelf, registry)
   ) as RouteResolver<Def, InheritedParams>;
 
@@ -118,15 +122,17 @@ export interface RouterMatch<R extends Route = any> {
 export type RouteResolver<
   Def extends RouteDefinition = any,
   InheritedParams extends RouteParamsType = {}
-> = RouteResolverMap<Def["children"], Def["params"] & InheritedParams> & {
-  meta: Def["meta"];
+> = RouteResolverMap<Def["children"], Def["params"] & InheritedParams> &
+  RouteLocationFactory<Def["params"] & InheritedParams> & {
+    meta: Def["meta"];
+    match(
+      location: string
+    ): RouterMatch<Route<RouteDefinition<Def["tsr"]>>> | undefined;
+  };
 
-  (params: InferRouteParams<Def["params"] & InheritedParams>): RouterLocation;
-
-  match(
-    location: string
-  ): RouterMatch<Route<RouteDefinition<Def["tsr"]>>> | undefined;
-};
+export interface RouteLocationFactory<Params extends RouteParamsType> {
+  (params: InferRouteParams<Params>): RouterLocation;
+}
 
 export type RouteResolverMap<
   Routes extends RouteMap,
@@ -137,6 +143,11 @@ export type RouteResolverMap<
     InheritedParams
   >;
 };
+
+export interface RouteParamSerializationProtocol {
+  parse(serializedParamValue: string): unknown;
+  stringify(paramValue: unknown): string;
+}
 
 type RouteDefinitionFor<T extends Route> = T extends Route<infer Def>
   ? Def
