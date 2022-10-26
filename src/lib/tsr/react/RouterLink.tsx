@@ -14,7 +14,7 @@ export interface RouterLinkProps
 }
 
 export const RouterLink = forwardRef<HTMLAnchorElement, RouterLinkProps>(
-  function Link({ to, role, children, onClick, ...props }, ref) {
+  function Link({ to, children, onClick, ...props }, ref) {
     const { history } = useContext(RouterContext);
     const handleClick = useCallback(
       (e: MouseEvent<HTMLAnchorElement>) => {
