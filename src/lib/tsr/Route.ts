@@ -37,6 +37,20 @@ export class RouteBuilderMethods<Def extends RouteDefinition = any> {
     return new Route<Def>({ ...this.definition, renderer });
   }
 
+  middleware(
+    ...additionalMiddlewares: Array<
+      RouteMiddleware<
+        InferRouteParams<Def["params"]>,
+        Def["tsr"]["renderResult"]
+      >
+    >
+  ): Route<Def> {
+    return new Route<Def>({
+      ...this.definition,
+      middlewares: [...this.definition.middlewares, ...additionalMiddlewares],
+    });
+  }
+
   children<Children extends RouteMap<Def["tsr"]>>(children: Children) {
     return new Route({ ...this.definition, children } as RouteDefinition<
       Def["tsr"],
@@ -50,7 +64,10 @@ export class RouteBuilderMethods<Def extends RouteDefinition = any> {
 export class Route<
   Def extends RouteDefinition = any
 > extends RouteBuilderMethods<Def> {
-  readonly render: Def["renderer"] = this.definition.renderer;
+  readonly render: Def["renderer"] = this.definition.middlewares.reduce(
+    (renderer, next) => next(renderer),
+    this.definition.renderer
+  );
 }
 
 export type RouteUrl = "NominalString<RouteUrl>";
@@ -67,8 +84,15 @@ export interface RouteDefinition<
   meta: TSRDef["meta"];
   renderer: RouteRenderer<InferRouteParams<ParamsType>, TSRDef["renderResult"]>;
   children: Children;
+  middlewares: Array<
+    RouteMiddleware<InferRouteParams<ParamsType>, TSRDef["renderResult"]>
+  >;
   matchOptions?: RouteMatchOptions;
 }
+
+export type RouteMiddleware<Params, RenderResult> = (
+  nextRenderer: RouteRenderer<Params, RenderResult>
+) => RouteRenderer<Params, RenderResult>;
 
 export type RouteRenderer<Params, RenderResult> = (props: {
   params: Params;

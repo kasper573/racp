@@ -16,6 +16,7 @@ describe("tsr", () => {
       renderer: (props: { params: {}; children?: string }): string =>
         `${props.children ?? ""}`,
       children: {},
+      middlewares: [],
     });
 
   it("can identify a single matching route", () => {
@@ -158,6 +159,24 @@ describe("tsr", () => {
       ""
     );
     expect(result).toBe("<foo>bar</foo>");
+  });
+
+  it("middlewares compose the renderer correctly", () => {
+    const router = t.router({
+      foo: t.route
+        .renderer(({ children }) => `<foo>${children}</foo>`)
+        .middleware(
+          (next) => (props) =>
+            next({ ...props, children: `<inner>${props.children}</inner>` })
+        )
+        .middleware((next) => (props) => `<outer>${next(props)}</outer>`),
+    });
+    const match = router.match("/");
+    const result = match.reduce(
+      (children, { route, params }) => route.render({ params, children }),
+      "bar"
+    );
+    expect(result).toBe("<outer><foo><inner>bar</inner></foo></outer>");
   });
 });
 
