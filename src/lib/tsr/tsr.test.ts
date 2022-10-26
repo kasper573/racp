@@ -9,7 +9,6 @@ describe("tsr", () => {
   const t = new TSRBuilder()
     .meta<{ title: string }>()
     .renders<string>()
-    .protocol({ parse: (s) => s, stringify: (s) => `${s}` })
     .build({
       path: "" as const,
       params: {},

@@ -4,7 +4,10 @@ import { HelmetProvider } from "react-helmet-async";
 import { useStore } from "zustand";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { History } from "history";
-import { ReactRouter, RouterContext } from "../lib/tsr/react/RouterContext";
+import {
+  ReactRouter,
+  RouterHistoryProvider,
+} from "../lib/tsr/react/RouterContext";
 import { RouterSwitch } from "../lib/tsr/react/RouterSwitch";
 import { Layout } from "./layout/Layout";
 import { createTheme } from "./fixtures/theme";
@@ -26,7 +29,7 @@ export function App({
   const theme = useMemo(() => createTheme(mode), [mode]);
   return (
     <StrictMode>
-      <RouterContext.Provider value={{ history }}>
+      <RouterHistoryProvider history={history}>
         <trpc.Provider client={trpcClient} queryClient={queryClient}>
           <QueryClientProvider client={queryClient}>
             <HelmetProvider>
@@ -39,7 +42,7 @@ export function App({
             </HelmetProvider>
           </QueryClientProvider>
         </trpc.Provider>
-      </RouterContext.Provider>
+      </RouterHistoryProvider>
     </StrictMode>
   );
 }

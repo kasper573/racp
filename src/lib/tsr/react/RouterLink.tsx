@@ -22,7 +22,7 @@ export const RouterLink = forwardRef<HTMLAnchorElement, RouterLinkProps>(
         history.push(to);
         onClick?.(e);
       },
-      [history, to]
+      [history, onClick, to]
     );
     return (
       <a ref={ref} onClick={handleClick} href={to} {...props}>

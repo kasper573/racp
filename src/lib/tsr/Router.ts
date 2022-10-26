@@ -1,17 +1,14 @@
 import {
   compile as createPathFormatter,
   match as createPathMatcher,
-  ParseOptions,
-  RegexpToFunctionOptions,
-  TokensToRegexpOptions,
 } from "path-to-regexp";
 import * as zod from "zod";
+import { ZodDefault, ZodEffects, ZodNullable, ZodOptional, ZodType } from "zod";
 import {
   InferRouteParams,
   Route,
   RouteDefinition,
   RouteMap,
-  RouteMatchOptions,
   RouteParams,
   RouteParamsType,
   RouterLocation,
@@ -55,7 +52,10 @@ function createRouteResolver<
   registry: RouteResolver[],
   addToRegistry = true
 ) {
-  const { separator, protocol } = route.definition.tsr;
+  const {
+    tsr: { separator, codec },
+    matchOptions,
+  } = route.definition;
 
   const pathTemplate = ancestors
     .concat(route)
@@ -71,14 +71,21 @@ function createRouteResolver<
     )
   );
 
-  const paramsToPath = createPathFormatter(pathTemplate);
-  const pathToParams = createPathMatcher<AccumulatedParams>(
+  const paramsToPath = createPathFormatter(pathTemplate, {
+    encode: codec.encode,
+  });
+
+  const pathToUnsafeParams = createPathMatcher<Record<string, string>>(
     pathTemplate,
-    translateMatchOptions(route.definition.matchOptions)
+    {
+      decode: codec.decode,
+      strict: matchOptions?.strict ?? false,
+      end: matchOptions?.exact ?? false,
+    }
   );
 
   const createLocation: RouteLocationFactory<AccumulatedParams> = (params) => {
-    return paramsToPath(protocol.serialize(params)) as RouterLocation;
+    return paramsToPath(params) as RouterLocation;
   };
 
   const resolver = Object.assign(
@@ -88,17 +95,18 @@ function createRouteResolver<
 
   resolver.meta = route.definition.meta;
   resolver.match = (location) => {
-    const matchResult = pathToParams(location);
-    if (!matchResult) {
+    const match = pathToUnsafeParams(location);
+    if (!match) {
       return;
     }
-    const deserialized = protocol.parse(matchResult.params);
-    const parseResult = accumulatedParamsType.safeParse(deserialized);
-    if (!parseResult.success) {
+    const coerced = coercePrimitives(match.params, accumulatedParamsType.shape);
+    const parsed = accumulatedParamsType.safeParse(coerced);
+    if (!parsed.success) {
+      console.error(parsed.error);
       return;
     }
     return {
-      params: parseResult.data,
+      params: parsed.data,
       breadcrumbs: ancestorsAndSelf.slice().reverse(),
     };
   };
@@ -145,41 +153,42 @@ export type RouteResolverMap<
   >;
 };
 
-export interface RouteParamSerializationProtocol {
-  parse(serializedParamValue: string): unknown;
-  stringify(paramValue: unknown): string;
-}
-
-export class RouteParamRecordSerializationProtocol {
-  constructor(private protocol: RouteParamSerializationProtocol) {}
-  serialize(params: Record<string, unknown>): Record<string, string> {
-    return Object.entries(params).reduce(
-      (acc, [k, v]) => ({ ...acc, [k]: this.protocol.stringify(v) }),
-      {}
-    );
-  }
-
-  parse(serialized: Record<string, string>): Record<string, unknown> {
-    return Object.entries(serialized).reduce(
-      (acc, [k, v]) => ({ ...acc, [k]: this.protocol.parse(v) }),
-      {}
-    );
-  }
+export interface ParamCodec {
+  encode: (value: string) => string;
+  decode: (value: string) => string;
 }
 
 type RouteDefinitionFor<T extends Route> = T extends Route<infer Def>
   ? Def
   : never;
 
-function translateMatchOptions({
-  strict = false,
-  exact = false,
-}: RouteMatchOptions = {}): ParseOptions &
-  TokensToRegexpOptions &
-  RegexpToFunctionOptions {
-  return {
-    decode: decodeURIComponent,
-    strict,
-    end: exact,
-  };
+function coercePrimitives(
+  params: Record<string, string>,
+  shape: RouteParamsType
+) {
+  return Object.entries(params).reduce((acc, [key, value]) => {
+    const desiredType = normalizeType(shape[key]);
+    if (desiredType instanceof zod.ZodString) {
+      acc[key] = value;
+    } else if (desiredType instanceof zod.ZodNumber) {
+      acc[key] = Number(value);
+    } else if (desiredType instanceof zod.ZodBoolean) {
+      acc[key] = value === "true";
+    } else {
+      acc[key] = value;
+    }
+    return acc;
+  }, {} as Record<string, unknown>);
+}
+
+function normalizeType(type: ZodType) {
+  while (
+    type instanceof ZodEffects ||
+    type instanceof ZodOptional ||
+    type instanceof ZodNullable ||
+    type instanceof ZodDefault
+  ) {
+    type = type instanceof ZodEffects ? type.innerType() : type._def.innerType;
+  }
+  return type;
 }

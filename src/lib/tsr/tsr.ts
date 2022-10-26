@@ -1,16 +1,15 @@
 import { RouteMap, RouteDefinition, RouteMiddleware } from "./Route";
-import {
-  createRouter,
-  RouteParamRecordSerializationProtocol,
-  RouteParamSerializationProtocol,
-} from "./Router";
+import { createRouter, ParamCodec } from "./Router";
 import { Route } from "./Route";
 
 export class TSRBuilder<TSRDef extends TSRDefinition> {
   private definition = {
     meta: undefined as TSRDef["meta"],
     renderResult: undefined as TSRDef["renderResult"],
-    protocol: new RouteParamRecordSerializationProtocol(JSON),
+    codec: {
+      encode: encodeURIComponent,
+      decode: decodeURIComponent,
+    },
     separator: "/",
   } as unknown as TSRDef;
 
@@ -24,10 +23,8 @@ export class TSRBuilder<TSRDef extends TSRDefinition> {
     return this;
   }
 
-  protocol(protocol: RouteParamSerializationProtocol) {
-    this.definition.protocol = new RouteParamRecordSerializationProtocol(
-      protocol
-    );
+  codec(codec: ParamCodec) {
+    this.definition.codec = codec;
     return this;
   }
 
@@ -55,6 +52,6 @@ export class TSR<RouteTemplate extends RouteDefinition = any> {
 export interface TSRDefinition<Meta = any, RenderResult = any> {
   meta: Meta;
   renderResult: RenderResult;
-  protocol: RouteParamRecordSerializationProtocol;
+  codec: ParamCodec;
   separator: string;
 }
