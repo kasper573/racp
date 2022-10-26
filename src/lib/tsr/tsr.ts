@@ -1,4 +1,4 @@
-import { RouteMap, RouteDefinition } from "./Route";
+import { RouteMap, RouteDefinition, RouteMiddleware } from "./Route";
 import { createRouter } from "./Router";
 import { Route } from "./Route";
 
@@ -28,6 +28,10 @@ export class TSR<RouteTemplate extends RouteDefinition = any> {
 
   router<Graph extends RouteMap<RouteTemplate["tsr"]>>(graph: Graph) {
     return createRouter(this.route.children(graph));
+  }
+
+  middleware(fn: RouteMiddleware<any, RouteTemplate["tsr"]["renderResult"]>) {
+    return fn;
   }
 }
 
