@@ -1,17 +1,18 @@
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect } from "react";
 import { RouterLocation } from "../Route";
+import { normalizeLocation } from "../utils/normalizeLocation";
 import { RouterContext } from "./RouterContext";
+import { useLocation } from "./useLocation";
 
 export function Redirect({ to }: { to: RouterLocation }) {
   const { history } = useContext(RouterContext);
+  const current = normalizeLocation(useLocation());
 
-  const hasRedirectedRef = useRef(false);
   useEffect(() => {
-    if (!hasRedirectedRef.current) {
-      hasRedirectedRef.current = true;
+    if (current !== to) {
       history.replace(to);
     }
-  }, [history, to]);
+  }, [history, current, to]);
 
   return null;
 }
