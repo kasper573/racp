@@ -33,7 +33,7 @@ export function App({
               <ThemeProvider theme={theme}>
                 <CssBaseline />
                 <Layout>
-                  <RouterSwitch router={router} />
+                  <RouterSwitch router={router} variant="leaf" />
                 </Layout>
               </ThemeProvider>
             </HelmetProvider>

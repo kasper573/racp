@@ -7,8 +7,5 @@ export function useRouteParams<Def extends RouteDefinition>(
   route: RouteResolver<Def>
 ): RouteParams<Def> {
   const { match } = useContext(RouterContext);
-  if (!match?.breadcrumbs.includes(route)) {
-    throw new Error("useRouteParams must resolve to the given route");
-  }
-  return match.params as RouteParams<Def>;
+  return match?.params as RouteParams<Def>;
 }
