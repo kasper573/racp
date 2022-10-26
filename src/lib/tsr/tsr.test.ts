@@ -28,9 +28,8 @@ describe("tsr", () => {
       otherRoute,
     });
 
-    const [match] = router.match("/foo/123");
-
-    expectRouterMatch(match, fooRoute, { num: 123 });
+    const match = router.match("/foo/123");
+    expectRouterMatch(match, [fooRoute], { num: 123 });
   });
 
   it("picks the first of multiple matching routes", () => {
@@ -39,9 +38,9 @@ describe("tsr", () => {
     const strRoute = t.route.path("foo/:str").params({ str: zod.string() });
 
     const router = t.router({ numRoute, strRoute, otherRoute });
-    const [match] = router.match("/foo/123");
+    const match = router.match("/foo/123");
 
-    expectRouterMatch(match, numRoute, { num: 123 });
+    expectRouterMatch(match, [numRoute], { num: 123 });
   });
 
   it("returns the deepest route when matching multiple routes at different depths", () => {
@@ -54,12 +53,8 @@ describe("tsr", () => {
       }),
     });
 
-    const matches = router.match("/foo/bar");
-
-    expect(matches.length).toBe(3);
-    expectRouterMatch(matches[0], view, { id: "bar" });
-    expectRouterMatch(matches[1], list, { id: "bar" });
-    expectRouterMatch(matches[2], t.route, { id: "bar" });
+    const match = router.match("/foo/bar");
+    expectRouterMatch(match, [view, list], { id: "bar" });
   });
 
   it("returns correct breadcrumbs when matching nested routes", () => {
@@ -75,18 +70,14 @@ describe("tsr", () => {
       }),
     });
 
-    const matches = router.match("/foo/bar");
-
-    expect(matches.length).toBe(3);
-    expectRouterMatch(matches[0], bar, {});
-    expectRouterMatch(matches[1], foo, {});
-    expectRouterMatch(matches[2], t.route, {});
+    const match = router.match("/foo/bar");
+    expectRouterMatch(match, [bar, foo], {});
   });
 
   it("can identify when no route matches", () => {
     const router = t.router({ single: t.route.path("some-route") });
     const active = router.match("/not-that-route");
-    expect(active).toHaveLength(0);
+    expect(active).toBeUndefined();
   });
 
   it("matcher respects match options", () => {
@@ -94,14 +85,14 @@ describe("tsr", () => {
     const loose = t.route.path("loose", { strict: false, exact: true });
     const router = t.router({ strict, loose });
 
-    let matches = router.match("/strict/");
-    expect(matches).toHaveLength(0);
+    let match = router.match("/strict/");
+    expect(match).toBeUndefined();
 
-    matches = router.match("/strict");
-    expectRouterMatch(matches[0], strict, {});
+    match = router.match("/strict");
+    expectRouterMatch(match, [strict], {});
 
-    matches = router.match("/loose/");
-    expectRouterMatch(matches[0], loose, {});
+    match = router.match("/loose/");
+    expectRouterMatch(match, [loose], {});
   });
 
   it("can create the url for a single route", () => {
@@ -154,10 +145,7 @@ describe("tsr", () => {
         }),
     });
     const match = router.match("/foo/bar");
-    const result = match.reduce(
-      (children, { route, params }) => route.render({ params, children }),
-      ""
-    );
+    const result = renderMatch(match);
     expect(result).toBe("<foo>bar</foo>");
   });
 
@@ -172,21 +160,34 @@ describe("tsr", () => {
         .middleware((next) => (props) => `<outer>${next(props)}</outer>`),
     });
     const match = router.match("/");
-    const result = match.reduce(
-      (children, { route, params }) => route.render({ params, children }),
-      "bar"
-    );
+    const result = renderMatch(match, "bar");
     expect(result).toBe("<outer><foo><inner>bar</inner></foo></outer>");
   });
 });
 
 function expectRouterMatch<R extends Route>(
-  match: RouterMatch,
-  expectedRoute: R,
+  match: RouterMatch | undefined,
+  expectedBreadcrumbs: R[],
   expectedParams: RouteParams<R>
 ) {
-  expect(omit(match.route.definition, "children")).toEqual(
-    omit(expectedRoute.definition, "children")
+  expect(match).toBeDefined();
+  expect(match?.breadcrumbs).toHaveLength(expectedBreadcrumbs.length + 1); // + 1 for root route
+  expect(match?.params).toEqual(expectedParams);
+
+  for (let i = 0; i < expectedBreadcrumbs.length; i++) {
+    const expectedRoute = expectedBreadcrumbs[i];
+    expect(omit(match?.breadcrumbs[i].definition, "children")).toEqual(
+      omit(expectedRoute.definition, "children")
+    );
+  }
+}
+
+function renderMatch(match: RouterMatch | undefined, startContent = "") {
+  if (!match) {
+    return;
+  }
+  return match.breadcrumbs.reduce(
+    (children, route) => route.render({ params: match.params, children }),
+    startContent
   );
-  expect(match.params).toEqual(expectedParams);
 }

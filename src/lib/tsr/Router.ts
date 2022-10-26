@@ -23,11 +23,11 @@ export function createRouter<RootDef extends RouteDefinition>(
   let all: RouteResolver[] = [];
   const router = createRouteResolver(root, [], all, false) as Router<RootDef>;
   router.match = (location) => {
-    const deepestMatches = all
+    const [bestMatch] = all
       .map((r) => r.match(location))
-      .filter((r) => r.length > 0)
-      .sort((a, b) => b.length - a.length);
-    return deepestMatches[0] || [];
+      .filter((match): match is RouterMatch => !!match)
+      .sort((a, b) => b.breadcrumbs.length - a.breadcrumbs.length);
+    return bestMatch;
   };
   return router;
 }
@@ -83,21 +83,18 @@ function createRouteResolver<
   resolver.match = (location) => {
     const matchResult = pathToParams(location);
     if (!matchResult) {
-      return [];
+      return;
     }
     const parseResult = accumulatedParamsType.safeParse(
       coercePrimitives(matchResult.params, accumulatedParamsType.shape)
     );
     if (!parseResult.success) {
-      return [];
+      return;
     }
-    return ancestorsAndSelf
-      .slice()
-      .reverse()
-      .map((route) => ({
-        params: parseResult.data,
-        route,
-      }));
+    return {
+      params: parseResult.data,
+      breadcrumbs: ancestorsAndSelf.slice().reverse(),
+    };
   };
 
   if (addToRegistry) {
@@ -113,7 +110,7 @@ export type Router<RootDef extends RouteDefinition = any> = RouteResolver<
 >;
 
 export interface RouterMatch<R extends Route = any> {
-  route: R;
+  breadcrumbs: R[];
   params: RouteParams<R>;
 }
 
@@ -122,7 +119,9 @@ export type RouteResolver<
   InheritedParams extends RouteParamsType = {}
 > = RouteResolverMap<Def["children"], Def["params"] & InheritedParams> & {
   (params: InferRouteParams<Def["params"] & InheritedParams>): RouteUrl;
-  match(location: string): RouterMatch<Route<RouteDefinition<Def["tsr"]>>>[];
+  match(
+    location: string
+  ): RouterMatch<Route<RouteDefinition<Def["tsr"]>>> | undefined;
 };
 
 export type RouteResolverMap<
