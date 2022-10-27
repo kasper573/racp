@@ -2,9 +2,11 @@ import { lazy } from "react";
 import {
   AccountCircle,
   AdminPanelSettings,
+  Construction,
   EmojiEvents,
   Home,
   Image,
+  ImageSearch,
   Login,
   Map,
   Paid,
@@ -134,6 +136,19 @@ export const router = t.router({
         .path("items/:filter?")
         .params({ filter: itemFilter.type.optional() })
         .renderer(lazy(() => import("./pages/DonationItemsPage"))),
+    }),
+  tools: t.route
+    .path("tools")
+    .meta({ title: "Tools" })
+    .children({
+      hunt: t.route
+        .path("hunt")
+        .meta({ title: "Hunt", icon: <ImageSearch /> })
+        .renderer(lazy(() => import("./pages/HuntToolPage"))),
+      build: t.route
+        .path("build")
+        .meta({ title: "Build", icon: <Construction /> })
+        .renderer(lazy(() => import("./pages/BuildToolPage"))),
     }),
   admin: t.route
     .path("admin", { exact: true })
