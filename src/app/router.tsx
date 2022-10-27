@@ -133,7 +133,7 @@ export const router = t.router({
   donation: t.route
     .path("donation")
     .renderer(lazy(() => import("./pages/DonationsPage")))
-    .meta({ title: "Donation", icon: <Paid /> })
+    .meta({ title: "Donations", icon: <Paid /> })
     .use(requireSettings((settings) => settings.donations.enabled))
     .children({
       items: t.route
