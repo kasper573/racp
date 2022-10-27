@@ -6,7 +6,7 @@ import {
 } from "../../../../api/services/monster/types";
 import { createMonsterSwarms } from "../createMonsterSwarms";
 import { MapPin } from "../MapPin";
-import { router } from "../../../router";
+import { routes } from "../../../router";
 import { LinkOnMap, pinIconCss, PinLabel, PinsProps } from "./common";
 
 export const SpawnPins = memo(
@@ -29,7 +29,7 @@ export const SpawnPins = memo(
                   {swarm.groups.map((group, index) => (
                     <LinkOnMap
                       key={index}
-                      to={router.monster().view({ id: group.id })}
+                      to={routes.monster.view({ id: group.id })}
                       sx={{ lineHeight: "1em" }}
                     >
                       <PinLabel color={monsterColor}>

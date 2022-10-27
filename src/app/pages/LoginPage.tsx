@@ -1,16 +1,18 @@
 import { FormEvent, useState } from "react";
 import { Typography } from "@mui/material";
-import { useRouteParams } from "../../lib/hooks/useRouteParams";
-import { router } from "../router";
+import { routes } from "../router";
 import { Link } from "../components/Link";
 import { CenteredContent } from "../components/CenteredContent";
 import { Header } from "../layout/Header";
 import { UserLoginForm } from "../forms/UserLoginForm";
 import { LoginPayload } from "../../api/services/user/types";
 import { useLogin } from "../state/auth";
+import { RouteComponentProps } from "../../lib/tsr/react/types";
+import { RouteLocation } from "../../lib/tsr/types";
 
-export default function LoginPage() {
-  const { destination } = useRouteParams(router.user().login);
+export default function LoginPage({
+  params: { destination },
+}: RouteComponentProps<{ destination?: RouteLocation }>) {
   const [loginPayload, setLoginPayload] = useState<LoginPayload>({
     username: "",
     password: "",
@@ -24,7 +26,7 @@ export default function LoginPage() {
 
   return (
     <>
-      <Header>Sign in</Header>
+      <Header />
       <CenteredContent>
         <UserLoginForm
           value={loginPayload}
@@ -37,7 +39,7 @@ export default function LoginPage() {
 
         <Typography sx={{ textAlign: "right" }}>
           Not a member?{" "}
-          <Link to={router.user().register()}>Create a new account</Link>.
+          <Link to={routes.user.register({})}>Create a new account</Link>.
         </Typography>
       </CenteredContent>
     </>

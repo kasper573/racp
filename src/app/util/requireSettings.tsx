@@ -1,20 +1,20 @@
-import { RouteMiddleware } from "react-typesafe-routes";
-import { RestrictedPage } from "../pages/RestrictedPage";
+import { NoAccessPage } from "../pages/NoAccessPage";
 import { AdminPublicSettings } from "../../api/services/settings/types";
 import { trpc } from "../state/client";
 import { LoadingPage } from "../pages/LoadingPage";
+import { t } from "../tsr";
 
 export function requireSettings(
   hasSettings: (settings: AdminPublicSettings) => boolean
-): RouteMiddleware {
-  return (next) => {
+) {
+  return t.middleware((LockedComponent) => (props) => {
     const { data, isLoading } = trpc.settings.readPublic.useQuery();
     if (isLoading) {
-      return () => <LoadingPage />;
+      return <LoadingPage />;
     }
     if (!data || !hasSettings(data)) {
-      return () => <RestrictedPage />;
+      return <NoAccessPage />;
     }
-    return next;
-  };
+    return <LockedComponent {...props} />;
+  });
 }

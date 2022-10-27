@@ -1,15 +1,16 @@
 import { Typography } from "@mui/material";
 import { ReactElement } from "react";
 import { Header } from "../layout/Header";
-import { useRouteParams } from "../../lib/hooks/useRouteParams";
-import { router } from "../router";
+import { routes } from "../router";
 import { trpc } from "../state/client";
 import { ShopItemGrid } from "../grids/ShopItemGrid";
 import { Link } from "../components/Link";
+import { RouteComponentProps } from "../../lib/tsr/react/types";
 import { LoadingPage } from "./LoadingPage";
 
-export default function ShopViewPage(): ReactElement {
-  const { id } = useRouteParams(router.shop);
+export default function ShopViewPage({
+  params: { id },
+}: RouteComponentProps<{ id: string }>): ReactElement {
   const {
     data: { entities: [shop] = [] } = {},
     error,
@@ -24,26 +25,32 @@ export default function ShopViewPage(): ReactElement {
   }
 
   if (!shop || error) {
-    return <Header>Shop not found</Header>;
+    return <Header title="Shop not found" />;
   }
 
   return (
     <>
-      <Header parent="Shops">
-        {shop.name}
-        {shop.mapId !== undefined && (
+      <Header
+        title={
           <>
-            &nbsp;@&nbsp;
-            <Link
-              to={router
-                .map()
-                .view({ id: shop.mapId, x: shop.mapX, y: shop.mapY })}
-            >
-              {shop.mapId}
-            </Link>
+            {shop.name}
+            {shop.mapId !== undefined && (
+              <>
+                &nbsp;@&nbsp;
+                <Link
+                  to={routes.map.view({
+                    id: shop.mapId,
+                    x: shop.mapX,
+                    y: shop.mapY,
+                  })}
+                >
+                  {shop.mapId}
+                </Link>
+              </>
+            )}
           </>
-        )}
-      </Header>
+        }
+      />
       {shop.mapId === undefined && (
         <Typography sx={{ mb: 3 }}>
           This shop is not accessible by clicking on an NPC. It's triggered by a

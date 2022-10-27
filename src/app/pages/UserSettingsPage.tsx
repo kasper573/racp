@@ -47,7 +47,7 @@ export default function UserSettingsPage() {
 
   return (
     <>
-      <Header>Settings</Header>
+      <Header />
       <CenteredContent>
         <UserProfileForm
           error={error?.data}

@@ -1,10 +1,8 @@
 import { Fragment, ReactElement } from "react";
 import { Box, Paper, Stack } from "@mui/material";
 import { pick } from "lodash";
-import { useRouteParams } from "../../lib/hooks/useRouteParams";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
-import { router } from "../router";
 import { ClientTextBlock } from "../components/ClientText/ClientText";
 import { TabbedPaper } from "../components/TabbedPaper";
 import { Script } from "../components/Script";
@@ -17,10 +15,12 @@ import { Spaceless } from "../components/Spaceless";
 import { ShopItemGrid } from "../grids/ShopItemGrid";
 import { TabSwitch } from "../components/TabSwitch";
 import { renderToggles } from "../util/renderToggles";
+import { RouteComponentProps } from "../../lib/tsr/react/types";
 import { LoadingPage } from "./LoadingPage";
 
-export default function ItemViewPage(): ReactElement {
-  const { id } = useRouteParams(router.item().view);
+export default function ItemViewPage({
+  params: { id },
+}: RouteComponentProps<{ id: number }>): ReactElement {
   const { data: item, isLoading, error } = trpc.item.read.useQuery(id);
   const { data: { entities: drops = [] } = {} } = trpc.drop.search.useQuery({
     filter: { ItemId: { value: id, matcher: "=" } },
@@ -36,7 +36,7 @@ export default function ItemViewPage(): ReactElement {
     return <LoadingPage />;
   }
   if (!item || error) {
-    return <Header>Item not found</Header>;
+    return <Header title="Item not found" />;
   }
   const clientName = item.Info?.identifiedDisplayName?.content;
   const hasDifferentClientName =
@@ -48,20 +48,26 @@ export default function ItemViewPage(): ReactElement {
 
   return (
     <>
-      <Header back={router.item}>
-        <ItemDisplayName name={item.Name} slots={item.Slots} />
-        &nbsp;
-        {hasDifferentClientName && (
-          <InfoTooltip title="Client display name">({clientName})</InfoTooltip>
-        )}
-        <Spaceless offset={{ top: -10, left: 16 }}>
-          <ImageWithFallback
-            sx={{ maxHeight: 75 }}
-            src={item.ImageUrl}
-            alt={item.Name}
-          />
-        </Spaceless>
-      </Header>
+      <Header
+        title={
+          <>
+            <ItemDisplayName name={item.Name} slots={item.Slots} />
+            &nbsp;
+            {hasDifferentClientName && (
+              <InfoTooltip title="Client display name">
+                ({clientName})
+              </InfoTooltip>
+            )}
+            <Spaceless offset={{ top: -10, left: 16 }}>
+              <ImageWithFallback
+                sx={{ maxHeight: 75 }}
+                src={item.ImageUrl}
+                alt={item.Name}
+              />
+            </Spaceless>
+          </>
+        }
+      />
 
       <Stack spacing={2} sx={{ flex: 1 }} direction="column">
         <TabbedPaper

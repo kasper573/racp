@@ -12,6 +12,7 @@ export function clickUserMenuItem(name: string) {
       name: ignoreCase(name),
     })
     .click();
+  waitForPageReady();
 }
 
 export function register(username: string, password: string, email: string) {

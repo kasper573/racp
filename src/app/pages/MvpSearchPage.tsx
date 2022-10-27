@@ -1,18 +1,17 @@
 import { Typography } from "@mui/material";
 import { Header } from "../layout/Header";
 import { MvpGrid } from "../grids/MvpGrid";
-import { useRouteState } from "../../lib/hooks/useRouteState";
-import { router } from "../router";
+import { useRouteState } from "../../lib/tsr/react/useRouteState";
+import { routes } from "../router";
 import { FilterMenu } from "../components/FilterMenu";
 import { MvpSearchFilterForm } from "../forms/MvpSearchFilterForm";
 import { Link } from "../components/Link";
 
 export default function MvpSearchPage() {
-  const [filter = {}, setFilter] = useRouteState(router.mvp, "filter");
+  const [filter = {}, setFilter] = useRouteState(routes.mvp.$, "filter");
   return (
     <>
       <Header>
-        Mvps
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}
           filter={filter}
@@ -26,7 +25,7 @@ export default function MvpSearchPage() {
         For a full list of boss monsters, regardless of spawn or mvp
         configuration, see the{" "}
         <Link
-          to={router.monster().search({
+          to={routes.monster.search({
             filter: { Modes: { value: ["Mvp"], matcher: "enabled" } },
           })}
         >

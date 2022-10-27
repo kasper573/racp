@@ -1,11 +1,9 @@
 import { ReactElement } from "react";
 import { Box, Stack } from "@mui/material";
 import { pick } from "lodash";
-import { useHistory } from "react-router";
-import { useRouteParams } from "../../lib/hooks/useRouteParams";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
-import { router } from "../router";
+import { routes } from "../router";
 import { MonsterSpawnGrid } from "../grids/MonsterSpawnGrid";
 import { TabSwitch } from "../components/TabSwitch";
 import { TabbedPaper } from "../components/TabbedPaper";
@@ -16,11 +14,14 @@ import { CommonPageGrid } from "../components/CommonPageGrid";
 import { ImageWithFallback } from "../components/ImageWithFallback";
 import { Spaceless } from "../components/Spaceless";
 import { renderToggles } from "../util/renderToggles";
+import { useHistory } from "../../lib/tsr/react/useHistory";
+import { RouteComponentProps } from "../../lib/tsr/react/types";
 import { LoadingPage } from "./LoadingPage";
 
-export default function MonsterViewPage(): ReactElement {
+export default function MonsterViewPage({
+  params: { id, tab = "spawns" },
+}: RouteComponentProps<{ id: number; tab?: string }>): ReactElement {
   const history = useHistory();
-  const { id, tab = "spawns" } = useRouteParams(router.monster().view);
   const { data, isLoading, error } = trpc.monster.search.useQuery({
     filter: { Id: { value: id, matcher: "=" } },
     limit: 1,
@@ -31,24 +32,30 @@ export default function MonsterViewPage(): ReactElement {
     return <LoadingPage />;
   }
   if (!monster || error) {
-    return <Header>Monster not found</Header>;
+    return <Header title="Monster not found" />;
   }
 
   return (
     <>
-      <Header back={router.monster}>
-        {monster.Name}&nbsp;
-        {monster.AegisName !== monster.Name && (
-          <InfoTooltip title="Aegis name">({monster.AegisName})</InfoTooltip>
-        )}
-        <Spaceless offset={{ top: -24, left: 16 }}>
-          <ImageWithFallback
-            sx={{ maxHeight: 75 }}
-            src={monster.ImageUrl}
-            alt={monster.Name}
-          />
-        </Spaceless>
-      </Header>
+      <Header
+        title={
+          <>
+            {monster.Name}&nbsp;
+            {monster.AegisName !== monster.Name && (
+              <InfoTooltip title="Aegis name">
+                ({monster.AegisName})
+              </InfoTooltip>
+            )}
+            <Spaceless offset={{ top: -24, left: 16 }}>
+              <ImageWithFallback
+                sx={{ maxHeight: 75 }}
+                src={monster.ImageUrl}
+                alt={monster.Name}
+              />
+            </Spaceless>
+          </>
+        }
+      />
 
       <CommonPageGrid>
         <Box sx={{ flex: 1 }}>
@@ -103,7 +110,7 @@ export default function MonsterViewPage(): ReactElement {
           <TabSwitch
             activeTabId={tab}
             onChange={(e, tab) =>
-              history.replace(router.monster().view({ id, tab }).$)
+              history.replace(routes.monster.view({ id, tab }))
             }
             tabs={[
               {

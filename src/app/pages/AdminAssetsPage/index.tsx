@@ -7,7 +7,7 @@ import {
 import { ExpandMore } from "@mui/icons-material";
 import { Header } from "../../layout/Header";
 import { trpc } from "../../state/client";
-import { router } from "../../router";
+import { routes } from "../../router";
 import { AssetUploader } from "./AssetUploader";
 import { LargeStringList } from "./LargeStringList";
 
@@ -24,7 +24,7 @@ export default function AdminAssetsPage() {
 
   return (
     <>
-      <Header>Assets</Header>
+      <Header />
       <Typography paragraph>
         This page is for uploading assets required to properly display items,
         monsters, maps, etc. <br />
@@ -53,7 +53,7 @@ export default function AdminAssetsPage() {
           <AccordionDetails>
             <LargeStringList
               values={missingMonsterImages}
-              link={(id) => router.monster().view({ id })}
+              link={(id) => routes.monster.view({ id })}
             />
           </AccordionDetails>
         </Accordion>
@@ -69,7 +69,7 @@ export default function AdminAssetsPage() {
           <AccordionDetails>
             <LargeStringList
               values={missingItemImages}
-              link={(id) => router.item().view({ id })}
+              link={(id) => routes.item.view({ id })}
             />
           </AccordionDetails>
         </Accordion>
@@ -85,7 +85,7 @@ export default function AdminAssetsPage() {
           <AccordionDetails>
             <LargeStringList
               values={missingMapData.images}
-              link={(id) => router.map().view({ id })}
+              link={(id) => routes.map.view({ id })}
             />
           </AccordionDetails>
         </Accordion>
@@ -101,7 +101,7 @@ export default function AdminAssetsPage() {
           <AccordionDetails>
             <LargeStringList
               values={missingMapData.bounds}
-              link={(id) => router.map().view({ id })}
+              link={(id) => routes.map.view({ id })}
             />
           </AccordionDetails>
         </Accordion>

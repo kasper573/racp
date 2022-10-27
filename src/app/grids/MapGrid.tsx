@@ -1,10 +1,10 @@
 import { DataGrid } from "../components/DataGrid";
 import { trpc } from "../state/client";
-import { router } from "../router";
+import { routes } from "../router";
 
 export const MapGrid = DataGrid.define(trpc.map.search.useQuery)({
   emptyComponent: () => <>No maps found</>,
-  link: ({ id }) => router.map().view({ id }),
+  link: ({ id }) => routes.map.view({ id }),
   id: (map) => map.id,
   columns: {
     displayName: { headerName: "Name", width: 350 },

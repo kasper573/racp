@@ -2,7 +2,7 @@ import { memo } from "react";
 import { MonetizationOn } from "@mui/icons-material";
 import { Shop, ShopId } from "../../../../api/services/shop/types";
 import { MapPin } from "../MapPin";
-import { router } from "../../../router";
+import { routes } from "../../../router";
 import { LinkOnMap, pinIconCss, PinLabel, PinsProps } from "./common";
 
 export const ShopPins = memo(
@@ -25,7 +25,7 @@ export const ShopPins = memo(
                   {...mouseBindings}
                   label={
                     <LinkOnMap
-                      to={router.shop({ id: shop.id })}
+                      to={routes.shop({ id: shop.id })}
                       sx={{ lineHeight: "1em" }}
                     >
                       <PinLabel {...mouseBindings} color={shopColor}>

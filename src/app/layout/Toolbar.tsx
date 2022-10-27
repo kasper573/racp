@@ -17,7 +17,7 @@ import { themeStore } from "../state/theme";
 import { Auth } from "../components/Auth";
 import { UserAccessLevel } from "../../api/services/user/types";
 import { LinkMenuItem } from "../components/Link";
-import { router } from "../router";
+import { routes } from "../router";
 import { OnlineBadge } from "../components/OnlineBadge";
 
 export function Toolbar({ children }: { children?: ReactNode }) {
@@ -70,12 +70,12 @@ export function Toolbar({ children }: { children?: ReactNode }) {
               />
             </ListItem>
             <Divider sx={{ mb: 1 }} />
-            <LinkMenuItem to={router.user().settings()}>Settings</LinkMenuItem>
+            <LinkMenuItem to={routes.user.settings({})}>Settings</LinkMenuItem>
             <MenuItem onClick={logout}>Sign out</MenuItem>
           </Auth>
           <Auth exact={UserAccessLevel.Guest}>
-            <LinkMenuItem to={router.user().login({})}>Sign in</LinkMenuItem>
-            <LinkMenuItem to={router.user().register()}>Register</LinkMenuItem>
+            <LinkMenuItem to={routes.user.login({})}>Sign in</LinkMenuItem>
+            <LinkMenuItem to={routes.user.register({})}>Register</LinkMenuItem>
           </Auth>
         </MenuOn>
       </Box>

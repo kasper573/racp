@@ -3,7 +3,7 @@ import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
 import { DonationForm } from "../forms/DonationForm";
 import { Link } from "../components/Link";
-import { router } from "../router";
+import { routes } from "../router";
 import { Auth } from "../components/Auth";
 import { UserAccessLevel } from "../../api/services/user/types";
 import { LoadingPage } from "./LoadingPage";
@@ -20,21 +20,21 @@ export default function DonationsPage() {
     return <LoadingPage />;
   }
   if (error || !settings) {
-    return <Header>Something went wrong</Header>;
+    return <Header title="Something went wrong" />;
   }
 
   return (
     <>
-      <Header>Donations</Header>
+      <Header />
       {settings.donations.presentation.split(/[\r\n]+/).map((line, index) => (
         <Typography key={index} paragraph>
           {line}
         </Typography>
       ))}
-      <Link to={router.donation().items({})} sx={{ mb: 2 }}>
+      <Link to={routes.donation.items({})} sx={{ mb: 2 }}>
         Redeemable items
       </Link>
-      <Header sx={{ mb: 3 }}>Make a donation</Header>
+      <Typography sx={{ mb: 3 }}>Make a donation</Typography>
       <Auth>
         {(user) =>
           user && (
@@ -50,7 +50,7 @@ export default function DonationsPage() {
       <Auth exact={UserAccessLevel.Guest}>
         <Typography>
           You must be{" "}
-          <Link to={router.user().login({ destination: router.donation().$ })}>
+          <Link to={routes.user.login({ destination: routes.donation({}) })}>
             signed in
           </Link>{" "}
           to make a donation.

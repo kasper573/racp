@@ -1,6 +1,6 @@
 import { DataGrid } from "../components/DataGrid";
 import { trpc } from "../state/client";
-import { router } from "../router";
+import { routes } from "../router";
 import { Link } from "../components/Link";
 import { IconWithLabel } from "../components/IconWithLabel";
 import { monsterSpawnTimeColumns } from "./common";
@@ -16,7 +16,7 @@ export const MonsterSpawnGrid = DataGrid.define(
       renderCell({ row: spawn }) {
         return (
           <IconWithLabel alt={spawn.name} src={spawn.imageUrl}>
-            <Link to={router.monster().view({ id: spawn.monsterId })}>
+            <Link to={routes.monster.view({ id: spawn.monsterId })}>
               {spawn.name}
             </Link>
           </IconWithLabel>
@@ -27,9 +27,7 @@ export const MonsterSpawnGrid = DataGrid.define(
       headerName: "Map",
       renderCell({ row: spawn }) {
         return (
-          <Link
-            to={router.map().view({ id: spawn.map, x: spawn.x, y: spawn.y })}
-          >
+          <Link to={routes.map.view({ id: spawn.map, x: spawn.x, y: spawn.y })}>
             {spawn.map}
           </Link>
         );

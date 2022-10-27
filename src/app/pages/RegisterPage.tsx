@@ -32,7 +32,7 @@ export default function RegisterPage() {
 
   return (
     <>
-      <Header>Register</Header>
+      <Header />
       <CenteredContent>
         <UserRegisterForm
           error={error?.data}

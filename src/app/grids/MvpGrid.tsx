@@ -3,7 +3,7 @@ import { DataGrid } from "../components/DataGrid";
 import { trpc } from "../state/client";
 import { MonsterIdentifier } from "../components/MonsterIdentifier";
 import { Link } from "../components/Link";
-import { router } from "../router";
+import { routes } from "../router";
 import { durationString } from "../../lib/std/durationString";
 import { monsterSpawnTimeColumns } from "./common";
 
@@ -27,7 +27,7 @@ export const MvpGrid = DataGrid.define(trpc.monster.searchMvps.useQuery)({
       headerName: "Map",
       renderCell({ row: mvp }) {
         return (
-          <Link to={router.map().view({ id: mvp.mapId })}>{mvp.mapName}</Link>
+          <Link to={routes.map.view({ id: mvp.mapId })}>{mvp.mapName}</Link>
         );
       },
     },

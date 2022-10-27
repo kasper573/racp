@@ -6,7 +6,7 @@ import { CommonRemoteForm } from "../components/CommonRemoteForm";
 export default function AdminSettingsPage() {
   return (
     <>
-      <Header>Settings</Header>
+      <Header />
       <CommonRemoteForm
         name="admin-settings"
         query={trpc.settings.read.useQuery}

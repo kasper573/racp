@@ -1,6 +1,4 @@
 import { Header } from "../layout/Header";
-import { router } from "../router";
-import { useRouteParams } from "../../lib/hooks/useRouteParams";
 import { trpc } from "../state/client";
 import { TabbedPaper } from "../components/TabbedPaper";
 import { KVTable } from "../components/KVTable";
@@ -10,10 +8,12 @@ import { renderLevelScaling } from "../util/renderLevelScaling";
 import { durationString } from "../../lib/std/durationString";
 import { ItemIdentifierByName } from "../components/ItemIdentifier";
 import { Zeny } from "../components/Zeny";
+import { RouteComponentProps } from "../../lib/tsr/react/types";
 import { LoadingPage } from "./LoadingPage";
 
-export default function SkillViewPage() {
-  const { id } = useRouteParams(router.skill().view);
+export default function SkillViewPage({
+  params: { id },
+}: RouteComponentProps<{ id: number }>) {
   const { data: { entities: [skill] = [] } = {}, isLoading } =
     trpc.skill.search.useQuery({
       filter: { Id: { value: id, matcher: "=" } },
@@ -24,12 +24,12 @@ export default function SkillViewPage() {
   }
 
   if (!skill) {
-    return <Header back={router.skill}>Skill not found</Header>;
+    return <Header title="Skill not found" />;
   }
 
   return (
     <>
-      <Header back={router.skill}>{skill.DisplayName}</Header>
+      <Header title={skill.DisplayName} />
 
       <CommonPageGrid>
         <TabbedPaper

@@ -1,5 +1,5 @@
 import { ComponentProps } from "react";
-import { router } from "../router";
+import { routes } from "../router";
 import { Link } from "./Link";
 import { IconWithLabel } from "./IconWithLabel";
 
@@ -18,7 +18,7 @@ export function MonsterIdentifier({
 }: MonsterIdentifierProps) {
   return (
     <IconWithLabel alt={name} src={imageUrl} {...props}>
-      <Link to={router.monster().view({ id })}>{name}</Link>
+      <Link to={routes.monster.view({ id })}>{name}</Link>
     </IconWithLabel>
   );
 }

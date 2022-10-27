@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useHistory } from "react-router";
+import { useHistory } from "../tsr/react/useHistory";
 
 export function useBlockNavigation(enabled: boolean, message: string) {
   const history = useHistory();

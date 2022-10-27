@@ -1,54 +1,59 @@
 import { Breadcrumbs, Stack, useTheme } from "@mui/material";
-import { ComponentProps, ReactNode } from "react";
+import { ComponentProps, ReactNode, useContext } from "react";
 import { Link } from "../components/Link";
-import { AnyRouteNode } from "../router";
+import { RouterContext } from "../../lib/tsr/react/RouterContext";
 
 export function Header<Arg>({
-  parent,
-  back,
-  children = "",
+  title,
+  children,
+  breadcrumbs = true,
   sx,
   ...props
 }: {
-  back?: AnyRouteNode | [AnyRouteNode<Arg>, Arg];
-  parent?: ReactNode;
-} & ComponentProps<typeof Breadcrumbs>) {
+  title?: ReactNode;
+  breadcrumbs?: boolean;
+} & Omit<ComponentProps<typeof Breadcrumbs>, "title">) {
   const theme = useTheme();
+  const { match } = useContext(RouterContext);
 
-  if (back) {
-    let backTitle: string;
-    let backTo: { $: string };
-    if (Array.isArray(back)) {
-      const [route, routeArg] = back;
-      backTitle = route.options.title;
-      backTo = route(routeArg);
-    } else {
-      backTitle = back.options.title;
-      backTo = back({});
-    }
-    parent = (
-      <Link underline="hover" to={backTo} color="inherit">
-        {backTitle}
-      </Link>
-    );
+  const skipActiveRouteBreadcrumb = title !== undefined;
+  let breadcrumbNodes: ReactNode[] = [];
+  let route = match?.route;
+  if (skipActiveRouteBreadcrumb) {
+    route = route?.parent;
   }
 
-  if (typeof parent === "string") {
-    parent = <span>{parent}</span>;
+  while (match && route) {
+    if (route.def.meta.title) {
+      breadcrumbNodes.unshift(
+        <Link
+          key={breadcrumbNodes.length}
+          underline="hover"
+          to={route(match.params)}
+          color="inherit"
+        >
+          {route.def.meta.title}
+        </Link>
+      );
+    }
+    route = route.parent;
   }
 
   return (
-    <>
+    <Stack direction="row" alignItems="center">
       <Breadcrumbs
         role="heading"
         sx={{ height: 24, mb: 2, ...theme.typography.h6, ...sx }}
         {...props}
       >
-        {parent}
-        <Stack direction="row" alignItems="center">
-          {children}
-        </Stack>
+        {breadcrumbNodes}
+        {title && (
+          <Stack direction="row" alignItems="center">
+            {title}
+          </Stack>
+        )}
       </Breadcrumbs>
-    </>
+      {children}
+    </Stack>
   );
 }

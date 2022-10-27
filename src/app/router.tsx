@@ -1,9 +1,3 @@
-import {
-  intParser,
-  OptionsRouter,
-  Redirect,
-  stringParser,
-} from "react-typesafe-routes";
 import { lazy } from "react";
 import {
   AccountCircle,
@@ -21,181 +15,144 @@ import {
   Settings,
   Storefront,
 } from "@mui/icons-material";
+import * as zod from "zod";
 import { UserAccessLevel } from "../api/services/user/types";
-import { zodRouteParam } from "../lib/zod/zodRouteParam";
 import { itemFilter } from "../api/services/item/types";
 import { monsterFilter, mvpFilter } from "../api/services/monster/types";
 import { mapInfoFilter } from "../api/services/map/types";
 import { vendorItemFilter } from "../api/services/vendor/types";
 import { skillFilter } from "../api/services/skill/types";
+import { Redirect } from "../lib/tsr/react/Redirect";
+import { zodLiteralString } from "../lib/zod/zodLiteralString";
+import { RouteLocation } from "../lib/tsr/types";
 import { requireAuth } from "./util/requireAuth";
 import { requireSettings } from "./util/requireSettings";
+import { t } from "./tsr";
+import { mapViewRoute } from "./pages/MapViewPage/route";
 
-const defaultOptions = {
-  title: "",
-  icon: <></>,
-};
+export const router = t.router({
+  home: t.route
+    .path("", { exact: true })
+    .renderer(lazy(() => import("./pages/HomePage")))
+    .meta({ title: "Home", icon: <Home /> }),
+  user: t.route
+    .path("user", { exact: true })
+    .renderer(() => <Redirect to={routes.user.settings({})} />)
+    .children({
+      settings: t.route
+        .path("settings")
+        .renderer(lazy(() => import("./pages/UserSettingsPage")))
+        .meta({ title: "Settings", icon: <AccountCircle /> })
+        .use(requireAuth(UserAccessLevel.User)),
+      login: t.route
+        .path("login/&:destination?")
+        .params({ destination: zodLiteralString<RouteLocation>().optional() })
+        .renderer(lazy(() => import("./pages/LoginPage")))
+        .meta({ title: "Sign in", icon: <Login /> }),
+      register: t.route
+        .path("register")
+        .renderer(lazy(() => import("./pages/RegisterPage")))
+        .meta({ title: "Register", icon: <PersonAdd /> }),
+    }),
+  item: t.route
+    .path("item", { exact: true })
+    .renderer(() => <Redirect to={routes.item.search({})} />)
+    .meta({ title: "Items", icon: <Redeem /> })
+    .children({
+      search: t.route
+        .path("search/:filter?")
+        .params({ filter: itemFilter.type.optional() })
+        .renderer(lazy(() => import("./pages/ItemSearchPage"))),
+      view: t.route
+        .path("view/:id")
+        .params({ id: zod.number() })
+        .renderer(lazy(() => import("./pages/ItemViewPage"))),
+    }),
+  skill: t.route
+    .path("skill", { exact: true })
+    .renderer(() => <Redirect to={routes.skill.search({})} />)
+    .meta({ title: "Skills", icon: <School /> })
+    .children({
+      search: t.route
+        .path("search/:filter?")
+        .params({ filter: skillFilter.type.optional() })
+        .renderer(lazy(() => import("./pages/SkillSearchPage"))),
+      view: t.route
+        .path("view/:id")
+        .params({ id: zod.number() })
+        .renderer(lazy(() => import("./pages/SkillViewPage"))),
+    }),
+  shop: t.route
+    .path("shop/view/:id")
+    .params({ id: zod.string() })
+    .renderer(lazy(() => import("./pages/ShopViewPage"))),
+  mvp: t.route
+    .path("mvp/:filter?")
+    .params({ filter: mvpFilter.type.optional() })
+    .renderer(lazy(() => import("./pages/MvpSearchPage")))
+    .meta({ title: "Mvps", icon: <EmojiEvents /> }),
+  monster: t.route
+    .path("monster", { exact: true })
+    .renderer(() => <Redirect to={routes.monster.search({})} />)
+    .meta({ title: "Monsters", icon: <PestControlRodent /> })
+    .children({
+      search: t.route
+        .path("search/:filter?")
+        .params({ filter: monsterFilter.type.optional() })
+        .renderer(lazy(() => import("./pages/MonsterSearchPage"))),
+      view: t.route
+        .path("view/:id/:tab?")
+        .params({ id: zod.number(), tab: zod.string().optional() })
+        .renderer(lazy(() => import("./pages/MonsterViewPage"))),
+    }),
+  map: t.route
+    .path("map", { exact: true })
+    .renderer(() => <Redirect to={routes.map.search({})} />)
+    .meta({ title: "Maps", icon: <Map /> })
+    .children({
+      search: t.route
+        .path("search/:filter?")
+        .params({ filter: mapInfoFilter.type.optional() })
+        .renderer(lazy(() => import("./pages/MapSearchPage"))),
+      view: mapViewRoute,
+    }),
+  vendor: t.route
+    .path("vending/:filter?")
+    .params({ filter: vendorItemFilter.type.optional() })
+    .renderer(lazy(() => import("./pages/VendorItemSearchPage")))
+    .meta({ title: "Vendings", icon: <Storefront /> }),
+  donation: t.route
+    .path("donation")
+    .renderer(lazy(() => import("./pages/DonationsPage")))
+    .meta({ title: "Donations", icon: <Paid /> })
+    .use(requireSettings((settings) => settings.donations.enabled))
+    .children({
+      items: t.route
+        .path("items/:filter?")
+        .params({ filter: itemFilter.type.optional() })
+        .renderer(lazy(() => import("./pages/DonationItemsPage"))),
+    }),
+  admin: t.route
+    .path("admin", { exact: true })
+    .renderer(() => <Redirect to={routes.admin.settings({})} />)
+    .meta({ title: "Admin", icon: <AdminPanelSettings /> })
+    .use(requireAuth(UserAccessLevel.Admin))
+    .children({
+      settings: t.route
+        .path("settings")
+        .renderer(lazy(() => import("./pages/AdminSettingsPage")))
+        .meta({ title: "Settings", icon: <Settings /> }),
+      assets: t.route
+        .path("assets")
+        .renderer(lazy(() => import("./pages/AdminAssetsPage")))
+        .meta({ title: "Assets", icon: <Image /> }),
+    }),
+  notFound: t.route
+    .path("")
+    .renderer(lazy(() => import("./pages/NotFoundPage"))),
+});
 
-export const router = OptionsRouter(defaultOptions, (route) => ({
-  home: route("", {
-    component: lazy(() => import("./pages/HomePage")),
-    options: { title: "Home", icon: <Home /> },
-    exact: true,
-  }),
-  user: route(
-    "user",
-    {
-      component: () => <Redirect to={router.user().settings()} />,
-    },
-    (route) => ({
-      settings: route("settings", {
-        component: lazy(() => import("./pages/UserSettingsPage")),
-        options: { title: "Settings", icon: <AccountCircle /> },
-        middleware: requireAuth(UserAccessLevel.User),
-      }),
-      login: route("login/&:destination?", {
-        component: lazy(() => import("./pages/LoginPage")),
-        options: { title: "Sign in", icon: <Login /> },
-        params: { destination: stringParser },
-      }),
-      register: route("register", {
-        component: lazy(() => import("./pages/RegisterPage")),
-        options: { title: "Register", icon: <PersonAdd /> },
-      }),
-    })
-  ),
-  item: route(
-    "item",
-    {
-      component: () => <Redirect to={router.item().search({})} />,
-      options: { title: "Items", icon: <Redeem /> },
-    },
-    (route) => ({
-      search: route("search/:filter?", {
-        component: lazy(() => import("./pages/ItemSearchPage")),
-        params: { filter: zodRouteParam(itemFilter.type.default({})) },
-      }),
-      view: route("view/:id", {
-        component: lazy(() => import("./pages/ItemViewPage")),
-        params: { id: intParser },
-      }),
-    })
-  ),
-  skill: route(
-    "skill",
-    {
-      component: () => <Redirect to={router.skill().search({})} />,
-      options: { title: "Skills", icon: <School /> },
-    },
-    (route) => ({
-      search: route("search/:filter?", {
-        component: lazy(() => import("./pages/SkillSearchPage")),
-        params: { filter: zodRouteParam(skillFilter.type.default({})) },
-      }),
-      view: route("view/:id", {
-        component: lazy(() => import("./pages/SkillViewPage")),
-        params: { id: intParser },
-      }),
-    })
-  ),
-  shop: route("shop/view/:id", {
-    component: lazy(() => import("./pages/ShopViewPage")),
-    params: { id: stringParser },
-  }),
-  mvp: route("mvp/:filter?", {
-    component: lazy(() => import("./pages/MvpSearchPage")),
-    options: { title: "Mvps", icon: <EmojiEvents /> },
-    params: { filter: zodRouteParam(mvpFilter.type.default({})) },
-  }),
-  monster: route(
-    "monster",
-    {
-      component: () => <Redirect to={router.monster().search({})} />,
-      options: { title: "Monsters", icon: <PestControlRodent /> },
-    },
-    (route) => ({
-      search: route("search/:filter?", {
-        component: lazy(() => import("./pages/MonsterSearchPage")),
-        params: { filter: zodRouteParam(monsterFilter.type.default({})) },
-      }),
-      view: route("view/:id/:tab?", {
-        component: lazy(() => import("./pages/MonsterViewPage")),
-        params: { id: intParser, tab: stringParser },
-      }),
-    })
-  ),
-  map: route(
-    "map",
-    {
-      component: () => <Redirect to={router.map().search({})} />,
-      options: { title: "Maps", icon: <Map /> },
-    },
-    (route) => ({
-      search: route("search/:filter?", {
-        component: lazy(() => import("./pages/MapSearchPage")),
-        params: { filter: zodRouteParam(mapInfoFilter.type.default({})) },
-      }),
-      view: route("view/:id/:tab?&:x?&:y?&:title?", {
-        component: lazy(() => import("./pages/MapViewPage")),
-        options: { title: "Map", icon: <Map /> },
-        params: {
-          id: stringParser,
-          x: intParser,
-          y: intParser,
-          title: stringParser,
-          tab: stringParser,
-        },
-      }),
-    })
-  ),
-  vendor: route("vending/:filter?", {
-    component: lazy(() => import("./pages/VendorItemSearchPage")),
-    params: { filter: zodRouteParam(vendorItemFilter.type.default({})) },
-    options: { title: "Vendings", icon: <Storefront /> },
-  }),
-  donation: route(
-    "donation",
-    {
-      component: lazy(() => import("./pages/DonationsPage")),
-      options: { title: "Donations", icon: <Paid /> },
-      middleware: requireSettings((settings) => settings.donations.enabled),
-    },
-    (route) => ({
-      items: route("items/:filter?", {
-        component: lazy(() => import("./pages/DonationItemsPage")),
-        params: { filter: zodRouteParam(itemFilter.type.default({})) },
-      }),
-    })
-  ),
-  admin: route(
-    "admin",
-    {
-      component: () => <Redirect to={router.admin().settings()} />,
-      options: { title: "Admin", icon: <AdminPanelSettings /> },
-      middleware: requireAuth(UserAccessLevel.Admin),
-    },
-    (route) => ({
-      settings: route("settings", {
-        component: lazy(() => import("./pages/AdminSettingsPage")),
-        options: { title: "Settings", icon: <Settings /> },
-      }),
-      assets: route("assets", {
-        component: lazy(() => import("./pages/AdminAssetsPage")),
-        options: { title: "Assets", icon: <Image /> },
-      }),
-    })
-  ),
-  notFound: route("*", {
-    component: lazy(() => import("./pages/NotFoundPage")),
-  }),
-}));
+export const routes = router.routes;
 
-export const logoutRedirect = router.user().login({}).$;
-export const loginRedirect = router.user().$;
-
-export type RouterOptions = typeof defaultOptions;
-
-export interface AnyRouteNode<Arg = any> {
-  (arg: Arg): { $: string };
-  options: RouterOptions;
-}
+export const logoutRedirect = routes.user.login({});
+export const loginRedirect = routes.user({});
