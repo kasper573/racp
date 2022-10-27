@@ -1,10 +1,10 @@
-import { InferRouteParams, RouteLocationFactory } from "./types";
+import { InputRouteParams, RouteLocationFactory } from "./types";
 import { Route } from "./Route";
 
 export function createConvenienceRoute<R extends Route>(
   route: R
 ): ConvenienceRoute<R> {
-  const functor = (params: InferRouteParams<R["def"]["params"]>) =>
+  const functor = (params: InputRouteParams<R["def"]["params"]>) =>
     route(params);
 
   functor.$ = route;

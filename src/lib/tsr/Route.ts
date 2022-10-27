@@ -2,7 +2,7 @@ import * as ptr from "path-to-regexp";
 import { ZodTypeAny } from "zod";
 import {
   AnyRouteLike,
-  InferRouteParams,
+  InputRouteParams,
   RouteDefinition,
   RouteLocationFactory,
   RouteMap,
@@ -10,6 +10,7 @@ import {
   RouteMiddleware,
   RouteParamsTypeFor,
   RouteLocation,
+  OutputRouteParams,
 } from "./types";
 
 type EncodedParams = Record<string, string>;
@@ -21,7 +22,7 @@ export function createRoute<Def extends RouteDefinition>(
   const ptrFormat = ptr.compile<EncodedParams>(def.path);
 
   // Since we want to be able to call a route to create its location, we need to use a functor.
-  const functor = (params: InferRouteParams<Def["params"]>) =>
+  const functor = (params: InputRouteParams<Def["params"]>) =>
     createLocation(def, ptrFormat, params);
 
   Object.assign(
@@ -40,7 +41,7 @@ export interface Route<Def extends RouteDefinition = RouteDefinition>
 function createLocation<Def extends RouteDefinition>(
   def: Def,
   format: ptr.PathFunction<EncodedParams>,
-  params: InferRouteParams<Def["params"]>
+  params: InputRouteParams<Def["params"]>
 ) {
   const encoded = Object.entries(def.params).reduce(
     (a, [k, type]) => ({
@@ -74,7 +75,9 @@ class RouteMembers<Def extends RouteDefinition> {
     this.def.renderer
   );
 
-  parseLocation(location: string): InferRouteParams<Def["params"]> | undefined {
+  parseLocation(
+    location: string
+  ): OutputRouteParams<Def["params"]> | undefined {
     const encoded = this.ptrMatch(location);
     if (!encoded) {
       return;
@@ -85,7 +88,7 @@ class RouteMembers<Def extends RouteDefinition> {
           ...a,
           [k]: this.def.tsr.codec.decode(v, this.def.params[k]),
         }),
-        {} as InferRouteParams<Def["params"]>
+        {} as OutputRouteParams<Def["params"]>
       );
     } catch (e) {
       return;
@@ -117,10 +120,7 @@ class RouteMembers<Def extends RouteDefinition> {
 
   use(
     ...additionalMiddlewares: Array<
-      RouteMiddleware<
-        InferRouteParams<Def["params"]>,
-        Def["tsr"]["renderResult"]
-      >
+      RouteMiddleware<Def["params"], Def["tsr"]["renderResult"]>
     >
   ): Route<Def> {
     return createRoute({

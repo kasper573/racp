@@ -19,7 +19,7 @@ const params = zod.object({
     .optional(),
 });
 
-export type MapViewParams = zod.input<typeof params>;
+export type MapViewParams = zod.output<typeof params>;
 
 export const mapViewRoute = t.route
   .path("view/:id/:tab/:pin?")

@@ -16,25 +16,26 @@ export interface RouteDefinition<
   path: Path;
   params: ParamsType;
   meta: TSRDef["meta"];
-  renderer: RouteRenderer<InferRouteParams<ParamsType>, TSRDef["renderResult"]>;
+  renderer: RouteRenderer<ParamsType, TSRDef["renderResult"]>;
   children: Children;
-  middlewares: Array<
-    RouteMiddleware<InferRouteParams<ParamsType>, TSRDef["renderResult"]>
-  >;
+  middlewares: Array<RouteMiddleware<ParamsType, TSRDef["renderResult"]>>;
   matchOptions?: RouteMatchOptions;
 }
 
-export type RouteMiddleware<Params = any, RenderResult = any> = (
-  nextRenderer: RouteRenderer<Params, RenderResult>
-) => RouteRenderer<Params, RenderResult>;
+export type RouteMiddleware<
+  ParamsType extends RouteParamsType = any,
+  RenderResult = any
+> = (
+  nextRenderer: RouteRenderer<ParamsType, RenderResult>
+) => RouteRenderer<ParamsType, RenderResult>;
 
 export interface RouteRendererProps<Params, RenderResult> {
   params: Params;
   children?: RenderResult;
 }
 
-export type RouteRenderer<Params, RenderResult> = (
-  props: RouteRendererProps<Params, RenderResult>
+export type RouteRenderer<ParamsType extends RouteParamsType, RenderResult> = (
+  props: RouteRendererProps<OutputRouteParams<ParamsType>, RenderResult>
 ) => RenderResult;
 
 export type RouteMap<TSRDef extends TSRDefinition = TSRDefinition> = Record<
@@ -42,7 +43,7 @@ export type RouteMap<TSRDef extends TSRDefinition = TSRDefinition> = Record<
   AnyRouteLike<TSRDef>
 >;
 
-export type RouteParams<T extends Route | RouteDefinition> = InferRouteParams<
+export type RouteParams<T extends Route | RouteDefinition> = InputRouteParams<
   (T extends Route<infer Def> ? Def : T)["params"]
 >;
 
@@ -64,12 +65,17 @@ export type TSRDefinitionFor<T> = T extends RouteDefinition
   : never;
 
 export interface RouteLocationFactory<Params extends RouteParamsType> {
-  (params: InferRouteParams<Params>): RouteLocation;
+  (params: InputRouteParams<Params>): RouteLocation;
 }
 
 type IsOptional<T> = undefined extends T ? true : false;
 
-export type InferRouteParams<T extends RouteParamsType> = zod.objectInputType<
+export type InputRouteParams<T extends RouteParamsType> = zod.objectInputType<
+  T,
+  ZodTypeAny
+>;
+
+export type OutputRouteParams<T extends RouteParamsType> = zod.objectOutputType<
   T,
   ZodTypeAny
 >;
