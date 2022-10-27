@@ -26,14 +26,18 @@ export function Header<Arg>({
   while (match && route) {
     if (route.def.meta.title) {
       breadcrumbNodes.unshift(
-        <Link
-          key={breadcrumbNodes.length}
-          underline="hover"
-          to={route(match.params)}
-          color="inherit"
-        >
-          {route.def.meta.title}
-        </Link>
+        route.def.renderer ? (
+          <Link
+            key={breadcrumbNodes.length}
+            underline="hover"
+            to={route(match.params)}
+            color="inherit"
+          >
+            {route.def.meta.title}
+          </Link>
+        ) : (
+          <span key={breadcrumbNodes.length}>{route.def.meta.title}</span>
+        )
       );
     }
     route = route.parent;
