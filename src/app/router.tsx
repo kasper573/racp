@@ -28,6 +28,7 @@ import { zodLiteralString } from "../lib/zod/zodLiteralString";
 import { requireAuth } from "./util/requireAuth";
 import { requireSettings } from "./util/requireSettings";
 import { t } from "./tsr";
+import { mapViewRoute } from "./pages/MapViewPage/route";
 
 export const router = t.router({
   home: t.route
@@ -113,17 +114,7 @@ export const router = t.router({
         .path("search/:filter?")
         .params({ filter: mapInfoFilter.type.optional() })
         .renderer(lazy(() => import("./pages/MapSearchPage"))),
-      view: t.route
-        .path("view/:id/:tab?&:x?&:y?&:title?")
-        .params({
-          id: zod.string(),
-          x: zod.number().optional(),
-          y: zod.number().optional(),
-          title: zod.string().optional(),
-          tab: zod.string().optional(),
-        })
-        .renderer(lazy(() => import("./pages/MapViewPage")))
-        .meta({ title: "Map", icon: <Map /> }),
+      view: mapViewRoute,
     }),
   vendor: t.route
     .path("vending/:filter?")

@@ -1,7 +1,6 @@
 import { ReactElement } from "react";
 import { Box, Stack } from "@mui/material";
 import { pick } from "lodash";
-import { useRouteParams } from "../../lib/tsr/react/useRouteParams";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
 import { router } from "../router";
@@ -16,11 +15,13 @@ import { ImageWithFallback } from "../components/ImageWithFallback";
 import { Spaceless } from "../components/Spaceless";
 import { renderToggles } from "../util/renderToggles";
 import { useHistory } from "../../lib/tsr/react/useHistory";
+import { RouteComponentProps } from "../../lib/tsr/react/types";
 import { LoadingPage } from "./LoadingPage";
 
-export default function MonsterViewPage(): ReactElement {
+export default function MonsterViewPage({
+  params: { id, tab = "spawns" },
+}: RouteComponentProps<{ id: number; tab?: string }>): ReactElement {
   const history = useHistory();
-  const { id, tab = "spawns" } = useRouteParams(router.monster.view);
   const { data, isLoading, error } = trpc.monster.search.useQuery({
     filter: { Id: { value: id, matcher: "=" } },
     limit: 1,

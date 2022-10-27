@@ -1,6 +1,5 @@
 import { FormEvent, useState } from "react";
 import { Typography } from "@mui/material";
-import { useRouteParams } from "../../lib/tsr/react/useRouteParams";
 import { router } from "../router";
 import { Link } from "../components/Link";
 import { CenteredContent } from "../components/CenteredContent";
@@ -8,9 +7,12 @@ import { Header } from "../layout/Header";
 import { UserLoginForm } from "../forms/UserLoginForm";
 import { LoginPayload } from "../../api/services/user/types";
 import { useLogin } from "../state/auth";
+import { RouteComponentProps } from "../../lib/tsr/react/types";
+import { RouterLocation } from "../../lib/tsr/Route";
 
-export default function LoginPage() {
-  const { destination } = useRouteParams(router.user.login);
+export default function LoginPage({
+  params: { destination },
+}: RouteComponentProps<{ destination?: RouterLocation }>) {
   const [loginPayload, setLoginPayload] = useState<LoginPayload>({
     username: "",
     password: "",

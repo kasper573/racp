@@ -1,15 +1,16 @@
 import { Typography } from "@mui/material";
 import { ReactElement } from "react";
 import { Header } from "../layout/Header";
-import { useRouteParams } from "../../lib/tsr/react/useRouteParams";
 import { router } from "../router";
 import { trpc } from "../state/client";
 import { ShopItemGrid } from "../grids/ShopItemGrid";
 import { Link } from "../components/Link";
+import { RouteComponentProps } from "../../lib/tsr/react/types";
 import { LoadingPage } from "./LoadingPage";
 
-export default function ShopViewPage(): ReactElement {
-  const { id } = useRouteParams(router.shop);
+export default function ShopViewPage({
+  params: { id },
+}: RouteComponentProps<{ id: string }>): ReactElement {
   const {
     data: { entities: [shop] = [] } = {},
     error,

@@ -94,10 +94,14 @@ export type RouteMiddleware<Params = any, RenderResult = any> = (
   nextRenderer: RouteRenderer<Params, RenderResult>
 ) => RouteRenderer<Params, RenderResult>;
 
-export type RouteRenderer<Params, RenderResult> = (props: {
+export interface RouteRendererProps<Params, RenderResult> {
   params: Params;
   children?: RenderResult;
-}) => RenderResult;
+}
+
+export type RouteRenderer<Params, RenderResult> = (
+  props: RouteRendererProps<Params, RenderResult>
+) => RenderResult;
 
 export type RouteMap<TSRDef extends TSRDefinition = TSRDefinition> = Record<
   string,

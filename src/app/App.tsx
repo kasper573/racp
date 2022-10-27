@@ -4,11 +4,9 @@ import { HelmetProvider } from "react-helmet-async";
 import { useStore } from "zustand";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { History } from "history";
-import {
-  ReactRouter,
-  RouterHistoryProvider,
-} from "../lib/tsr/react/RouterContext";
+import { RouterHistoryProvider } from "../lib/tsr/react/RouterContext";
 import { RouterSwitch } from "../lib/tsr/react/RouterSwitch";
+import { ReactRouter } from "../lib/tsr/react/types";
 import { Layout } from "./layout/Layout";
 import { createTheme } from "./fixtures/theme";
 import { themeStore } from "./state/theme";

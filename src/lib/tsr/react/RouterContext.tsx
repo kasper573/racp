@@ -1,18 +1,6 @@
-import { Location, History } from "history";
-import {
-  createContext,
-  PropsWithChildren,
-  ReactElement,
-  useEffect,
-  useState,
-} from "react";
-import { Router, RouterMatch } from "../Router";
-import { RouteDefinition } from "../Route";
-import { TSRDefinition } from "../tsr";
-
-export type ReactRouter = Router<
-  RouteDefinition<TSRDefinition<any, ReactElement | null>>
->;
+import { History, Location } from "history";
+import { createContext, PropsWithChildren, useEffect, useState } from "react";
+import { RouterMatch } from "../Router";
 
 export interface RouterContextValue {
   history: History;

@@ -4,7 +4,6 @@ import { Place } from "@mui/icons-material";
 import { Header } from "../../layout/Header";
 import { trpc } from "../../state/client";
 import { router } from "../../router";
-import { useRouteParams } from "../../../lib/tsr/react/useRouteParams";
 import { Point } from "../../../lib/geometry";
 import { LoadingPage } from "../LoadingPage";
 import { CommonPageGrid } from "../../components/CommonPageGrid";
@@ -16,6 +15,7 @@ import { Select } from "../../controls/Select";
 import { NpcGrid } from "../../grids/NpcGrid";
 
 import { useHistory } from "../../../lib/tsr/react/useHistory";
+import { RouteComponentProps } from "../../../lib/tsr/react/types";
 import { useHighlighter } from "./useHighlighter";
 import { WarpPins } from "./pins/WarpPins";
 import { SpawnPins } from "./pins/SpawnPins";
@@ -24,17 +24,19 @@ import { NpcPins } from "./pins/NpcPins";
 import { MapCoordinate } from "./MapCoordinate";
 import { pinIconCss } from "./pins/common";
 import { MapContainer } from "./MapContainer";
+import { MapViewParams } from "./route";
 
 const pinOptions = ["Warps", "Monsters", "Shops", "NPCs"] as const;
 type PinName = typeof pinOptions[number];
 
-export default function MapViewPage() {
+export default function MapViewPage({
+  params,
+}: RouteComponentProps<MapViewParams>) {
+  const { id, x, y, tab, title: routePointTitle } = params;
   const history = useHistory();
   const [visiblePins, setVisiblePins] = useState<PinName[] | undefined>(
     Array.from(pinOptions)
   );
-  const routeParams = useRouteParams(router.map.view);
-  const { id, x, y, tab, title: routePointTitle } = routeParams;
   const {
     data: map,
     isFetching,
@@ -127,7 +129,7 @@ export default function MapViewPage() {
           <TabSwitch
             activeTabId={tab ?? "warps"}
             onChange={(e, tab) =>
-              history.replace(router.map.view({ ...routeParams, tab }))
+              history.replace(router.map.view({ ...params, tab }))
             }
             tabs={[
               {

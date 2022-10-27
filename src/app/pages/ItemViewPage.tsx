@@ -1,7 +1,6 @@
 import { Fragment, ReactElement } from "react";
 import { Box, Paper, Stack } from "@mui/material";
 import { pick } from "lodash";
-import { useRouteParams } from "../../lib/tsr/react/useRouteParams";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
 import { router } from "../router";
@@ -17,10 +16,12 @@ import { Spaceless } from "../components/Spaceless";
 import { ShopItemGrid } from "../grids/ShopItemGrid";
 import { TabSwitch } from "../components/TabSwitch";
 import { renderToggles } from "../util/renderToggles";
+import { RouteComponentProps } from "../../lib/tsr/react/types";
 import { LoadingPage } from "./LoadingPage";
 
-export default function ItemViewPage(): ReactElement {
-  const { id } = useRouteParams(router.item.view);
+export default function ItemViewPage({
+  params: { id },
+}: RouteComponentProps<{ id: number }>): ReactElement {
   const { data: item, isLoading, error } = trpc.item.read.useQuery(id);
   const { data: { entities: drops = [] } = {} } = trpc.drop.search.useQuery({
     filter: { ItemId: { value: id, matcher: "=" } },
