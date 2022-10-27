@@ -44,13 +44,9 @@ export function createRoute<Def extends RouteDefinition>(
     if (!encoded) {
       return;
     }
-    const q = Object.entries(encoded.params).map(([k, v]) => [
-      [k, v],
-      def.params[k],
-    ]);
     try {
-      return q.reduce(
-        (a, [[k, v], type]) => ({ ...a, [k]: decode(v, type) }),
+      return Object.entries(encoded.params).reduce(
+        (a, [k, v]) => ({ ...a, [k]: decode(v, def.params[k]) }),
         {} as InferRouteParams<Def["params"]>
       );
     } catch (e) {
