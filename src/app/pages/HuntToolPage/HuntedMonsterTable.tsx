@@ -9,14 +9,15 @@ import produce from "immer";
 import { TextField } from "../../controls/TextField";
 import { trpc } from "../../state/client";
 import { MonsterIdentifier } from "../../components/MonsterIdentifier";
-import { HuntedMonster } from "./types";
+import { MonsterId } from "../../../api/services/monster/types";
+import { HuntSession } from "./types";
 
 export function HuntedMonsterTable({
-  hunts,
-  updateHunts,
+  kpm: kpmMap,
+  updateKPM,
 }: {
-  hunts: HuntedMonster[];
-  updateHunts: (hunts: HuntedMonster[]) => void;
+  kpm: HuntSession["kpm"];
+  updateKPM: (hunts: HuntSession["kpm"]) => void;
 }) {
   return (
     <Table>
@@ -27,20 +28,18 @@ export function HuntedMonsterTable({
         </TableRow>
       </TableHead>
       <TableBody>
-        {hunts.map((hunt) => (
+        {Array.from(kpmMap.entries()).map(([monsterId, kpm]) => (
           <HuntedMonsterTableRow
-            key={hunt.monsterId}
-            hunt={hunt}
-            updateHunt={(updatedHunt) =>
-              updateHunts(
-                produce(hunts, (draft) => {
-                  const index = draft.findIndex(
-                    (h) => h.monsterId === updatedHunt.monsterId
-                  );
-                  draft[index] = updatedHunt;
+            key={monsterId}
+            monsterId={monsterId}
+            kpm={kpm}
+            updateKPM={(newKPM) => {
+              updateKPM(
+                produce(kpmMap, (draft) => {
+                  draft.set(monsterId, newKPM);
                 })
-              )
-            }
+              );
+            }}
           />
         ))}
       </TableBody>
@@ -49,15 +48,17 @@ export function HuntedMonsterTable({
 }
 
 function HuntedMonsterTableRow({
-  hunt,
-  updateHunt,
+  monsterId,
+  kpm,
+  updateKPM,
 }: {
-  hunt: HuntedMonster;
-  updateHunt: (hunt: HuntedMonster) => void;
+  monsterId: MonsterId;
+  kpm: number;
+  updateKPM: (kpm: number) => void;
 }) {
   const { data: { entities: [monster] = [] } = {} } =
     trpc.monster.search.useQuery({
-      filter: { Id: { value: hunt.monsterId, matcher: "=" } },
+      filter: { Id: { value: monsterId, matcher: "=" } },
     });
   return (
     <TableRow>
@@ -67,15 +68,12 @@ function HuntedMonsterTableRow({
             name={monster.Name}
             id={monster.Id}
             imageUrl={monster.ImageUrl}
+            sx={{ whiteSpace: "nowrap" }}
           />
         )}
       </TableCell>
       <TableCell>
-        <TextField
-          type="number"
-          value={hunt.killsPerMinute}
-          onChange={(killsPerMinute) => updateHunt({ ...hunt, killsPerMinute })}
-        />
+        <TextField type="number" value={kpm} onChange={updateKPM} />
       </TableCell>
     </TableRow>
   );

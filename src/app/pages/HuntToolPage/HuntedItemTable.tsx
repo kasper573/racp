@@ -15,7 +15,6 @@ import { Delete } from "@mui/icons-material";
 import { ItemIdentifier } from "../../components/ItemIdentifier";
 import { TextField } from "../../controls/TextField";
 import { trpc } from "../../state/client";
-import { ItemId } from "../../../api/services/item/types";
 import { MonsterIdentifier } from "../../components/MonsterIdentifier";
 import { dropChanceString } from "../../grids/ItemDropGrid";
 import { ItemDrop } from "../../../api/services/drop/types";
@@ -33,8 +32,8 @@ export function HuntedItemTable({
       <TableHead>
         <TableRow>
           <TableCell>Item</TableCell>
-          <TableCell width={90}>Current#</TableCell>
-          <TableCell width={90}>Goal#</TableCell>
+          <TableCell width={110}>Current#</TableCell>
+          <TableCell width={110}>Goal#</TableCell>
           <TableCell>Target Monster</TableCell>
           <TableCell width={1} padding="checkbox"></TableCell>
         </TableRow>
@@ -72,18 +71,16 @@ function HuntedItemTableRow({
   hunt: HuntedItem;
   updateHunt: (hunt?: HuntedItem) => void;
 }) {
-  const useDropQuery = queryHookForItem(hunt.itemId);
   const { data: { entities: [item] = [] } = {} } = trpc.item.search.useQuery({
     filter: { Id: { value: hunt.itemId, matcher: "=" } },
   });
-  const { data, isLoading } = useDropQuery("");
-  const { data: { entities: monsters = [] } = {} } = trpc.drop.search.useQuery({
-    filter: {
-      ItemId: { value: hunt.itemId, matcher: "=" },
-    },
-  });
-  const canBeHunted = isLoading || !!data?.length;
-  const targetedMonsters = monsters.filter((m) =>
+  const { data: { entities: drops = [] } = {}, isLoading } =
+    trpc.drop.search.useQuery({
+      filter: { ItemId: { value: hunt.itemId, matcher: "=" } },
+      sort: [{ field: "Rate", sort: "desc" }],
+    });
+  const canBeHunted = isLoading || !!drops.length;
+  const targetedMonsters = drops.filter((m) =>
     hunt.targets?.includes(m.MonsterId)
   );
 
@@ -133,7 +130,7 @@ function HuntedItemTableRow({
                 </li>
               )}
               value={targetedMonsters}
-              options={monsters}
+              options={drops}
               onChange={(props, drops) => {
                 updateHunt({ ...hunt, targets: drops.map((d) => d.MonsterId) });
               }}
@@ -155,19 +152,3 @@ function HuntedItemTableRow({
 const MonsterSearchPopper = function (props: any) {
   return <Popper {...props} style={{ minWidth: 300 }} />;
 };
-
-function queryHookForItem(itemId: ItemId) {
-  return function useDropSearchQuery(searchQuery: string) {
-    const { data: { entities: drops = [] } = {}, isLoading } =
-      trpc.drop.search.useQuery({
-        filter: {
-          ItemId: { value: itemId, matcher: "=" },
-          MonsterName: searchQuery
-            ? { value: searchQuery, matcher: "contains" }
-            : undefined,
-        },
-        sort: [{ field: "Rate", sort: "desc" }],
-      });
-    return { data: drops, isLoading };
-  };
-}

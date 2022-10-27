@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import produce from "immer";
+import { uniq, without } from "lodash";
 import { Item } from "../../../api/services/item/types";
 import { Header } from "../../layout/Header";
 import { ItemIdentifier } from "../../components/ItemIdentifier";
@@ -8,30 +9,42 @@ import { SearchField } from "../../components/SearchField";
 import { CommonPageGrid } from "../../components/CommonPageGrid";
 import { HuntedItemTable } from "./HuntedItemTable";
 import { HuntedMonsterTable } from "./HuntedMonsterTable";
-import {
-  createHuntedItem,
-  HuntedItem,
-  HuntedMonster,
-  HuntSession,
-} from "./types";
+import { createHuntedItem, HuntedItem, HuntSession } from "./types";
 
 export default function HuntToolPage() {
-  const [hunted, updateSession] = useState<HuntSession>({
+  const [hunted, setSession] = useState<HuntSession>({
     items: [501, 502, 503, 504, 505].map(createHuntedItem),
-    monsters: [],
+    kpm: new Map(),
   });
 
+  useEffect(() => {
+    setSession(
+      produce(hunted, (draft) => {
+        const targetIds = uniq(hunted.items.map((i) => i.targets ?? []).flat());
+        const monsterIds = Array.from(hunted.kpm.keys());
+        const added = without(targetIds, ...monsterIds);
+        const removed = without(monsterIds, ...targetIds);
+        for (const id of added) {
+          draft.kpm.set(id, 0);
+        }
+        for (const id of removed) {
+          draft.kpm.delete(id);
+        }
+      })
+    );
+  }, [hunted]);
+
   const setItems = (items: HuntedItem[]) =>
-    updateSession(
+    setSession(
       produce(hunted, (draft) => {
         draft.items = items;
       })
     );
 
-  const setMonsters = (monsters: HuntedMonster[]) =>
-    updateSession(
+  const setKPM = (kpm: HuntSession["kpm"]) =>
+    setSession(
       produce(hunted, (draft) => {
-        draft.monsters = monsters;
+        draft.kpm = kpm;
       })
     );
 
@@ -61,7 +74,7 @@ export default function HuntToolPage() {
       />
       <CommonPageGrid sx={{ mt: 1 }} flexValues={[2, 1]}>
         <HuntedItemTable hunts={hunted.items} updateHunts={setItems} />
-        <HuntedMonsterTable hunts={hunted.monsters} updateHunts={setMonsters} />
+        <HuntedMonsterTable kpm={hunted.kpm} updateKPM={setKPM} />
       </CommonPageGrid>
     </>
   );
