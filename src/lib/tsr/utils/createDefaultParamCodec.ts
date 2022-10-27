@@ -30,9 +30,9 @@ export function createDefaultParamCodec(
     decode: (value, _type) => {
       value = decodeURIComponent(value);
       const type = normalizeZodType(_type);
-      return isPrimitive(type)
-        ? coercePrimitive(value, type)
-        : type.parse(parseComplex(value));
+      return type.parse(
+        isPrimitive(type) ? coercePrimitive(value, type) : parseComplex(value)
+      );
     },
   };
 }
@@ -47,7 +47,10 @@ function isPrimitive(type: ZodTypeAny) {
 
 function coercePrimitive(value: string, type: ZodTypeAny) {
   if (type instanceof zod.ZodNumber) {
-    return Number(value);
+    if (!/^[\d.]+$/.test(value)) {
+      throw new Error("String is not numeric");
+    }
+    return parseFloat(value);
   } else if (type instanceof zod.ZodBoolean) {
     return value === "true";
   }
