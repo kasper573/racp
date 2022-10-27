@@ -1,5 +1,5 @@
-import { ComponentProps, Key, ReactNode, useState } from "react";
-import { Autocomplete, Box, TextField } from "@mui/material";
+import { ComponentProps, ComponentType, Key, ReactNode, useState } from "react";
+import { Autocomplete, Box, Popper, TextField } from "@mui/material";
 
 export function SearchField<T>({
   label,
@@ -23,6 +23,7 @@ export function SearchField<T>({
   useQuery: (searchQuery: string) => { data?: T[]; isLoading: boolean };
   onSelected: (selected: T[]) => void;
   size?: "small" | "medium";
+  PopperComponent?: ComponentType<ComponentProps<typeof Popper>>;
 } & Pick<ComponentProps<typeof Box>, "sx" | "style" | "className">) {
   const [localValue, setLocalValue] = useState<T[]>([]);
   const [searchQuery, setSearchQuery] = useState("");

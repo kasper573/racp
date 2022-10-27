@@ -1,5 +1,6 @@
 import {
   IconButton,
+  Popper,
   Table,
   TableBody,
   TableCell,
@@ -118,6 +119,7 @@ function HuntedItemTableRow({
                   name={drop.MonsterName}
                   id={drop.MonsterId}
                   imageUrl={drop.MonsterImageUrl}
+                  sx={{ whiteSpace: "nowrap" }}
                 >
                   &nbsp;({dropChanceString(drop.Rate)})
                 </MonsterIdentifier>
@@ -126,6 +128,7 @@ function HuntedItemTableRow({
               noResultsText={(searchQuery) =>
                 `No monsters matching "${searchQuery}" drops this item`
               }
+              PopperComponent={MonsterSearchPopper}
             />
           </TableCell>
         </>
@@ -141,6 +144,10 @@ function HuntedItemTableRow({
   );
 }
 
+const MonsterSearchPopper = function (props: any) {
+  return <Popper {...props} style={{ minWidth: 300 }} />;
+};
+
 function queryHookForItem(itemId: ItemId) {
   return function useDropSearchQuery(searchQuery: string) {
     const { data: { entities: drops = [] } = {}, isLoading } =
@@ -151,6 +158,7 @@ function queryHookForItem(itemId: ItemId) {
             ? { value: searchQuery, matcher: "contains" }
             : undefined,
         },
+        sort: [{ field: "Rate", sort: "desc" }],
       });
     return { data: drops, isLoading };
   };
