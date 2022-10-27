@@ -2,22 +2,21 @@ import { CSSProperties, ReactNode, Suspense, useEffect, useState } from "react";
 import {
   AppBar,
   Box,
-  Drawer as MuiDrawer,
-  Toolbar as MuiToolbar,
   Container,
   Divider,
-  styled,
+  Drawer as MuiDrawer,
+  Fade,
   IconButton,
   Stack,
-  Fade,
-  useMediaQuery,
+  styled,
+  Toolbar as MuiToolbar,
   useTheme,
 } from "@mui/material";
 import { Helmet } from "react-helmet-async";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { LoadingPage } from "../pages/LoadingPage";
 import { trpc } from "../state/client";
-import { useDocumentReadyState } from "../../lib/hooks/useDocumentReadyState";
+import { useReadyMediaQuery } from "../../lib/hooks/useReadyMediaQuery";
 import { globalStyles } from "./globalStyles";
 import { Toolbar } from "./Toolbar";
 import { Menu } from "./Menu";
@@ -25,12 +24,15 @@ import { Logo } from "./Logo";
 
 export function Layout({ children }: { children?: ReactNode }) {
   const theme = useTheme();
-  const isDocumentReady = useDocumentReadyState() !== "loading";
-  const isDrawerPermanent = !useMediaQuery(theme.breakpoints.down("md"));
-  const [isDrawerOpen, setDrawerOpen] = useState(isDrawerPermanent);
+  const isDrawerPermanent = useReadyMediaQuery(theme.breakpoints.up("md"));
+  const [isDrawerOpen, setDrawerOpen] = useState(isDrawerPermanent === true);
   const { data: settings } = trpc.settings.readPublic.useQuery();
 
-  useEffect(() => setDrawerOpen(isDrawerPermanent), [isDrawerPermanent]);
+  useEffect(() => {
+    if (isDrawerPermanent !== undefined) {
+      setDrawerOpen(isDrawerPermanent);
+    }
+  }, [isDrawerPermanent]);
 
   function handleDrawerCloseRequest() {
     if (!isDrawerPermanent) {
@@ -47,12 +49,6 @@ export function Layout({ children }: { children?: ReactNode }) {
     flexDirection: "column",
     flex: 1,
   };
-
-  if (!isDocumentReady) {
-    // Since we depend on media queries we have to delay rendering until document is ready.
-    // Without this delay, the drawer will flicker on mobile page load.
-    return null;
-  }
 
   return (
     <>
