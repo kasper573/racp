@@ -13,7 +13,6 @@ export default function SkillSearchPage() {
   return (
     <>
       <Header>
-        Skills
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}
           filter={filter}

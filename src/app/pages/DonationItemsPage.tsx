@@ -14,8 +14,7 @@ export default function DonationItemsPage() {
   );
   return (
     <>
-      <Header back={router.donation.$}>
-        Items
+      <Header>
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}
           filter={filter}

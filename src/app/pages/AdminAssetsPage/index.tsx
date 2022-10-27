@@ -24,7 +24,7 @@ export default function AdminAssetsPage() {
 
   return (
     <>
-      <Header>Assets</Header>
+      <Header />
       <Typography paragraph>
         This page is for uploading assets required to properly display items,
         monsters, maps, etc. <br />

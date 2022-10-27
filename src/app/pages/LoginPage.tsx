@@ -26,7 +26,7 @@ export default function LoginPage({
 
   return (
     <>
-      <Header>Sign in</Header>
+      <Header />
       <CenteredContent>
         <UserLoginForm
           value={loginPayload}

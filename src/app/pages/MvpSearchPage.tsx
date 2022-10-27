@@ -12,7 +12,6 @@ export default function MvpSearchPage() {
   return (
     <>
       <Header>
-        Mvps
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}
           filter={filter}

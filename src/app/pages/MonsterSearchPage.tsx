@@ -13,7 +13,6 @@ export default function MonsterSearchPage() {
   return (
     <>
       <Header>
-        Monsters
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}
           filter={filter}

@@ -25,28 +25,32 @@ export default function ShopViewPage({
   }
 
   if (!shop || error) {
-    return <Header>Shop not found</Header>;
+    return <Header title="Shop not found" />;
   }
 
   return (
     <>
-      <Header parent="Shops">
-        {shop.name}
-        {shop.mapId !== undefined && (
+      <Header
+        title={
           <>
-            &nbsp;@&nbsp;
-            <Link
-              to={router.map.view({
-                id: shop.mapId,
-                x: shop.mapX,
-                y: shop.mapY,
-              })}
-            >
-              {shop.mapId}
-            </Link>
+            {shop.name}
+            {shop.mapId !== undefined && (
+              <>
+                &nbsp;@&nbsp;
+                <Link
+                  to={router.map.view({
+                    id: shop.mapId,
+                    x: shop.mapX,
+                    y: shop.mapY,
+                  })}
+                >
+                  {shop.mapId}
+                </Link>
+              </>
+            )}
           </>
-        )}
-      </Header>
+        }
+      />
       {shop.mapId === undefined && (
         <Typography sx={{ mb: 3 }}>
           This shop is not accessible by clicking on an NPC. It's triggered by a

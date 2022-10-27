@@ -20,12 +20,12 @@ export default function DonationsPage() {
     return <LoadingPage />;
   }
   if (error || !settings) {
-    return <Header>Something went wrong</Header>;
+    return <Header title="Something went wrong" />;
   }
 
   return (
     <>
-      <Header>Donations</Header>
+      <Header />
       {settings.donations.presentation.split(/[\r\n]+/).map((line, index) => (
         <Typography key={index} paragraph>
           {line}
@@ -34,7 +34,7 @@ export default function DonationsPage() {
       <Link to={router.donation.items({})} sx={{ mb: 2 }}>
         Redeemable items
       </Link>
-      <Header sx={{ mb: 3 }}>Make a donation</Header>
+      <Typography sx={{ mb: 3 }}>Make a donation</Typography>
       <Auth>
         {(user) =>
           user && (

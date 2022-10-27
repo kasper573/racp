@@ -10,7 +10,6 @@ export default function MapSearchPage() {
   return (
     <>
       <Header>
-        Maps
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}
           filter={filter}

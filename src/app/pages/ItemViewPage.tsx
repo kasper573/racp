@@ -3,7 +3,6 @@ import { Box, Paper, Stack } from "@mui/material";
 import { pick } from "lodash";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
-import { router } from "../router";
 import { ClientTextBlock } from "../components/ClientText/ClientText";
 import { TabbedPaper } from "../components/TabbedPaper";
 import { Script } from "../components/Script";
@@ -37,7 +36,7 @@ export default function ItemViewPage({
     return <LoadingPage />;
   }
   if (!item || error) {
-    return <Header>Item not found</Header>;
+    return <Header title="Item not found" />;
   }
   const clientName = item.Info?.identifiedDisplayName?.content;
   const hasDifferentClientName =
@@ -49,20 +48,26 @@ export default function ItemViewPage({
 
   return (
     <>
-      <Header back={router.item.$}>
-        <ItemDisplayName name={item.Name} slots={item.Slots} />
-        &nbsp;
-        {hasDifferentClientName && (
-          <InfoTooltip title="Client display name">({clientName})</InfoTooltip>
-        )}
-        <Spaceless offset={{ top: -10, left: 16 }}>
-          <ImageWithFallback
-            sx={{ maxHeight: 75 }}
-            src={item.ImageUrl}
-            alt={item.Name}
-          />
-        </Spaceless>
-      </Header>
+      <Header
+        title={
+          <>
+            <ItemDisplayName name={item.Name} slots={item.Slots} />
+            &nbsp;
+            {hasDifferentClientName && (
+              <InfoTooltip title="Client display name">
+                ({clientName})
+              </InfoTooltip>
+            )}
+            <Spaceless offset={{ top: -10, left: 16 }}>
+              <ImageWithFallback
+                sx={{ maxHeight: 75 }}
+                src={item.ImageUrl}
+                alt={item.Name}
+              />
+            </Spaceless>
+          </>
+        }
+      />
 
       <Stack spacing={2} sx={{ flex: 1 }} direction="column">
         <TabbedPaper

@@ -91,12 +91,12 @@ export default function MapViewPage({
     return <LoadingPage />;
   }
   if (!map || error) {
-    return <Header>Map not found</Header>;
+    return <Header title="Map not found" />;
   }
 
   return (
     <>
-      <Header back={router.map.$}>{map.displayName}</Header>
+      <Header title={map.displayName} />
       <CommonPageGrid>
         <Stack direction="column" sx={{ flex: 2 }}>
           <Stack direction="column" sx={{ height: 48 }}>

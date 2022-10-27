@@ -32,24 +32,30 @@ export default function MonsterViewPage({
     return <LoadingPage />;
   }
   if (!monster || error) {
-    return <Header>Monster not found</Header>;
+    return <Header title="Monster not found" />;
   }
 
   return (
     <>
-      <Header back={router.monster.$}>
-        {monster.Name}&nbsp;
-        {monster.AegisName !== monster.Name && (
-          <InfoTooltip title="Aegis name">({monster.AegisName})</InfoTooltip>
-        )}
-        <Spaceless offset={{ top: -24, left: 16 }}>
-          <ImageWithFallback
-            sx={{ maxHeight: 75 }}
-            src={monster.ImageUrl}
-            alt={monster.Name}
-          />
-        </Spaceless>
-      </Header>
+      <Header
+        title={
+          <>
+            {monster.Name}&nbsp;
+            {monster.AegisName !== monster.Name && (
+              <InfoTooltip title="Aegis name">
+                ({monster.AegisName})
+              </InfoTooltip>
+            )}
+            <Spaceless offset={{ top: -24, left: 16 }}>
+              <ImageWithFallback
+                sx={{ maxHeight: 75 }}
+                src={monster.ImageUrl}
+                alt={monster.Name}
+              />
+            </Spaceless>
+          </>
+        }
+      />
 
       <CommonPageGrid>
         <Box sx={{ flex: 1 }}>

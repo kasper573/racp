@@ -10,7 +10,6 @@ export default function VendorItemSearchPage() {
   return (
     <>
       <Header>
-        Vendings
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}
           filter={filter}

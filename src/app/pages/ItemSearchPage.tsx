@@ -13,7 +13,6 @@ export default function ItemSearchPage() {
   return (
     <>
       <Header>
-        Items
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}
           filter={filter}
