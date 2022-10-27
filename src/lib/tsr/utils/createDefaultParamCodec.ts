@@ -24,11 +24,18 @@ export function createDefaultParamCodec(
   return {
     encode: (value, _type) => {
       value = _type.parse(value); // This enables various zod transforms, ie. default values
+      if (value === undefined) {
+        return;
+      }
+
       const type = normalizeZodType(_type);
       const str = isPrimitiveEnoughType(type)
         ? `${value}`
         : serializeComplex(value);
-      return str !== undefined ? encodeURIComponent(str) : str;
+
+      if (str !== undefined) {
+        return encodeURIComponent(str);
+      }
     },
     decode: (value, _type) => {
       value = decodeURIComponent(value);
