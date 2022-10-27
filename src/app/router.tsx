@@ -101,8 +101,11 @@ export const router = t.router({
         .params({ filter: monsterFilter.type.optional() })
         .renderer(lazy(() => import("./pages/MonsterSearchPage"))),
       view: t.route
-        .path("view/:id/:tab?")
-        .params({ id: zod.number(), tab: zod.string().optional() })
+        .path("view/:id/:tab")
+        .params({
+          id: zod.number(),
+          tab: zod.enum(["spawns", "drops"]).default("spawns"),
+        })
         .renderer(lazy(() => import("./pages/MonsterViewPage"))),
     }),
   map: t.route
