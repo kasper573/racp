@@ -21,18 +21,22 @@ export function HuntedMonsterTable({
   return (
     <Table>
       <TableHead>
-        <TableCell>Monster</TableCell>
-        <TableCell>Kills per minute</TableCell>
+        <TableRow>
+          <TableCell>Monster</TableCell>
+          <TableCell>Kills per minute</TableCell>
+        </TableRow>
       </TableHead>
       <TableBody>
         {hunts.map((hunt) => (
           <HuntedMonsterTableRow
-            key={hunt.id}
+            key={hunt.monsterId}
             hunt={hunt}
             updateHunt={(updatedHunt) =>
               updateHunts(
                 produce(hunts, (draft) => {
-                  const index = draft.findIndex((h) => h.id === updatedHunt.id);
+                  const index = draft.findIndex(
+                    (h) => h.monsterId === updatedHunt.monsterId
+                  );
                   draft[index] = updatedHunt;
                 })
               )
@@ -53,7 +57,7 @@ function HuntedMonsterTableRow({
 }) {
   const { data: { entities: [monster] = [] } = {} } =
     trpc.monster.search.useQuery({
-      filter: { Id: { value: hunt.id, matcher: "=" } },
+      filter: { Id: { value: hunt.monsterId, matcher: "=" } },
     });
   return (
     <TableRow>

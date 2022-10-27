@@ -22,6 +22,7 @@ export function SearchField<T>({
   noResultsText?: (searchQuery: string) => ReactNode;
   useQuery: (searchQuery: string) => { data?: T[]; isLoading: boolean };
   onSelected: (selected: T[]) => void;
+  size?: "small" | "medium";
 } & Pick<ComponentProps<typeof Box>, "sx" | "style" | "className">) {
   const [localValue, setLocalValue] = useState<T[]>([]);
   const [searchQuery, setSearchQuery] = useState("");

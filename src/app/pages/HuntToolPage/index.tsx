@@ -37,7 +37,7 @@ export default function HuntToolPage() {
 
   const addItems = (newItems: Item[]) => {
     const itemsThatDontAlreadyExist = newItems.filter(
-      (item) => !hunted.items.some(({ id }) => id === item.Id)
+      (item) => !hunted.items.some(({ itemId }) => itemId === item.Id)
     );
     setItems([
       ...hunted.items,
@@ -75,6 +75,7 @@ export default function HuntToolPage() {
 }
 
 function useItemSearchQuery(inputValue: string) {
+  const enabled = !!inputValue;
   const { data: { entities: items = [] } = {}, isLoading } =
     trpc.item.search.useQuery(
       {
@@ -82,7 +83,7 @@ function useItemSearchQuery(inputValue: string) {
           Name: { value: inputValue, matcher: "contains" },
         },
       },
-      { enabled: !!inputValue }
+      { enabled }
     );
-  return { data: items, isLoading };
+  return { data: items, isLoading: enabled && isLoading };
 }

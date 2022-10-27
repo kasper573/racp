@@ -1,9 +1,5 @@
 import { Item, ItemId } from "../../../api/services/item/types";
-import {
-  Monster,
-  MonsterId,
-  MonsterSpawnId,
-} from "../../../api/services/monster/types";
+import { Monster, MonsterId } from "../../../api/services/monster/types";
 
 export type HuntSession = {
   items: HuntedItem[];
@@ -11,20 +7,20 @@ export type HuntSession = {
 };
 
 export type HuntedItem = {
-  id: ItemId;
+  itemId: ItemId;
   current: number;
   goal: number;
-  targetSpawnId?: MonsterSpawnId;
+  target?: MonsterId;
 };
 
 export type HuntedMonster = {
-  id: MonsterId;
+  monsterId: MonsterId;
   killsPerMinute: number;
 };
 
 export function createHuntedItem(item: Item | ItemId): HuntedItem {
   return {
-    id: typeof item === "number" ? item : item.Id,
+    itemId: typeof item === "number" ? item : item.Id,
     current: 0,
     goal: 1,
   };
@@ -32,7 +28,7 @@ export function createHuntedItem(item: Item | ItemId): HuntedItem {
 
 export function createHuntedMonster(monster: Monster): HuntedMonster {
   return {
-    id: monster.Id,
+    monsterId: monster.Id,
     killsPerMinute: 0,
   };
 }
