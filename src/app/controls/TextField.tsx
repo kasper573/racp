@@ -35,7 +35,7 @@ export function TextField({
   return (
     <MuiTextField
       size="small"
-      type={type}
+      type={type === "number" ? "text" : type}
       id={id}
       label={label}
       error={(issues?.length ?? 0) > 0}
@@ -50,7 +50,7 @@ export function TextField({
                 ? e.target.value === ""
                   ? onChange?.(undefined)
                   : onChange?.(parseFloat(e.target.value))
-                : onChange?.(parseFloat(e.target.value))
+                : onChange?.(parseFloat(e.target.value || "0"))
           : (e) =>
               optional
                 ? onChange?.(e.target.value ? e.target.value : undefined)
