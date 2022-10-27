@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Box, Stack } from "@mui/material";
 import produce from "immer";
 import { Item } from "../../../api/services/item/types";
 import { Header } from "../../layout/Header";
 import { ItemIdentifier } from "../../components/ItemIdentifier";
 import { trpc } from "../../state/client";
 import { SearchField } from "../../components/SearchField";
+import { CommonPageGrid } from "../../components/CommonPageGrid";
 import { HuntedItemTable } from "./HuntedItemTable";
 import { HuntedMonsterTable } from "./HuntedMonsterTable";
 import {
@@ -59,17 +59,10 @@ export default function HuntToolPage() {
         noResultsText={(searchQuery) => `No items matching "${searchQuery}"`}
         label="Add an item to hunt"
       />
-      <Stack direction="row" spacing={3} sx={{ flex: 1, mt: 3 }}>
-        <Box flex={1}>
-          <HuntedItemTable hunts={hunted.items} updateHunts={setItems} />
-        </Box>
-        <Box flex={1}>
-          <HuntedMonsterTable
-            hunts={hunted.monsters}
-            updateHunts={setMonsters}
-          />
-        </Box>
-      </Stack>
+      <CommonPageGrid sx={{ mt: 1 }} flexValues={[2, 1]}>
+        <HuntedItemTable hunts={hunted.items} updateHunts={setItems} />
+        <HuntedMonsterTable hunts={hunted.monsters} updateHunts={setMonsters} />
+      </CommonPageGrid>
     </>
   );
 }

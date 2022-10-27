@@ -26,10 +26,10 @@ export function HuntedItemTable({
     <Table>
       <TableHead>
         <TableRow>
-          <TableCell>Item</TableCell>
+          <TableCell width={200}>Item</TableCell>
           <TableCell>Current#</TableCell>
           <TableCell>Goal#</TableCell>
-          <TableCell>Target</TableCell>
+          <TableCell width={200}>Target Monster</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>

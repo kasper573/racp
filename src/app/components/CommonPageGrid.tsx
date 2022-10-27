@@ -2,17 +2,25 @@ import { Box, Stack, useMediaQuery } from "@mui/material";
 import { Children, ComponentProps } from "react";
 
 export function CommonPageGrid({
+  flexValues = [1, 1],
   children,
   sx,
   ...props
-}: ComponentProps<typeof Box>) {
+}: ComponentProps<typeof Box> & {
+  flexValues?: [number, number];
+}) {
   const columnCount = useMediaQuery("(max-width: 1000px)") ? 1 : 2;
   const childrenArray = Children.toArray(children);
   const columns = splitIntoColumns(childrenArray, columnCount);
   return (
     <Stack direction="row" spacing={3} sx={{ width: "100%", ...sx }} {...props}>
       {columns.map((column, index) => (
-        <Stack key={index} direction="column" spacing={2} sx={{ flex: 1 }}>
+        <Stack
+          key={index}
+          direction="column"
+          spacing={2}
+          sx={{ flex: flexValues[index] }}
+        >
           {column}
         </Stack>
       ))}
