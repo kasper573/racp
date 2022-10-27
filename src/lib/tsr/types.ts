@@ -69,7 +69,7 @@ export interface RouteLocationFactory<Params extends RouteParamsType> {
 
 type IsOptional<T> = undefined extends T ? true : false;
 
-export type InferRouteParams<T extends RouteParamsType> = zod.objectOutputType<
+export type InferRouteParams<T extends RouteParamsType> = zod.objectInputType<
   T,
   ZodTypeAny
 >;
@@ -85,6 +85,6 @@ export interface RouteMatch<R extends Route = Route> {
 }
 
 export interface ParamCodec<Base extends ZodType = ZodTypeAny> {
-  encode: <T extends Base>(value: zod.infer<T>, type: T) => string | undefined;
-  decode: <T extends Base>(encoded: string, type: T) => zod.infer<T>;
+  encode: <T extends Base>(value: zod.input<T>, type: T) => string | undefined;
+  decode: <T extends Base>(encoded: string, type: T) => zod.output<T>;
 }
