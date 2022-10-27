@@ -1,22 +1,11 @@
 import { expect } from "@jest/globals";
 import * as zod from "zod";
-import { TSRBuilder } from "./tsr";
 import { RouteParams, RouteMatch } from "./types";
 import { Route } from "./Route";
+import { createTSR } from "./tsr";
 
 describe("tsr", () => {
-  const t = new TSRBuilder()
-    .meta<{ title: string }>()
-    .renders<string>()
-    .build({
-      path: "" as const,
-      params: {},
-      meta: { title: "" },
-      renderer: (props: { params: {}; children?: string }): string =>
-        `${props.children ?? ""}`,
-      children: {},
-      middlewares: [],
-    });
+  const t = createTSR<string>();
 
   it("can identify a single matching route", () => {
     const router = t.router({

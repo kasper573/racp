@@ -8,54 +8,64 @@ import {
 import { Router } from "./Router";
 import { createRoute } from "./Route";
 
-export class TSRBuilder<TSRDef extends TSRDefinition> {
-  private definition = {
-    meta: undefined as TSRDef["meta"],
-    renderResult: undefined as TSRDef["renderResult"],
-    codec: createDefaultParamCodec(),
-    separator: "/",
-  } as unknown as TSRDef;
+const defaultMeta = {};
+const defaultSeparator = "/" as const;
 
-  meta<Meta>(): TSRBuilder<TSRDefinition<Meta, TSRDef["renderResult"]>> {
-    return this;
-  }
-
-  renders<RenderResult>(): TSRBuilder<
-    TSRDefinition<TSRDef["meta"], RenderResult>
-  > {
-    return this;
-  }
-
-  codec(codec: ParamCodec) {
-    this.definition.codec = codec;
-    return this;
-  }
-
-  build<RouteTemplate extends Omit<RouteDefinition<TSRDef>, "tsr">>(
-    template: RouteTemplate
-  ) {
-    return new TSR({ ...template, tsr: this.definition });
-  }
+export function createTSR<
+  RenderResult = any,
+  Meta = typeof defaultMeta,
+  Separator extends string = typeof defaultSeparator
+>({
+  codec = createDefaultParamCodec(),
+  separator = defaultSeparator as Separator,
+  meta = defaultMeta as Meta,
+}: {
+  codec?: ParamCodec;
+  separator?: Separator;
+  meta?: Meta;
+} = {}) {
+  return new TSR<TSRDefinition<RenderResult, Meta, Separator>>({
+    codec,
+    separator,
+    meta,
+  });
 }
 
-export class TSR<RouteTemplate extends RouteDefinition = any> {
-  constructor(private routeTemplate: RouteTemplate) {}
+export class TSR<Def extends TSRDefinition> {
+  constructor(
+    private options: {
+      codec: ParamCodec;
+      separator: Def["separator"];
+      meta: Def["meta"];
+    }
+  ) {}
 
-  readonly route = createRoute(this.routeTemplate);
+  readonly route = createRoute({
+    tsr: {
+      codec: this.options.codec,
+      separator: this.options.separator,
+    } as Def,
+    middlewares: [],
+    children: {},
+    meta: this.options.meta,
+    renderer: ({ children }) => children,
+    params: {},
+    path: "",
+  } as RouteDefinition<Def, "", {}, {}>);
 
-  router<Graph extends RouteMap<RouteTemplate["tsr"]>>(graph: Graph) {
+  router<Graph extends RouteMap<Def>>(graph: Graph) {
     return new Router(this.route.children(graph));
   }
 
-  middleware(fn: RouteMiddleware<any, RouteTemplate["tsr"]["renderResult"]>) {
+  middleware(fn: RouteMiddleware<{}, Def["renderResult"]>) {
     return fn;
   }
 }
 
 export interface TSRDefinition<
-  Meta = any,
   RenderResult = any,
-  Separator extends string = "/"
+  Meta = any,
+  Separator extends string = any
 > {
   meta: Meta;
   renderResult: RenderResult;
