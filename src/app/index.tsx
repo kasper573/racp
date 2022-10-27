@@ -32,6 +32,6 @@ if (root) {
   });
 
   createRoot(root).render(
-    <App {...{ history, trpcClient, queryClient, router: router }} />
+    <App {...{ history, trpcClient, queryClient, router }} />
   );
 }
