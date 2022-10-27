@@ -18,6 +18,10 @@ export const RouterLink = forwardRef<HTMLAnchorElement, RouterLinkProps>(
     const { history } = useContext(RouterContext);
     const handleClick = useCallback(
       (e: MouseEvent<HTMLAnchorElement>) => {
+        if (e.ctrlKey) {
+          // Ctrl click means open in new window, so we let those events play as usual
+          return;
+        }
         e.preventDefault();
         history.push(to);
         onClick?.(e);
