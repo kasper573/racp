@@ -1,14 +1,16 @@
-import { useState } from "react";
-import { Autocomplete, TextField } from "@mui/material";
+import { ComponentProps, useState } from "react";
+import { Autocomplete, Box, TextField } from "@mui/material";
 import { Item } from "../../../api/services/item/types";
 import { trpc } from "../../state/client";
 import { ItemIdentifier } from "../../components/ItemIdentifier";
 
 export function ItemPicker({
   onPicked,
+  sx,
+  ...props
 }: {
   onPicked: (items: Item[]) => void;
-}) {
+} & Pick<ComponentProps<typeof Box>, "sx" | "style" | "className">) {
   const [value, setValue] = useState<Item[]>([]);
   const [inputValue, setInputValue] = useState("");
   const { data: { entities: options = [] } = {}, isFetching: isSearching } =
@@ -22,7 +24,8 @@ export function ItemPicker({
     );
   return (
     <Autocomplete
-      sx={{ width: "100%" }}
+      {...props}
+      sx={{ width: "100%", ...sx }}
       getOptionLabel={(option) => option.Name}
       filterOptions={(x) => x}
       options={options}

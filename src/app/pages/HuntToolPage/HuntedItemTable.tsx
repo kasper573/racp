@@ -6,29 +6,30 @@ import {
   TableRow,
 } from "@mui/material";
 import produce from "immer";
-import { Item, ItemId } from "../../../api/services/item/types";
 import { ItemIdentifier } from "../../components/ItemIdentifier";
 import { TextField } from "../../controls/TextField";
 import { trpc } from "../../state/client";
+import { HuntedItem } from "./types";
 
-export function HuntTable({
+export function HuntedItemTable({
   hunts,
   updateHunts,
 }: {
-  hunts: Hunt[];
-  updateHunts: (hunts: Hunt[]) => void;
+  hunts: HuntedItem[];
+  updateHunts: (hunts: HuntedItem[]) => void;
 }) {
   return (
     <Table>
       <TableHead>
         <TableCell>Item</TableCell>
-        <TableCell>Current Amount</TableCell>
-        <TableCell>Goal Amount</TableCell>
+        <TableCell>Current#</TableCell>
+        <TableCell>Goal#</TableCell>
+        <TableCell>Target</TableCell>
       </TableHead>
       <TableBody>
         {hunts.map((hunt) => (
-          <HuntTableRow
-            key={hunt.itemId}
+          <HuntedItemTableRow
+            key={hunt.id}
             hunt={hunt}
             updateHunt={(updatedHunt) =>
               updateHunts(
@@ -45,15 +46,15 @@ export function HuntTable({
   );
 }
 
-function HuntTableRow({
+function HuntedItemTableRow({
   hunt,
   updateHunt,
 }: {
-  hunt: Hunt;
-  updateHunt: (hunt: Hunt) => void;
+  hunt: HuntedItem;
+  updateHunt: (hunt: HuntedItem) => void;
 }) {
   const { data: { entities: [item] = [] } = {} } = trpc.item.search.useQuery({
-    filter: { Id: { value: hunt.itemId, matcher: "=" } },
+    filter: { Id: { value: hunt.id, matcher: "=" } },
   });
   return (
     <TableRow>
@@ -72,22 +73,13 @@ function HuntTableRow({
           onChange={(goal) => updateHunt({ ...hunt, goal })}
         />
       </TableCell>
+      <TableCell>
+        <TextField
+          type="number"
+          value={hunt.goal}
+          onChange={(goal) => updateHunt({ ...hunt, goal })}
+        />
+      </TableCell>
     </TableRow>
   );
-}
-
-export type Hunt = {
-  id: number;
-  itemId: ItemId;
-  current: number;
-  goal: number;
-};
-
-export function createHunt(item: Item): Hunt {
-  return {
-    id: item.Id,
-    itemId: item.Id,
-    current: 0,
-    goal: 1,
-  };
 }
