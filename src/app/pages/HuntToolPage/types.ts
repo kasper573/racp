@@ -10,7 +10,7 @@ export type HuntedItem = {
   itemId: ItemId;
   current: number;
   goal: number;
-  target?: MonsterId;
+  targets?: MonsterId[];
 };
 
 export type HuntedMonster = {
