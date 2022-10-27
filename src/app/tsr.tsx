@@ -10,7 +10,7 @@ const defaultMeta = {
   icon: <></>,
 };
 
-export const t = createTSR<ReactRenderResult, typeof defaultMeta>({
+export const t = createTSR<ReactRenderResult, Partial<typeof defaultMeta>>({
   meta: defaultMeta,
   codec: createDefaultParamCodec(
     (x) => (isEmpty(compact(x)) ? undefined : base64encode(JSON.stringify(x))),

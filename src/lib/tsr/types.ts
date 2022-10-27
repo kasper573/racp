@@ -16,7 +16,7 @@ export interface RouteDefinition<
   path: Path;
   params: ParamsType;
   meta: TSRDef["meta"];
-  renderer: RouteRenderer<ParamsType, TSRDef["renderResult"]>;
+  renderer?: RouteRenderer<ParamsType, TSRDef["renderResult"]>;
   children: Children;
   middlewares: Array<RouteMiddleware<ParamsType, TSRDef["renderResult"]>>;
   matchOptions?: RouteMatchOptions;

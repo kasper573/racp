@@ -11,6 +11,7 @@ import {
   RouteParamsTypeFor,
   RouteLocation,
   OutputRouteParams,
+  RouteRenderer,
 } from "./types";
 
 type EncodedParams = Record<string, string>;
@@ -70,10 +71,11 @@ class RouteMembers<Def extends RouteDefinition> {
     public parent: AnyRouteLike<Def> | undefined
   ) {}
 
-  render: Def["renderer"] = this.def.middlewares.reduce(
-    (renderer, next) => next(renderer),
-    this.def.renderer
-  );
+  render: RouteRenderer<Def["params"], Def["tsr"]["renderResult"]> =
+    this.def.middlewares.reduce(
+      (renderer, next) => next(renderer),
+      this.def.renderer ?? passThroughRenderer
+    );
 
   parseLocation(
     location: string
@@ -145,3 +147,5 @@ function getMethods(clazz: new (...args: any[]) => any) {
     {}
   );
 }
+
+const passThroughRenderer: RouteRenderer<any, any> = ({ children }) => children;

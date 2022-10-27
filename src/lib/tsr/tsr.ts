@@ -48,7 +48,6 @@ export class TSR<Def extends TSRDefinition> {
     middlewares: [],
     children: {},
     meta: this.options.meta,
-    renderer: ({ children }) => children,
     params: {},
     path: "",
   } as RouteDefinition<Def, "", {}, {}>);
