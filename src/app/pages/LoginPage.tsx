@@ -45,5 +45,3 @@ export default function LoginPage({
     </>
   );
 }
-
-console.log(routes.map.view({ id: "foo" }));
