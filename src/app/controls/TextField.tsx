@@ -35,7 +35,7 @@ export function TextField({
   return (
     <MuiTextField
       size="small"
-      type={type === "number" ? "text" : type}
+      type={type}
       id={id}
       label={label}
       error={(issues?.length ?? 0) > 0}
