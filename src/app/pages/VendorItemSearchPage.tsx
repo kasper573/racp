@@ -6,7 +6,7 @@ import { VendorItemSearchFilterForm } from "../forms/VendorItemSearchFilterForm"
 import { FilterMenu } from "../components/FilterMenu";
 
 export default function VendorItemSearchPage() {
-  const [filter = {}, setFilter] = useRouteState(router.vendor, "filter");
+  const [filter = {}, setFilter] = useRouteState(router.vendor.$, "filter");
   return (
     <>
       <Header>

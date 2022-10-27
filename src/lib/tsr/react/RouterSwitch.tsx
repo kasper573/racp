@@ -1,5 +1,6 @@
 import { useContext, useMemo } from "react";
 import { normalizeLocation } from "../utils/normalizeLocation";
+import { Route } from "../types";
 import { RouterContext } from "./RouterContext";
 import { ReactRouter } from "./types";
 
@@ -25,15 +26,18 @@ export function RouterSwitch({
       return null;
     }
     switch (variant) {
-      case "tree":
-        return match.breadcrumbs.reduce(
-          (children, { render: Element }) => (
-            <Element params={match.params}>{children}</Element>
-          ),
-          <></>
-        );
+      case "tree": {
+        let rendered = <></>;
+        let route: Route | undefined = match.route;
+        while (route) {
+          const { render: Element } = route;
+          rendered = <Element params={match.params}>{rendered}</Element>;
+          route = route.parent;
+        }
+        return rendered;
+      }
       case "leaf": {
-        const [{ render: Element }] = match.breadcrumbs;
+        const { render: Element } = match.route;
         return <Element params={match.params} />;
       }
     }

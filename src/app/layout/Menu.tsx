@@ -9,16 +9,16 @@ import { trpc } from "../state/client";
 
 const publicRoutes = (settings?: AdminPublicSettings) =>
   defined([
-    router.item,
-    router.monster,
-    router.map,
-    router.skill,
-    router.vendor,
-    router.mvp,
-    settings?.donations.enabled ? router.donation : undefined,
+    router.item.$,
+    router.monster.$,
+    router.map.$,
+    router.skill.$,
+    router.vendor.$,
+    router.mvp.$,
+    settings?.donations.enabled ? router.donation.$ : undefined,
   ]);
 
-const protectedRoutes = [router.admin.settings, router.admin.assets];
+const protectedRoutes = [router.admin.settings.$, router.admin.assets.$];
 
 export function Menu({ onItemSelected }: { onItemSelected?: () => void }) {
   const { data: settings } = trpc.settings.readPublic.useQuery();

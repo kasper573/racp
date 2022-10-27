@@ -1,5 +1,3 @@
-import { createRouter } from "./Router";
-import { Route } from "./Route";
 import { createDefaultParamCodec } from "./utils/createDefaultParamCodec";
 import {
   ParamCodec,
@@ -7,6 +5,8 @@ import {
   RouteMap,
   RouteMiddleware,
 } from "./types";
+import { Router } from "./Router";
+import { createRoute } from "./Route";
 
 export class TSRBuilder<TSRDef extends TSRDefinition> {
   private definition = {
@@ -41,10 +41,10 @@ export class TSRBuilder<TSRDef extends TSRDefinition> {
 export class TSR<RouteTemplate extends RouteDefinition = any> {
   constructor(private routeTemplate: RouteTemplate) {}
 
-  readonly route = new Route(this.routeTemplate);
+  readonly route = createRoute(this.routeTemplate);
 
   router<Graph extends RouteMap<RouteTemplate["tsr"]>>(graph: Graph) {
-    return createRouter(this.route.children(graph));
+    return new Router(this.route.children(graph));
   }
 
   middleware(fn: RouteMiddleware<any, RouteTemplate["tsr"]["renderResult"]>) {
@@ -52,9 +52,13 @@ export class TSR<RouteTemplate extends RouteDefinition = any> {
   }
 }
 
-export interface TSRDefinition<Meta = any, RenderResult = any> {
+export interface TSRDefinition<
+  Meta = any,
+  RenderResult = any,
+  Separator extends string = "/"
+> {
   meta: Meta;
   renderResult: RenderResult;
   codec: ParamCodec;
-  separator: string;
+  separator: Separator;
 }

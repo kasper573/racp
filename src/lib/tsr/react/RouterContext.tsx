@@ -1,11 +1,11 @@
 import { History, Location } from "history";
 import { createContext, PropsWithChildren, useEffect, useState } from "react";
-import { RouterMatch } from "../types";
+import { RouteMatch } from "../types";
 
 export interface RouterContextValue {
   history: History;
   location: Location;
-  match?: RouterMatch;
+  match?: RouteMatch;
 }
 
 export const RouterContext = createContext<RouterContextValue>({

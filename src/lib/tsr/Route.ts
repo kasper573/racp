@@ -1,76 +1,74 @@
+import * as ptr from "path-to-regexp";
 import {
+  AnyRouteLike,
   InferRouteParams,
+  Route,
   RouteDefinition,
-  RouteMap,
-  RouteMatchOptions,
-  RouteMiddleware,
-  RouteParamsTypeFor,
+  RouterLocation,
 } from "./types";
 
-export class RouteBuilderMethods<Def extends RouteDefinition = any> {
-  readonly definition: Readonly<Def>;
+type EncodedParams = Record<string, string>;
 
-  constructor(definition: Def) {
-    this.definition = definition;
-  }
+export function createRoute<Def extends RouteDefinition>(
+  def: Def,
+  parent?: AnyRouteLike<Def>
+): Route<Def> {
+  const { encode, decode } = def.tsr.codec;
+  const ptrFormat = ptr.compile<EncodedParams>(def.path);
+  const ptrMatch = ptr.match<EncodedParams>(def.path, {
+    end: def.matchOptions?.exact ?? false,
+    strict: def.matchOptions?.strict ?? false,
+  });
 
-  path<Path extends string>(path: Path, matchOptions?: RouteMatchOptions) {
-    return new Route({
-      ...this.definition,
-      path,
-      matchOptions,
-    } as RouteDefinition<Def["tsr"], Path, Def["params"], Def["children"]>);
-  }
-
-  params<ParamsType extends RouteParamsTypeFor<Def["path"]>>(
-    params: ParamsType
-  ) {
-    return new Route({ ...this.definition, params } as RouteDefinition<
-      Def["tsr"],
-      Def["path"],
-      ParamsType,
-      Def["children"]
-    >);
-  }
-
-  meta(meta: Def["meta"]) {
-    return new Route<Def>({ ...this.definition, meta });
-  }
-
-  renderer(renderer: Def["renderer"]): Route<Def> {
-    return new Route<Def>({ ...this.definition, renderer });
-  }
-
-  use(
-    ...additionalMiddlewares: Array<
-      RouteMiddleware<
-        InferRouteParams<Def["params"]>,
-        Def["tsr"]["renderResult"]
-      >
-    >
-  ): Route<Def> {
-    return new Route<Def>({
-      ...this.definition,
-      middlewares: [...this.definition.middlewares, ...additionalMiddlewares],
-    });
-  }
-
-  children<Children extends RouteMap<Def["tsr"]>>(children: Children) {
-    return new Route({ ...this.definition, children } as RouteDefinition<
-      Def["tsr"],
-      Def["path"],
-      Def["params"],
-      Children
-    >);
-  }
-}
-
-export class Route<
-  Def extends RouteDefinition = any
-> extends RouteBuilderMethods<Def> {
-  readonly render: Def["renderer"] = this.definition.middlewares.reduce(
+  const route = createLocation as Route<Def>;
+  route.def = def;
+  route.parent = parent;
+  route.render = def.middlewares.reduce(
     (renderer, next) => next(renderer),
-    this.definition.renderer
+    def.renderer
   );
-}
 
+  function createLocation(params: InferRouteParams<Def["params"]>) {
+    const encoded = Object.entries(params).reduce(
+      (a, [k, v]) => ({
+        ...a,
+        [k]: encode(v, def.params[k]),
+      }),
+      {}
+    );
+    return ptrFormat(encoded) as RouterLocation;
+  }
+
+  route.parseLocation = (location: string) => {
+    const encoded = ptrMatch(location);
+    if (!encoded) {
+      return;
+    }
+    const q = Object.entries(encoded.params).map(([k, v]) => [
+      [k, v],
+      def.params[k],
+    ]);
+    try {
+      return q.reduce(
+        (a, [[k, v], type]) => ({ ...a, [k]: decode(v, type) }),
+        {} as InferRouteParams<Def["params"]>
+      );
+    } catch (e) {
+      return;
+    }
+  };
+
+  route.path = (path, matchOptions) =>
+    createRoute({ ...def, path, matchOptions } as any);
+  route.params = (params) => createRoute({ ...def, params } as any);
+  route.meta = (meta) => createRoute({ ...def, meta });
+  route.renderer = (renderer) => createRoute({ ...def, renderer });
+  route.children = (children) => createRoute({ ...def, children } as any);
+  route.use = (...additionalMiddlewares) =>
+    createRoute({
+      ...def,
+      middlewares: [...def.middlewares, ...additionalMiddlewares],
+    });
+
+  return route;
+}

@@ -7,7 +7,7 @@ import { FilterMenu } from "../components/FilterMenu";
 
 export default function MonsterSearchPage() {
   const [filter = {}, setFilter] = useRouteState(
-    router.monster.search,
+    router.monster.search.$,
     "filter"
   );
   return (

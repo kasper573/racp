@@ -2,7 +2,6 @@ import * as zod from "zod";
 import { ZodOptionalType, ZodRawShape, ZodType, ZodTypeAny } from "zod";
 import { TSRDefinition } from "./tsr";
 import { PathParams } from "./PathParams";
-import { Route } from "./Route";
 
 export type RouterLocation = "NominalString<RouterLocation>";
 
@@ -37,9 +36,51 @@ export type RouteRenderer<Params, RenderResult> = (
   props: RouteRendererProps<Params, RenderResult>
 ) => RenderResult;
 
+export interface Route<Def extends RouteDefinition = RouteDefinition>
+  extends RouteLocationFactory<InferRouteParams<Def["params"]>> {
+  def: Def;
+
+  /**
+   * Only available for routes in a router.
+   */
+  parent?: AnyRouteLike<Def>;
+
+  render: Def["renderer"];
+
+  parseLocation(location: string): InferRouteParams<Def["params"]> | undefined;
+
+  path<Path extends string>(
+    path: Path,
+    matchOptions?: RouteMatchOptions
+  ): Route<RouteDefinition<Def["tsr"], Path, Def["params"], Def["children"]>>;
+
+  params<ParamsType extends RouteParamsTypeFor<Def["path"]>>(
+    params: ParamsType
+  ): Route<
+    RouteDefinition<Def["tsr"], Def["path"], ParamsType, Def["children"]>
+  >;
+
+  meta(meta: Def["meta"]): Route<Def>;
+
+  renderer(renderer: Def["renderer"]): Route<Def>;
+
+  use(
+    ...additionalMiddlewares: Array<
+      RouteMiddleware<
+        InferRouteParams<Def["params"]>,
+        Def["tsr"]["renderResult"]
+      >
+    >
+  ): Route<Def>;
+
+  children<Children extends RouteMap<Def["tsr"]>>(
+    children: Children
+  ): Route<RouteDefinition<Def["tsr"], Def["path"], Def["params"], Children>>;
+}
+
 export type RouteMap<TSRDef extends TSRDefinition = TSRDefinition> = Record<
   string,
-  Route<RouteDefinition<TSRDef>>
+  AnyRouteLike<TSRDef>
 >;
 
 export type RouteParams<T extends Route | RouteDefinition> = InferRouteParams<
@@ -54,6 +95,19 @@ export type RouteParamsTypeFor<Path extends string> = {
     : ZodTypeAny;
 };
 
+export type AnyRouteLike<T extends Route | RouteDefinition | TSRDefinition> =
+  Route<RouteDefinition<T extends TSRDefinition ? T : TSRDefinitionFor<T>>>;
+
+export type TSRDefinitionFor<T> = T extends RouteDefinition
+  ? T["tsr"]
+  : T extends Route
+  ? T["def"]["tsr"]
+  : never;
+
+export interface RouteLocationFactory<Params extends RouteParamsType> {
+  (params: InferRouteParams<Params>): RouterLocation;
+}
+
 type IsOptional<T> = undefined extends T ? true : false;
 
 export type InferRouteParams<T extends RouteParamsType> = zod.objectOutputType<
@@ -65,46 +119,13 @@ export type RouteMatchOptions = {
   strict?: boolean;
   exact?: boolean;
 };
-export type Router<RootDef extends RouteDefinition = any> = RouteResolver<
-  RootDef,
-  {}
->;
 
-export interface RouterMatch<R extends Route = any> {
-  breadcrumbs: R[];
+export interface RouteMatch<R extends Route = Route> {
+  route: R;
   params: RouteParams<R>;
 }
-
-export type RouteResolver<
-  Def extends RouteDefinition = any,
-  InheritedParams extends RouteParamsType = {}
-> = RouteResolverMap<Def["children"], Def["params"] & InheritedParams> &
-  RouteLocationFactory<Def["params"] & InheritedParams> & {
-    meta: Def["meta"];
-    match(
-      location: string
-    ): RouterMatch<Route<RouteDefinition<Def["tsr"]>>> | undefined;
-  };
-
-export interface RouteLocationFactory<Params extends RouteParamsType> {
-  (params: InferRouteParams<Params>): RouterLocation;
-}
-
-export type RouteResolverMap<
-  Routes extends RouteMap,
-  InheritedParams extends RouteParamsType
-> = {
-  [K in keyof Routes]: RouteResolver<
-    RouteDefinitionFor<Routes[K]>,
-    InheritedParams
-  >;
-};
 
 export interface ParamCodec<Base extends ZodType = ZodTypeAny> {
   encode: <T extends Base>(value: zod.infer<T>, type: T) => string | undefined;
   decode: <T extends Base>(encoded: string, type: T) => zod.infer<T>;
 }
-
-type RouteDefinitionFor<T extends Route> = T extends Route<infer Def>
-  ? Def
-  : never;

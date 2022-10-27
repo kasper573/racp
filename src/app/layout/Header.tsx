@@ -1,7 +1,7 @@
 import { Breadcrumbs, Stack, useTheme } from "@mui/material";
 import { ComponentProps, ReactNode } from "react";
 import { Link } from "../components/Link";
-import { RouteResolver, RouterLocation } from "../../lib/tsr/types";
+import { Route } from "../tsr";
 
 export function Header<Arg>({
   parent,
@@ -10,25 +10,15 @@ export function Header<Arg>({
   sx,
   ...props
 }: {
-  back?: RouteResolver;
+  back?: Route;
   parent?: ReactNode;
 } & ComponentProps<typeof Breadcrumbs>) {
   const theme = useTheme();
 
   if (back) {
-    let backTitle: string;
-    let backTo: RouterLocation;
-    if (Array.isArray(back)) {
-      const [route, routeArg] = back;
-      backTitle = route.options.title;
-      backTo = route(routeArg);
-    } else {
-      backTitle = back.meta.title;
-      backTo = back({});
-    }
     parent = (
-      <Link underline="hover" to={backTo} color="inherit">
-        {backTitle}
+      <Link underline="hover" to={back({})} color="inherit">
+        {back.def.meta.title}
       </Link>
     );
   }

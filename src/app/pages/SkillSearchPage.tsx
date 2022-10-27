@@ -6,7 +6,10 @@ import { FilterMenu } from "../components/FilterMenu";
 import { SkillSearchFilterForm } from "../forms/SkillSearchFilterForm";
 
 export default function SkillSearchPage() {
-  const [filter = {}, setFilter] = useRouteState(router.skill.search, "filter");
+  const [filter = {}, setFilter] = useRouteState(
+    router.skill.search.$,
+    "filter"
+  );
   return (
     <>
       <Header>

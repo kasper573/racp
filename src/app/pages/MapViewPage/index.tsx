@@ -96,7 +96,7 @@ export default function MapViewPage({
 
   return (
     <>
-      <Header back={router.map}>{map.displayName}</Header>
+      <Header back={router.map.$}>{map.displayName}</Header>
       <CommonPageGrid>
         <Stack direction="column" sx={{ flex: 2 }}>
           <Stack direction="column" sx={{ height: 48 }}>

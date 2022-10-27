@@ -30,7 +30,7 @@ import { requireSettings } from "./util/requireSettings";
 import { t } from "./tsr";
 import { mapViewRoute } from "./pages/MapViewPage/route";
 
-export const router = t.router({
+export const routerObject = t.router({
   home: t.route
     .path("", { exact: true })
     .renderer(lazy(() => import("./pages/HomePage")))
@@ -151,6 +151,8 @@ export const router = t.router({
     .path("")
     .renderer(lazy(() => import("./pages/NotFoundPage"))),
 });
+
+export const router = routerObject.routes;
 
 export const logoutRedirect = router.user.login({});
 export const loginRedirect = router.user({});

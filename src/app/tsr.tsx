@@ -3,6 +3,7 @@ import { base64decode, base64encode } from "byte-base64";
 import { isEmpty, isPlainObject, isUndefined, omitBy } from "lodash";
 import { TSRBuilder } from "../lib/tsr/tsr";
 import { createDefaultParamCodec } from "../lib/tsr/utils/createDefaultParamCodec";
+import { AnyRouteLike } from "../lib/tsr/types";
 
 const defaultOptions = {
   title: "",
@@ -30,3 +31,5 @@ export const t = new TSRBuilder()
 
 const compact = (o: unknown) =>
   isPlainObject(o) ? omitBy(o as object, isUndefined) : o;
+
+export type Route = AnyRouteLike<typeof t.route>;

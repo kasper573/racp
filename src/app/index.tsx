@@ -10,7 +10,7 @@ import {
   exposeTRPCClientProxy,
   trpc,
 } from "./state/client";
-import { router } from "./router";
+import { routerObject } from "./router";
 
 const root = document.getElementById(rootId);
 if (root) {
@@ -32,6 +32,6 @@ if (root) {
   });
 
   createRoot(root).render(
-    <App {...{ history, trpcClient, queryClient, router }} />
+    <App {...{ history, trpcClient, queryClient, router: routerObject }} />
   );
 }

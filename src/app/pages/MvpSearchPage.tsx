@@ -8,7 +8,7 @@ import { MvpSearchFilterForm } from "../forms/MvpSearchFilterForm";
 import { Link } from "../components/Link";
 
 export default function MvpSearchPage() {
-  const [filter = {}, setFilter] = useRouteState(router.mvp, "filter");
+  const [filter = {}, setFilter] = useRouteState(router.mvp.$, "filter");
   return (
     <>
       <Header>

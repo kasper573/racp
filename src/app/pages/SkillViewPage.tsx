@@ -25,12 +25,12 @@ export default function SkillViewPage({
   }
 
   if (!skill) {
-    return <Header back={router.skill}>Skill not found</Header>;
+    return <Header back={router.skill.$}>Skill not found</Header>;
   }
 
   return (
     <>
-      <Header back={router.skill}>{skill.DisplayName}</Header>
+      <Header back={router.skill.$}>{skill.DisplayName}</Header>
 
       <CommonPageGrid>
         <TabbedPaper

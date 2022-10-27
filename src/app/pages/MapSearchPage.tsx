@@ -6,7 +6,7 @@ import { router } from "../router";
 import { FilterMenu } from "../components/FilterMenu";
 
 export default function MapSearchPage() {
-  const [filter = {}, setFilter] = useRouteState(router.map.search, "filter");
+  const [filter = {}, setFilter] = useRouteState(router.map.search.$, "filter");
   return (
     <>
       <Header>

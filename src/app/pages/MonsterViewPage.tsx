@@ -37,7 +37,7 @@ export default function MonsterViewPage({
 
   return (
     <>
-      <Header back={router.monster}>
+      <Header back={router.monster.$}>
         {monster.Name}&nbsp;
         {monster.AegisName !== monster.Name && (
           <InfoTooltip title="Aegis name">({monster.AegisName})</InfoTooltip>

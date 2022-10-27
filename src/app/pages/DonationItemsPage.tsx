@@ -9,12 +9,12 @@ import { ItemSearchFilterForm } from "../forms/ItemSearchFilterForm";
 
 export default function DonationItemsPage() {
   const [filter = {}, setFilter] = useRouteState(
-    router.donation.items,
+    router.donation.items.$,
     "filter"
   );
   return (
     <>
-      <Header back={router.donation}>
+      <Header back={router.donation.$}>
         Items
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}

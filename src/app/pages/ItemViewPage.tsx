@@ -49,7 +49,7 @@ export default function ItemViewPage({
 
   return (
     <>
-      <Header back={router.item}>
+      <Header back={router.item.$}>
         <ItemDisplayName name={item.Name} slots={item.Slots} />
         &nbsp;
         {hasDifferentClientName && (
