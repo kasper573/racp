@@ -46,9 +46,13 @@ export function HuntedItemTable({
               updateHunts(
                 produce(hunts, (draft) => {
                   const index = draft.findIndex(
-                    (h) => h.itemId === updatedHunt.itemId
+                    (h) => h.itemId === hunt.itemId
                   );
-                  draft[index] = updatedHunt;
+                  if (updatedHunt) {
+                    draft[index] = updatedHunt;
+                  } else {
+                    draft.splice(index, 1);
+                  }
                 })
               )
             }
@@ -64,7 +68,7 @@ function HuntedItemTableRow({
   updateHunt,
 }: {
   hunt: HuntedItem;
-  updateHunt: (hunt: HuntedItem) => void;
+  updateHunt: (hunt?: HuntedItem) => void;
 }) {
   const useDropQuery = queryHookForItem(hunt.itemId);
   const { data: { entities: [item] = [] } = {} } = trpc.item.search.useQuery({
@@ -128,7 +132,7 @@ function HuntedItemTableRow({
       )}
       <TableCell padding="checkbox">
         <Tooltip title="Remove from hunt list">
-          <IconButton>
+          <IconButton onClick={() => updateHunt(undefined)}>
             <Delete />
           </IconButton>
         </Tooltip>
