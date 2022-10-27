@@ -55,7 +55,8 @@ function isPrimitiveType(type: ZodTypeAny) {
   return (
     type instanceof zod.ZodString ||
     type instanceof zod.ZodNumber ||
-    type instanceof zod.ZodBoolean
+    type instanceof zod.ZodBoolean ||
+    (type instanceof zod.ZodLiteral && isPrimitive(type.value))
   );
 }
 
