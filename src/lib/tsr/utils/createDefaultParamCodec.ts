@@ -5,17 +5,17 @@ import { normalizeZodType } from "./normalizeZodType";
 
 /**
  * # Notes on codecs in general:
- * TSR only extracts and plots parameters by name by default,
- * even though runtime type information is always available for all parameters.
+ * Since path-to-regex only extracts and plots parameters by name by default,
+ * and TSR supports arbitrary param types, extra encoding is handled by param codecs.
  *
- * The remaining formatting and parsing is left to the codec,
- * to allow users to choose/write their own codec.
+ * The built-in runtime type info for each param is provided and expected to be used by the codec.
+ * (If the codec chooses to ignore the type, no runtime validation will be performed,
+ * as TSR only uses it for type inference outside the codec)
  *
  * # The default codec:
- * Since we support arbitrary types for params, this codec serializes
- * complex value types  on top of regular uri encoding.
- * It also performs type coercion for primitives.
- * This is necessary to support numbers and booleans in the url.
+ * 1. Serializes complex value types on top of standard uri encoding.
+ * 2. It also performs type coercion for primitives.
+ * (This is necessary to support numbers and booleans in the url)
  */
 export function createDefaultParamCodec(
   serializeComplex: (v: unknown) => string | undefined = JSON.stringify,
