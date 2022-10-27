@@ -34,7 +34,9 @@ export default function DonationsPage() {
       <Link to={routes.donation.items({})} sx={{ mb: 2 }}>
         Redeemable items
       </Link>
-      <Typography sx={{ mb: 3 }}>Make a donation</Typography>
+      <Typography variant="h6" sx={{ mb: 3 }}>
+        Make a donation
+      </Typography>
       <Auth>
         {(user) =>
           user && (
