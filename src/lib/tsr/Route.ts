@@ -17,89 +17,99 @@ export function createRoute<Def extends RouteDefinition>(
   def: Def,
   parent?: AnyRouteLike<Def>
 ): Route<Def> {
-  const { encode, decode } = def.tsr.codec;
   const ptrFormat = ptr.compile<EncodedParams>(def.path);
-  const ptrMatch = ptr.match<EncodedParams>(def.path, {
-    end: def.matchOptions?.exact ?? false,
-    strict: def.matchOptions?.strict ?? false,
-  });
 
-  const route = createLocation as Route<Def>;
-  route.def = def;
-  route.parent = parent;
-  route.render = def.middlewares.reduce(
-    (renderer, next) => next(renderer),
-    def.renderer
+  // Since we want to be able to call a route to create its location, we need to use a functor.
+  const functor = (params: InferRouteParams<Def["params"]>) =>
+    createLocation(def, ptrFormat, params);
+
+  Object.assign(
+    functor,
+    new RouteMembers(def, parent),
+    getMethods(RouteMembers)
   );
 
-  function createLocation(params: InferRouteParams<Def["params"]>) {
-    const encoded = Object.entries(params).reduce(
-      (a, [k, v]) => ({
-        ...a,
-        [k]: encode(v, def.params[k]),
-      }),
-      {}
-    );
-    return ptrFormat(encoded) as RouterLocation;
-  }
+  return functor as Route<Def>;
+}
 
-  route.parseLocation = (location: string) => {
-    const encoded = ptrMatch(location);
+export interface Route<Def extends RouteDefinition = RouteDefinition>
+  extends RouteMembers<Def>,
+    RouteLocationFactory<InferRouteParams<Def["params"]>> {}
+
+function createLocation<Def extends RouteDefinition>(
+  def: Def,
+  format: ptr.PathFunction<EncodedParams>,
+  params: InferRouteParams<Def["params"]>
+) {
+  const encoded = Object.entries(params).reduce(
+    (a, [k, v]) => ({
+      ...a,
+      [k]: def.tsr.codec.encode(v, def.params[k]),
+    }),
+    {}
+  );
+  return format(encoded) as RouterLocation;
+}
+
+class RouteMembers<Def extends RouteDefinition> {
+  private ptrMatch = ptr.match<EncodedParams>(this.def.path, {
+    end: this.def.matchOptions?.exact ?? false,
+    strict: this.def.matchOptions?.strict ?? false,
+  });
+
+  constructor(
+    public def: Def,
+    /*
+      Only available when routes are in a router
+     */
+    public parent: AnyRouteLike<Def> | undefined
+  ) {}
+
+  render: Def["renderer"] = this.def.middlewares.reduce(
+    (renderer, next) => next(renderer),
+    this.def.renderer
+  );
+
+  parseLocation(location: string): InferRouteParams<Def["params"]> | undefined {
+    const encoded = this.ptrMatch(location);
     if (!encoded) {
       return;
     }
     try {
       return Object.entries(encoded.params).reduce(
-        (a, [k, v]) => ({ ...a, [k]: decode(v, def.params[k]) }),
+        (a, [k, v]) => ({
+          ...a,
+          [k]: this.def.tsr.codec.decode(v, this.def.params[k]),
+        }),
         {} as InferRouteParams<Def["params"]>
       );
     } catch (e) {
       return;
     }
-  };
-
-  route.path = (path, matchOptions) =>
-    createRoute({ ...def, path, matchOptions } as any);
-  route.params = (params) => createRoute({ ...def, params } as any);
-  route.meta = (meta) => createRoute({ ...def, meta });
-  route.renderer = (renderer) => createRoute({ ...def, renderer });
-  route.children = (children) => createRoute({ ...def, children } as any);
-  route.use = (...additionalMiddlewares) =>
-    createRoute({
-      ...def,
-      middlewares: [...def.middlewares, ...additionalMiddlewares],
-    });
-
-  return route;
-}
-
-export interface Route<Def extends RouteDefinition = RouteDefinition>
-  extends RouteLocationFactory<InferRouteParams<Def["params"]>> {
-  def: Def;
-
-  /**
-   * Only available for routes in a router.
-   */
-  parent?: AnyRouteLike<Def>;
-
-  render: Def["renderer"];
-
-  parseLocation(location: string): InferRouteParams<Def["params"]> | undefined;
+  }
 
   path<Path extends string>(
     path: Path,
     matchOptions?: RouteMatchOptions
-  ): Route<RouteDefinition<Def["tsr"], Path, Def["params"], Def["children"]>>;
+  ): Route<RouteDefinition<Def["tsr"], Path, Def["params"], Def["children"]>> {
+    return createRoute({ ...this.def, path, matchOptions } as any);
+  }
 
   params<ParamsType extends RouteParamsTypeFor<Def["path"]>>(
     params: ParamsType
   ): Route<
     RouteDefinition<Def["tsr"], Def["path"], ParamsType, Def["children"]>
-  >;
+  > {
+    return createRoute({ ...this.def, params } as any);
+  }
 
-  meta(meta: Def["meta"]): Route<Def>;
+  meta(meta: Def["meta"]): Route<Def> {
+    return createRoute({ ...this.def, meta });
+  }
 
-  renderer(renderer: Def["renderer"]): Route<Def>;
+  renderer(renderer: Def["renderer"]): Route<Def> {
+    return createRoute({ ...this.def, renderer });
+  }
 
   use(
     ...additionalMiddlewares: Array<
@@ -108,9 +118,26 @@ export interface Route<Def extends RouteDefinition = RouteDefinition>
         Def["tsr"]["renderResult"]
       >
     >
-  ): Route<Def>;
+  ): Route<Def> {
+    return createRoute({
+      ...this.def,
+      middlewares: [...this.def.middlewares, ...additionalMiddlewares],
+    });
+  }
 
   children<Children extends RouteMap<Def["tsr"]>>(
     children: Children
-  ): Route<RouteDefinition<Def["tsr"], Def["path"], Def["params"], Children>>;
+  ): Route<RouteDefinition<Def["tsr"], Def["path"], Def["params"], Children>> {
+    return createRoute({ ...this.def, children } as any);
+  }
+}
+
+function getMethods(clazz: new (...args: any[]) => any) {
+  return Object.getOwnPropertyNames(clazz.prototype).reduce(
+    (a, prop) => ({
+      ...a,
+      [prop]: (clazz.prototype as any)[prop],
+    }),
+    {}
+  );
 }
