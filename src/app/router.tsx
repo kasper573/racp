@@ -45,7 +45,7 @@ export const router = t.router({
         .meta({ title: "Settings", icon: <AccountCircle /> })
         .use(requireAuth(UserAccessLevel.User)),
       login: t.route
-        .path("login/&:destination?")
+        .path("login/:destination?")
         .params({ destination: zodLiteralString<RouteLocation>().optional() })
         .renderer(lazy(() => import("./pages/LoginPage")))
         .meta({ title: "Sign in", icon: <Login /> }),

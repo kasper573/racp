@@ -27,7 +27,12 @@ export const MonsterSpawnGrid = DataGrid.define(
       headerName: "Map",
       renderCell({ row: spawn }) {
         return (
-          <Link to={routes.map.view({ id: spawn.map, x: spawn.x, y: spawn.y })}>
+          <Link
+            to={routes.map.view({
+              id: spawn.map,
+              pin: { x: spawn.x, y: spawn.y },
+            })}
+          >
             {spawn.map}
           </Link>
         );

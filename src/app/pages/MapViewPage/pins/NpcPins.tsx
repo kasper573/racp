@@ -26,8 +26,7 @@ export const NpcPins = memo(
                   <LinkOnMap
                     to={routes.map.view({
                       id: npc.mapId,
-                      x: npc.mapX,
-                      y: npc.mapY,
+                      pin: { x: npc.mapX, y: npc.mapY },
                       tab: "npcs",
                     })}
                     sx={{ lineHeight: "1em" }}

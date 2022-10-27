@@ -32,8 +32,7 @@ export const WarpPins = memo(
                     <LinkOnMap
                       to={routes.map.view({
                         id: warp.toMap,
-                        x: warp.toX,
-                        y: warp.toY,
+                        pin: { x: warp.toX, y: warp.toY },
                         tab: "warps",
                       })}
                     >

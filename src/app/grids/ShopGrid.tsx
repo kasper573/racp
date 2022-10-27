@@ -21,8 +21,7 @@ export const ShopGrid = DataGrid.define(trpc.shop.search.useQuery)({
             <Link
               to={routes.map.view({
                 id: shop.mapId,
-                x: shop.mapX,
-                y: shop.mapY,
+                pin: { x: shop.mapX, y: shop.mapY },
               })}
             >
               {shop.mapId}

@@ -35,9 +35,11 @@ export const VendorItemGrid = DataGrid.define(trpc.vendor.searchItems.useQuery)(
             <Link
               to={routes.map.view({
                 id: item.map,
-                x: item.x,
-                y: item.y,
-                title: `Vendor: ${item.vendorTitle}`,
+                pin: {
+                  x: item.x,
+                  y: item.y,
+                  title: `Vendor: ${item.vendorTitle}`,
+                },
               })}
             >
               {item.map} ({item.x}, {item.y})

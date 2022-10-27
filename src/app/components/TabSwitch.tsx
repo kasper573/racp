@@ -1,25 +1,25 @@
 import { ComponentProps, ReactElement, ReactNode, useState } from "react";
 import { Tab, Tabs } from "@mui/material";
 
-export interface TabItem {
-  id?: string;
+export interface TabItem<Id extends string = string> {
+  id?: Id;
   label: string;
   content: ReactElement;
 }
 
-export interface TabSwitchProps
+export interface TabSwitchProps<Id extends string>
   extends Omit<ComponentProps<typeof Tabs>, "value"> {
-  activeTabId?: TabItem["id"];
-  tabs: TabItem[];
+  activeTabId?: Id;
+  tabs: TabItem<Id>[];
   renderContent?: (content: ReactNode, label: string) => ReactNode;
 }
 
-export function TabSwitch({
+export function TabSwitch<Id extends string>({
   tabs: inputTabs,
   activeTabId: inputId,
   renderContent = (content) => content,
   ...tabsProps
-}: TabSwitchProps) {
+}: TabSwitchProps<Id>) {
   const tabs = inputTabs.map((tab, index) => ({
     ...tab,
     id: tab.id ?? index,

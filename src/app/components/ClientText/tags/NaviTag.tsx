@@ -24,6 +24,6 @@ function parseLinkInfoString(infoString?: string, title?: string) {
   const values = infoString ? /^(\w+),(\d+),(\d+)/.exec(infoString) : undefined;
   if (values) {
     const [, id, x, y] = values;
-    return routes.map.view({ id, x: +x, y: +y, title });
+    return routes.map.view({ id, pin: { x: +x, y: +y, title } });
   }
 }

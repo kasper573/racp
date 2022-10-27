@@ -24,7 +24,7 @@ import { NpcPins } from "./pins/NpcPins";
 import { MapCoordinate } from "./MapCoordinate";
 import { pinIconCss } from "./pins/common";
 import { MapContainer } from "./MapContainer";
-import { MapViewParams } from "./route";
+import { MapTab, MapViewParams } from "./route";
 
 const pinOptions = ["Warps", "Monsters", "Shops", "NPCs"] as const;
 type PinName = typeof pinOptions[number];
@@ -32,7 +32,7 @@ type PinName = typeof pinOptions[number];
 export default function MapViewPage({
   params,
 }: RouteComponentProps<MapViewParams>) {
-  const { id, x, y, tab, title: routePointTitle } = params;
+  const { id, tab, pin: { x, y, title: routePointTitle } = {} } = params;
   const history = useHistory();
   const [visiblePins, setVisiblePins] = useState<PinName[] | undefined>(
     Array.from(pinOptions)
@@ -126,8 +126,8 @@ export default function MapViewPage({
           </MapContainer>
         </Stack>
         <Stack direction="column" sx={{ flex: 3 }}>
-          <TabSwitch
-            activeTabId={tab ?? "warps"}
+          <TabSwitch<MapTab>
+            activeTabId={tab}
             onChange={(e, tab) =>
               history.replace(routes.map.view({ ...params, tab }))
             }
