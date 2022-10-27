@@ -25,7 +25,7 @@ import { SearchQuery, SearchResult, SearchSort } from "../../api/common/search";
 import { useWindowSize, WindowSize } from "../../lib/hooks/useWindowSize";
 import { useOnChange } from "../../lib/hooks/useOnChange";
 import { useLatest } from "../../lib/hooks/useLatest";
-import { RouterLocation } from "../../lib/tsr/Route";
+import { RouterLocation } from "../../lib/tsr/types";
 import { Link } from "./Link";
 import { LoadingSpinner } from "./LoadingSpinner";
 

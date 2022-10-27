@@ -3,16 +3,18 @@ import {
   match as createPathMatcher,
 } from "path-to-regexp";
 import * as zod from "zod";
-import { ZodType, ZodTypeAny } from "zod";
+import { Route } from "./Route";
 import {
-  InferRouteParams,
-  Route,
   RouteDefinition,
+  RouteLocationFactory,
   RouteMap,
-  RouteParams,
   RouteParamsType,
+  Router,
+  RouteResolver,
+  RouteResolverMap,
   RouterLocation,
-} from "./Route";
+  RouterMatch,
+} from "./types";
 
 export function createRouter<RootDef extends RouteDefinition>(
   root: Route<RootDef>
@@ -123,46 +125,3 @@ function createRouteResolver<
   return resolver;
 }
 
-export type Router<RootDef extends RouteDefinition = any> = RouteResolver<
-  RootDef,
-  {}
->;
-
-export interface RouterMatch<R extends Route = any> {
-  breadcrumbs: R[];
-  params: RouteParams<R>;
-}
-
-export type RouteResolver<
-  Def extends RouteDefinition = any,
-  InheritedParams extends RouteParamsType = {}
-> = RouteResolverMap<Def["children"], Def["params"] & InheritedParams> &
-  RouteLocationFactory<Def["params"] & InheritedParams> & {
-    meta: Def["meta"];
-    match(
-      location: string
-    ): RouterMatch<Route<RouteDefinition<Def["tsr"]>>> | undefined;
-  };
-
-export interface RouteLocationFactory<Params extends RouteParamsType> {
-  (params: InferRouteParams<Params>): RouterLocation;
-}
-
-export type RouteResolverMap<
-  Routes extends RouteMap,
-  InheritedParams extends RouteParamsType
-> = {
-  [K in keyof Routes]: RouteResolver<
-    RouteDefinitionFor<Routes[K]>,
-    InheritedParams
-  >;
-};
-
-export interface ParamCodec<Base extends ZodType = ZodTypeAny> {
-  encode: <T extends Base>(value: zod.infer<T>, type: T) => string | undefined;
-  decode: <T extends Base>(encoded: string, type: T) => zod.infer<T>;
-}
-
-type RouteDefinitionFor<T extends Route> = T extends Route<infer Def>
-  ? Def
-  : never;

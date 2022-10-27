@@ -1,7 +1,6 @@
 import { useContext } from "react";
 import { useIsMounted } from "../../hooks/useIsMounted";
-import { RouteDefinition, RouteParams } from "../Route";
-import { RouteResolver } from "../Router";
+import { RouteDefinition, RouteParams, RouteResolver } from "../types";
 import { RouterContext } from "./RouterContext";
 import { useRouteParams } from "./useRouteParams";
 

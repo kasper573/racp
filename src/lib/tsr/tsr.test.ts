@@ -1,9 +1,9 @@
 import { expect } from "@jest/globals";
 import * as zod from "zod";
 import { omit } from "lodash";
-import { RouterMatch } from "./Router";
-import { Route, RouteParams } from "./Route";
+import { Route } from "./Route";
 import { TSRBuilder } from "./tsr";
+import { RouteParams, RouterMatch } from "./types";
 
 describe("tsr", () => {
   const t = new TSRBuilder()

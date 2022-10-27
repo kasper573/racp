@@ -1,6 +1,5 @@
 import { useContext } from "react";
-import { RouteDefinition, RouteParams } from "../Route";
-import { RouteResolver } from "../Router";
+import { RouteDefinition, RouteParams, RouteResolver } from "../types";
 import { RouterContext } from "./RouterContext";
 
 export function useRouteParams<Def extends RouteDefinition>(

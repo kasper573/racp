@@ -1,7 +1,11 @@
-import * as zod from "zod";
-import { ZodOptionalType, ZodRawShape, ZodTypeAny } from "zod";
-import { TSRDefinition } from "./tsr";
-import { PathParams } from "./PathParams";
+import {
+  InferRouteParams,
+  RouteDefinition,
+  RouteMap,
+  RouteMatchOptions,
+  RouteMiddleware,
+  RouteParamsTypeFor,
+} from "./types";
 
 export class RouteBuilderMethods<Def extends RouteDefinition = any> {
   readonly definition: Readonly<Def>;
@@ -70,64 +74,3 @@ export class Route<
   );
 }
 
-export type RouterLocation = "NominalString<RouterLocation>";
-
-export interface RouteDefinition<
-  TSRDef extends TSRDefinition = TSRDefinition,
-  Path extends string = any,
-  ParamsType extends RouteParamsTypeFor<Path> = any,
-  Children extends RouteMap<TSRDef> = any
-> {
-  tsr: TSRDef;
-  path: Path;
-  params: ParamsType;
-  meta: TSRDef["meta"];
-  renderer: RouteRenderer<InferRouteParams<ParamsType>, TSRDef["renderResult"]>;
-  children: Children;
-  middlewares: Array<
-    RouteMiddleware<InferRouteParams<ParamsType>, TSRDef["renderResult"]>
-  >;
-  matchOptions?: RouteMatchOptions;
-}
-
-export type RouteMiddleware<Params = any, RenderResult = any> = (
-  nextRenderer: RouteRenderer<Params, RenderResult>
-) => RouteRenderer<Params, RenderResult>;
-
-export interface RouteRendererProps<Params, RenderResult> {
-  params: Params;
-  children?: RenderResult;
-}
-
-export type RouteRenderer<Params, RenderResult> = (
-  props: RouteRendererProps<Params, RenderResult>
-) => RenderResult;
-
-export type RouteMap<TSRDef extends TSRDefinition = TSRDefinition> = Record<
-  string,
-  Route<RouteDefinition<TSRDef>>
->;
-
-export type RouteParams<T extends Route | RouteDefinition> = InferRouteParams<
-  (T extends Route<infer Def> ? Def : T)["params"]
->;
-
-export type RouteParamsType = ZodRawShape;
-
-export type RouteParamsTypeFor<Path extends string> = {
-  [K in keyof PathParams<Path>]: IsOptional<PathParams<Path>[K]> extends true
-    ? ZodOptionalType<any>
-    : ZodTypeAny;
-};
-
-type IsOptional<T> = undefined extends T ? true : false;
-
-export type InferRouteParams<T extends RouteParamsType> = zod.objectOutputType<
-  T,
-  ZodTypeAny
->;
-
-export type RouteMatchOptions = {
-  strict?: boolean;
-  exact?: boolean;
-};

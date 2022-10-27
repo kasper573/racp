@@ -5,7 +5,7 @@ import {
   useCallback,
   useContext,
 } from "react";
-import { RouterLocation } from "../Route";
+import { RouterLocation } from "../types";
 import { RouterContext } from "./RouterContext";
 
 export interface RouterLinkProps

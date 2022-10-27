@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
-import { RouterLocation } from "../Route";
 import { normalizeLocation } from "../utils/normalizeLocation";
+import { RouterLocation } from "../types";
 import { RouterContext } from "./RouterContext";
 import { useLocation } from "./useLocation";
 

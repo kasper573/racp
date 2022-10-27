@@ -1,7 +1,12 @@
-import { RouteMap, RouteDefinition, RouteMiddleware } from "./Route";
-import { createRouter, ParamCodec } from "./Router";
+import { createRouter } from "./Router";
 import { Route } from "./Route";
 import { createDefaultParamCodec } from "./utils/createDefaultParamCodec";
+import {
+  ParamCodec,
+  RouteDefinition,
+  RouteMap,
+  RouteMiddleware,
+} from "./types";
 
 export class TSRBuilder<TSRDef extends TSRDefinition> {
   private definition = {

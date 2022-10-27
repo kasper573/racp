@@ -1,8 +1,7 @@
 import { Breadcrumbs, Stack, useTheme } from "@mui/material";
 import { ComponentProps, ReactNode } from "react";
 import { Link } from "../components/Link";
-import { RouterLocation } from "../../lib/tsr/Route";
-import { RouteResolver } from "../../lib/tsr/Router";
+import { RouteResolver, RouterLocation } from "../../lib/tsr/types";
 
 export function Header<Arg>({
   parent,

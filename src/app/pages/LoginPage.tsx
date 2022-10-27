@@ -8,7 +8,7 @@ import { UserLoginForm } from "../forms/UserLoginForm";
 import { LoginPayload } from "../../api/services/user/types";
 import { useLogin } from "../state/auth";
 import { RouteComponentProps } from "../../lib/tsr/react/types";
-import { RouterLocation } from "../../lib/tsr/Route";
+import { RouterLocation } from "../../lib/tsr/types";
 
 export default function LoginPage({
   params: { destination },

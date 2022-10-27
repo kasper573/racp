@@ -1,6 +1,6 @@
 import { ZodTypeAny } from "zod";
 import * as zod from "zod";
-import { ParamCodec } from "../Router";
+import { ParamCodec } from "../types";
 import { normalizeZodType } from "./normalizeZodType";
 
 /**

@@ -6,8 +6,8 @@ import {
 } from "@mui/material";
 import { ComponentProps, forwardRef } from "react";
 import { RouterLink, RouterLinkProps } from "../../lib/tsr/react/RouterLink";
-import { RouterLocation } from "../../lib/tsr/Route";
 import { useLocation } from "../../lib/tsr/react/useLocation";
+import { RouterLocation } from "../../lib/tsr/types";
 
 export type AdditionalLinkProps = Pick<RouterLinkProps, "to">;
 

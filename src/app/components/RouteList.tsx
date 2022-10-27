@@ -1,6 +1,6 @@
 import { List, ListItemIcon, ListItemText } from "@mui/material";
 import { ComponentProps } from "react";
-import { RouteResolver } from "../../lib/tsr/Router";
+import { RouteResolver } from "../../lib/tsr/types";
 import { LinkListItem } from "./Link";
 
 export interface RouteListProps extends ComponentProps<typeof List> {

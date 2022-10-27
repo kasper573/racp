@@ -1,7 +1,6 @@
 import { ReactElement } from "react";
-import { Router } from "../Router";
-import { RouteDefinition, RouteRendererProps } from "../Route";
 import { TSRDefinition } from "../tsr";
+import { RouteDefinition, Router, RouteRendererProps } from "../types";
 
 export type ReactRenderResult = ReactElement | null;
 
