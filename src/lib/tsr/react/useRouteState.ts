@@ -12,7 +12,7 @@ export function useRouteState<
   const isMounted = useIsMounted();
   const { history } = useContext(RouterContext);
   const params = useRouteParams(route);
-  const paramValue = params[paramName];
+  const paramValue = params?.[paramName];
 
   function setParamValue(value: RouteParams<Def>[ParamName]) {
     if (isMounted() && params) {
