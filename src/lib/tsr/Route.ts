@@ -1,4 +1,5 @@
 import * as ptr from "path-to-regexp";
+import { ZodTypeAny } from "zod";
 import {
   AnyRouteLike,
   InferRouteParams,
@@ -41,10 +42,13 @@ function createLocation<Def extends RouteDefinition>(
   format: ptr.PathFunction<EncodedParams>,
   params: InferRouteParams<Def["params"]>
 ) {
-  const encoded = Object.entries(params).reduce(
-    (a, [k, v]) => ({
+  const encoded = Object.entries(def.params).reduce(
+    (a, [k, type]) => ({
       ...a,
-      [k]: def.tsr.codec.encode(v, def.params[k]),
+      [k]: def.tsr.codec.encode(
+        params[k as keyof typeof params],
+        type as ZodTypeAny
+      ),
     }),
     {}
   );
