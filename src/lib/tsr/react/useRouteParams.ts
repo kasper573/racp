@@ -5,5 +5,7 @@ import { RouterContext } from "./RouterContext";
 
 export function useRouteParams<Def extends RouteDefinition>(route: Route<Def>) {
   const { match } = useContext(RouterContext);
-  return match?.params as RouteParams<Def> | undefined;
+  if (match?.route === route) {
+    return match.params as RouteParams<Def>;
+  }
 }
