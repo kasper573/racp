@@ -7,7 +7,7 @@ import {
 import { ComponentProps, forwardRef } from "react";
 import { RouterLink, RouterLinkProps } from "../../lib/tsr/react/RouterLink";
 import { useLocation } from "../../lib/tsr/react/useLocation";
-import { RouterLocation } from "../../lib/tsr/types";
+import { RouteLocation } from "../../lib/tsr/types";
 
 export type AdditionalLinkProps = Pick<RouterLinkProps, "to">;
 
@@ -62,7 +62,7 @@ export function LinkMenuItem(
   );
 }
 
-function useIsActive(to: RouterLocation) {
+function useIsActive(to: RouteLocation) {
   const location = useLocation();
   return location.pathname.startsWith(to);
 }

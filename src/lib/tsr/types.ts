@@ -4,7 +4,7 @@ import { TSRDefinition } from "./tsr";
 import { PathParams } from "./PathParams";
 import { Route } from "./Route";
 
-export type RouterLocation = "NominalString<RouterLocation>";
+export type RouteLocation = "NominalString<RouterLocation>";
 
 export interface RouteDefinition<
   TSRDef extends TSRDefinition = TSRDefinition,
@@ -64,7 +64,7 @@ export type TSRDefinitionFor<T> = T extends RouteDefinition
   : never;
 
 export interface RouteLocationFactory<Params extends RouteParamsType> {
-  (params: InferRouteParams<Params>): RouterLocation;
+  (params: InferRouteParams<Params>): RouteLocation;
 }
 
 type IsOptional<T> = undefined extends T ? true : false;

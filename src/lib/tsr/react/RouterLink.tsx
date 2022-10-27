@@ -5,12 +5,12 @@ import {
   useCallback,
   useContext,
 } from "react";
-import { RouterLocation } from "../types";
+import { RouteLocation } from "../types";
 import { RouterContext } from "./RouterContext";
 
 export interface RouterLinkProps
   extends Omit<HTMLAttributes<HTMLAnchorElement>, "href"> {
-  to: RouterLocation;
+  to: RouteLocation;
 }
 
 export const RouterLink = forwardRef<HTMLAnchorElement, RouterLinkProps>(

@@ -24,7 +24,7 @@ import { vendorItemFilter } from "../api/services/vendor/types";
 import { skillFilter } from "../api/services/skill/types";
 import { Redirect } from "../lib/tsr/react/Redirect";
 import { zodLiteralString } from "../lib/zod/zodLiteralString";
-import { RouterLocation } from "../lib/tsr/types";
+import { RouteLocation } from "../lib/tsr/types";
 import { requireAuth } from "./util/requireAuth";
 import { requireSettings } from "./util/requireSettings";
 import { t } from "./tsr";
@@ -46,7 +46,7 @@ export const router = t.router({
         .use(requireAuth(UserAccessLevel.User)),
       login: t.route
         .path("login/&:destination?")
-        .params({ destination: zodLiteralString<RouterLocation>().optional() })
+        .params({ destination: zodLiteralString<RouteLocation>().optional() })
         .renderer(lazy(() => import("./pages/LoginPage")))
         .meta({ title: "Sign in", icon: <Login /> }),
       register: t.route

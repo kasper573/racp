@@ -1,6 +1,6 @@
 import { Location } from "history";
-import { RouterLocation } from "../types";
+import { RouteLocation } from "../types";
 
-export function normalizeLocation(location: Location): RouterLocation {
-  return (location.pathname + location.search) as RouterLocation;
+export function normalizeLocation(location: Location): RouteLocation {
+  return (location.pathname + location.search) as RouteLocation;
 }

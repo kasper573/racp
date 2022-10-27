@@ -8,7 +8,7 @@ import {
   RouteMatchOptions,
   RouteMiddleware,
   RouteParamsTypeFor,
-  RouterLocation,
+  RouteLocation,
 } from "./types";
 
 type EncodedParams = Record<string, string>;
@@ -48,7 +48,7 @@ function createLocation<Def extends RouteDefinition>(
     }),
     {}
   );
-  return format(encoded) as RouterLocation;
+  return format(encoded) as RouteLocation;
 }
 
 class RouteMembers<Def extends RouteDefinition> {

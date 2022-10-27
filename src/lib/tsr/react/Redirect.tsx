@@ -1,10 +1,10 @@
 import { useContext, useEffect } from "react";
 import { normalizeLocation } from "../utils/normalizeLocation";
-import { RouterLocation } from "../types";
+import { RouteLocation } from "../types";
 import { RouterContext } from "./RouterContext";
 import { useLocation } from "./useLocation";
 
-export function Redirect({ to }: { to: RouterLocation }) {
+export function Redirect({ to }: { to: RouteLocation }) {
   const { history } = useContext(RouterContext);
   const current = normalizeLocation(useLocation());
 
