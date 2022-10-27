@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import { Typography } from "@mui/material";
-import { router } from "../router";
+import { routes } from "../router";
 import { Link } from "../components/Link";
 import { CenteredContent } from "../components/CenteredContent";
 import { Header } from "../layout/Header";
@@ -39,7 +39,7 @@ export default function LoginPage({
 
         <Typography sx={{ textAlign: "right" }}>
           Not a member?{" "}
-          <Link to={router.user.register({})}>Create a new account</Link>.
+          <Link to={routes.user.register({})}>Create a new account</Link>.
         </Typography>
       </CenteredContent>
     </>

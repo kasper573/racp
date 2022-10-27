@@ -1,5 +1,5 @@
 import { Header } from "../layout/Header";
-import { router } from "../router";
+import { routes } from "../router";
 import { useRouteState } from "../../lib/tsr/react/useRouteState";
 import { SkillGrid } from "../grids/SkillGrid";
 import { FilterMenu } from "../components/FilterMenu";
@@ -7,7 +7,7 @@ import { SkillSearchFilterForm } from "../forms/SkillSearchFilterForm";
 
 export default function SkillSearchPage() {
   const [filter = {}, setFilter] = useRouteState(
-    router.skill.search.$,
+    routes.skill.search.$,
     "filter"
   );
   return (

@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
 import { ReactElement } from "react";
 import { Header } from "../layout/Header";
-import { router } from "../router";
+import { routes } from "../router";
 import { trpc } from "../state/client";
 import { ShopItemGrid } from "../grids/ShopItemGrid";
 import { Link } from "../components/Link";
@@ -38,7 +38,7 @@ export default function ShopViewPage({
               <>
                 &nbsp;@&nbsp;
                 <Link
-                  to={router.map.view({
+                  to={routes.map.view({
                     id: shop.mapId,
                     x: shop.mapX,
                     y: shop.mapY,

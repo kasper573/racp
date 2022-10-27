@@ -3,7 +3,7 @@ import { DataGrid } from "../components/DataGrid";
 import { ItemIdentifier } from "../components/ItemIdentifier";
 import { Zeny } from "../components/Zeny";
 import { Link } from "../components/Link";
-import { router } from "../router";
+import { routes } from "../router";
 
 export const ShopItemGrid = DataGrid.define(trpc.shop.searchItems.useQuery)({
   emptyComponent: () => <>No items found</>,
@@ -14,11 +14,11 @@ export const ShopItemGrid = DataGrid.define(trpc.shop.searchItems.useQuery)({
       renderCell({ row: item }) {
         return (
           <>
-            <Link to={router.shop({ id: item.shopId })}>{item.shopName}</Link>
+            <Link to={routes.shop({ id: item.shopId })}>{item.shopName}</Link>
             {item.shopMap && (
               <>
                 &nbsp; (
-                <Link to={router.map.view(item.shopMap)}>
+                <Link to={routes.map.view(item.shopMap)}>
                   {item.shopMap.id}
                 </Link>
                 )

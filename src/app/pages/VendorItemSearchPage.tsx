@@ -1,12 +1,12 @@
 import { Header } from "../layout/Header";
-import { router } from "../router";
+import { routes } from "../router";
 import { useRouteState } from "../../lib/tsr/react/useRouteState";
 import { VendorItemGrid } from "../grids/VendorItemGrid";
 import { VendorItemSearchFilterForm } from "../forms/VendorItemSearchFilterForm";
 import { FilterMenu } from "../components/FilterMenu";
 
 export default function VendorItemSearchPage() {
-  const [filter = {}, setFilter] = useRouteState(router.vendor.$, "filter");
+  const [filter = {}, setFilter] = useRouteState(routes.vendor.$, "filter");
   return (
     <>
       <Header>

@@ -1,6 +1,6 @@
 import { DataGrid } from "../components/DataGrid";
 import { trpc } from "../state/client";
-import { router } from "../router";
+import { routes } from "../router";
 import { Link } from "../components/Link";
 import { ItemIdentifier } from "../components/ItemIdentifier";
 import { Zeny } from "../components/Zeny";
@@ -33,7 +33,7 @@ export const VendorItemGrid = DataGrid.define(trpc.vendor.searchItems.useQuery)(
         renderCell({ row: item }) {
           return (
             <Link
-              to={router.map.view({
+              to={routes.map.view({
                 id: item.map,
                 x: item.x,
                 y: item.y,

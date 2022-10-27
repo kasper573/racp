@@ -1,6 +1,6 @@
 import { DataGrid } from "../components/DataGrid";
 import { trpc } from "../state/client";
-import { router } from "../router";
+import { routes } from "../router";
 import { Link } from "../components/Link";
 
 export const NpcGrid = DataGrid.define(trpc.npc.search.useQuery)({
@@ -12,7 +12,7 @@ export const NpcGrid = DataGrid.define(trpc.npc.search.useQuery)({
       renderCell({ row: npc }) {
         return (
           <Link
-            to={router.map.view({
+            to={routes.map.view({
               id: npc.mapId,
               x: npc.mapX,
               y: npc.mapY,

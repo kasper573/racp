@@ -1,6 +1,6 @@
 import { DataGrid } from "../components/DataGrid";
 import { trpc } from "../state/client";
-import { router } from "../router";
+import { routes } from "../router";
 import { Link } from "../components/Link";
 
 export const ShopGrid = DataGrid.define(trpc.shop.search.useQuery)({
@@ -10,7 +10,7 @@ export const ShopGrid = DataGrid.define(trpc.shop.search.useQuery)({
     name: {
       headerName: "Name",
       renderCell({ row: shop }) {
-        return <Link to={router.shop({ id: shop.id })}>{shop.name}</Link>;
+        return <Link to={routes.shop({ id: shop.id })}>{shop.name}</Link>;
       },
     },
     mapId: {
@@ -19,7 +19,7 @@ export const ShopGrid = DataGrid.define(trpc.shop.search.useQuery)({
         if (shop.mapId !== undefined) {
           return (
             <Link
-              to={router.map.view({
+              to={routes.map.view({
                 id: shop.mapId,
                 x: shop.mapX,
                 y: shop.mapY,

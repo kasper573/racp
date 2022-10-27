@@ -30,14 +30,14 @@ import { requireSettings } from "./util/requireSettings";
 import { t } from "./tsr";
 import { mapViewRoute } from "./pages/MapViewPage/route";
 
-export const routerObject = t.router({
+export const router = t.router({
   home: t.route
     .path("", { exact: true })
     .renderer(lazy(() => import("./pages/HomePage")))
     .meta({ title: "Home", icon: <Home /> }),
   user: t.route
     .path("user", { exact: true })
-    .renderer(() => <Redirect to={router.user.settings({})} />)
+    .renderer(() => <Redirect to={routes.user.settings({})} />)
     .children({
       settings: t.route
         .path("settings")
@@ -56,7 +56,7 @@ export const routerObject = t.router({
     }),
   item: t.route
     .path("item", { exact: true })
-    .renderer(() => <Redirect to={router.item.search({})} />)
+    .renderer(() => <Redirect to={routes.item.search({})} />)
     .meta({ title: "Items", icon: <Redeem /> })
     .children({
       search: t.route
@@ -70,7 +70,7 @@ export const routerObject = t.router({
     }),
   skill: t.route
     .path("skill", { exact: true })
-    .renderer(() => <Redirect to={router.skill.search({})} />)
+    .renderer(() => <Redirect to={routes.skill.search({})} />)
     .meta({ title: "Skills", icon: <School /> })
     .children({
       search: t.route
@@ -93,7 +93,7 @@ export const routerObject = t.router({
     .meta({ title: "Mvps", icon: <EmojiEvents /> }),
   monster: t.route
     .path("monster", { exact: true })
-    .renderer(() => <Redirect to={router.monster.search({})} />)
+    .renderer(() => <Redirect to={routes.monster.search({})} />)
     .meta({ title: "Monsters", icon: <PestControlRodent /> })
     .children({
       search: t.route
@@ -107,7 +107,7 @@ export const routerObject = t.router({
     }),
   map: t.route
     .path("map", { exact: true })
-    .renderer(() => <Redirect to={router.map.search({})} />)
+    .renderer(() => <Redirect to={routes.map.search({})} />)
     .meta({ title: "Maps", icon: <Map /> })
     .children({
       search: t.route
@@ -134,7 +134,7 @@ export const routerObject = t.router({
     }),
   admin: t.route
     .path("admin", { exact: true })
-    .renderer(() => <Redirect to={router.admin.settings({})} />)
+    .renderer(() => <Redirect to={routes.admin.settings({})} />)
     .meta({ title: "Admin", icon: <AdminPanelSettings /> })
     .use(requireAuth(UserAccessLevel.Admin))
     .children({
@@ -152,7 +152,7 @@ export const routerObject = t.router({
     .renderer(lazy(() => import("./pages/NotFoundPage"))),
 });
 
-export const router = routerObject.routes;
+export const routes = router.routes;
 
-export const logoutRedirect = router.user.login({});
-export const loginRedirect = router.user({});
+export const logoutRedirect = routes.user.login({});
+export const loginRedirect = routes.user({});

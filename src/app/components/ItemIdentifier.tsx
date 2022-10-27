@@ -1,6 +1,6 @@
 import { Paper, Tooltip, Typography } from "@mui/material";
 import { ComponentProps, forwardRef, HTMLAttributes, ReactNode } from "react";
-import { router } from "../router";
+import { routes } from "../router";
 import {
   Item,
   ItemFilter,
@@ -63,7 +63,7 @@ export function ItemIdentifier({
 
   let displayName = <ItemDisplayName {...props} />;
   if (link) {
-    displayName = <Link to={router.item.view({ id })}>{displayName}</Link>;
+    displayName = <Link to={routes.item.view({ id })}>{displayName}</Link>;
   }
 
   const { cardIds, options } = props;

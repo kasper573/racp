@@ -1,10 +1,10 @@
 import { ComponentProps } from "react";
 import { Link } from "../components/Link";
-import { router } from "../router";
+import { routes } from "../router";
 
 export function Logo({
   children,
-  to = router.home({}),
+  to = routes.home({}),
   ...props
 }: Partial<ComponentProps<typeof Link>>) {
   return (

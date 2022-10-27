@@ -2,7 +2,7 @@ import { memo } from "react";
 import { PriorityHigh } from "@mui/icons-material";
 import { Npc, NpcId } from "../../../../api/services/npc/types";
 import { MapPin } from "../MapPin";
-import { router } from "../../../router";
+import { routes } from "../../../router";
 import { LinkOnMap, pinIconCss, PinLabel, PinsProps } from "./common";
 
 export const NpcPins = memo(
@@ -24,7 +24,7 @@ export const NpcPins = memo(
                 {...mouseBindings}
                 label={
                   <LinkOnMap
-                    to={router.map.view({
+                    to={routes.map.view({
                       id: npc.mapId,
                       x: npc.mapX,
                       y: npc.mapY,

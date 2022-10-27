@@ -4,7 +4,7 @@ import Xarrow, { Xwrapper } from "react-xarrows";
 import { Point } from "../../../../lib/geometry";
 import { Warp, WarpId } from "../../../../api/services/map/types";
 import { MapPin } from "../MapPin";
-import { router } from "../../../router";
+import { routes } from "../../../router";
 import { MapCoordinate } from "../MapCoordinate";
 import { createHighlightSelector, HighlightId } from "../useHighlighter";
 import { LinkOnMap, PinIcon, pinIconCss, PinLabel, PinsProps } from "./common";
@@ -30,7 +30,7 @@ export const WarpPins = memo(
                   {...mouseBindings}
                   label={
                     <LinkOnMap
-                      to={router.map.view({
+                      to={routes.map.view({
                         id: warp.toMap,
                         x: warp.toX,
                         y: warp.toY,

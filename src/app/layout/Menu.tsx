@@ -1,5 +1,5 @@
 import { Divider, Typography } from "@mui/material";
-import { router } from "../router";
+import { routes } from "../router";
 import { Auth } from "../components/Auth";
 import { RouteList } from "../components/RouteList";
 import { UserAccessLevel } from "../../api/services/user/types";
@@ -9,16 +9,16 @@ import { trpc } from "../state/client";
 
 const publicRoutes = (settings?: AdminPublicSettings) =>
   defined([
-    router.item.$,
-    router.monster.$,
-    router.map.$,
-    router.skill.$,
-    router.vendor.$,
-    router.mvp.$,
-    settings?.donations.enabled ? router.donation.$ : undefined,
+    routes.item.$,
+    routes.monster.$,
+    routes.map.$,
+    routes.skill.$,
+    routes.vendor.$,
+    routes.mvp.$,
+    settings?.donations.enabled ? routes.donation.$ : undefined,
   ]);
 
-const protectedRoutes = [router.admin.settings.$, router.admin.assets.$];
+const protectedRoutes = [routes.admin.settings.$, routes.admin.assets.$];
 
 export function Menu({ onItemSelected }: { onItemSelected?: () => void }) {
   const { data: settings } = trpc.settings.readPublic.useQuery();

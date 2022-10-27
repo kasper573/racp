@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Place } from "@mui/icons-material";
 import { Header } from "../../layout/Header";
 import { trpc } from "../../state/client";
-import { router } from "../../router";
+import { routes } from "../../router";
 import { Point } from "../../../lib/geometry";
 import { LoadingPage } from "../LoadingPage";
 import { CommonPageGrid } from "../../components/CommonPageGrid";
@@ -129,7 +129,7 @@ export default function MapViewPage({
           <TabSwitch
             activeTabId={tab ?? "warps"}
             onChange={(e, tab) =>
-              history.replace(router.map.view({ ...params, tab }))
+              history.replace(routes.map.view({ ...params, tab }))
             }
             tabs={[
               {

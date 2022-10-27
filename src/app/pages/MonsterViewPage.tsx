@@ -3,7 +3,7 @@ import { Box, Stack } from "@mui/material";
 import { pick } from "lodash";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
-import { router } from "../router";
+import { routes } from "../router";
 import { MonsterSpawnGrid } from "../grids/MonsterSpawnGrid";
 import { TabSwitch } from "../components/TabSwitch";
 import { TabbedPaper } from "../components/TabbedPaper";
@@ -110,7 +110,7 @@ export default function MonsterViewPage({
           <TabSwitch
             activeTabId={tab}
             onChange={(e, tab) =>
-              history.replace(router.monster.view({ id, tab }))
+              history.replace(routes.monster.view({ id, tab }))
             }
             tabs={[
               {

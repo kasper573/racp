@@ -3,13 +3,13 @@ import { Header } from "../layout/Header";
 import { ItemGrid } from "../grids/ItemGrid";
 import { trpc } from "../state/client";
 import { useRouteState } from "../../lib/tsr/react/useRouteState";
-import { router } from "../router";
+import { routes } from "../router";
 import { FilterMenu } from "../components/FilterMenu";
 import { ItemSearchFilterForm } from "../forms/ItemSearchFilterForm";
 
 export default function DonationItemsPage() {
   const [filter = {}, setFilter] = useRouteState(
-    router.donation.items.$,
+    routes.donation.items.$,
     "filter"
   );
   return (

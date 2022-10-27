@@ -1,7 +1,7 @@
 import { DataGrid } from "../components/DataGrid";
 import { trpc } from "../state/client";
 import { Link } from "../components/Link";
-import { router } from "../router";
+import { routes } from "../router";
 
 export const SkillGrid = DataGrid.define(trpc.skill.search.useQuery)({
   emptyComponent: () => <>No skills found</>,
@@ -11,7 +11,7 @@ export const SkillGrid = DataGrid.define(trpc.skill.search.useQuery)({
       headerName: "Name",
       renderCell({ row: skill }) {
         return (
-          <Link to={router.skill.view({ id: skill.Id })}>
+          <Link to={routes.skill.view({ id: skill.Id })}>
             {skill.DisplayName}
           </Link>
         );

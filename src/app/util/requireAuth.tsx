@@ -2,7 +2,7 @@ import { useStore } from "zustand";
 import { UserAccessLevel } from "../../api/services/user/types";
 import { authStore } from "../state/auth";
 import { NoAccessPage } from "../pages/NoAccessPage";
-import { router } from "../router";
+import { routes } from "../router";
 import { t } from "../tsr";
 import { Redirect } from "../../lib/tsr/react/Redirect";
 import { useLocation } from "../../lib/tsr/react/useLocation";
@@ -15,7 +15,7 @@ export function requireAuth(requiredAccess = UserAccessLevel.User) {
     if (access === undefined) {
       return (
         <Redirect
-          to={router.user.login({
+          to={routes.user.login({
             destination: normalizeLocation(location),
           })}
         />
