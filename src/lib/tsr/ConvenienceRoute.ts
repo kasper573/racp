@@ -1,4 +1,5 @@
-import { InferRouteParams, Route, RouteLocationFactory } from "./types";
+import { InferRouteParams, RouteLocationFactory } from "./types";
+import { Route } from "./Route";
 
 export function createConvenienceRoute<R extends Route>(
   route: R

@@ -2,8 +2,12 @@ import * as ptr from "path-to-regexp";
 import {
   AnyRouteLike,
   InferRouteParams,
-  Route,
   RouteDefinition,
+  RouteLocationFactory,
+  RouteMap,
+  RouteMatchOptions,
+  RouteMiddleware,
+  RouteParamsTypeFor,
   RouterLocation,
 } from "./types";
 
@@ -67,4 +71,46 @@ export function createRoute<Def extends RouteDefinition>(
     });
 
   return route;
+}
+
+export interface Route<Def extends RouteDefinition = RouteDefinition>
+  extends RouteLocationFactory<InferRouteParams<Def["params"]>> {
+  def: Def;
+
+  /**
+   * Only available for routes in a router.
+   */
+  parent?: AnyRouteLike<Def>;
+
+  render: Def["renderer"];
+
+  parseLocation(location: string): InferRouteParams<Def["params"]> | undefined;
+
+  path<Path extends string>(
+    path: Path,
+    matchOptions?: RouteMatchOptions
+  ): Route<RouteDefinition<Def["tsr"], Path, Def["params"], Def["children"]>>;
+
+  params<ParamsType extends RouteParamsTypeFor<Def["path"]>>(
+    params: ParamsType
+  ): Route<
+    RouteDefinition<Def["tsr"], Def["path"], ParamsType, Def["children"]>
+  >;
+
+  meta(meta: Def["meta"]): Route<Def>;
+
+  renderer(renderer: Def["renderer"]): Route<Def>;
+
+  use(
+    ...additionalMiddlewares: Array<
+      RouteMiddleware<
+        InferRouteParams<Def["params"]>,
+        Def["tsr"]["renderResult"]
+      >
+    >
+  ): Route<Def>;
+
+  children<Children extends RouteMap<Def["tsr"]>>(
+    children: Children
+  ): Route<RouteDefinition<Def["tsr"], Def["path"], Def["params"], Children>>;
 }

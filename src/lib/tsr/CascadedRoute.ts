@@ -1,11 +1,10 @@
 import {
   AnyRouteLike,
-  Route,
   RouteDefinition,
   RouteMap,
   RouteParamsType,
 } from "./types";
-import { createRoute } from "./Route";
+import { createRoute, Route } from "./Route";
 
 export function createCascadedRoute<
   R extends Route,

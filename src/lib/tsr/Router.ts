@@ -1,6 +1,7 @@
-import { Route, RouteMatch } from "./types";
+import { RouteMatch } from "./types";
 import { createConvenienceRoute } from "./ConvenienceRoute";
 import { createCascadedRoute } from "./CascadedRoute";
+import { Route } from "./Route";
 
 export class Router<Root extends Route> {
   private cascade = createCascadedRoute(this.root, "", {});

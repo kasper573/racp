@@ -1,6 +1,6 @@
 import { useContext, useMemo } from "react";
 import { normalizeLocation } from "../utils/normalizeLocation";
-import { Route } from "../types";
+import { Route } from "../Route";
 import { RouterContext } from "./RouterContext";
 import { ReactRouter } from "./types";
 

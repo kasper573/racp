@@ -1,7 +1,8 @@
 import { expect } from "@jest/globals";
 import * as zod from "zod";
 import { TSRBuilder } from "./tsr";
-import { RouteParams, RouteMatch, Route } from "./types";
+import { RouteParams, RouteMatch } from "./types";
+import { Route } from "./Route";
 
 describe("tsr", () => {
   const t = new TSRBuilder()
