@@ -19,8 +19,8 @@ import { RouteComponentProps } from "../../lib/tsr/react/types";
 import { LoadingPage } from "./LoadingPage";
 
 export default function MonsterViewPage({
-  params: { id, tab = "spawns" },
-}: RouteComponentProps<{ id: number; tab?: string }>): ReactElement {
+  params: { id, tab },
+}: RouteComponentProps<{ id: number; tab: string }>): ReactElement {
   const history = useHistory();
   const { data, isLoading, error } = trpc.monster.search.useQuery({
     filter: { Id: { value: id, matcher: "=" } },
