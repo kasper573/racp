@@ -1,4 +1,4 @@
-import { ZodTypeAny } from "zod";
+import { ZodEnum, ZodNativeEnum, ZodTypeAny, ZodUnion } from "zod";
 import * as zod from "zod";
 import { ParamCodec } from "../types";
 import { normalizeZodType } from "./normalizeZodType";
@@ -23,26 +23,45 @@ export function createDefaultParamCodec(
 ): ParamCodec {
   return {
     encode: (value, _type) => {
+      value = _type.parse(value); // This enables various zod transforms, ie. default values
       const type = normalizeZodType(_type);
-      const str = isPrimitive(type) ? `${value}` : serializeComplex(value);
+      const str = isPrimitiveEnoughType(type)
+        ? `${value}`
+        : serializeComplex(value);
       return str !== undefined ? encodeURIComponent(str) : str;
     },
     decode: (value, _type) => {
       value = decodeURIComponent(value);
       const type = normalizeZodType(_type);
       return type.parse(
-        isPrimitive(type) ? coercePrimitive(value, type) : parseComplex(value)
+        isPrimitiveEnoughType(type)
+          ? coercePrimitive(value, type)
+          : parseComplex(value)
       );
     },
   };
 }
 
-function isPrimitive(type: ZodTypeAny) {
+function isPrimitiveEnoughType(type: ZodTypeAny) {
+  return (
+    isPrimitiveType(type) ||
+    (type instanceof ZodUnion && type._def.options.every(isPrimitiveType)) ||
+    (type instanceof ZodEnum && type._def.values.every(isPrimitive)) ||
+    (type instanceof ZodNativeEnum && type._def.values.every(isPrimitive))
+  );
+}
+
+function isPrimitiveType(type: ZodTypeAny) {
   return (
     type instanceof zod.ZodString ||
     type instanceof zod.ZodNumber ||
     type instanceof zod.ZodBoolean
   );
+}
+
+function isPrimitive(value: unknown) {
+  const type = typeof value;
+  return value == null || (type !== "object" && type !== "function");
 }
 
 function coercePrimitive(value: string, type: ZodTypeAny) {
