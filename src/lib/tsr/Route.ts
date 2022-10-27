@@ -34,7 +34,7 @@ export function createRoute<Def extends RouteDefinition>(
 
 export interface Route<Def extends RouteDefinition = RouteDefinition>
   extends RouteMembers<Def>,
-    RouteLocationFactory<InferRouteParams<Def["params"]>> {}
+    RouteLocationFactory<Def["params"]> {}
 
 function createLocation<Def extends RouteDefinition>(
   def: Def,

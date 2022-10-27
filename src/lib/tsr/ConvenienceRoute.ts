@@ -19,6 +19,6 @@ export function createConvenienceRoute<R extends Route>(
 export type ConvenienceRoute<R extends Route> = Readonly<{
   [K in keyof R["def"]["children"]]: ConvenienceRoute<R["def"]["children"][K]>;
 }> &
-  RouteLocationFactory<InferRouteParams<R["def"]["params"]>> & {
+  RouteLocationFactory<R["def"]["params"]> & {
     readonly $: R;
   };
