@@ -14,11 +14,13 @@ export function MonsterIdentifier({
   name,
   id,
   imageUrl,
+  children,
   ...props
 }: MonsterIdentifierProps) {
   return (
     <IconWithLabel alt={name} src={imageUrl} {...props}>
       <Link to={routes.monster.view({ id })}>{name}</Link>
+      {children}
     </IconWithLabel>
   );
 }

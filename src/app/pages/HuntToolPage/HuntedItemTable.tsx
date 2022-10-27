@@ -1,11 +1,14 @@
 import {
+  IconButton,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
+  Tooltip,
 } from "@mui/material";
 import produce from "immer";
+import { Delete } from "@mui/icons-material";
 import { ItemIdentifier } from "../../components/ItemIdentifier";
 import { TextField } from "../../controls/TextField";
 import { trpc } from "../../state/client";
@@ -13,6 +16,7 @@ import { ItemId } from "../../../api/services/item/types";
 import { SearchField } from "../../components/SearchField";
 import { ItemDrop } from "../../../api/services/drop/types";
 import { MonsterIdentifier } from "../../components/MonsterIdentifier";
+import { dropChanceString } from "../../grids/ItemDropGrid";
 import { HuntedItem } from "./types";
 
 export function HuntedItemTable({
@@ -30,6 +34,7 @@ export function HuntedItemTable({
           <TableCell>Current#</TableCell>
           <TableCell>Goal#</TableCell>
           <TableCell width={200}>Target Monster</TableCell>
+          <TableCell width={0} padding="checkbox"></TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
@@ -61,50 +66,72 @@ function HuntedItemTableRow({
   hunt: HuntedItem;
   updateHunt: (hunt: HuntedItem) => void;
 }) {
+  const useDropQuery = queryHookForItem(hunt.itemId);
   const { data: { entities: [item] = [] } = {} } = trpc.item.search.useQuery({
     filter: { Id: { value: hunt.itemId, matcher: "=" } },
   });
+  const { data, isLoading } = useDropQuery("");
+  const canBeHunted = isLoading || !!data?.length;
+
   return (
     <TableRow>
       <TableCell>{item && <ItemIdentifier item={item} />}</TableCell>
-      <TableCell>
-        <TextField
-          type="number"
-          value={hunt.current}
-          onChange={(current) => updateHunt({ ...hunt, current })}
-        />
-      </TableCell>
-      <TableCell>
-        <TextField
-          type="number"
-          value={hunt.goal}
-          onChange={(goal) => updateHunt({ ...hunt, goal })}
-        />
-      </TableCell>
-      <TableCell>
-        <SearchField<ItemDrop>
-          size="small"
-          sx={{ width: "100%" }}
-          onSelected={([drop]) => {
-            if (drop) {
-              updateHunt({ ...hunt, target: drop.MonsterId });
-            }
-          }}
-          useQuery={queryHookForItem(hunt.itemId)}
-          optionKey={(drop) => drop.Id}
-          optionLabel={(drop) => drop.MonsterName}
-          renderOption={(drop) => (
-            <MonsterIdentifier
-              name={drop.MonsterName}
-              id={drop.MonsterId}
-              imageUrl={drop.MonsterImageUrl}
+      {!canBeHunted && (
+        <TableCell colSpan={3}>
+          Not dropped by any monster. Cannot be hunted.
+        </TableCell>
+      )}
+      {canBeHunted && (
+        <>
+          <TableCell>
+            <TextField
+              type="number"
+              value={hunt.current}
+              onChange={(current) => updateHunt({ ...hunt, current })}
             />
-          )}
-          startSearchingMessage="Select the monster to target for this item"
-          noResultsText={(searchQuery) =>
-            `No monsters matching "${searchQuery}" drops this item`
-          }
-        />
+          </TableCell>
+          <TableCell>
+            <TextField
+              type="number"
+              value={hunt.goal}
+              onChange={(goal) => updateHunt({ ...hunt, goal })}
+            />
+          </TableCell>
+          <TableCell>
+            <SearchField<ItemDrop>
+              size="small"
+              sx={{ width: "100%" }}
+              onSelected={([drop]) => {
+                if (drop) {
+                  updateHunt({ ...hunt, target: drop.MonsterId });
+                }
+              }}
+              useQuery={useDropQuery}
+              optionKey={(drop) => drop.Id}
+              optionLabel={(drop) => drop.MonsterName}
+              renderOption={(drop) => (
+                <MonsterIdentifier
+                  name={drop.MonsterName}
+                  id={drop.MonsterId}
+                  imageUrl={drop.MonsterImageUrl}
+                >
+                  &nbsp;({dropChanceString(drop.Rate)})
+                </MonsterIdentifier>
+              )}
+              startSearchingMessage="Select the monster to target for this item"
+              noResultsText={(searchQuery) =>
+                `No monsters matching "${searchQuery}" drops this item`
+              }
+            />
+          </TableCell>
+        </>
+      )}
+      <TableCell padding="checkbox">
+        <Tooltip title="Remove from hunt list">
+          <IconButton>
+            <Delete />
+          </IconButton>
+        </Tooltip>
       </TableCell>
     </TableRow>
   );
