@@ -31,11 +31,11 @@ export function HuntedItemTable({
     <Table>
       <TableHead>
         <TableRow>
-          <TableCell width={200}>Item</TableCell>
-          <TableCell>Current#</TableCell>
-          <TableCell>Goal#</TableCell>
+          <TableCell>Item</TableCell>
+          <TableCell width={90}>Current#</TableCell>
+          <TableCell width={90}>Goal#</TableCell>
           <TableCell width={200}>Target Monster</TableCell>
-          <TableCell width={0} padding="checkbox"></TableCell>
+          <TableCell width={1} padding="checkbox"></TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
