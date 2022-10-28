@@ -29,7 +29,7 @@ export default function HuntToolPage() {
         noResultsText={(searchQuery) => `No items matching "${searchQuery}"`}
         label="Add an item to hunt"
       />
-      <CommonPageGrid sx={{ mt: 1 }} flexValues={[2, 1]}>
+      <CommonPageGrid sx={{ mt: 1 }} pixelCutoff={1400} flexValues={[2, 1]}>
         <HuntedItemTable />
         <HuntedMonsterTable />
       </CommonPageGrid>

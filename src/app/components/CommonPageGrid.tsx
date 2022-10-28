@@ -2,14 +2,16 @@ import { Box, Stack, useMediaQuery } from "@mui/material";
 import { Children, ComponentProps } from "react";
 
 export function CommonPageGrid({
+  pixelCutoff = 1000,
   flexValues = [1, 1],
   children,
   sx,
   ...props
 }: ComponentProps<typeof Box> & {
   flexValues?: [number, number];
+  pixelCutoff?: number;
 }) {
-  const columnCount = useMediaQuery("(max-width: 1000px)") ? 1 : 2;
+  const columnCount = useMediaQuery(`(max-width: ${pixelCutoff}px)`) ? 1 : 2;
   const childrenArray = Children.toArray(children);
   const columns = splitIntoColumns(childrenArray, columnCount);
   return (

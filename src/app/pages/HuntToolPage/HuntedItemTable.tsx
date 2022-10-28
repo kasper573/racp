@@ -22,6 +22,7 @@ import { MonsterIdentifier } from "../../components/MonsterIdentifier";
 import { dropChanceString } from "../../grids/ItemDropGrid";
 import { ItemDrop } from "../../../api/services/drop/types";
 import { durationString } from "../../../lib/std/durationString";
+import { InfoTooltip } from "../../components/InfoTooltip";
 import { HuntTableRow } from "./HuntTableRow";
 import { HuntedItem, huntStore } from "./huntStore";
 
@@ -30,13 +31,13 @@ export function HuntedItemTable() {
   return (
     <Table>
       <TableHead>
-        <TableRow>
+        <TableRow sx={{ whiteSpace: "noWrap" }}>
           <TableCell>Item</TableCell>
           <TableCell width={110}>Current#</TableCell>
           <TableCell width={110}>Goal#</TableCell>
-          <TableCell width={250}>Target Monster</TableCell>
-          <TableCell width={125} sx={{ textAlign: "center" }}>
-            Hunt Duration
+          <TableCell width={250}>Target Monster(s)</TableCell>
+          <TableCell width={100} sx={{ textAlign: "center" }}>
+            Estimate
           </TableCell>
           <TableCell width={1} padding="checkbox"></TableCell>
         </TableRow>
@@ -80,6 +81,8 @@ function HuntedItemTableRow({ hunt }: { hunt: HuntedItem }) {
     );
   }
 
+  const huntDuration = estimateHuntDuration(selectedDrops);
+
   const canBeHuntedTableCells = [
     <TableCell key="current">
       <TextField
@@ -108,7 +111,9 @@ function HuntedItemTableRow({ hunt }: { hunt: HuntedItem }) {
             label={selectedDrops.length ? undefined : "Select monster(s)"}
           />
         )}
-        getOptionLabel={(drop) => drop.MonsterName}
+        getOptionLabel={(drop) =>
+          `${drop.MonsterName} (${dropChanceString(drop.Rate)})`
+        }
         renderOption={(props, drop) => (
           <li {...props} key={drop.Id}>
             <MonsterIdentifier
@@ -130,7 +135,20 @@ function HuntedItemTableRow({ hunt }: { hunt: HuntedItem }) {
     </TableCell>,
     <TableCell key="duration">
       <Typography noWrap textAlign="center">
-        {durationString(estimateHuntDuration(selectedDrops), 2)}
+        {huntDuration === "unknown" ? (
+          <InfoTooltip
+            title={
+              "Not enough data to estimate hunt duration. " +
+              "Select your monster targets and specify a KPM."
+            }
+          >
+            ?
+          </InfoTooltip>
+        ) : huntDuration <= 0 ? (
+          "Done"
+        ) : (
+          durationString(huntDuration, 2)
+        )}
       </Typography>
     </TableCell>,
   ];

@@ -1,7 +1,7 @@
 import { createStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import { uniq, without } from "lodash";
+import { groupBy, uniq, without } from "lodash";
 import { MonsterId } from "../../../api/services/monster/types";
 import { Item, ItemId } from "../../../api/services/item/types";
 import { typedAssign } from "../../../lib/std/typedAssign";
@@ -15,11 +15,11 @@ export const huntStore = createStore<{
   normalizeSession: () => void;
   updateMonster: (hunt: HuntedMonster) => void;
   estimateHuntDuration: (
-    targets: Pick<ItemDrop, "MonsterId" | "Rate">[]
-  ) => number;
+    drops: Pick<ItemDrop, "ItemId" | "MonsterId" | "Rate">[]
+  ) => number | "unknown";
 }>()(
   persist(
-    immer((set) => ({
+    immer((set, getState) => ({
       session: createHuntSession(),
       addItems(added) {
         set(({ session }) => {
@@ -77,8 +77,48 @@ export const huntStore = createStore<{
           }
         });
       },
-      estimateHuntDuration(subjects) {
-        return (1000 * 60 * 60 * 24) / 3.21415;
+      estimateHuntDuration(itemDrops) {
+        const { session } = getState();
+
+        const kpmLookup = session.monsters.reduce(
+          (acc, m) => ({ ...acc, [m.monsterId]: m.kpm }),
+          {} as Record<number, number>
+        );
+
+        const huntLookup = session.items.reduce(
+          (acc, h) => ({ ...acc, [h.itemId]: h }),
+          {} as Record<number, HuntedItem>
+        );
+
+        let huntMinutes: number | undefined;
+        const groups = groupBy(itemDrops, (d) => d.ItemId);
+        for (const drops of Object.values(groups)) {
+          const itemId = drops[0].ItemId;
+          const hunt = huntLookup[itemId];
+          if (!hunt) {
+            continue;
+          }
+          let successesPerMinute = 0;
+          for (const drop of drops) {
+            const attemptsPerMinute = kpmLookup[drop.MonsterId];
+            if (attemptsPerMinute !== undefined) {
+              successesPerMinute += attemptsPerMinute * (drop.Rate / 100 / 100);
+            }
+          }
+          const targetAmount = hunt.goal - hunt.current;
+          if (successesPerMinute > 0) {
+            if (huntMinutes === undefined) {
+              huntMinutes = 0;
+            }
+            huntMinutes += targetAmount / successesPerMinute;
+          }
+        }
+
+        if (huntMinutes === undefined) {
+          return "unknown";
+        } else {
+          return huntMinutes * 60 * 1000;
+        }
       },
     })),
     { name: "hunts" }
