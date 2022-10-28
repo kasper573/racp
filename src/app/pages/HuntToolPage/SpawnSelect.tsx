@@ -1,4 +1,5 @@
-import { Box, MenuItem, Select } from "@mui/material";
+import { MenuItem, Select } from "@mui/material";
+import { ComponentProps } from "react";
 import {
   MonsterSpawn,
   MonsterSpawnId,
@@ -8,11 +9,12 @@ export function SpawnSelect({
   value,
   options,
   onChange,
+  sx,
 }: {
   value?: MonsterSpawnId;
   options: MonsterSpawn[];
   onChange: (selected?: MonsterSpawnId) => void;
-}) {
+} & Pick<ComponentProps<typeof Select>, "sx">) {
   const selectOption = (id: MonsterSpawnId) =>
     options.find((spawn) => spawn.id === id);
   return (
@@ -27,12 +29,9 @@ export function SpawnSelect({
         if (!selected) {
           return "Select map";
         }
-        return (
-          <Box sx={{ maxWidth: 100 }}>
-            <TargetIdentifier spawn={selected} />
-          </Box>
-        );
+        return <TargetIdentifier spawn={selected} />;
       }}
+      sx={sx}
     >
       {options.map((spawn) => (
         <MenuItem key={spawn.id} value={spawn.id}>

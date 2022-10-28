@@ -1,5 +1,6 @@
 import {
   Button,
+  IconButton,
   Link as MuiLink,
   ListItemButton,
   MenuItem,
@@ -33,6 +34,15 @@ export function LinkButton(
   return (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     <Button component={LinkBehavior} {...(props as any)} role={undefined} />
+  );
+}
+
+export function LinkIconButton(
+  props: ComponentProps<typeof IconButton> & AdditionalLinkProps
+) {
+  return (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    <IconButton component={LinkBehavior} {...(props as any)} role={undefined} />
   );
 }
 

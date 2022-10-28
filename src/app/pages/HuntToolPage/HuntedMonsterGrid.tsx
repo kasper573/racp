@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useStore } from "zustand";
-import { Box } from "@mui/material";
+import { Box, Tooltip } from "@mui/material";
+import { OpenInNew } from "@mui/icons-material";
 import { TextField } from "../../controls/TextField";
 import { trpc } from "../../state/client";
 import { MonsterIdentifier } from "../../components/MonsterIdentifier";
@@ -8,6 +9,8 @@ import { MonsterId } from "../../../api/services/monster/types";
 import { ColumnConventionProps, DataGrid } from "../../components/DataGrid";
 import { LoadingSpinner } from "../../components/LoadingSpinner";
 import { InfoTooltip } from "../../components/InfoTooltip";
+import { LinkIconButton } from "../../components/Link";
+import { routes } from "../../router";
 import { HuntedMonster, huntStore } from "./huntStore";
 import { SpawnSelect } from "./SpawnSelect";
 
@@ -67,7 +70,7 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
         </InfoTooltip>
       );
     },
-    minWidth: 175,
+    minWidth: 200,
     sortable: false,
     renderCell({ row: hunt }) {
       const { updateMonster } = useStore(huntStore);
@@ -86,12 +89,30 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
           </InfoTooltip>
         );
       }
+      const selectedSpawn = spawns.find((s) => s.id === hunt.spawnId);
       return (
-        <SpawnSelect
-          value={hunt.spawnId}
-          options={spawns}
-          onChange={(spawnId) => updateMonster({ ...hunt, spawnId })}
-        />
+        <>
+          <SpawnSelect
+            sx={{ minWidth: 150, width: 150 }}
+            value={hunt.spawnId}
+            options={spawns}
+            onChange={(spawnId) => updateMonster({ ...hunt, spawnId })}
+          />
+          {selectedSpawn && (
+            <Tooltip title="Go to map">
+              <span>
+                <LinkIconButton
+                  to={routes.map.view({
+                    id: selectedSpawn.map,
+                    pin: { x: selectedSpawn.x, y: selectedSpawn.y },
+                  })}
+                >
+                  <OpenInNew />
+                </LinkIconButton>
+              </span>
+            </Tooltip>
+          )}
+        </>
       );
     },
   },
