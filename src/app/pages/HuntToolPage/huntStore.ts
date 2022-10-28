@@ -17,9 +17,17 @@ export const huntStore = createStore<{
   estimateHuntDuration: (
     drops: Pick<ItemDrop, "ItemId" | "MonsterId" | "Rate">[]
   ) => number | "unknown";
+  dropChanceMultiplier: number;
+  setDropChanceMultiplier: (value: number) => void;
 }>()(
   persist(
     immer((set, getState) => ({
+      dropChanceMultiplier: 1,
+      setDropChanceMultiplier(value) {
+        set((state) => {
+          state.dropChanceMultiplier = Math.max(value, 0);
+        });
+      },
       session: createHuntSession(),
       addItems(added) {
         set(({ session }) => {
@@ -76,7 +84,7 @@ export const huntStore = createStore<{
         });
       },
       estimateHuntDuration(itemDrops) {
-        const { session } = getState();
+        const { session, dropChanceMultiplier } = getState();
 
         const kpmLookup = session.monsters.reduce(
           (acc, m) => ({ ...acc, [m.monsterId]: m.kpm }),
@@ -100,7 +108,8 @@ export const huntStore = createStore<{
           for (const drop of drops) {
             const attemptsPerMinute = kpmLookup[drop.MonsterId];
             if (attemptsPerMinute !== undefined) {
-              successesPerMinute += attemptsPerMinute * (drop.Rate / 100 / 100);
+              const dropChance = (drop.Rate / 100 / 100) * dropChanceMultiplier;
+              successesPerMinute += attemptsPerMinute * dropChance;
             }
           }
           if (successesPerMinute > 0) {

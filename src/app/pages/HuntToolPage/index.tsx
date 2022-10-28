@@ -7,12 +7,19 @@ import { ItemIdentifier } from "../../components/ItemIdentifier";
 import { trpc } from "../../state/client";
 import { SearchField } from "../../components/SearchField";
 import { CommonPageGrid } from "../../components/CommonPageGrid";
+import { TextField } from "../../controls/TextField";
 import { HuntedItemGrid } from "./HuntedItemGrid";
 import { huntStore } from "./huntStore";
 import { HuntedMonsterGrid } from "./HuntedMonsterGrid";
 
 export default function HuntToolPage() {
-  const { session, normalizeSession, addItems } = useStore(huntStore);
+  const {
+    session,
+    normalizeSession,
+    addItems,
+    dropChanceMultiplier,
+    setDropChanceMultiplier,
+  } = useStore(huntStore);
 
   useEffect(normalizeSession, [session, normalizeSession]);
 
@@ -42,6 +49,13 @@ export default function HuntToolPage() {
         startSearchingMessage="Enter the name of the item you want to hunt"
         noResultsText={(searchQuery) => `No items matching "${searchQuery}"`}
         label="Add an item to hunt"
+      />
+      <TextField
+        sx={{ position: "absolute", top: 0, right: 0, width: 150 }}
+        type="number"
+        label="Drop chance multiplier"
+        value={dropChanceMultiplier}
+        onChange={(value) => setDropChanceMultiplier(value)}
       />
       <CommonPageGrid
         sx={{ mt: 3, flex: 1 }}
