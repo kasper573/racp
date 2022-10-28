@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { IconButton, Tooltip, Typography } from "@mui/material";
+import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import { Delete } from "@mui/icons-material";
 import { uniqBy } from "lodash";
 import { useStore } from "zustand";
@@ -20,10 +20,15 @@ export function HuntedItemGrid() {
     <DataGrid<HuntedItem>
       id={(item) => item.itemId}
       data={session.items}
+      emptyComponent={Empty}
       columns={columns}
     />
   );
 }
+
+const Empty = () => (
+  <Box sx={{ textAlign: "center" }}>No items have been added to the hunt.</Box>
+);
 
 const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
   itemId: {

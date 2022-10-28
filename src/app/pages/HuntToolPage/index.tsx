@@ -7,8 +7,8 @@ import { trpc } from "../../state/client";
 import { SearchField } from "../../components/SearchField";
 import { CommonPageGrid } from "../../components/CommonPageGrid";
 import { HuntedItemGrid } from "./HuntedItemGrid";
-import { HuntedMonsterTable } from "./HuntedMonsterTable";
 import { huntStore } from "./huntStore";
+import { HuntedMonsterGrid } from "./HuntedMonsterGrid";
 
 export default function HuntToolPage() {
   const { session, normalizeSession, addItems } = useStore(huntStore);
@@ -29,9 +29,9 @@ export default function HuntToolPage() {
         noResultsText={(searchQuery) => `No items matching "${searchQuery}"`}
         label="Add an item to hunt"
       />
-      <CommonPageGrid sx={{ mt: 1 }} pixelCutoff={1400} flexValues={[2, 1]}>
+      <CommonPageGrid sx={{ mt: 3 }} pixelCutoff={1400} flexValues={[2, 1]}>
         <HuntedItemGrid />
-        <HuntedMonsterTable />
+        <HuntedMonsterGrid />
       </CommonPageGrid>
     </>
   );

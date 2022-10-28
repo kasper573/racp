@@ -1,4 +1,4 @@
-import { MenuItem, Select, Typography, useTheme } from "@mui/material";
+import { MenuItem, Select, useTheme } from "@mui/material";
 import { ComponentProps } from "react";
 import { ItemDrop } from "../../../api/services/drop/types";
 import { MonsterId } from "../../../api/services/monster/types";
@@ -33,20 +33,12 @@ export function DropperSelect({
       renderValue={(ids) => {
         const selected = selectOptions(ids);
         if (!selected.length) {
-          return (
-            <Typography variant="body2" color="text.secondary">
-              Select targets
-            </Typography>
-          );
+          return "Select targets";
         }
         if (selected.length === 1) {
           return <TargetIdentifier drop={selected[0]} sx={{ maxWidth: 125 }} />;
         }
-        return (
-          <Typography variant="body2" color="text.secondary">
-            {selected.length} targets selected
-          </Typography>
-        );
+        return `${selected.length} targets selected`;
       }}
     >
       {options.map((drop) => (
