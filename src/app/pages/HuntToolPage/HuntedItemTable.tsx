@@ -1,14 +1,15 @@
 import {
   Autocomplete,
   IconButton,
+  LinearProgress,
   Popper,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-  Tooltip,
   TextField as MuiTextField,
+  Tooltip,
 } from "@mui/material";
 import produce from "immer";
 import { Delete } from "@mui/icons-material";
@@ -20,6 +21,7 @@ import { MonsterIdentifier } from "../../components/MonsterIdentifier";
 import { dropChanceString } from "../../grids/ItemDropGrid";
 import { ItemDrop } from "../../../api/services/drop/types";
 import { HuntedItem } from "./types";
+import { HuntTableRow } from "./HuntTableRow";
 
 export function HuntedItemTable({
   hunts,
@@ -35,7 +37,7 @@ export function HuntedItemTable({
           <TableCell>Item</TableCell>
           <TableCell width={110}>Current#</TableCell>
           <TableCell width={110}>Goal#</TableCell>
-          <TableCell>Target Monster</TableCell>
+          <TableCell width={250}>Target Monster</TableCell>
           <TableCell width={1} padding="checkbox"></TableCell>
         </TableRow>
       </TableHead>
@@ -72,22 +74,35 @@ function HuntedItemTableRow({
   hunt: HuntedItem;
   updateHunt: (hunt?: HuntedItem) => void;
 }) {
-  const { data: { entities: [item] = [] } = {} } = trpc.item.search.useQuery({
-    filter: { Id: { value: hunt.itemId, matcher: "=" } },
-  });
+  const { data: { entities: [item] = [] } = {}, isLoading: isItemLoading } =
+    trpc.item.search.useQuery({
+      filter: { Id: { value: hunt.itemId, matcher: "=" } },
+    });
+
   const { data: { entities: allDrops = [] } = {}, isLoading } =
     trpc.drop.search.useQuery({
       filter: { ItemId: { value: hunt.itemId, matcher: "=" } },
       sort: [{ field: "Rate", sort: "desc" }],
     });
+
   const drops = uniqBy(allDrops, (d) => d.MonsterId);
   const canBeHunted = isLoading || !!drops.length;
   const targetedMonsters = drops.filter((m) =>
     hunt.targets?.includes(m.MonsterId)
   );
 
+  if (isItemLoading) {
+    return (
+      <HuntTableRow>
+        <TableCell colSpan={5}>
+          <LinearProgress />
+        </TableCell>
+      </HuntTableRow>
+    );
+  }
+
   return (
-    <TableRow>
+    <HuntTableRow>
       <TableCell>{item && <ItemIdentifier item={item} />}</TableCell>
       {!canBeHunted && (
         <TableCell colSpan={3}>
@@ -154,7 +169,7 @@ function HuntedItemTableRow({
           </IconButton>
         </Tooltip>
       </TableCell>
-    </TableRow>
+    </HuntTableRow>
   );
 }
 

@@ -13,7 +13,12 @@ import { createHuntedItem, HuntedItem, HuntSession } from "./types";
 
 export default function HuntToolPage() {
   const [hunted, setSession] = useState<HuntSession>({
-    items: [501, 502, 503, 504, 505].map(createHuntedItem),
+    items: [512, 938].map((id) => ({
+      itemId: id,
+      targets: [1002],
+      current: 0,
+      goal: 1,
+    })),
     kpm: new Map(),
   });
 

@@ -1,4 +1,5 @@
 import {
+  LinearProgress,
   Table,
   TableBody,
   TableCell,
@@ -11,6 +12,7 @@ import { trpc } from "../../state/client";
 import { MonsterIdentifier } from "../../components/MonsterIdentifier";
 import { MonsterId } from "../../../api/services/monster/types";
 import { HuntSession } from "./types";
+import { HuntTableRow } from "./HuntTableRow";
 
 export function HuntedMonsterTable({
   kpm: kpmMap,
@@ -24,7 +26,7 @@ export function HuntedMonsterTable({
       <TableHead>
         <TableRow>
           <TableCell>Monster</TableCell>
-          <TableCell>Kills per minute</TableCell>
+          <TableCell width={150}>Kills per minute</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
@@ -56,12 +58,23 @@ function HuntedMonsterTableRow({
   kpm: number;
   updateKPM: (kpm: number) => void;
 }) {
-  const { data: { entities: [monster] = [] } = {} } =
+  const { data: { entities: [monster] = [] } = {}, isLoading } =
     trpc.monster.search.useQuery({
       filter: { Id: { value: monsterId, matcher: "=" } },
     });
+
+  if (isLoading) {
+    return (
+      <HuntTableRow>
+        <TableCell colSpan={2}>
+          <LinearProgress />
+        </TableCell>
+      </HuntTableRow>
+    );
+  }
+
   return (
-    <TableRow>
+    <HuntTableRow>
       <TableCell>
         {monster && (
           <MonsterIdentifier
@@ -75,6 +88,6 @@ function HuntedMonsterTableRow({
       <TableCell>
         <TextField type="number" value={kpm} onChange={updateKPM} />
       </TableCell>
-    </TableRow>
+    </HuntTableRow>
   );
 }
