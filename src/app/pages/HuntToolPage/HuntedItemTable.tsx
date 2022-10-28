@@ -117,7 +117,14 @@ function HuntedItemTableRow({
               multiple
               limitTags={1}
               PopperComponent={MonsterSearchPopper}
-              renderInput={(props) => <MuiTextField {...props} />}
+              renderInput={(props) => (
+                <MuiTextField
+                  {...props}
+                  label={
+                    targetedMonsters.length ? undefined : "Select monster(s)"
+                  }
+                />
+              )}
               getOptionLabel={(drop) => drop.MonsterName}
               renderOption={(props, drop) => (
                 <li {...props} key={drop.Id}>
