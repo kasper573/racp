@@ -11,25 +11,20 @@ import {
   TextField as MuiTextField,
   Tooltip,
 } from "@mui/material";
-import produce from "immer";
 import { Delete } from "@mui/icons-material";
 import { uniqBy } from "lodash";
+import { useStore } from "zustand";
 import { ItemIdentifier } from "../../components/ItemIdentifier";
 import { TextField } from "../../controls/TextField";
 import { trpc } from "../../state/client";
 import { MonsterIdentifier } from "../../components/MonsterIdentifier";
 import { dropChanceString } from "../../grids/ItemDropGrid";
 import { ItemDrop } from "../../../api/services/drop/types";
-import { HuntedItem } from "./types";
 import { HuntTableRow } from "./HuntTableRow";
+import { HuntedItem, huntStore } from "./huntStore";
 
-export function HuntedItemTable({
-  hunts,
-  updateHunts,
-}: {
-  hunts: HuntedItem[];
-  updateHunts: (hunts: HuntedItem[]) => void;
-}) {
+export function HuntedItemTable() {
+  const { session } = useStore(huntStore);
   return (
     <Table>
       <TableHead>
@@ -42,38 +37,17 @@ export function HuntedItemTable({
         </TableRow>
       </TableHead>
       <TableBody>
-        {hunts.map((hunt) => (
-          <HuntedItemTableRow
-            key={hunt.itemId}
-            hunt={hunt}
-            updateHunt={(updatedHunt) =>
-              updateHunts(
-                produce(hunts, (draft) => {
-                  const index = draft.findIndex(
-                    (h) => h.itemId === hunt.itemId
-                  );
-                  if (updatedHunt) {
-                    draft[index] = updatedHunt;
-                  } else {
-                    draft.splice(index, 1);
-                  }
-                })
-              )
-            }
-          />
+        {session.items.map((hunt) => (
+          <HuntedItemTableRow key={hunt.itemId} hunt={hunt} />
         ))}
       </TableBody>
     </Table>
   );
 }
 
-function HuntedItemTableRow({
-  hunt,
-  updateHunt,
-}: {
-  hunt: HuntedItem;
-  updateHunt: (hunt?: HuntedItem) => void;
-}) {
+function HuntedItemTableRow({ hunt }: { hunt: HuntedItem }) {
+  const { updateItem, removeItem } = useStore(huntStore);
+
   const { data: { entities: [item] = [] } = {}, isLoading: isItemLoading } =
     trpc.item.search.useQuery({
       filter: { Id: { value: hunt.itemId, matcher: "=" } },
@@ -115,14 +89,14 @@ function HuntedItemTableRow({
             <TextField
               type="number"
               value={hunt.current}
-              onChange={(current) => updateHunt({ ...hunt, current })}
+              onChange={(current) => updateItem({ ...hunt, current })}
             />
           </TableCell>
           <TableCell>
             <TextField
               type="number"
               value={hunt.goal}
-              onChange={(goal) => updateHunt({ ...hunt, goal })}
+              onChange={(goal) => updateItem({ ...hunt, goal })}
             />
           </TableCell>
           <TableCell>
@@ -156,7 +130,7 @@ function HuntedItemTableRow({
               value={targetedMonsters}
               options={drops}
               onChange={(props, drops) => {
-                updateHunt({ ...hunt, targets: drops.map((d) => d.MonsterId) });
+                updateItem({ ...hunt, targets: drops.map((d) => d.MonsterId) });
               }}
             />
           </TableCell>
@@ -164,7 +138,7 @@ function HuntedItemTableRow({
       )}
       <TableCell padding="checkbox">
         <Tooltip title="Remove from hunt list">
-          <IconButton onClick={() => updateHunt(undefined)}>
+          <IconButton onClick={() => removeItem(hunt.itemId)}>
             <Delete />
           </IconButton>
         </Tooltip>

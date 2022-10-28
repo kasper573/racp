@@ -6,21 +6,16 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import produce from "immer";
+import { useStore } from "zustand";
 import { TextField } from "../../controls/TextField";
 import { trpc } from "../../state/client";
 import { MonsterIdentifier } from "../../components/MonsterIdentifier";
 import { MonsterId } from "../../../api/services/monster/types";
-import { HuntSession } from "./types";
 import { HuntTableRow } from "./HuntTableRow";
+import { huntStore } from "./huntStore";
 
-export function HuntedMonsterTable({
-  kpm: kpmMap,
-  updateKPM,
-}: {
-  kpm: HuntSession["kpm"];
-  updateKPM: (hunts: HuntSession["kpm"]) => void;
-}) {
+export function HuntedMonsterTable() {
+  const { session, updateMonster } = useStore(huntStore);
   return (
     <Table>
       <TableHead>
@@ -30,18 +25,12 @@ export function HuntedMonsterTable({
         </TableRow>
       </TableHead>
       <TableBody>
-        {Array.from(kpmMap.entries()).map(([monsterId, kpm]) => (
+        {session.monsters.map(({ monsterId, kpm }) => (
           <HuntedMonsterTableRow
             key={monsterId}
             monsterId={monsterId}
             kpm={kpm}
-            updateKPM={(newKPM) => {
-              updateKPM(
-                produce(kpmMap, (draft) => {
-                  draft.set(monsterId, newKPM);
-                })
-              );
-            }}
+            setKPM={(kpm) => updateMonster({ monsterId, kpm })}
           />
         ))}
       </TableBody>
@@ -52,11 +41,11 @@ export function HuntedMonsterTable({
 function HuntedMonsterTableRow({
   monsterId,
   kpm,
-  updateKPM,
+  setKPM,
 }: {
   monsterId: MonsterId;
   kpm: number;
-  updateKPM: (kpm: number) => void;
+  setKPM: (kpm: number) => void;
 }) {
   const { data: { entities: [monster] = [] } = {}, isLoading } =
     trpc.monster.search.useQuery({
@@ -86,7 +75,7 @@ function HuntedMonsterTableRow({
         )}
       </TableCell>
       <TableCell>
-        <TextField type="number" value={kpm} onChange={updateKPM} />
+        <TextField type="number" value={kpm} onChange={setKPM} />
       </TableCell>
     </HuntTableRow>
   );

@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
-import produce from "immer";
-import { uniq, without } from "lodash";
+import { useEffect } from "react";
+import { useStore } from "zustand";
 import { Item } from "../../../api/services/item/types";
 import { Header } from "../../layout/Header";
 import { ItemIdentifier } from "../../components/ItemIdentifier";
@@ -9,66 +8,19 @@ import { SearchField } from "../../components/SearchField";
 import { CommonPageGrid } from "../../components/CommonPageGrid";
 import { HuntedItemTable } from "./HuntedItemTable";
 import { HuntedMonsterTable } from "./HuntedMonsterTable";
-import { createHuntedItem, HuntedItem, HuntSession } from "./types";
+import { huntStore } from "./huntStore";
 
 export default function HuntToolPage() {
-  const [hunted, setSession] = useState<HuntSession>({
-    items: [512, 938].map((id) => ({
-      itemId: id,
-      targets: [1002],
-      current: 0,
-      goal: 1,
-    })),
-    kpm: new Map(),
-  });
+  const { session, normalizeSession, addItems } = useStore(huntStore);
 
-  useEffect(() => {
-    setSession(
-      produce(hunted, (draft) => {
-        const targetIds = uniq(hunted.items.map((i) => i.targets ?? []).flat());
-        const monsterIds = Array.from(hunted.kpm.keys());
-        const added = without(targetIds, ...monsterIds);
-        const removed = without(monsterIds, ...targetIds);
-        for (const id of added) {
-          draft.kpm.set(id, 0);
-        }
-        for (const id of removed) {
-          draft.kpm.delete(id);
-        }
-      })
-    );
-  }, [hunted]);
-
-  const setItems = (items: HuntedItem[]) =>
-    setSession(
-      produce(hunted, (draft) => {
-        draft.items = items;
-      })
-    );
-
-  const setKPM = (kpm: HuntSession["kpm"]) =>
-    setSession(
-      produce(hunted, (draft) => {
-        draft.kpm = kpm;
-      })
-    );
-
-  const addItems = (newItems: Item[]) => {
-    const itemsThatDontAlreadyExist = newItems.filter(
-      (item) => !hunted.items.some(({ itemId }) => itemId === item.Id)
-    );
-    setItems([
-      ...hunted.items,
-      ...itemsThatDontAlreadyExist.map(createHuntedItem),
-    ]);
-  };
+  useEffect(normalizeSession, [session, normalizeSession]);
 
   return (
     <>
       <Header />
       <SearchField<Item>
         sx={{ width: "100%" }}
-        onSelected={addItems}
+        onSelected={(items) => addItems(items.map((item) => item.Id))}
         useQuery={useItemSearchQuery}
         optionKey={(option) => option.Id}
         optionLabel={(option) => option.Name}
@@ -78,8 +30,8 @@ export default function HuntToolPage() {
         label="Add an item to hunt"
       />
       <CommonPageGrid sx={{ mt: 1 }} flexValues={[2, 1]}>
-        <HuntedItemTable hunts={hunted.items} updateHunts={setItems} />
-        <HuntedMonsterTable kpm={hunted.kpm} updateKPM={setKPM} />
+        <HuntedItemTable />
+        <HuntedMonsterTable />
       </CommonPageGrid>
     </>
   );
