@@ -105,6 +105,7 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
                   to={routes.map.view({
                     id: selectedSpawn.map,
                     pin: { x: selectedSpawn.x, y: selectedSpawn.y },
+                    tab: "monsters",
                   })}
                 >
                   <OpenInNew />
