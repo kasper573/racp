@@ -9,7 +9,7 @@ export class DBInfoDriver {
     const values = await this.file;
     const requireProp = (prop: keyof DBInfo) => {
       const key = createKey(prefix, prop);
-      const value = values[key];
+      const value = values?.[key];
       if (value === undefined) {
         throw new Error(
           `Config file "${this.file.filename}" is missing key "${key}"`
