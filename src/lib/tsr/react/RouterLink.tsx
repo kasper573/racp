@@ -19,7 +19,9 @@ export const RouterLink = forwardRef<HTMLAnchorElement, RouterLinkProps>(
     const handleClick = useCallback(
       (e: MouseEvent<HTMLAnchorElement>) => {
         if (e.ctrlKey) {
-          // Ctrl click means open in new window, so we let those events play as usual
+          // Ctrl click means open in new window,
+          // so keep default behavior and stop any further event processing
+          e.stopPropagation();
           return;
         }
         e.preventDefault();
