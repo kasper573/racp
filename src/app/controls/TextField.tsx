@@ -1,4 +1,4 @@
-import { ComponentProps } from "react";
+import { ComponentProps, useEffect, useState } from "react";
 import { TextField as MuiTextField } from "@mui/material";
 import { util } from "zod/lib/helpers/util";
 import { htmlId } from "../util/htmlId";
@@ -32,6 +32,27 @@ export function TextField({
   ...props
 }: TextFieldProps) {
   const readOnly = onChange === undefined;
+  const [text, setText] = useState(valueToText(value));
+  useEffect(() => setText(valueToText(value)), [value]);
+
+  function tryEmitChange(text: string) {
+    if (type === "number") {
+      const trimmed = text.trim();
+      if (optional && trimmed === "") {
+        onChange?.(undefined);
+        return;
+      }
+      const num = parseFloat(trimmed);
+      if (isNaN(num)) {
+        return;
+      }
+      onChange?.(num);
+      return;
+    }
+
+    optional ? onChange?.(text ? text : undefined) : onChange?.(text);
+  }
+
   return (
     <MuiTextField
       size="small"
@@ -40,23 +61,17 @@ export function TextField({
       label={label}
       error={(issues?.length ?? 0) > 0}
       helperText={issues?.join(", ")}
-      value={value ?? ""}
+      value={text}
       disabled={readOnly}
       InputProps={{ readOnly }}
-      onChange={
-        type === "number"
-          ? (e) =>
-              optional
-                ? e.target.value === ""
-                  ? onChange?.(undefined)
-                  : onChange?.(parseFloat(e.target.value))
-                : onChange?.(parseFloat(e.target.value || "0"))
-          : (e) =>
-              optional
-                ? onChange?.(e.target.value ? e.target.value : undefined)
-                : onChange?.(e.target.value)
-      }
+      onBlur={() => setText(valueToText(value))}
+      onChange={(e) => {
+        setText(e.target.value);
+        tryEmitChange(e.target.value);
+      }}
       {...props}
     />
   );
 }
+
+const valueToText = (value: unknown) => `${value ?? ""}`;
