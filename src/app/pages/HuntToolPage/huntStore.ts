@@ -5,6 +5,7 @@ import { uniq, without } from "lodash";
 import { MonsterId } from "../../../api/services/monster/types";
 import { Item, ItemId } from "../../../api/services/item/types";
 import { typedAssign } from "../../../lib/std/typedAssign";
+import { ItemDrop } from "../../../api/services/drop/types";
 
 export const huntStore = createStore<{
   session: HuntSession;
@@ -13,6 +14,9 @@ export const huntStore = createStore<{
   removeItem: (itemId: ItemId) => void;
   normalizeSession: () => void;
   updateMonster: (hunt: HuntedMonster) => void;
+  estimateHuntDuration: (
+    targets: Pick<ItemDrop, "MonsterId" | "Rate">[]
+  ) => number;
 }>()(
   persist(
     immer((set) => ({
@@ -28,9 +32,11 @@ export const huntStore = createStore<{
       },
       updateItem(update) {
         set(({ session: { items } }) => {
-          const existing = items.find((h) => h.itemId === update.itemId);
-          if (existing) {
-            typedAssign(existing, update);
+          const item = items.find((h) => h.itemId === update.itemId);
+          if (item) {
+            typedAssign(item, update);
+            item.goal = Math.max(item.goal, 0);
+            item.current = Math.max(item.current, 0);
           }
         });
       },
@@ -70,6 +76,9 @@ export const huntStore = createStore<{
             }
           }
         });
+      },
+      estimateHuntDuration(subjects) {
+        return (1000 * 60 * 60 * 24) / 3.21415;
       },
     })),
     { name: "hunts" }

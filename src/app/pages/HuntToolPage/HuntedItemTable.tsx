@@ -10,6 +10,7 @@ import {
   TableRow,
   TextField as MuiTextField,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import { Delete } from "@mui/icons-material";
 import { uniqBy } from "lodash";
@@ -20,6 +21,7 @@ import { trpc } from "../../state/client";
 import { MonsterIdentifier } from "../../components/MonsterIdentifier";
 import { dropChanceString } from "../../grids/ItemDropGrid";
 import { ItemDrop } from "../../../api/services/drop/types";
+import { durationString } from "../../../lib/std/durationString";
 import { HuntTableRow } from "./HuntTableRow";
 import { HuntedItem, huntStore } from "./huntStore";
 
@@ -33,6 +35,9 @@ export function HuntedItemTable() {
           <TableCell width={110}>Current#</TableCell>
           <TableCell width={110}>Goal#</TableCell>
           <TableCell width={250}>Target Monster</TableCell>
+          <TableCell width={125} sx={{ textAlign: "center" }}>
+            Hunt Duration
+          </TableCell>
           <TableCell width={1} padding="checkbox"></TableCell>
         </TableRow>
       </TableHead>
@@ -46,7 +51,7 @@ export function HuntedItemTable() {
 }
 
 function HuntedItemTableRow({ hunt }: { hunt: HuntedItem }) {
-  const { updateItem, removeItem } = useStore(huntStore);
+  const { updateItem, removeItem, estimateHuntDuration } = useStore(huntStore);
 
   const { data: { entities: [item] = [] } = {}, isLoading: isItemLoading } =
     trpc.item.search.useQuery({
@@ -61,7 +66,7 @@ function HuntedItemTableRow({ hunt }: { hunt: HuntedItem }) {
 
   const drops = uniqBy(allDrops, (d) => d.MonsterId);
   const canBeHunted = isLoading || !!drops.length;
-  const targetedMonsters = drops.filter((m) =>
+  const selectedDrops = drops.filter((m) =>
     hunt.targets?.includes(m.MonsterId)
   );
 
@@ -75,67 +80,70 @@ function HuntedItemTableRow({ hunt }: { hunt: HuntedItem }) {
     );
   }
 
+  const canBeHuntedTableCells = [
+    <TableCell key="current">
+      <TextField
+        type="number"
+        value={hunt.current}
+        onChange={(current) => updateItem({ ...hunt, current })}
+      />
+    </TableCell>,
+    <TableCell key="goal">
+      <TextField
+        type="number"
+        value={hunt.goal}
+        onChange={(goal) => updateItem({ ...hunt, goal })}
+      />
+    </TableCell>,
+    <TableCell key="targets">
+      <Autocomplete<ItemDrop, true>
+        size="small"
+        sx={{ width: "100%" }}
+        multiple
+        limitTags={1}
+        PopperComponent={MonsterSearchPopper}
+        renderInput={(props) => (
+          <MuiTextField
+            {...props}
+            label={selectedDrops.length ? undefined : "Select monster(s)"}
+          />
+        )}
+        getOptionLabel={(drop) => drop.MonsterName}
+        renderOption={(props, drop) => (
+          <li {...props} key={drop.Id}>
+            <MonsterIdentifier
+              name={drop.MonsterName}
+              id={drop.MonsterId}
+              imageUrl={drop.MonsterImageUrl}
+              sx={{ whiteSpace: "nowrap" }}
+            >
+              &nbsp;({dropChanceString(drop.Rate)})
+            </MonsterIdentifier>
+          </li>
+        )}
+        value={selectedDrops}
+        options={drops}
+        onChange={(props, drops) => {
+          updateItem({ ...hunt, targets: drops.map((d) => d.MonsterId) });
+        }}
+      />
+    </TableCell>,
+    <TableCell key="duration">
+      <Typography noWrap textAlign="center">
+        {durationString(estimateHuntDuration(selectedDrops), 2)}
+      </Typography>
+    </TableCell>,
+  ];
+
   return (
     <HuntTableRow>
       <TableCell>{item && <ItemIdentifier item={item} />}</TableCell>
       {!canBeHunted && (
-        <TableCell colSpan={3}>
+        <TableCell colSpan={canBeHuntedTableCells.length}>
           Not dropped by any monster. Cannot be hunted.
         </TableCell>
       )}
-      {canBeHunted && (
-        <>
-          <TableCell>
-            <TextField
-              type="number"
-              value={hunt.current}
-              onChange={(current) => updateItem({ ...hunt, current })}
-            />
-          </TableCell>
-          <TableCell>
-            <TextField
-              type="number"
-              value={hunt.goal}
-              onChange={(goal) => updateItem({ ...hunt, goal })}
-            />
-          </TableCell>
-          <TableCell>
-            <Autocomplete<ItemDrop, true>
-              size="small"
-              sx={{ width: "100%" }}
-              multiple
-              limitTags={1}
-              PopperComponent={MonsterSearchPopper}
-              renderInput={(props) => (
-                <MuiTextField
-                  {...props}
-                  label={
-                    targetedMonsters.length ? undefined : "Select monster(s)"
-                  }
-                />
-              )}
-              getOptionLabel={(drop) => drop.MonsterName}
-              renderOption={(props, drop) => (
-                <li {...props} key={drop.Id}>
-                  <MonsterIdentifier
-                    name={drop.MonsterName}
-                    id={drop.MonsterId}
-                    imageUrl={drop.MonsterImageUrl}
-                    sx={{ whiteSpace: "nowrap" }}
-                  >
-                    &nbsp;({dropChanceString(drop.Rate)})
-                  </MonsterIdentifier>
-                </li>
-              )}
-              value={targetedMonsters}
-              options={drops}
-              onChange={(props, drops) => {
-                updateItem({ ...hunt, targets: drops.map((d) => d.MonsterId) });
-              }}
-            />
-          </TableCell>
-        </>
-      )}
+      {canBeHunted && canBeHuntedTableCells}
       <TableCell padding="checkbox">
         <Tooltip title="Remove from hunt list">
           <IconButton onClick={() => removeItem(hunt.itemId)}>
