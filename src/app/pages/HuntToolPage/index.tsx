@@ -32,8 +32,8 @@ export default function HuntToolPage() {
       <Typography paragraph>
         The tool will show you an estimate per item how long it will take to
         farm the amount you have specified. <br />
-        It takes the drop rates and kill speeds for all monsters you have chosen
-        into account and gives you a summarized estimate.
+        You decide which monsters to hunt for per item and specify how fast you
+        kill them, and the tool will do the rest.
       </Typography>
       <Typography paragraph>
         Data is stored in your local browser storage, so you can safely leave
