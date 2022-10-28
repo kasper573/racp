@@ -23,11 +23,11 @@ export function SpawnSelect({
     <Select
       size="small"
       multiple={false}
-      value={value ?? null}
+      value={value ?? ""}
       onChange={(e) => onChange(e.target.value as MonsterSpawnId)}
       displayEmpty
       renderValue={(id) => {
-        const selected = id !== null ? selectOption(id) : undefined;
+        const selected = selectOption(id);
         if (!selected) {
           return "Select map";
         }

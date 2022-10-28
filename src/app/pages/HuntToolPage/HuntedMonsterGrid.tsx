@@ -71,13 +71,24 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
     sortable: false,
     renderCell({ row: hunt }) {
       const { updateMonster } = useStore(huntStore);
-      const { data } = trpc.monster.searchSpawns.useQuery({
-        filter: { monsterId: { value: hunt.monsterId, matcher: "=" } },
-      });
+      const { data: { entities: spawns = [] } = {}, isLoading } =
+        trpc.monster.searchSpawns.useQuery({
+          filter: { monsterId: { value: hunt.monsterId, matcher: "=" } },
+        });
+      if (isLoading) {
+        return <LoadingSpinner />;
+      }
+      if (!spawns.length) {
+        return (
+          <InfoTooltip title="No map spawns this monster">
+            Cannot be hunted
+          </InfoTooltip>
+        );
+      }
       return (
         <SpawnSelect
           value={hunt.spawnId}
-          options={data?.entities ?? []}
+          options={spawns}
           onChange={(spawnId) => updateMonster({ ...hunt, spawnId })}
         />
       );
