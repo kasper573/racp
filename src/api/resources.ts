@@ -17,6 +17,10 @@ import {
 import { RAthenaMode } from "./options";
 import { ImageRepository } from "./common/ImageRepository";
 import { TxtRepository } from "./rathena/TxtRepository";
+import {
+  ConfigRepository,
+  ConfigRepositoryOptions,
+} from "./rathena/ConfigRepository";
 
 export type ResourceFactory = ReturnType<
   typeof createResourceManager
@@ -86,6 +90,11 @@ export function createResourceManager({
         file: string,
         resolver: YamlResolver<ET, Key>
       ) => new YamlRepository({ file, resolver, ...options })
+    )
+    .add(
+      "config",
+      (args: Omit<ConfigRepositoryOptions, "rAthenaPath" | "logger">) =>
+        new ConfigRepository({ ...args, ...options })
     )
     .add(
       "script",
