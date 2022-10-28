@@ -6,7 +6,7 @@ import { ItemIdentifier } from "../../components/ItemIdentifier";
 import { trpc } from "../../state/client";
 import { SearchField } from "../../components/SearchField";
 import { CommonPageGrid } from "../../components/CommonPageGrid";
-import { HuntedItemTable } from "./HuntedItemTable";
+import { HuntedItemGrid } from "./HuntedItemGrid";
 import { HuntedMonsterTable } from "./HuntedMonsterTable";
 import { huntStore } from "./huntStore";
 
@@ -30,7 +30,7 @@ export default function HuntToolPage() {
         label="Add an item to hunt"
       />
       <CommonPageGrid sx={{ mt: 1 }} pixelCutoff={1400} flexValues={[2, 1]}>
-        <HuntedItemTable />
+        <HuntedItemGrid />
         <HuntedMonsterTable />
       </CommonPageGrid>
     </>

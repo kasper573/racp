@@ -36,7 +36,7 @@ export type DataGridProps<
 > = ColumnConventionProps<Entity, Id> &
   Omit<ComponentProps<typeof Box>, "id"> & {
     filter?: Filter;
-    query: DataGridQueryFn<Entity, Filter>;
+    query?: DataGridQueryFn<Entity, Filter>;
     data?: Entity[];
     gridProps?: Pick<
       ComponentProps<typeof MuiDataGrid>,
@@ -47,7 +47,11 @@ export type DataGridProps<
     onHoveredEntityChange?: (entity?: Entity) => void;
   };
 
-export function DataGrid<Entity, Filter, Id extends GridRowId>({
+export function DataGrid<
+  Entity,
+  Filter = unknown,
+  Id extends GridRowId = GridRowId
+>({
   filter,
   query: useQuery,
   data: manualEntities,
@@ -65,7 +69,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
   const [pageSize, setPageSize] = useState(3);
   const [sort, setSort] = useState<SearchSort<Entity>>([]);
   const gridMode: GridFeatureMode = manualEntities ? "client" : "server";
-  const { data: result, isFetching } = useQuery(
+  const { data: result, isFetching } = useQuery?.(
     {
       filter,
       sort,
@@ -73,7 +77,7 @@ export function DataGrid<Entity, Filter, Id extends GridRowId>({
       limit: pageSize,
     },
     { keepPreviousData: true, enabled: gridMode === "server" }
-  );
+  ) ?? { data: undefined, isFetching: false };
   const entities = manualEntities ?? result?.entities ?? [];
   const total = manualEntities?.length ?? result?.total ?? 0;
   const pageCount = Math.ceil((total ?? 0) / pageSize);
@@ -216,7 +220,7 @@ type ColumnConventionEntry<Entity> =
   | boolean
   | Omit<GridColDef<Entity>, "field">;
 
-interface ColumnConventionProps<Entity, Id extends GridRowId> {
+export interface ColumnConventionProps<Entity, Id extends GridRowId> {
   columns:
     | Partial<Record<keyof Entity, ColumnConventionEntry<Entity>>>
     | Record<string, GridColDef<Entity>>;
