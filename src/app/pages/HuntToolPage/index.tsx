@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useStore } from "zustand";
+import { Typography } from "@mui/material";
 import { Item } from "../../../api/services/item/types";
 import { Header } from "../../layout/Header";
 import { ItemIdentifier } from "../../components/ItemIdentifier";
@@ -18,6 +19,19 @@ export default function HuntToolPage() {
   return (
     <>
       <Header />
+      <Typography paragraph>
+        Here you can track the items you are hunting for.
+      </Typography>
+      <Typography paragraph>
+        The tool will show you an estimate per item how long it will take to
+        farm the amount you have specified. <br />
+        It takes the drop rates and kill speeds for all monsters you have chosen
+        into account and gives you a summarized estimate.
+      </Typography>
+      <Typography paragraph>
+        Data is stored in your local browser storage, so you can safely leave
+        this page and return to it later on the same device.
+      </Typography>
       <SearchField<Item>
         sx={{ width: "100%" }}
         onSelected={(items) => addItems(items.map((item) => item.Id))}
@@ -29,7 +43,11 @@ export default function HuntToolPage() {
         noResultsText={(searchQuery) => `No items matching "${searchQuery}"`}
         label="Add an item to hunt"
       />
-      <CommonPageGrid sx={{ mt: 3 }} pixelCutoff={1400} flexValues={[2, 1]}>
+      <CommonPageGrid
+        sx={{ mt: 3, flex: 1 }}
+        pixelCutoff={1400}
+        flexValues={[2, 1]}
+      >
         <HuntedItemGrid />
         <HuntedMonsterGrid />
       </CommonPageGrid>
