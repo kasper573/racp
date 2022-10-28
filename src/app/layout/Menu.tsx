@@ -18,7 +18,7 @@ const mainRoutes = (settings?: AdminPublicSettings) =>
     settings?.donations.enabled ? routes.donation.$ : undefined,
   ]);
 
-const toolRoutes = [routes.tools.hunt.$, routes.tools.build.$];
+const toolRoutes = [routes.tools.hunt.$];
 
 const adminRoutes = [routes.admin.settings.$, routes.admin.assets.$];
 

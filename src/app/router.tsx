@@ -2,7 +2,6 @@ import { lazy } from "react";
 import {
   AccountCircle,
   AdminPanelSettings,
-  Construction,
   EmojiEvents,
   Home,
   Image,
@@ -145,10 +144,6 @@ export const router = t.router({
         .path("hunt")
         .meta({ title: "Hunt", icon: <ImageSearch /> })
         .renderer(lazy(() => import("./pages/HuntToolPage"))),
-      build: t.route
-        .path("build")
-        .meta({ title: "Build", icon: <Construction /> })
-        .renderer(lazy(() => import("./pages/BuildToolPage"))),
     }),
   admin: t.route
     .path("admin", { exact: true })
