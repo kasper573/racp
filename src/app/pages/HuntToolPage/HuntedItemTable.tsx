@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import produce from "immer";
 import { Delete } from "@mui/icons-material";
+import { uniqBy } from "lodash";
 import { ItemIdentifier } from "../../components/ItemIdentifier";
 import { TextField } from "../../controls/TextField";
 import { trpc } from "../../state/client";
@@ -74,11 +75,12 @@ function HuntedItemTableRow({
   const { data: { entities: [item] = [] } = {} } = trpc.item.search.useQuery({
     filter: { Id: { value: hunt.itemId, matcher: "=" } },
   });
-  const { data: { entities: drops = [] } = {}, isLoading } =
+  const { data: { entities: allDrops = [] } = {}, isLoading } =
     trpc.drop.search.useQuery({
       filter: { ItemId: { value: hunt.itemId, matcher: "=" } },
       sort: [{ field: "Rate", sort: "desc" }],
     });
+  const drops = uniqBy(allDrops, (d) => d.MonsterId);
   const canBeHunted = isLoading || !!drops.length;
   const targetedMonsters = drops.filter((m) =>
     hunt.targets?.includes(m.MonsterId)
