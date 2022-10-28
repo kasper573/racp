@@ -2,7 +2,7 @@ import { createStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { groupBy, uniq, without } from "lodash";
-import { MonsterId } from "../../../api/services/monster/types";
+import { MonsterId, MonsterSpawnId } from "../../../api/services/monster/types";
 import { Item, ItemId } from "../../../api/services/item/types";
 import { typedAssign } from "../../../lib/std/typedAssign";
 import { ItemDrop } from "../../../api/services/drop/types";
@@ -144,6 +144,7 @@ export type HuntedItem = {
 
 export type HuntedMonster = {
   monsterId: MonsterId;
+  spawnId?: MonsterSpawnId;
   kpm: number;
 };
 
