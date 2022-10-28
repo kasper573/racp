@@ -72,6 +72,10 @@ const shops = createShopRepository({ ...items, resources });
 const maps = createMapRepository({ ...monsters, resources });
 const skills = createSkillRepository(resources);
 
+if (args.preloadAllResources) {
+  Promise.all(resourceManager.instances);
+}
+
 const router = createApiRouter({
   util: createUtilService(),
   user: createUserService({ db, user, sign: auth.sign, ...args }),

@@ -69,4 +69,12 @@ export const options = {
     description:
       "Set to true to share stack traces and error messages for internal server errors with clients.",
   },
+  preloadAllResources: {
+    type: "boolean",
+    default: false,
+    description:
+      "All resources will be preloaded on server start instead of on demand. Delays the server start, " +
+      "but improves user experience for API consumers. Recommended for production, " +
+      "but can be disabled for development for improved DX.",
+  },
 } as const;

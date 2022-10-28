@@ -65,5 +65,6 @@ jobs:
             export jwtSecret=${{ secrets.DEPLOY_JWT_SECRET }}
             export log=verbose
             export donationEnvironment=live
+            export preloadAllResources=true
 
             pm2 restart ecosystem.config.json
