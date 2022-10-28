@@ -117,15 +117,18 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
       );
     },
   },
-  kpm: {
-    headerName: "Kills per minute",
+  killsPerUnit: {
+    renderHeader() {
+      const { kpxUnit } = useStore(huntStore);
+      return kpxUnit;
+    },
     renderCell({ row: hunt }) {
       const { updateMonster } = useStore(huntStore);
       return (
         <TextField
           type="number"
-          value={hunt.kpm}
-          onChange={(kpm) => updateMonster({ ...hunt, kpm })}
+          value={hunt.killsPerUnit}
+          onChange={(kpu) => updateMonster({ ...hunt, killsPerUnit: kpu })}
         />
       );
     },

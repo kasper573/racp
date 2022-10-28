@@ -89,7 +89,7 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
     sortable: false,
     ...forceWidth(115),
     renderCell({ row: hunt }) {
-      const { session, estimateHuntDuration } = useStore(huntStore);
+      const { session, estimateHuntDuration, kpxUnit } = useStore(huntStore);
       const { data: { entities: allHuntedDroppers = [] } = {} } =
         trpc.drop.search.useQuery({
           filter: {
@@ -107,7 +107,7 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
             <InfoTooltip
               title={
                 "Not enough data to estimate hunt duration. " +
-                "Make sure you have selected monster targets and specified KPMs."
+                `Make sure you have selected monster targets and specified ${kpxUnit}.`
               }
             >
               ?

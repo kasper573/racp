@@ -19,9 +19,17 @@ export const huntStore = createStore<{
   ) => number | "unknown";
   dropChanceMultiplier: number;
   setDropChanceMultiplier: (value: number) => void;
+  kpxUnit: KpxUnit;
+  setKpxUnit: (value: KpxUnit) => void;
 }>()(
   persist(
     immer((set, getState) => ({
+      kpxUnit: "Kills per minute",
+      setKpxUnit(value) {
+        set((state) => {
+          state.kpxUnit = value;
+        });
+      },
       dropChanceMultiplier: 1,
       setDropChanceMultiplier(value) {
         set((state) => {
@@ -64,7 +72,7 @@ export const huntStore = createStore<{
           const added = without(targetIds, ...monsterIds);
           const removed = without(monsterIds, ...targetIds);
           for (const id of added) {
-            session.monsters.push({ monsterId: id, kpm: 0 });
+            session.monsters.push({ monsterId: id, killsPerUnit: 0 });
           }
           for (const id of removed) {
             const index = session.monsters.findIndex((m) => m.monsterId === id);
@@ -79,15 +87,15 @@ export const huntStore = createStore<{
           );
           if (monster) {
             typedAssign(monster, update);
-            monster.kpm = Math.max(monster.kpm, 0);
+            monster.killsPerUnit = Math.max(monster.killsPerUnit, 0);
           }
         });
       },
       estimateHuntDuration(itemDrops) {
-        const { session, dropChanceMultiplier } = getState();
+        const { session, kpxUnit, dropChanceMultiplier } = getState();
 
-        const kpmLookup = session.monsters.reduce(
-          (acc, m) => ({ ...acc, [m.monsterId]: m.kpm }),
+        const killsPerUnitLookup = session.monsters.reduce(
+          (acc, m) => ({ ...acc, [m.monsterId]: m.killsPerUnit }),
           {} as Record<number, number>
         );
 
@@ -96,7 +104,7 @@ export const huntStore = createStore<{
           {} as Record<number, HuntedItem>
         );
 
-        let huntMinutes: number | undefined;
+        let huntUnits: number | undefined;
         const groups = groupBy(itemDrops, (d) => d.ItemId);
         for (const drops of Object.values(groups)) {
           const itemId = drops[0].ItemId;
@@ -104,26 +112,28 @@ export const huntStore = createStore<{
           if (!hunt) {
             continue;
           }
-          let successesPerMinute = 0;
+          let successesPerUnit = 0;
           for (const drop of drops) {
-            const attemptsPerMinute = kpmLookup[drop.MonsterId];
-            if (attemptsPerMinute !== undefined) {
+            const attemptsPerUnit = killsPerUnitLookup[drop.MonsterId];
+            if (attemptsPerUnit !== undefined) {
               const dropChance = (drop.Rate / 100 / 100) * dropChanceMultiplier;
-              successesPerMinute += attemptsPerMinute * dropChance;
+              successesPerUnit += attemptsPerUnit * dropChance;
             }
           }
-          if (successesPerMinute > 0) {
-            if (huntMinutes === undefined) {
-              huntMinutes = 0;
+          if (successesPerUnit > 0) {
+            if (huntUnits === undefined) {
+              huntUnits = 0;
             }
-            huntMinutes += hunt.amount / successesPerMinute;
+            huntUnits += hunt.amount / successesPerUnit;
           }
         }
 
-        if (huntMinutes === undefined) {
+        if (huntUnits === undefined) {
           return "unknown";
         } else {
-          return huntMinutes * 60 * 1000;
+          const scale = kpxUnitScales[kpxUnit];
+          console.log({ scale, huntUnits });
+          return huntUnits * scale;
         }
       },
     })),
@@ -145,7 +155,21 @@ export type HuntedItem = {
 export type HuntedMonster = {
   monsterId: MonsterId;
   spawnId?: MonsterSpawnId;
-  kpm: number;
+  killsPerUnit: number;
+};
+
+export type KpxUnit = typeof kpxUnits[number];
+
+export const kpxUnits = [
+  "Kills per minute",
+  "Kills per hour",
+  "Kills per day",
+] as const;
+
+export const kpxUnitScales: Record<KpxUnit, number> = {
+  "Kills per minute": 1000 * 60,
+  "Kills per hour": 1000 * 60 * 60,
+  "Kills per day": 1000 * 60 * 60 * 24,
 };
 
 export function createHuntSession(): HuntSession {

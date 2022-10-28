@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useStore } from "zustand";
-import { Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import { Item } from "../../../api/services/item/types";
 import { Header } from "../../layout/Header";
 import { ItemIdentifier } from "../../components/ItemIdentifier";
@@ -8,8 +8,9 @@ import { trpc } from "../../state/client";
 import { SearchField } from "../../components/SearchField";
 import { CommonPageGrid } from "../../components/CommonPageGrid";
 import { TextField } from "../../controls/TextField";
+import { Select } from "../../controls/Select";
 import { HuntedItemGrid } from "./HuntedItemGrid";
-import { huntStore } from "./huntStore";
+import { huntStore, KpxUnit, kpxUnits } from "./huntStore";
 import { HuntedMonsterGrid } from "./HuntedMonsterGrid";
 
 export default function HuntToolPage() {
@@ -19,6 +20,8 @@ export default function HuntToolPage() {
     addItems,
     dropChanceMultiplier,
     setDropChanceMultiplier,
+    kpxUnit,
+    setKpxUnit,
   } = useStore(huntStore);
 
   useEffect(normalizeSession, [session, normalizeSession]);
@@ -50,13 +53,23 @@ export default function HuntToolPage() {
         noResultsText={(searchQuery) => `No items matching "${searchQuery}"`}
         label="Add an item to hunt"
       />
-      <TextField
-        sx={{ position: "absolute", top: 0, right: 0, width: 150 }}
-        type="number"
-        label="Drop chance multiplier"
-        value={dropChanceMultiplier}
-        onChange={(value) => setDropChanceMultiplier(value)}
-      />
+      <Stack
+        spacing={2}
+        sx={{ position: "absolute", top: 0, right: 0, width: 165 }}
+      >
+        <TextField
+          type="number"
+          label="Drop chance multiplier"
+          value={dropChanceMultiplier}
+          onChange={(value) => setDropChanceMultiplier(value)}
+        />
+        <Select<KpxUnit>
+          label="Kill scale"
+          options={kpxUnits}
+          value={kpxUnit}
+          onChange={(newUnit) => (newUnit ? setKpxUnit(newUnit) : undefined)}
+        />
+      </Stack>
       <CommonPageGrid
         sx={{ mt: 3, flex: 1 }}
         pixelCutoff={1400}
