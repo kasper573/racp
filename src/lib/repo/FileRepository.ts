@@ -16,7 +16,7 @@ export type FileRepositoryOptions<
 
 export class FileRepository<
   T,
-  DefaultValue extends Maybe<T> = T
+  DefaultValue extends Maybe<T> = Maybe<T>
 > extends ReactiveRepository<T, DefaultValue> {
   readonly filename: string;
 

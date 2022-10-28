@@ -132,7 +132,6 @@ export const huntStore = createStore<{
           return "unknown";
         } else {
           const scale = kpxUnitScales[kpxUnit];
-          console.log({ scale, huntUnits });
           return huntUnits * scale;
         }
       },

@@ -132,6 +132,10 @@ describe("details", () => {
     findTableColumn("Monster").contains(/test monster/i);
   });
 
+  it("drop rates are respected", () => {
+    findTableColumn("Chance").contains(/75%/i);
+  });
+
   it("can list sellers", () => {
     findTableColumn("Shop").contains(/test merchant/i);
   });

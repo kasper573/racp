@@ -11,7 +11,6 @@ export class ConfigRepository extends FileRepository<Config> {
   constructor(options: ConfigRepositoryOptions) {
     super({
       ...options,
-      defaultValue: options.defaultValue ?? {},
       directory: path.resolve(options.rAthenaPath, "conf"),
       relativeFilename: options.configName,
       protocol: configFileProtocol,

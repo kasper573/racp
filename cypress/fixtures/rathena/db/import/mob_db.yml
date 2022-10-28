@@ -29,4 +29,4 @@ Body:
       Mvp: true
     Drops:
       - Item: test_item
-        Rate: 7000
+        Rate: 5000

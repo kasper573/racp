@@ -4,6 +4,7 @@ import * as express from "express";
 import cors = require("cors");
 import { Request as JWTRequest } from "express-jwt";
 import * as trpcExpress from "@trpc/server/adapters/express";
+import { enableMapSet } from "immer";
 import { createLogger } from "../lib/logger";
 import { createPublicFileLinker } from "../lib/fs/createPublicFileLinker";
 import { createImageFormatter } from "../lib/image/createImageFormatter";
@@ -41,6 +42,8 @@ import { coloredConsole, logFormat } from "./common/logFormat";
 import { createSkillRepository } from "./services/skill/repository";
 import { createSkillService } from "./services/skill/service";
 
+enableMapSet();
+
 const args = readCliArgs(options);
 const logger = createLogger(coloredConsole, { format: logFormat });
 
@@ -67,7 +70,7 @@ const settings = createAdminSettingsRepository(resources);
 const user = createUserRepository({ ...args, resources });
 const items = createItemRepository({ ...args, resources });
 const monsters = createMonsterRepository({ ...args, resources });
-const drops = createDropRepository({ ...items, ...monsters });
+const drops = createDropRepository({ ...items, ...monsters, resources });
 const shops = createShopRepository({ ...items, resources });
 const maps = createMapRepository({ ...monsters, resources });
 const skills = createSkillRepository(resources);

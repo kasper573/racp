@@ -14,21 +14,14 @@ import { huntStore, KpxUnit, kpxUnits } from "./huntStore";
 import { HuntedMonsterGrid } from "./HuntedMonsterGrid";
 
 export default function HuntToolPage() {
-  const {
-    session,
-    normalizeSession,
-    addItems,
-    dropChanceMultiplier,
-    setDropChanceMultiplier,
-    kpxUnit,
-    setKpxUnit,
-  } = useStore(huntStore);
+  const { session, normalizeSession, addItems } = useStore(huntStore);
 
   useEffect(normalizeSession, [session, normalizeSession]);
 
   return (
     <>
       <Header />
+
       <Typography paragraph>
         Here you can track the items you are hunting for.
       </Typography>
@@ -42,6 +35,7 @@ export default function HuntToolPage() {
         Data is stored in your local browser storage, so you can safely leave
         this page and return to it later on the same device.
       </Typography>
+
       <SearchField<Item>
         sx={{ width: "100%" }}
         onSelected={(items) => addItems(items.map((item) => item.Id))}
@@ -53,23 +47,9 @@ export default function HuntToolPage() {
         noResultsText={(searchQuery) => `No items matching "${searchQuery}"`}
         label="Add an item to hunt"
       />
-      <Stack
-        spacing={2}
-        sx={{ position: "absolute", top: 0, right: 0, width: 165 }}
-      >
-        <TextField
-          type="number"
-          label="Drop chance multiplier"
-          value={dropChanceMultiplier}
-          onChange={(value) => setDropChanceMultiplier(value)}
-        />
-        <Select<KpxUnit>
-          label="Kill scale"
-          options={kpxUnits}
-          value={kpxUnit}
-          onChange={(newUnit) => (newUnit ? setKpxUnit(newUnit) : undefined)}
-        />
-      </Stack>
+
+      <Settings />
+
       <CommonPageGrid
         sx={{ mt: 3, flex: 1 }}
         pixelCutoff={1400}
@@ -79,6 +59,37 @@ export default function HuntToolPage() {
         <HuntedMonsterGrid />
       </CommonPageGrid>
     </>
+  );
+}
+
+function Settings() {
+  const { dropChanceMultiplier, setDropChanceMultiplier, kpxUnit, setKpxUnit } =
+    useStore(huntStore);
+  return (
+    <Stack
+      spacing={2}
+      direction="row"
+      sx={{
+        mt: { xs: 3, md: 0 },
+        position: { md: "absolute" },
+        top: 0,
+        right: 0,
+      }}
+    >
+      <TextField
+        type="number"
+        label="Drop rate multiplier"
+        helperText="(Server rates already applied)"
+        value={dropChanceMultiplier}
+        onChange={(value) => setDropChanceMultiplier(value)}
+      />
+      <Select<KpxUnit>
+        label="Kill scale"
+        options={kpxUnits}
+        value={kpxUnit}
+        onChange={(newUnit) => (newUnit ? setKpxUnit(newUnit) : undefined)}
+      />
+    </Stack>
   );
 }
 
