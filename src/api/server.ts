@@ -4,6 +4,7 @@ import * as express from "express";
 import cors = require("cors");
 import { Request as JWTRequest } from "express-jwt";
 import * as trpcExpress from "@trpc/server/adapters/express";
+import { enableMapSet } from "immer";
 import { createLogger } from "../lib/logger";
 import { createPublicFileLinker } from "../lib/fs/createPublicFileLinker";
 import { createImageFormatter } from "../lib/image/createImageFormatter";
@@ -40,6 +41,8 @@ import { createResourceManager } from "./resources";
 import { coloredConsole, logFormat } from "./common/logFormat";
 import { createSkillRepository } from "./services/skill/repository";
 import { createSkillService } from "./services/skill/service";
+
+enableMapSet();
 
 const args = readCliArgs(options);
 const logger = createLogger(coloredConsole, { format: logFormat });
