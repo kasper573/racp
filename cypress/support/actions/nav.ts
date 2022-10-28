@@ -56,7 +56,7 @@ export function gotoMainMenuPage(...args: Parameters<typeof findMainMenuItem>) {
   waitForPageReady(); // Wait for any initial requests to finish before proceeding
 }
 
-export function findMainMenu(name: string = "public menu") {
+export function findMainMenu(name: string = "main menu") {
   return cy.get("body").then(($body) => {
     const [menuTrigger] = $body.find(`button[aria-label="Open main menu"]`);
     if (menuTrigger) {

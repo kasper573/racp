@@ -7,7 +7,7 @@ import { defined } from "../../lib/std/defined";
 import { AdminPublicSettings } from "../../api/services/settings/types";
 import { trpc } from "../state/client";
 
-const publicRoutes = (settings?: AdminPublicSettings) =>
+const mainRoutes = (settings?: AdminPublicSettings) =>
   defined([
     routes.item.$,
     routes.monster.$,
@@ -18,15 +18,26 @@ const publicRoutes = (settings?: AdminPublicSettings) =>
     settings?.donations.enabled ? routes.donation.$ : undefined,
   ]);
 
-const protectedRoutes = [routes.admin.settings.$, routes.admin.assets.$];
+const toolRoutes = [routes.tools.hunt.$];
+
+const adminRoutes = [routes.admin.settings.$, routes.admin.assets.$];
 
 export function Menu({ onItemSelected }: { onItemSelected?: () => void }) {
   const { data: settings } = trpc.settings.readPublic.useQuery();
   return (
     <>
       <RouteList
-        aria-label="Public menu"
-        routes={publicRoutes(settings)}
+        aria-label="Main menu"
+        routes={mainRoutes(settings)}
+        onClick={onItemSelected}
+      />
+      <Typography id="tools-menu" sx={{ pl: 2 }}>
+        Tools
+      </Typography>
+      <Divider />
+      <RouteList
+        aria-labelledby="tools-menu"
+        routes={toolRoutes}
         onClick={onItemSelected}
       />
       <Auth atLeast={UserAccessLevel.Admin}>
@@ -36,7 +47,7 @@ export function Menu({ onItemSelected }: { onItemSelected?: () => void }) {
         <Divider />
         <RouteList
           aria-labelledby="admin-menu"
-          routes={protectedRoutes}
+          routes={adminRoutes}
           onClick={onItemSelected}
         />
       </Auth>

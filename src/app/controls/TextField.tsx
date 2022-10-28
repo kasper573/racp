@@ -50,7 +50,7 @@ export function TextField({
                 ? e.target.value === ""
                   ? onChange?.(undefined)
                   : onChange?.(parseFloat(e.target.value))
-                : onChange?.(parseFloat(e.target.value))
+                : onChange?.(parseFloat(e.target.value || "0"))
           : (e) =>
               optional
                 ? onChange?.(e.target.value ? e.target.value : undefined)
