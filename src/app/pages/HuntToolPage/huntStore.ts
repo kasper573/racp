@@ -35,8 +35,7 @@ export const huntStore = createStore<{
           const item = items.find((h) => h.itemId === update.itemId);
           if (item) {
             typedAssign(item, update);
-            item.goal = Math.max(item.goal, 0);
-            item.current = Math.max(item.current, 0);
+            item.amount = Math.max(item.amount, 0);
           }
         });
       },
@@ -67,13 +66,12 @@ export const huntStore = createStore<{
       },
       updateMonster(update) {
         set(({ session }) => {
-          const existing = session.monsters.find(
+          const monster = session.monsters.find(
             (m) => m.monsterId === update.monsterId
           );
-          if (existing) {
-            if (existing) {
-              typedAssign(existing, update);
-            }
+          if (monster) {
+            typedAssign(monster, update);
+            monster.kpm = Math.max(monster.kpm, 0);
           }
         });
       },
@@ -105,12 +103,11 @@ export const huntStore = createStore<{
               successesPerMinute += attemptsPerMinute * (drop.Rate / 100 / 100);
             }
           }
-          const targetAmount = hunt.goal - hunt.current;
           if (successesPerMinute > 0) {
             if (huntMinutes === undefined) {
               huntMinutes = 0;
             }
-            huntMinutes += targetAmount / successesPerMinute;
+            huntMinutes += hunt.amount / successesPerMinute;
           }
         }
 
@@ -132,8 +129,7 @@ export type HuntSession = {
 
 export type HuntedItem = {
   itemId: ItemId;
-  current: number;
-  goal: number;
+  amount: number;
   targets?: MonsterId[];
 };
 
@@ -147,8 +143,7 @@ export function createHuntSession(): HuntSession {
     items: [512, 938].map((id) => ({
       itemId: id,
       targets: [1002],
-      current: 0,
-      goal: 1,
+      amount: 1,
     })),
     monsters: [],
   };
@@ -157,7 +152,6 @@ export function createHuntSession(): HuntSession {
 export function createHuntedItem(item: Item | ItemId): HuntedItem {
   return {
     itemId: typeof item === "number" ? item : item.Id,
-    current: 0,
-    goal: 1,
+    amount: 1,
   };
 }

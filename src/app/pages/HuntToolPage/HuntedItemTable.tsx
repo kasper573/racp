@@ -99,18 +99,11 @@ function HuntedItemTableRow({ hunt }: { hunt: HuntedItem }) {
   const huntDuration = estimateHuntDuration(allHuntedDroppers);
 
   const canBeHuntedTableCells = [
-    <TableCell key="current">
+    <TableCell key="amount">
       <TextField
         type="number"
-        value={hunt.current}
-        onChange={(current) => updateItem({ ...hunt, current })}
-      />
-    </TableCell>,
-    <TableCell key="goal">
-      <TextField
-        type="number"
-        value={hunt.goal}
-        onChange={(goal) => updateItem({ ...hunt, goal })}
+        value={hunt.amount}
+        onChange={(amount) => updateItem({ ...hunt, amount })}
       />
     </TableCell>,
     <TableCell key="targets">
