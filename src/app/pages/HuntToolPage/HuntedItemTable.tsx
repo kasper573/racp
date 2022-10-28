@@ -1,30 +1,33 @@
 import {
-  Autocomplete,
   IconButton,
   LinearProgress,
-  Popper,
+  MenuItem,
+  Select,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-  TextField as MuiTextField,
   Tooltip,
   Typography,
 } from "@mui/material";
 import { Delete } from "@mui/icons-material";
 import { uniqBy } from "lodash";
 import { useStore } from "zustand";
+import { ComponentProps } from "react";
 import { ItemIdentifier } from "../../components/ItemIdentifier";
 import { TextField } from "../../controls/TextField";
 import { trpc } from "../../state/client";
 import { MonsterIdentifier } from "../../components/MonsterIdentifier";
 import { dropChanceString } from "../../grids/ItemDropGrid";
-import { ItemDrop } from "../../../api/services/drop/types";
 import { durationString } from "../../../lib/std/durationString";
 import { InfoTooltip } from "../../components/InfoTooltip";
+import { ItemDrop } from "../../../api/services/drop/types";
+import { MonsterId } from "../../../api/services/monster/types";
 import { HuntTableRow } from "./HuntTableRow";
 import { HuntedItem, huntStore } from "./huntStore";
+
+const targetColumnWidth = 150;
 
 export function HuntedItemTable() {
   const { session } = useStore(huntStore);
@@ -35,7 +38,7 @@ export function HuntedItemTable() {
           <TableCell>Item</TableCell>
           <TableCell width={110}>Current#</TableCell>
           <TableCell width={110}>Goal#</TableCell>
-          <TableCell width={250}>Target Monster(s)</TableCell>
+          <TableCell width={targetColumnWidth}>Target Monster(s)</TableCell>
           <TableCell width={100} sx={{ textAlign: "center" }}>
             Estimate
           </TableCell>
@@ -99,37 +102,11 @@ function HuntedItemTableRow({ hunt }: { hunt: HuntedItem }) {
       />
     </TableCell>,
     <TableCell key="targets">
-      <Autocomplete<ItemDrop, true>
-        size="small"
-        sx={{ width: "100%" }}
-        multiple
-        limitTags={1}
-        PopperComponent={MonsterSearchPopper}
-        renderInput={(props) => (
-          <MuiTextField
-            {...props}
-            label={selectedDrops.length ? undefined : "Select monster(s)"}
-          />
-        )}
-        getOptionLabel={(drop) =>
-          `${drop.MonsterName} (${dropChanceString(drop.Rate)})`
-        }
-        renderOption={(props, drop) => (
-          <li {...props} key={drop.Id}>
-            <MonsterIdentifier
-              name={drop.MonsterName}
-              id={drop.MonsterId}
-              imageUrl={drop.MonsterImageUrl}
-              sx={{ whiteSpace: "nowrap" }}
-            >
-              &nbsp;({dropChanceString(drop.Rate)})
-            </MonsterIdentifier>
-          </li>
-        )}
+      <MonsterSelect
         value={selectedDrops}
         options={drops}
-        onChange={(props, drops) => {
-          updateItem({ ...hunt, targets: drops.map((d) => d.MonsterId) });
+        onChange={(selection) => {
+          updateItem({ ...hunt, targets: selection.map((d) => d.MonsterId) });
         }}
       />
     </TableCell>,
@@ -173,6 +150,72 @@ function HuntedItemTableRow({ hunt }: { hunt: HuntedItem }) {
   );
 }
 
-const MonsterSearchPopper = function (props: any) {
-  return <Popper {...props} style={{ minWidth: 300 }} />;
-};
+function MonsterSelect({
+  value,
+  options,
+  onChange,
+}: {
+  value: ItemDrop[];
+  options: ItemDrop[];
+  onChange: (drops: ItemDrop[]) => void;
+}) {
+  const selectOptions = (ids: MonsterId[]) =>
+    options.filter((drop) => ids.includes(drop.MonsterId));
+  return (
+    <Select
+      size="small"
+      multiple
+      value={value.map((d) => d.MonsterId)}
+      onChange={(e) => {
+        const { value } = e.target;
+        const ids: number[] =
+          typeof value === "string"
+            ? value.split(",").map((str) => parseInt(str, 10))
+            : value;
+        onChange(selectOptions(ids));
+      }}
+      displayEmpty
+      renderValue={(ids) => {
+        if (!ids.length) {
+          return <Typography color="text.secondary">Select targets</Typography>;
+        }
+        const [first, ...rest] = selectOptions(ids);
+        return (
+          <>
+            <TargetIdentifier
+              drop={first}
+              sx={{ maxWidth: targetColumnWidth }}
+            />
+            {rest.length > 0 && (
+              <Typography variant="caption" color="text.secondary">
+                &nbsp;+{rest.length} more
+              </Typography>
+            )}
+          </>
+        );
+      }}
+    >
+      {options.map((drop) => (
+        <MenuItem key={drop.MonsterId} value={drop.MonsterId}>
+          <TargetIdentifier drop={drop} />
+        </MenuItem>
+      ))}
+    </Select>
+  );
+}
+
+function TargetIdentifier({
+  drop,
+  sx,
+}: { drop: ItemDrop } & Pick<ComponentProps<typeof MonsterIdentifier>, "sx">) {
+  return (
+    <MonsterIdentifier
+      name={drop.MonsterName}
+      id={drop.MonsterId}
+      imageUrl={drop.MonsterImageUrl}
+      sx={{ whiteSpace: "nowrap", ...sx }}
+    >
+      &nbsp;({dropChanceString(drop.Rate)})
+    </MonsterIdentifier>
+  );
+}

@@ -39,4 +39,6 @@ const Icon = styled(ImageWithFallback)`
 
 const Label = styled(Box)`
   padding-left: calc(${iconSize} + 12px);
+  text-overflow: ellipsis;
+  overflow: hidden;
 `;
