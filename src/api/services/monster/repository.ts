@@ -1,4 +1,5 @@
 import { pick } from "lodash";
+import produce from "immer";
 import { RAthenaMode } from "../../options";
 import { ResourceFactory } from "../../resources";
 import {
@@ -7,8 +8,9 @@ import {
   Monster,
   monsterSpawnType,
   MonsterSpawn,
+  monsterType,
 } from "./types";
-import { createMonsterResolver } from "./util/createMonsterResolver";
+import { postProcessMonster } from "./util/postProcessMonster";
 
 export type MonsterRepository = ReturnType<typeof createMonsterRepository>;
 
@@ -23,22 +25,22 @@ export function createMonsterRepository({
   const imageName = (id: Monster["Id"]) => `${id}${images.fileExtension}`;
 
   const spawnDB = resources.script("spawns", monsterSpawnType);
-  const monsterDB = resources.yaml(
-    "db/mob_db.yml",
-    createMonsterResolver(rAthenaMode)
-  );
+  const monsterDB = resources.yaml("db/mob_db.yml", {
+    entityType: monsterType,
+    getKey: (m) => m.Id,
+  });
 
   const monsters = monsterDB
     .and(images)
     .map("monsters", ([monsterDB, images]) =>
-      Array.from(monsterDB.values()).reduce(
-        (monsters, monster) =>
-          monsters.set(monster.Id, {
-            ...monster,
-            ImageUrl: images[imageName(monster.Id)],
-          }),
-        new Map<Monster["Id"], Monster>()
-      )
+      produce(monsterDB, (db) => {
+        for (const monster of db.values()) {
+          postProcessMonster(monster, {
+            rAthenaMode,
+            imageUrl: images[imageName(monster.Id)],
+          });
+        }
+      })
     );
 
   const spawns = spawnDB.and(images).map("spawns", ([spawnDB, images]) =>
