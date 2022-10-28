@@ -14,9 +14,12 @@ export function createDropsRates(...[first, ...rest]: ConfigRepository[]) {
 
     return [
       {
+        // Mvp items. Items that go directly to the MVP player.
         rates: readDropRates(values, "mvp"),
-        determineScale: (monster) =>
-          monster.Modes.Mvp && modesToScaleType(monster.Modes),
+        determineScale: (monster, item) =>
+          monster.MvpDrops.some((d) => d.Item === item.AegisName)
+            ? "all"
+            : false,
       },
       {
         rates: readDropRates(values, "card"),
@@ -62,9 +65,9 @@ function readDropRates(values: Config, name: string) {
 
   return {
     scales: {
-      base: readProp(`item_rate_${name}`) / 100,
-      boss: readProp(`item_rate_${name}_boss`, name !== "mvp", 100) / 100,
-      mvp: readProp(`item_rate_${name}_mvp`, name !== "mvp", 100) / 100,
+      all: readProp(`item_rate_${name}`) / 100,
+      bosses: readProp(`item_rate_${name}_boss`, name !== "mvp", 100) / 100,
+      mvps: readProp(`item_rate_${name}_mvp`, name !== "mvp", 100) / 100,
     },
     min: readProp(`item_drop_${name}_min`),
     max: readProp(`item_drop_${name}_max`),
@@ -73,12 +76,12 @@ function readDropRates(values: Config, name: string) {
 
 function modesToScaleType(modes: Monster["Modes"]): DropRateScaleType {
   if (modes.Mvp) {
-    return "mvp";
+    return "mvps";
   }
   if (modes.Boss) {
-    return "boss";
+    return "bosses";
   }
-  return "base";
+  return "all";
 }
 
 export function applyDropRates(
