@@ -55,22 +55,34 @@ export function HuntedItemTable() {
 }
 
 function HuntedItemTableRow({ hunt }: { hunt: HuntedItem }) {
-  const { updateItem, removeItem, estimateHuntDuration } = useStore(huntStore);
+  const { session, updateItem, removeItem, estimateHuntDuration } =
+    useStore(huntStore);
 
   const { data: { entities: [item] = [] } = {}, isLoading: isItemLoading } =
     trpc.item.search.useQuery({
       filter: { Id: { value: hunt.itemId, matcher: "=" } },
     });
 
-  const { data: { entities: allDrops = [] } = {}, isLoading } =
+  const { data: { entities: allDroppers = [] } = {}, isLoading } =
     trpc.drop.search.useQuery({
       filter: { ItemId: { value: hunt.itemId, matcher: "=" } },
       sort: [{ field: "Rate", sort: "desc" }],
     });
 
-  const drops = uniqBy(allDrops, (d) => d.MonsterId);
-  const canBeHunted = isLoading || !!drops.length;
-  const selectedDrops = drops.filter((m) =>
+  const { data: { entities: allHuntedDroppers = [] } = {} } =
+    trpc.drop.search.useQuery({
+      filter: {
+        ItemId: { value: hunt.itemId, matcher: "=" },
+        MonsterId: {
+          value: session.monsters.map((m) => m.monsterId),
+          matcher: "oneOfN",
+        },
+      },
+    });
+
+  const droppersForThisItem = uniqBy(allDroppers, (d) => d.MonsterId);
+  const canBeHunted = isLoading || !!droppersForThisItem.length;
+  const selectedDrops = droppersForThisItem.filter((m) =>
     hunt.targets?.includes(m.MonsterId)
   );
 
@@ -84,7 +96,7 @@ function HuntedItemTableRow({ hunt }: { hunt: HuntedItem }) {
     );
   }
 
-  const huntDuration = estimateHuntDuration(selectedDrops);
+  const huntDuration = estimateHuntDuration(allHuntedDroppers);
 
   const canBeHuntedTableCells = [
     <TableCell key="current">
@@ -104,7 +116,7 @@ function HuntedItemTableRow({ hunt }: { hunt: HuntedItem }) {
     <TableCell key="targets">
       <MonsterSelect
         value={selectedDrops}
-        options={drops}
+        options={droppersForThisItem}
         onChange={(selection) => {
           updateItem({ ...hunt, targets: selection.map((d) => d.MonsterId) });
         }}
@@ -116,7 +128,7 @@ function HuntedItemTableRow({ hunt }: { hunt: HuntedItem }) {
           <InfoTooltip
             title={
               "Not enough data to estimate hunt duration. " +
-              "Select your monster targets and specify a KPM."
+              "Make sure you have selected monster targets and specified KPMs."
             }
           >
             ?
