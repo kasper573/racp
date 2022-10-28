@@ -74,6 +74,7 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
       const { data: { entities: spawns = [] } = {}, isLoading } =
         trpc.monster.searchSpawns.useQuery({
           filter: { monsterId: { value: hunt.monsterId, matcher: "=" } },
+          sort: [{ field: "amount", sort: "desc" }],
         });
       if (isLoading) {
         return <LoadingSpinner />;

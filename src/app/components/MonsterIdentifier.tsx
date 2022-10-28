@@ -8,6 +8,7 @@ export interface MonsterIdentifierProps
   name: string;
   id: number;
   imageUrl?: string;
+  link?: boolean;
 }
 
 export function MonsterIdentifier({
@@ -15,11 +16,12 @@ export function MonsterIdentifier({
   id,
   imageUrl,
   children,
+  link = true,
   ...props
 }: MonsterIdentifierProps) {
   return (
     <IconWithLabel alt={name} src={imageUrl} {...props}>
-      <Link to={routes.monster.view({ id })}>{name}</Link>
+      {link ? <Link to={routes.monster.view({ id })}>{name}</Link> : name}
       {children}
     </IconWithLabel>
   );

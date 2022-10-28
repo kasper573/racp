@@ -1,12 +1,8 @@
-import { MenuItem, Select } from "@mui/material";
-import { ComponentProps } from "react";
+import { Box, MenuItem, Select } from "@mui/material";
 import {
   MonsterSpawn,
   MonsterSpawnId,
 } from "../../../api/services/monster/types";
-import { Link } from "../../components/Link";
-import { routes } from "../../router";
-import { IconWithLabel } from "../../components/IconWithLabel";
 
 export function SpawnSelect({
   value,
@@ -31,7 +27,11 @@ export function SpawnSelect({
         if (!selected) {
           return "Select map";
         }
-        return <TargetIdentifier spawn={selected} sx={{ maxWidth: 125 }} />;
+        return (
+          <Box sx={{ maxWidth: 100 }}>
+            <TargetIdentifier spawn={selected} />
+          </Box>
+        );
       }}
     >
       {options.map((spawn) => (
@@ -43,18 +43,10 @@ export function SpawnSelect({
   );
 }
 
-function TargetIdentifier({
-  spawn,
-  sx,
-}: { spawn: MonsterSpawn } & Pick<ComponentProps<typeof IconWithLabel>, "sx">) {
+function TargetIdentifier({ spawn }: { spawn: MonsterSpawn }) {
   return (
-    <Link
-      to={routes.map.view({
-        id: spawn.map,
-        pin: { x: spawn.x, y: spawn.y },
-      })}
-    >
+    <>
       {spawn.map} ({spawn.amount})
-    </Link>
+    </>
   );
 }

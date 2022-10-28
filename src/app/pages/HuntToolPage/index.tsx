@@ -60,7 +60,7 @@ export default function HuntToolPage() {
       <CommonPageGrid
         sx={{ mt: 3, flex: 1 }}
         pixelCutoff={1400}
-        flexValues={[2, 1]}
+        flexValues={[5, 3]}
       >
         <HuntedItemGrid />
         <HuntedMonsterGrid />

@@ -58,6 +58,7 @@ function TargetIdentifier({
 
   return (
     <MonsterIdentifier
+      link={false}
       name={drop.MonsterName}
       id={drop.MonsterId}
       imageUrl={drop.MonsterImageUrl}
