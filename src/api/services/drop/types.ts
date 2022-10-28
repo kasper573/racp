@@ -4,6 +4,9 @@ import { monsterDropType, monsterIdType } from "../monster/types";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { matcher } from "../../matcher";
 
+/**
+ * View model used by the app. Not to be confused with MonsterDrop.
+ */
 export type ItemDrop = zod.infer<typeof itemDropType>;
 
 export type ItemDropId = zod.infer<typeof itemDropIdType>;

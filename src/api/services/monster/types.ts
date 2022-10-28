@@ -7,6 +7,10 @@ import { mapIdType } from "../map/types";
 import { RawScriptEntity } from "../../rathena/ScriptRepository";
 import { toggleRecordType } from "../../../lib/zod/zodToggle";
 
+/**
+ * Raw rAthena monster drop information.
+ * Mostly used internally and is not used by app.
+ */
 export type MonsterDrop = zod.infer<typeof monsterDropType>;
 export const monsterDropType = zod.object({
   Item: zod.string(), // AegisName
