@@ -87,7 +87,7 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
     headerName: "Estimate",
     field: "estimate",
     sortable: false,
-    ...forceWidth(100),
+    ...forceWidth(115),
     renderCell({ row: hunt }) {
       const { session, estimateHuntDuration } = useStore(huntStore);
       const { data: { entities: allHuntedDroppers = [] } = {} } =

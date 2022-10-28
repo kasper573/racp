@@ -149,11 +149,7 @@ export type HuntedMonster = {
 
 export function createHuntSession(): HuntSession {
   return {
-    items: [512, 938].map((id) => ({
-      itemId: id,
-      targets: [1002],
-      amount: 1,
-    })),
+    items: [],
     monsters: [],
   };
 }
