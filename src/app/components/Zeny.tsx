@@ -1,11 +1,9 @@
 import { Typography } from "@mui/material";
 import { ComponentProps, useMemo } from "react";
-import interpolate = require("color-interpolate");
-import { clamp } from "lodash";
 import { useStore } from "zustand";
 import { trpc } from "../state/client";
-import { ZenyColor } from "../../api/services/settings/types";
 import { themeStore } from "../state/theme";
+import { colorForAmount } from "../util/colorForAmount";
 
 export function Zeny({
   value,
@@ -16,7 +14,7 @@ export function Zeny({
   const { data: settings } = trpc.settings.readPublic.useQuery();
   const colorStops = settings?.zenyColors[mode];
   const color = useMemo(
-    () => (colorStops ? getColor(value, colorStops) : undefined),
+    () => (colorStops ? colorForAmount(value, colorStops) : undefined),
     [value, colorStops]
   );
   return (
@@ -29,18 +27,4 @@ export function Zeny({
       {value.toLocaleString("en-US") + "z"}
     </Typography>
   );
-}
-
-function getColor(value: number, colors: ZenyColor[]) {
-  value = Math.max(0, value);
-  for (let i = 1; i < colors.length; i++) {
-    const [min, colA] = colors[i - 1];
-    const [max, colB] = colors[i];
-    if (value >= min && value <= max) {
-      return interpolate([colA, colB])(
-        clamp((value - min) / (max - min), 0, 1)
-      );
-    }
-  }
-  return colors[colors.length - 1][1];
 }
