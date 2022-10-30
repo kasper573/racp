@@ -4,12 +4,15 @@ export const CardList = styled(Box)`
   display: grid;
   gap: 24px;
   grid-auto-rows: auto;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   ${({ theme }) => theme.breakpoints.down("lg")} {
     grid-template-columns: repeat(4, 1fr);
   }
   ${({ theme }) => theme.breakpoints.down("md")} {
     grid-template-columns: repeat(3, 1fr);
+  }
+  ${({ theme }) => theme.breakpoints.down("sm")} {
+    grid-template-columns: repeat(2, 1fr);
   }
 `;
 

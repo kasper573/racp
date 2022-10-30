@@ -7,7 +7,7 @@ import { huntStore } from "./huntStore";
 import { AddHuntCard, HuntCard } from "./HuntCard";
 
 export default function HuntListPage() {
-  const { hunts, newHunt } = useStore(huntStore);
+  const { hunts, createHunt, deleteHunt } = useStore(huntStore);
   return (
     <>
       <Header />
@@ -17,10 +17,14 @@ export default function HuntListPage() {
       </Typography>
 
       <CardList>
-        <AddHuntCard onClick={newHunt} />
+        <AddHuntCard onClick={createHunt} />
 
         {hunts.map((hunt) => (
-          <HuntCard key={hunt.id} hunt={hunt} />
+          <HuntCard
+            key={hunt.id}
+            hunt={hunt}
+            onDelete={() => deleteHunt(hunt.id)}
+          />
         ))}
       </CardList>
     </>

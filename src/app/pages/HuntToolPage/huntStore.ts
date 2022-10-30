@@ -24,9 +24,17 @@ export const huntStore = createStore<HuntStore>()(
         });
       },
       hunts: [],
-      newHunt() {
+      createHunt() {
         set((state) => {
           state.hunts.push(createHunt());
+        });
+      },
+      deleteHunt(id) {
+        set((state) => {
+          const index = state.hunts.findIndex((hunt) => hunt.id === id);
+          if (index !== -1) {
+            state.hunts.splice(index, 1);
+          }
         });
       },
       session: createHunt(),
@@ -148,7 +156,8 @@ export interface HuntStore {
   setDropChanceMultiplier: (value: number) => void;
   kpxUnit: KpxUnit;
   setKpxUnit: (value: KpxUnit) => void;
-  newHunt: () => void;
+  createHunt: () => void;
+  deleteHunt: (id: HuntId) => void;
 }
 
 export type HuntId = string;

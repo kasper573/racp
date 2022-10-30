@@ -1,9 +1,10 @@
 import { Add, Delete } from "@mui/icons-material";
 import { ComponentProps } from "react";
 import {
+  Button,
+  CardActions,
   CardContent,
   IconButton,
-  styled,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -19,25 +20,31 @@ export function HuntCard({
   onDelete?: () => void;
 }) {
   return (
-    <CardListItem>
-      <CardContent>
+    <CardListItem sx={{ display: "flex", flexDirection: "column" }}>
+      <CardContent
+        sx={{ flex: 1, pb: 0, overflow: "hidden" }}
+        style={{ marginBottom: 2 }}
+      >
         <Typography gutterBottom variant="h5" component="div">
           {hunt.name}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Lizards are a widespread
+          <HuntSummary hunt={hunt} />
         </Typography>
       </CardContent>
-      <Tooltip title={`Delete "${hunt.name}"`}>
-        <CornerButton
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete?.();
-          }}
-        >
-          <Delete />
-        </CornerButton>
-      </Tooltip>
+      <CardActions>
+        <Button sx={{ mr: "auto" }}>View</Button>
+        <Tooltip title={`Delete "${hunt.name}"`}>
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete?.();
+            }}
+          >
+            <Delete />
+          </IconButton>
+        </Tooltip>
+      </CardActions>
     </CardListItem>
   );
 }
@@ -57,8 +64,6 @@ export function AddHuntCard({
   );
 }
 
-const CornerButton = styled(IconButton)`
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-`;
+function HuntSummary({ hunt }: { hunt: Hunt }) {
+  return <>Hunt summary not implemented</>;
+}
