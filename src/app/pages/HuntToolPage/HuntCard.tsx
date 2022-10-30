@@ -1,60 +1,64 @@
+import { Add, Delete } from "@mui/icons-material";
+import { ComponentProps } from "react";
 import {
-  Button,
-  Card,
-  CardActions,
   CardContent,
-  CardMedia,
+  IconButton,
   styled,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import { ComponentProps } from "react";
+import { CardListItem } from "../../components/CardList";
+import { Center } from "../../components/Center";
 import { Hunt } from "./huntStore";
 
-export function HuntCard({ hunt }: { hunt: Hunt }) {
+export function HuntCard({
+  hunt,
+  onDelete,
+}: {
+  hunt: Hunt;
+  onDelete?: () => void;
+}) {
   return (
-    <BaseCard>
-      <HuntGraphicSummary hunt={hunt} />
+    <CardListItem>
       <CardContent>
         <Typography gutterBottom variant="h5" component="div">
           {hunt.name}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          <HuntTextSummary hunt={hunt} />
+          Lizards are a widespread
         </Typography>
       </CardContent>
-      <CardActions>
-        <Button size="small">Share</Button>
-        <Button size="small">Learn More</Button>
-      </CardActions>
-    </BaseCard>
+      <Tooltip title={`Delete "${hunt.name}"`}>
+        <CornerButton
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete?.();
+          }}
+        >
+          <Delete />
+        </CornerButton>
+      </Tooltip>
+    </CardListItem>
   );
 }
 
-export function AddHuntCard(props: ComponentProps<typeof BaseCard>) {
+export function AddHuntCard({
+  sx,
+  ...props
+}: ComponentProps<typeof CardListItem>) {
   return (
-    <BaseCard {...props}>
-      <CardContent>
-        <Typography gutterBottom variant="h5" component="div">
-          Add a hunt
-        </Typography>
-      </CardContent>
-    </BaseCard>
+    <CardListItem sx={{ cursor: "pointer", ...sx }} {...props}>
+      <Center>
+        <Tooltip title="New hunt">
+          <Add sx={{ fontSize: 96 }} />
+        </Tooltip>
+      </Center>
+    </CardListItem>
   );
 }
 
-const BaseCard = styled(Card)`
-  max-width: 345px;
+const CornerButton = styled(IconButton)`
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
 `;
-
-function HuntGraphicSummary({ hunt }: { hunt: Hunt }) {
-  return <CardMedia sx={{ height: 140 }} />;
-}
-
-function HuntTextSummary({ hunt }: { hunt: Hunt }) {
-  return (
-    <>
-      Lizards are a widespread group of squamate reptiles, with over 6,000
-      species, ranging across all continents except Antarctica
-    </>
-  );
-}

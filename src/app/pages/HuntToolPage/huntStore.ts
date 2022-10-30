@@ -8,22 +8,7 @@ import { Item, ItemId } from "../../../api/services/item/types";
 import { typedAssign } from "../../../lib/std/typedAssign";
 import { ItemDrop } from "../../../api/services/drop/types";
 
-export const huntStore = createStore<{
-  hunts: Hunt[];
-  session: Hunt;
-  addItems: (items: ItemId[]) => void;
-  updateItem: (hunt: HuntedItem) => void;
-  removeItem: (itemId: ItemId) => void;
-  normalizeSession: () => void;
-  updateMonster: (hunt: HuntedMonster) => void;
-  estimateHuntDuration: (
-    drops: Pick<ItemDrop, "ItemId" | "MonsterId" | "Rate">[]
-  ) => number | "unknown";
-  dropChanceMultiplier: number;
-  setDropChanceMultiplier: (value: number) => void;
-  kpxUnit: KpxUnit;
-  setKpxUnit: (value: KpxUnit) => void;
-}>()(
+export const huntStore = createStore<HuntStore>()(
   persist(
     immer((set, getState) => ({
       kpxUnit: "Kills per minute",
@@ -39,6 +24,11 @@ export const huntStore = createStore<{
         });
       },
       hunts: [],
+      newHunt() {
+        set((state) => {
+          state.hunts.push(createHunt());
+        });
+      },
       session: createHunt(),
       addItems(added) {
         set(({ session }) => {
@@ -143,6 +133,24 @@ export const huntStore = createStore<{
   )
 );
 
+export interface HuntStore {
+  hunts: Hunt[];
+  session: Hunt;
+  addItems: (items: ItemId[]) => void;
+  updateItem: (hunt: HuntedItem) => void;
+  removeItem: (itemId: ItemId) => void;
+  normalizeSession: () => void;
+  updateMonster: (hunt: HuntedMonster) => void;
+  estimateHuntDuration: (
+    drops: Pick<ItemDrop, "ItemId" | "MonsterId" | "Rate">[]
+  ) => number | "unknown";
+  dropChanceMultiplier: number;
+  setDropChanceMultiplier: (value: number) => void;
+  kpxUnit: KpxUnit;
+  setKpxUnit: (value: KpxUnit) => void;
+  newHunt: () => void;
+}
+
 export type HuntId = string;
 export type Hunt = {
   id: HuntId;
@@ -180,7 +188,7 @@ export const kpxUnitScales: Record<KpxUnit, number> = {
 export function createHunt(): Hunt {
   return {
     id: uuid(),
-    name: "",
+    name: "New hunt",
     items: [],
     monsters: [],
   };
