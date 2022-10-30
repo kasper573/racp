@@ -10,6 +10,7 @@ import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { TabbedPaper } from "../components/TabbedPaper";
+import { DropRateGroup } from "../../api/rathena/DropRatesRegistry.types";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ServerInfoPage() {
@@ -34,33 +35,35 @@ export default function ServerInfoPage() {
         tabs={[
           {
             label: "Drop rates",
-            content: (
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Item type</TableCell>
-                    <TableCell>Common monsters</TableCell>
-                    <TableCell>Boss monsters</TableCell>
-                    <TableCell>Mvp monsters</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {dropRates.data.map(({ name, scales }) => (
-                    <TableRow key={name}>
-                      <TableCell sx={{ whiteSpace: "nowrap" }}>
-                        {name}
-                      </TableCell>
-                      <TableCell>{scales.all * 100}%</TableCell>
-                      <TableCell>{scales.bosses * 100}%</TableCell>
-                      <TableCell>{scales.mvps * 100}%</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            ),
+            content: <DropRateTable rates={dropRates.data} />,
           },
         ]}
       />
     </>
+  );
+}
+
+function DropRateTable({ rates }: { rates: DropRateGroup[] }) {
+  return (
+    <Table size="small">
+      <TableHead>
+        <TableRow>
+          <TableCell>Item type</TableCell>
+          <TableCell>Common monsters</TableCell>
+          <TableCell>Boss monsters</TableCell>
+          <TableCell>Mvp monsters</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {rates.map(({ name, scales }) => (
+          <TableRow key={name}>
+            <TableCell sx={{ whiteSpace: "nowrap" }}>{name}</TableCell>
+            <TableCell>{scales.all * 100}%</TableCell>
+            <TableCell>{scales.bosses * 100}%</TableCell>
+            <TableCell>{scales.mvps * 100}%</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
