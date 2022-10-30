@@ -34,6 +34,7 @@ export function EditableText({
       <TextField
         {...textFieldProps}
         {...sharedProps}
+        variant="standard"
         value={value}
         onBlur={() => setIsEditing(false)}
         onKeyDown={(e) => {

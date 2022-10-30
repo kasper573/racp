@@ -67,7 +67,7 @@ export function TextField({
       helperText={issues?.join(", ")}
       value={text}
       disabled={readOnly}
-      InputProps={{ readOnly }}
+      InputProps={{ ...props.InputProps, readOnly }}
       onBlur={() => setText(valueToText(value))}
       onChange={(e) => {
         setText(e.target.value);
