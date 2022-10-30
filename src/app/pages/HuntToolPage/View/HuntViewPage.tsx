@@ -10,6 +10,7 @@ import { Select } from "../../../controls/Select";
 import { HuntId, huntStore, KpxUnit, kpxUnits } from "../huntStore";
 import { Header } from "../../../layout/Header";
 import { RouteComponentProps } from "../../../../lib/tsr/react/types";
+import { EditableText } from "../../../components/EditableText";
 import { HuntedItemGrid } from "./HuntedItemGrid";
 import { HuntedMonsterGrid } from "./HuntedMonsterGrid";
 
@@ -25,11 +26,11 @@ export default function HuntViewPage({
     <>
       <Header
         title={
-          <TextField
+          <EditableText
             type="text"
             value={hunt.name}
             onChange={(newName) => renameHunt(huntId, newName)}
-            variant="standard"
+            typographyProps={{ variant: "h6" }}
           />
         }
       />

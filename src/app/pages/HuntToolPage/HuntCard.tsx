@@ -12,19 +12,25 @@ import { CardListItem } from "../../components/CardList";
 import { Center } from "../../components/Center";
 import { LinkButton } from "../../components/Link";
 import { routes } from "../../router";
+import { EditableText } from "../../components/EditableText";
 import { Hunt, huntStore } from "./huntStore";
 
 export function HuntCard({ hunt }: { hunt: Hunt }) {
-  const { deleteHunt } = useStore(huntStore);
+  const { deleteHunt, renameHunt } = useStore(huntStore);
   return (
     <CardListItem sx={{ display: "flex", flexDirection: "column" }}>
       <CardContent
         sx={{ flex: 1, pb: 0, overflow: "hidden" }}
         style={{ marginBottom: 2 }}
       >
-        <Typography gutterBottom variant="h5" component="div">
-          {hunt.name}
-        </Typography>
+        <EditableText
+          type="text"
+          value={hunt.name}
+          onChange={(newName) => renameHunt(hunt.id, newName)}
+          variant="standard"
+          sx={{ mb: 1 }}
+          typographyProps={{ variant: "h5" }}
+        />
         <Typography variant="body2" color="text.secondary">
           <HuntSummary hunt={hunt} />
         </Typography>
