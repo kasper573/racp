@@ -136,6 +136,10 @@ export const router = t.router({
         .params({ filter: itemFilter.type.optional() })
         .renderer(lazy(() => import("./pages/DonationItemsPage"))),
     }),
+  serverInfo: t.route
+    .path("server-info")
+    .renderer(lazy(() => import("./pages/ServerInfoPage")))
+    .meta({ title: "Server Info", icon: <Paid /> }),
   tools: t.route
     .path("tools")
     .meta({ title: "Tools" })
