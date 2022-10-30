@@ -63,6 +63,8 @@ async function resetData() {
   }
 
   const settings = createAdminSettingsRepository({ ...args, logger });
+  await settings;
+
   const { create: resources } = createResourceManager({
     logger,
     settings,
