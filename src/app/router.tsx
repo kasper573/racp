@@ -146,18 +146,18 @@ export const router = t.router({
     .path("tools")
     .meta({ title: "Tools" })
     .children({
-      hunt: t.route.path("hunt").children({
-        list: t.route
-          .path("", { exact: true })
-          .meta({ title: "Hunt", icon: <ImageSearch /> })
-          .renderer(lazy(() => import("./pages/HuntToolPage/HuntListPage"))),
-        view: t.route
-          .path("view/:id")
-          .params({ id: huntIdType })
-          .renderer(
-            lazy(() => import("./pages/HuntToolPage/View/ViewHuntPage"))
-          ),
-      }),
+      hunt: t.route
+        .path("hunt", { exact: true })
+        .meta({ title: "Hunt", icon: <ImageSearch /> })
+        .renderer(lazy(() => import("./pages/HuntToolPage/HuntListPage")))
+        .children({
+          view: t.route
+            .path(":id")
+            .params({ id: huntIdType })
+            .renderer(
+              lazy(() => import("./pages/HuntToolPage/View/HuntViewPage"))
+            ),
+        }),
     }),
   admin: t.route
     .path("admin", { exact: true })

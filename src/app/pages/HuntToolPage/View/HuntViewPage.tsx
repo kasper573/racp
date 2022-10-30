@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useStore } from "zustand";
 import { Stack, Typography } from "@mui/material";
 import { Item } from "../../../../api/services/item/types";
@@ -8,19 +7,23 @@ import { SearchField } from "../../../components/SearchField";
 import { CommonPageGrid } from "../../../components/CommonPageGrid";
 import { TextField } from "../../../controls/TextField";
 import { Select } from "../../../controls/Select";
-import { huntStore, KpxUnit, kpxUnits } from "../huntStore";
+import { HuntId, huntStore, KpxUnit, kpxUnits } from "../huntStore";
 import { Header } from "../../../layout/Header";
+import { RouteComponentProps } from "../../../../lib/tsr/react/types";
 import { HuntedItemGrid } from "./HuntedItemGrid";
 import { HuntedMonsterGrid } from "./HuntedMonsterGrid";
 
-export default function ViewHuntPage() {
-  const { session, normalizeSession, addItems } = useStore(huntStore);
-
-  useEffect(normalizeSession, [session, normalizeSession]);
-
+export default function HuntViewPage({
+  params: { id: huntId },
+}: RouteComponentProps<{ id: HuntId }>) {
+  const { getRichHunt, addItems } = useStore(huntStore);
+  const hunt = getRichHunt(huntId);
+  if (!hunt) {
+    return <Header title="Unknown hunt" />;
+  }
   return (
     <>
-      <Header />
+      <Header title={hunt.name} />
 
       <Typography paragraph>
         This page shows an estimate per item how long it will take to farm the
@@ -29,7 +32,12 @@ export default function ViewHuntPage() {
 
       <SearchField<Item>
         sx={{ width: "100%" }}
-        onSelected={(items) => addItems(items.map((item) => item.Id))}
+        onSelected={(items) =>
+          addItems(
+            huntId,
+            items.map((item) => item.Id)
+          )
+        }
         useQuery={useItemSearchQuery}
         optionKey={(option) => option.Id}
         optionLabel={(option) => option.Name}
@@ -46,8 +54,8 @@ export default function ViewHuntPage() {
         pixelCutoff={1400}
         flexValues={[5, 3]}
       >
-        <HuntedItemGrid />
-        <HuntedMonsterGrid />
+        <HuntedItemGrid items={hunt.items} />
+        <HuntedMonsterGrid monsters={hunt.monsters} />
       </CommonPageGrid>
     </>
   );

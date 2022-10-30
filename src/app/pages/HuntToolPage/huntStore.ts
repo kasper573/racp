@@ -5,7 +5,7 @@ import { immer } from "zustand/middleware/immer";
 import { groupBy, uniq, without } from "lodash";
 import * as zod from "zod";
 import { MonsterId, MonsterSpawnId } from "../../../api/services/monster/types";
-import { Item, ItemId } from "../../../api/services/item/types";
+import { ItemId } from "../../../api/services/item/types";
 import { typedAssign } from "../../../lib/std/typedAssign";
 import { ItemDrop } from "../../../api/services/drop/types";
 
@@ -13,79 +13,88 @@ export const huntStore = createStore<HuntStore>()(
   persist(
     immer((set, getState) => ({
       kpxUnit: "Kills per minute",
+      dropChanceMultiplier: 1,
+      hunts: [],
+      items: [],
+      monsters: [],
+
+      getRichHunt(huntId) {
+        const state = getState();
+        const hunt = state.hunts.find((h) => h.id === huntId);
+        if (!hunt) {
+          return;
+        }
+        return {
+          ...hunt,
+          monsters: state.monsters.filter((m) => m.huntId === huntId),
+          items: state.items.filter((m) => m.huntId === huntId),
+        };
+      },
+
       setKpxUnit(value) {
         set((state) => {
           state.kpxUnit = value;
         });
       },
-      dropChanceMultiplier: 1,
       setDropChanceMultiplier(value) {
         set((state) => {
           state.dropChanceMultiplier = Math.max(value, 0);
         });
       },
-      hunts: [],
       createHunt() {
         set((state) => {
-          state.hunts.push(createHunt());
+          state.hunts.push({
+            id: uuid(),
+            name: "New hunt",
+          });
         });
       },
       deleteHunt(id) {
         set((state) => {
-          const index = state.hunts.findIndex((hunt) => hunt.id === id);
-          if (index !== -1) {
-            state.hunts.splice(index, 1);
-          }
+          state.hunts = state.hunts.filter((h) => h.id !== id);
+          state.items = state.items.filter((i) => i.huntId !== id);
+          state.monsters = state.monsters.filter((m) => m.huntId !== id);
         });
       },
-      session: createHunt(),
-      addItems(added) {
-        set(({ session }) => {
-          const existing = session.items.map((i) => i.itemId);
-          const newItems = without(added, ...existing);
-          for (const id of newItems) {
-            session.items.push(createHuntedItem(id));
+      addItems(huntId, addedItemIds) {
+        set((state) => {
+          const newItemIds = addedItemIds.filter(
+            (itemId) => !state.items.some((item) => item.itemId === itemId)
+          );
+          for (const id of newItemIds) {
+            state.items.push({ itemId: id, huntId, amount: 0 });
           }
+          normalizeHunt(huntId, state);
         });
       },
       updateItem(update) {
-        set(({ session: { items } }) => {
-          const item = items.find((h) => h.itemId === update.itemId);
+        set((state) => {
+          const item = state.items.find(
+            (h) => h.itemId === update.itemId && h.huntId === update.huntId
+          );
           if (item) {
             typedAssign(item, update);
             item.amount = Math.max(item.amount, 0);
+            normalizeHunt(item.huntId, state);
           }
         });
       },
-      removeItem(itemId) {
-        set(({ session: { items } }) => {
-          const index = items.findIndex((h) => h.itemId === itemId);
-          if (index !== -1) {
-            items.splice(index, 1);
-          }
-        });
-      },
-      normalizeSession() {
-        set(({ session }) => {
-          const targetIds = uniq(
-            session.items.map((i) => i.targets ?? []).flat()
+      removeItem(huntId, itemId) {
+        set((state) => {
+          const index = state.items.findIndex(
+            (h) => h.itemId === itemId && h.huntId === huntId
           );
-          const monsterIds = session.monsters.map((m) => m.monsterId);
-          const added = without(targetIds, ...monsterIds);
-          const removed = without(monsterIds, ...targetIds);
-          for (const id of added) {
-            session.monsters.push({ monsterId: id, killsPerUnit: 0 });
-          }
-          for (const id of removed) {
-            const index = session.monsters.findIndex((m) => m.monsterId === id);
-            session.monsters.splice(index, 1);
+          if (index !== -1) {
+            state.items.splice(index, 1);
+            normalizeHunt(huntId, state);
           }
         });
       },
       updateMonster(update) {
-        set(({ session }) => {
-          const monster = session.monsters.find(
-            (m) => m.monsterId === update.monsterId
+        set((state) => {
+          const monster = state.monsters.find(
+            (m) =>
+              m.huntId === update.huntId && m.monsterId === update.monsterId
           );
           if (monster) {
             typedAssign(monster, update);
@@ -93,15 +102,18 @@ export const huntStore = createStore<HuntStore>()(
           }
         });
       },
-      estimateHuntDuration(itemDrops) {
-        const { session, kpxUnit, dropChanceMultiplier } = getState();
+      estimateHuntDuration(huntId, itemDrops) {
+        const state = getState();
+        const { kpxUnit, dropChanceMultiplier } = state;
+        const items = state.items.filter((i) => i.huntId === huntId);
+        const monsters = state.monsters.filter((m) => m.huntId === huntId);
 
-        const killsPerUnitLookup = session.monsters.reduce(
+        const killsPerUnitLookup = monsters.reduce(
           (acc, m) => ({ ...acc, [m.monsterId]: m.killsPerUnit }),
           {} as Record<number, number>
         );
 
-        const huntLookup = session.items.reduce(
+        const huntLookup = items.reduce(
           (acc, h) => ({ ...acc, [h.itemId]: h }),
           {} as Record<number, HuntedItem>
         );
@@ -142,23 +154,57 @@ export const huntStore = createStore<HuntStore>()(
   )
 );
 
+function normalizeHunt(huntId: HuntId, state: HuntStore) {
+  const isMatch = <T extends { huntId: HuntId }>(o: T) => o.huntId === huntId;
+  const targetIds = uniq(
+    state.items
+      .filter(isMatch)
+      .map((i) => i.targets ?? [])
+      .flat()
+  );
+  const monsterIds = state.monsters.filter(isMatch).map((m) => m.monsterId);
+  const added = without(targetIds, ...monsterIds);
+  const removed = without(monsterIds, ...targetIds);
+  for (const id of added) {
+    state.monsters.push({ huntId, monsterId: id, killsPerUnit: 0 });
+  }
+  for (const id of removed) {
+    const index = state.monsters.findIndex(
+      (m) => isMatch(m) && m.monsterId === id
+    );
+    state.monsters.splice(index, 1);
+  }
+}
+
+export interface RichHunt extends Hunt {
+  items: HuntedItem[];
+  monsters: HuntedMonster[];
+}
+
 export interface HuntStore {
+  // Data
   hunts: Hunt[];
-  session: Hunt;
-  addItems: (items: ItemId[]) => void;
-  updateItem: (hunt: HuntedItem) => void;
-  removeItem: (itemId: ItemId) => void;
-  normalizeSession: () => void;
-  updateMonster: (hunt: HuntedMonster) => void;
-  estimateHuntDuration: (
-    drops: Pick<ItemDrop, "ItemId" | "MonsterId" | "Rate">[]
-  ) => number | "unknown";
+  items: HuntedItem[];
+  monsters: HuntedMonster[];
   dropChanceMultiplier: number;
-  setDropChanceMultiplier: (value: number) => void;
   kpxUnit: KpxUnit;
-  setKpxUnit: (value: KpxUnit) => void;
+
+  // Queries
+  getRichHunt(huntId: HuntId): RichHunt | undefined;
+
+  // Actions
+  addItems: (huntId: HuntId, items: ItemId[]) => void;
+  updateItem: (item: HuntedItem) => void;
+  removeItem: (huntId: HuntId, itemId: ItemId) => void;
+  updateMonster: (monster: HuntedMonster) => void;
   createHunt: () => void;
   deleteHunt: (id: HuntId) => void;
+  estimateHuntDuration: (
+    huntId: HuntId,
+    drops: Pick<ItemDrop, "ItemId" | "MonsterId" | "Rate">[]
+  ) => number | "unknown";
+  setDropChanceMultiplier: (value: number) => void;
+  setKpxUnit: (value: KpxUnit) => void;
 }
 
 export const huntIdType = zod.string();
@@ -166,17 +212,17 @@ export type HuntId = zod.infer<typeof huntIdType>;
 export type Hunt = {
   id: HuntId;
   name: string;
-  items: HuntedItem[];
-  monsters: HuntedMonster[];
 };
 
 export type HuntedItem = {
+  huntId: HuntId;
   itemId: ItemId;
   amount: number;
   targets?: MonsterId[];
 };
 
 export type HuntedMonster = {
+  huntId: HuntId;
   monsterId: MonsterId;
   spawnId?: MonsterSpawnId;
   killsPerUnit: number;
@@ -195,19 +241,3 @@ export const kpxUnitScales: Record<KpxUnit, number> = {
   "Kills per hour": 1000 * 60 * 60,
   "Kills per day": 1000 * 60 * 60 * 24,
 };
-
-export function createHunt(): Hunt {
-  return {
-    id: uuid(),
-    name: "New hunt",
-    items: [],
-    monsters: [],
-  };
-}
-
-export function createHuntedItem(item: Item | ItemId): HuntedItem {
-  return {
-    itemId: typeof item === "number" ? item : item.Id,
-    amount: 1,
-  };
-}

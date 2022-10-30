@@ -14,13 +14,11 @@ import { routes } from "../../../router";
 import { HuntedMonster, huntStore } from "../huntStore";
 import { SpawnSelect } from "./SpawnSelect";
 
-export function HuntedMonsterGrid() {
-  const { session } = useStore(huntStore);
-
+export function HuntedMonsterGrid({ monsters }: { monsters: HuntedMonster[] }) {
   return (
     <DataGrid<HuntedMonster>
       id={(m) => m.monsterId}
-      data={session.monsters}
+      data={monsters}
       emptyComponent={Empty}
       columns={columns}
     />

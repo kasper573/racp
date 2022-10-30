@@ -13,13 +13,11 @@ import { ItemId } from "../../../../api/services/item/types";
 import { HuntedItem, huntStore } from "../huntStore";
 import { DropperSelect } from "./DropperSelect";
 
-export function HuntedItemGrid() {
-  const { session } = useStore(huntStore);
-
+export function HuntedItemGrid({ items }: { items: HuntedItem[] }) {
   return (
     <DataGrid<HuntedItem>
       id={(item) => item.itemId}
-      data={session.items}
+      data={items}
       emptyComponent={Empty}
       columns={columns}
     />
@@ -88,19 +86,27 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
     field: "estimate",
     sortable: false,
     ...forceWidth(115),
-    renderCell({ row: hunt }) {
-      const { session, estimateHuntDuration, kpxUnit } = useStore(huntStore);
+    renderCell({ row: huntedItem }) {
+      const { getRichHunt, estimateHuntDuration, kpxUnit } =
+        useStore(huntStore);
+      const hunt = getRichHunt(huntedItem.huntId);
       const { data: { entities: allHuntedDroppers = [] } = {} } =
-        trpc.drop.search.useQuery({
-          filter: {
-            ItemId: { value: hunt.itemId, matcher: "=" },
-            MonsterId: {
-              value: session.monsters.map((m) => m.monsterId),
-              matcher: "oneOfN",
+        trpc.drop.search.useQuery(
+          {
+            filter: {
+              ItemId: { value: huntedItem.itemId, matcher: "=" },
+              MonsterId: {
+                matcher: "oneOfN",
+                value: hunt?.monsters.map((m) => m.monsterId) ?? [],
+              },
             },
           },
-        });
-      const huntDuration = estimateHuntDuration(allHuntedDroppers);
+          { enabled: !!hunt }
+        );
+      const huntDuration = estimateHuntDuration(
+        huntedItem.huntId,
+        allHuntedDroppers
+      );
       return (
         <Typography noWrap textAlign="center">
           {huntDuration === "unknown" ? (
@@ -130,7 +136,7 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
       const { removeItem } = useStore(huntStore);
       return (
         <Tooltip title="Remove from hunt list">
-          <IconButton onClick={() => removeItem(hunt.itemId)}>
+          <IconButton onClick={() => removeItem(hunt.huntId, hunt.itemId)}>
             <Delete />
           </IconButton>
         </Tooltip>

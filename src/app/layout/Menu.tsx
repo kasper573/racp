@@ -41,7 +41,7 @@ export function Menu({ onItemSelected }: { onItemSelected?: () => void }) {
       <Divider />
       <RouteList
         aria-labelledby="tools-menu"
-        routes={[routes.tools.hunt.list.$]}
+        routes={[routes.tools.hunt.$]}
         onClick={onItemSelected}
       />
 
