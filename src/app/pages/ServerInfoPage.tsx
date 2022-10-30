@@ -119,7 +119,7 @@ function ExperienceConfigTable({ config }: { config: ExpConfig }) {
         ) : (
           1
         ),
-        "Death exp penalty": (
+        "Death experience penalty": (
           <>
             Base{" "}
             <Percentage value={config.death_penalty_base} colorize={false} />,
