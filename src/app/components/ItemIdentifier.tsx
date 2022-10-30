@@ -20,10 +20,9 @@ import { LoadingSpinner } from "./LoadingSpinner";
 
 export type ItemIdentifierBaseProps = Pick<
   ComponentProps<typeof IconWithLabel>,
-  "sx" | "style" | "className"
+  "sx" | "style" | "className" | "showLabelAsTooltip"
 > & {
   link?: boolean;
-  label?: boolean;
 };
 
 export type ItemIdentifierProps = ItemIdentifierBaseProps &
@@ -36,10 +35,10 @@ export type ItemIdentifierProps = ItemIdentifierBaseProps &
 
 export function ItemIdentifier({
   link = true,
-  label = true,
   sx,
   style,
   className,
+  showLabelAsTooltip,
   ...input
 }: ItemIdentifierProps) {
   let id: number;
@@ -84,10 +83,10 @@ export function ItemIdentifier({
     <IconWithLabel
       src={imageUrl}
       alt={props.name}
-      iconTooltip={label ? undefined : displayName}
+      showLabelAsTooltip={showLabelAsTooltip}
       {...{ sx, style, className }}
     >
-      {label ? displayName : ""}
+      {displayName}
     </IconWithLabel>
   );
 }
@@ -109,6 +108,7 @@ export function ItemIdentifierByName({
           options: { caseSensitive: false },
         },
       }}
+      {...props}
     />
   );
 }

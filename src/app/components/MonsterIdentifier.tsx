@@ -31,7 +31,7 @@ export function MonsterIdentifier({
 }
 
 export interface MonsterIdentifierByFilterProps
-  extends Pick<MonsterIdentifierProps, "sx" | "style" | "className"> {
+  extends Omit<MonsterIdentifierProps, "name" | "id" | "imageUrl"> {
   filter: MonsterFilter;
   fallback?: ReactNode;
   loader?: ReactNode;

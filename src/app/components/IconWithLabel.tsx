@@ -1,18 +1,18 @@
 import { Box, Stack, styled, Tooltip } from "@mui/material";
-import { ComponentProps, ReactNode } from "react";
+import { ComponentProps } from "react";
 import { ImageWithFallback } from "./ImageWithFallback";
 
 export interface IconWithLabelProps extends ComponentProps<typeof Stack> {
   src?: string;
   alt: string;
-  iconTooltip?: ReactNode;
+  showLabelAsTooltip?: boolean;
 }
 
 export function IconWithLabel({
   src,
   alt,
   children,
-  iconTooltip,
+  showLabelAsTooltip = false,
   ...props
 }: IconWithLabelProps) {
   let icon = (
@@ -20,12 +20,13 @@ export function IconWithLabel({
       <Icon src={src} alt={alt} />
     </IconDocker>
   );
-  if (iconTooltip !== undefined) {
+  if (showLabelAsTooltip) {
     icon = (
-      <Tooltip placement="top" title={iconTooltip}>
+      <Tooltip placement="top" title={children}>
         {icon}
       </Tooltip>
     );
+    children = "";
   }
   return (
     <Root {...props}>

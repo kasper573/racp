@@ -8,6 +8,7 @@ import { LinkButton } from "../../components/Link";
 import { routes } from "../../router";
 import { EditableText } from "../../components/EditableText";
 import { ItemIdentifierByFilter } from "../../components/ItemIdentifier";
+import { MonsterIdentifierByFilter } from "../../components/MonsterIdentifier";
 import { Hunt, HuntId, huntStore } from "./huntStore";
 
 export function HuntCard({
@@ -73,15 +74,28 @@ function HuntSummary({ id }: { id: HuntId }) {
   }
   const itemIds = richHunt.items.map((i) => i.itemId);
   const monsterIds = richHunt.monsters.map((m) => m.monsterId);
+  const sx = { mb: 2 };
   return (
     <>
       {itemIds.map((itemId) => (
         <ItemIdentifierByFilter
-          label={false}
-          key={itemId}
+          sx={sx}
+          showLabelAsTooltip
+          key={`item-${itemId}`}
           loader=""
           filter={{
             Id: { value: itemId, matcher: "=" },
+          }}
+        />
+      ))}
+      {monsterIds.map((monsterId) => (
+        <MonsterIdentifierByFilter
+          sx={sx}
+          showLabelAsTooltip
+          key={`monster-${monsterId}`}
+          loader=""
+          filter={{
+            Id: { value: monsterId, matcher: "=" },
           }}
         />
       ))}
