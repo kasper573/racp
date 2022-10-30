@@ -11,7 +11,7 @@ export function signInAsAdmin() {
 
 export function uploadAssets() {
   const fixtures = Cypress.config("fixturesFolder");
-  gotoMainMenuPage("Assets", { menuName: "Admin" });
+  gotoMainMenuPage("Assets");
   cy.selectFileByName("mapInfo", `${fixtures}/mapInfo.lub`);
   cy.selectFileByName("itemInfo", `${fixtures}/itemInfo.lub`);
   cy.selectFileByName("data", `${fixtures}/data.grf`);

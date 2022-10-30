@@ -11,7 +11,7 @@ before(() => {
 });
 
 beforeEach(() => {
-  gotoMainMenuPage("Settings", { menuName: "Admin" });
+  gotoMainMenuPage("Settings");
   cy.findByRole("tab", { name: /donations/i }).click();
 });
 

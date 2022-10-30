@@ -9,7 +9,7 @@ before(() => {
 
 describe("can change", () => {
   beforeEach(() => {
-    gotoMainMenuPage("Settings", { menuName: "Admin" });
+    gotoMainMenuPage("Settings");
     cy.findByRole("tab", { name: /appearance/i }).click();
   });
 
