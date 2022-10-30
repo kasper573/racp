@@ -43,11 +43,8 @@ export function listVendings() {
   gotoMainMenuPage("vendings");
 }
 
-export function findMainMenuItem(
-  itemName: string,
-  { menuName }: { menuName?: string } = {}
-) {
-  return findMainMenu(menuName).findByText(ignoreCase(itemName));
+export function findMainMenuItem(itemName: string) {
+  return findMainMenu().findByText(ignoreCase(itemName));
 }
 
 export function gotoMainMenuPage(...args: Parameters<typeof findMainMenuItem>) {
@@ -56,14 +53,18 @@ export function gotoMainMenuPage(...args: Parameters<typeof findMainMenuItem>) {
   waitForPageReady(); // Wait for any initial requests to finish before proceeding
 }
 
-export function findMainMenu(name: string = "main menu") {
+export function findMainMenu() {
   return cy.get("body").then(($body) => {
     const [menuTrigger] = $body.find(`button[aria-label="Open main menu"]`);
     if (menuTrigger) {
       menuTrigger.click();
     }
-    return cy.findByRole("menu", { name: ignoreCase(name) });
+    return cy.findByLabelText("Main menu");
   });
+}
+
+export function findMainMenuSection(name: string) {
+  return findMainMenu().findByRole("menu", { name: ignoreCase(name) });
 }
 
 function searchByIdAndFollowLink(id: string | number) {

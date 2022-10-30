@@ -81,6 +81,7 @@ export function Layout({ children }: { children?: ReactNode }) {
         </MuiToolbar>
       </AppBar>
       <MuiDrawer
+        aria-label="Main menu"
         variant={isDrawerPermanent ? "permanent" : "temporary"}
         open={isDrawerOpen}
         onClose={handleDrawerCloseRequest}

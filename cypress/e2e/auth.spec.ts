@@ -7,7 +7,7 @@ import {
   updateProfile,
 } from "../support/actions/user";
 import { resetData, signInAsAdmin } from "../support/actions/admin";
-import { findMainMenu } from "../support/actions/nav";
+import { findMainMenuSection } from "../support/actions/nav";
 
 before(resetData);
 
@@ -19,7 +19,7 @@ describe("admin", () => {
   beforeEach(signInAsAdmin);
   it("can sign in", () => assertSignedIn());
   it("have access to admin menu once signed in", () => {
-    findMainMenu("Admin").should("exist");
+    findMainMenuSection("Admin").should("exist");
   });
 });
 
@@ -57,13 +57,13 @@ describe("user", () => {
 
   it("does not have access to admin menu", () => {
     assertSignedIn(user.name);
-    findMainMenu("Admin").should("not.exist");
+    findMainMenuSection("Admin").should("not.exist");
   });
 });
 
 describe("guest", () => {
   it("does not have access to admin menu", () => {
-    findMainMenu("Admin").should("not.exist");
+    findMainMenuSection("Admin").should("not.exist");
   });
 
   it("is not given access when attempting to sign in with bogus credentials", () => {
