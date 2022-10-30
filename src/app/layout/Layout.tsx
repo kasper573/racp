@@ -3,7 +3,6 @@ import {
   AppBar,
   Box,
   Container,
-  Divider,
   Drawer as MuiDrawer,
   Fade,
   IconButton,
@@ -81,6 +80,7 @@ export function Layout({ children }: { children?: ReactNode }) {
         </MuiToolbar>
       </AppBar>
       <MuiDrawer
+        aria-label="Main menu"
         variant={isDrawerPermanent ? "permanent" : "temporary"}
         open={isDrawerOpen}
         onClose={handleDrawerCloseRequest}
@@ -98,7 +98,6 @@ export function Layout({ children }: { children?: ReactNode }) {
             </Box>
           </Fade>
         </MuiToolbar>
-        <Divider />
         <Menu onItemSelected={handleDrawerCloseRequest} />
       </MuiDrawer>
       <Box component="main" sx={contentBounds}>

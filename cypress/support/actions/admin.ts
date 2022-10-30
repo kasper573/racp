@@ -1,5 +1,6 @@
 import { signIn } from "./user";
 import { gotoMainMenuPage } from "./nav";
+import { waitForPageReady } from "./common";
 
 export function resetData() {
   cy.exec("yarn run reset-data", { log: true });
@@ -11,7 +12,7 @@ export function signInAsAdmin() {
 
 export function uploadAssets() {
   const fixtures = Cypress.config("fixturesFolder");
-  gotoMainMenuPage("Assets", { menuName: "Admin" });
+  gotoMainMenuPage("Assets");
   cy.selectFileByName("mapInfo", `${fixtures}/mapInfo.lub`);
   cy.selectFileByName("itemInfo", `${fixtures}/itemInfo.lub`);
   cy.selectFileByName("data", `${fixtures}/data.grf`);
@@ -19,7 +20,9 @@ export function uploadAssets() {
 
   // Uploads will cause the API to rebuild cache a lot which can take some time,
   // so having a long timeout here is a good safety measure against flake.
-  cy.contains("Upload completed", { timeout: 60000 });
+  waitForPageReady(60 * 1000 * 2);
+
+  cy.contains("Upload completed");
   cy.contains("Errors during upload").should("not.exist");
 }
 

@@ -4,8 +4,8 @@ import { Item, ItemId } from "../item/types";
 import { Monster, MonsterId } from "../monster/types";
 import {
   applyDropRates,
-  createDropsRates,
-} from "../../rathena/createDropsRates";
+  createDropsRatesRegistry,
+} from "../../rathena/DropRatesRegistry";
 import { ResourceFactory } from "../../resources";
 import { ItemDrop } from "./types";
 
@@ -20,13 +20,13 @@ export function createDropRepository({
   monsters: Repository<Map<MonsterId, Monster>>;
   items: Repository<Map<ItemId, Item>>;
 }) {
-  const dropRates = createDropsRates(
+  const rates = createDropsRatesRegistry(
     resources.config({ configName: "battle/drops.conf" }),
     resources.config({ configName: "import/battle_conf.txt" })
   );
-  return monsters
-    .and(items, dropRates)
-    .map("drops", ([monsters, items, dropRates]) => {
+  const drops = monsters
+    .and(items, rates)
+    .map("drops", ([monsters, items, rates]) => {
       const itemsByAegisName = groupBy(
         Array.from(items.values()),
         (item) => item.AegisName
@@ -48,8 +48,8 @@ export function createDropRepository({
               MonsterName: monster.Name,
               MonsterImageUrl: monster.ImageUrl,
             };
-            if (dropRates) {
-              applyDropRates(drop, monster, item, dropRates);
+            if (rates) {
+              applyDropRates(drop, monster, item, rates);
             }
             drops.push(drop);
           }
@@ -57,4 +57,9 @@ export function createDropRepository({
       }
       return drops;
     });
+
+  return {
+    rates,
+    drops,
+  };
 }
