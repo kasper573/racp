@@ -15,8 +15,14 @@ import { routes } from "../../router";
 import { EditableText } from "../../components/EditableText";
 import { Hunt, huntStore } from "./huntStore";
 
-export function HuntCard({ hunt }: { hunt: Hunt }) {
-  const { deleteHunt, renameHunt } = useStore(huntStore);
+export function HuntCard({
+  hunt,
+  onDelete,
+}: {
+  hunt: Hunt;
+  onDelete?: (hunt: Hunt) => void;
+}) {
+  const { renameHunt } = useStore(huntStore);
   return (
     <CardListItem sx={{ display: "flex", flexDirection: "column" }}>
       <CardContent
@@ -27,7 +33,6 @@ export function HuntCard({ hunt }: { hunt: Hunt }) {
           type="text"
           value={hunt.name}
           onChange={(newName) => renameHunt(hunt.id, newName)}
-          variant="standard"
           sx={{ mb: 1 }}
           typographyProps={{ variant: "h5" }}
         />
@@ -43,7 +48,7 @@ export function HuntCard({ hunt }: { hunt: Hunt }) {
           View
         </LinkButton>
         <Tooltip title={`Delete "${hunt.name}"`}>
-          <IconButton onClick={() => deleteHunt(hunt.id)}>
+          <IconButton onClick={() => onDelete?.(hunt)}>
             <Delete />
           </IconButton>
         </Tooltip>
