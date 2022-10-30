@@ -49,6 +49,14 @@ export const huntStore = createStore<HuntStore>()(
           });
         });
       },
+      renameHunt(huntId, newName) {
+        set((state) => {
+          const hunt = state.hunts.find((h) => h.id === huntId);
+          if (hunt) {
+            hunt.name = newName;
+          }
+        });
+      },
       deleteHunt(id) {
         set((state) => {
           state.hunts = state.hunts.filter((h) => h.id !== id);
@@ -202,6 +210,7 @@ export interface HuntStore {
 
   // Actions
   addItems: (huntId: HuntId, items: ItemId[]) => void;
+  renameHunt: (huntId: HuntId, name: string) => void;
   updateItem: (item: HuntedItem) => void;
   removeItem: (huntId: HuntId, itemId: ItemId) => void;
   updateMonster: (monster: HuntedMonster) => void;

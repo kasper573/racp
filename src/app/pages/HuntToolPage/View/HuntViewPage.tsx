@@ -16,14 +16,23 @@ import { HuntedMonsterGrid } from "./HuntedMonsterGrid";
 export default function HuntViewPage({
   params: { id: huntId },
 }: RouteComponentProps<{ id: HuntId }>) {
-  const { getRichHunt, addItems } = useStore(huntStore);
+  const { getRichHunt, addItems, renameHunt } = useStore(huntStore);
   const hunt = getRichHunt(huntId);
   if (!hunt) {
     return <Header title="Unknown hunt" />;
   }
   return (
     <>
-      <Header title={hunt.name} />
+      <Header
+        title={
+          <TextField
+            type="text"
+            value={hunt.name}
+            onChange={(newName) => renameHunt(huntId, newName)}
+            variant="standard"
+          />
+        }
+      />
 
       <Typography paragraph>
         This page shows an estimate per item how long it will take to farm the
