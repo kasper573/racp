@@ -1,3 +1,4 @@
+import { v4 as uuid } from "uuid";
 import { createStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
@@ -8,7 +9,8 @@ import { typedAssign } from "../../../lib/std/typedAssign";
 import { ItemDrop } from "../../../api/services/drop/types";
 
 export const huntStore = createStore<{
-  session: HuntSession;
+  hunts: Hunt[];
+  session: Hunt;
   addItems: (items: ItemId[]) => void;
   updateItem: (hunt: HuntedItem) => void;
   removeItem: (itemId: ItemId) => void;
@@ -36,7 +38,8 @@ export const huntStore = createStore<{
           state.dropChanceMultiplier = Math.max(value, 0);
         });
       },
-      session: createHuntSession(),
+      hunts: [],
+      session: createHunt(),
       addItems(added) {
         set(({ session }) => {
           const existing = session.items.map((i) => i.itemId);
@@ -140,7 +143,10 @@ export const huntStore = createStore<{
   )
 );
 
-export type HuntSession = {
+export type HuntId = string;
+export type Hunt = {
+  id: HuntId;
+  name: string;
   items: HuntedItem[];
   monsters: HuntedMonster[];
 };
@@ -171,8 +177,10 @@ export const kpxUnitScales: Record<KpxUnit, number> = {
   "Kills per day": 1000 * 60 * 60 * 24,
 };
 
-export function createHuntSession(): HuntSession {
+export function createHunt(): Hunt {
   return {
+    id: uuid(),
+    name: "",
     items: [],
     monsters: [],
   };
