@@ -5,12 +5,15 @@ import {
   TableHead,
   TableRow,
   Typography,
+  useTheme,
 } from "@mui/material";
+import { useMemo } from "react";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { TabbedPaper } from "../components/TabbedPaper";
 import { DropRateGroup } from "../../api/rathena/DropRatesRegistry.types";
+import { colorForAmount, ColorStop } from "../util/colorForAmount";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ServerInfoPage() {
@@ -57,13 +60,28 @@ function DropRateTable({ rates }: { rates: DropRateGroup[] }) {
       <TableBody>
         {rates.map(({ name, scales }) => (
           <TableRow key={name}>
-            <TableCell sx={{ whiteSpace: "nowrap" }}>{name}</TableCell>
-            <TableCell>{scales.all * 100}%</TableCell>
-            <TableCell>{scales.bosses * 100}%</TableCell>
-            <TableCell>{scales.mvps * 100}%</TableCell>
+            <TableCell>{name}</TableCell>
+            <DropRateTableCell rate={scales.all} />
+            <DropRateTableCell rate={scales.bosses} />
+            <DropRateTableCell rate={scales.mvps} />
           </TableRow>
         ))}
       </TableBody>
     </Table>
   );
 }
+
+function DropRateTableCell({ rate }: { rate: number }) {
+  const theme = useTheme();
+  const color = useMemo(
+    () => colorForAmount(rate, createColorStops(theme.palette.text.primary)),
+    [rate, theme.palette.text.primary]
+  );
+  return <TableCell sx={{ color }}>{rate * 100}%</TableCell>;
+}
+
+const createColorStops = (defaultColor: string): ColorStop[] => [
+  [0, "#ff0000"],
+  [1, defaultColor],
+  [2, "#00ff00"],
+];

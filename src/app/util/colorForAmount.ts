@@ -1,7 +1,11 @@
 import { clamp } from "lodash";
 import interpolate = require("color-interpolate");
 
-export function colorForAmount(value: number, colors: Array<[number, string]>) {
+export type ColorStop = [number, string];
+export function colorForAmount(
+  value: number,
+  colors: ReadonlyArray<ColorStop>
+) {
   value = Math.max(0, value);
   for (let i = 1; i < colors.length; i++) {
     const [min, colA] = colors[i - 1];
