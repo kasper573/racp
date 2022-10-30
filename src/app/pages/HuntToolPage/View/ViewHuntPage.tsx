@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useStore } from "zustand";
 import { Stack, Typography } from "@mui/material";
 import { Item } from "../../../../api/services/item/types";
-import { Header } from "../../../layout/Header";
 import { ItemIdentifier } from "../../../components/ItemIdentifier";
 import { trpc } from "../../../state/client";
 import { SearchField } from "../../../components/SearchField";
@@ -10,6 +9,7 @@ import { CommonPageGrid } from "../../../components/CommonPageGrid";
 import { TextField } from "../../../controls/TextField";
 import { Select } from "../../../controls/Select";
 import { huntStore, KpxUnit, kpxUnits } from "../huntStore";
+import { Header } from "../../../layout/Header";
 import { HuntedItemGrid } from "./HuntedItemGrid";
 import { HuntedMonsterGrid } from "./HuntedMonsterGrid";
 
@@ -23,17 +23,8 @@ export default function ViewHuntPage() {
       <Header />
 
       <Typography paragraph>
-        Here you can track the items you are hunting for.
-      </Typography>
-      <Typography paragraph>
-        The tool will show you an estimate per item how long it will take to
-        farm the amount you have specified. <br />
-        You decide which monsters to hunt for per item and specify how fast you
-        kill them, and the tool will do the rest.
-      </Typography>
-      <Typography paragraph>
-        Data is stored in your local browser storage, so you can safely leave
-        this page and return to it later on the same device.
+        This page shows an estimate per item how long it will take to farm the
+        amount have specified while hunting the given monsters
       </Typography>
 
       <SearchField<Item>
@@ -79,7 +70,6 @@ function Settings() {
       <TextField
         type="number"
         label="Drop rate multiplier"
-        helperText="(Server rates already applied)"
         value={dropChanceMultiplier}
         onChange={(value) => setDropChanceMultiplier(value)}
       />
