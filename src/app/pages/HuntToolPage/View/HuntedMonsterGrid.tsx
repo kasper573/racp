@@ -4,7 +4,7 @@ import { Box, Tooltip } from "@mui/material";
 import { OpenInNew } from "@mui/icons-material";
 import { TextField } from "../../../controls/TextField";
 import { trpc } from "../../../state/client";
-import { MonsterIdentifier } from "../../../components/MonsterIdentifier";
+import { MonsterIdentifierByFilter } from "../../../components/MonsterIdentifier";
 import { MonsterId } from "../../../../api/services/monster/types";
 import { ColumnConventionProps, DataGrid } from "../../../components/DataGrid";
 import { LoadingSpinner } from "../../../components/LoadingSpinner";
@@ -38,21 +38,9 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
     minWidth: 100,
     sortable: false,
     renderCell({ row: hunt }) {
-      const { data: { entities: [monster] = [] } = {}, isLoading } =
-        trpc.monster.search.useQuery({
-          filter: { Id: { value: hunt.monsterId, matcher: "=" } },
-        });
-      if (isLoading) {
-        return <LoadingSpinner />;
-      }
-      if (!monster) {
-        return <span>Monster {hunt.monsterId} not found</span>;
-      }
       return (
-        <MonsterIdentifier
-          name={monster.Name}
-          id={monster.Id}
-          imageUrl={monster.ImageUrl}
+        <MonsterIdentifierByFilter
+          filter={{ Id: { value: hunt.monsterId, matcher: "=" } }}
           sx={{ whiteSpace: "nowrap" }}
         />
       );
