@@ -41,6 +41,8 @@ import { coloredConsole, logFormat } from "./common/logFormat";
 import { createSkillRepository } from "./services/skill/repository";
 import { createSkillService } from "./services/skill/service";
 import { createAdminSettingsRepository } from "./services/settings/repository";
+import { createExpRepository } from "./services/exp/repository";
+import { createExpService } from "./services/exp/service";
 
 enableMapSet();
 
@@ -75,6 +77,7 @@ const drops = createDropRepository({ ...items, ...monsters, resources });
 const shops = createShopRepository({ ...items, resources });
 const maps = createMapRepository({ ...monsters, resources });
 const skills = createSkillRepository(resources);
+const exp = createExpRepository(resources);
 
 if (args.preloadAllResources) {
   Promise.all(resourceManager.instances);
@@ -93,6 +96,7 @@ const router = createApiRouter({
   map: createMapService(maps),
   settings: createAdminSettingsService(settings),
   meta: createMetaService({ ...items, ...monsters }),
+  exp: createExpService(exp),
   donation: createDonationService({
     db,
     env: args.donationEnvironment,

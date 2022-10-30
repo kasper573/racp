@@ -19,10 +19,13 @@ import { LoadingPage } from "./LoadingPage";
 export default function ServerInfoPage() {
   const settings = trpc.settings.readPublic.useQuery();
   const dropRates = trpc.drop.rates.useQuery();
-  if (settings.isLoading || dropRates.isLoading) {
+  const exp = trpc.exp.config.useQuery();
+
+  if (settings.isLoading || dropRates.isLoading || exp.isLoading) {
     return <LoadingPage />;
   }
-  if (!settings.data || !dropRates.data) {
+
+  if (!settings.data || !dropRates.data || !exp.data) {
     return (
       <ErrorMessage error="Something went wrong, please try again later" />
     );

@@ -12,6 +12,7 @@ import { NpcService } from "./services/npc/service";
 import { AdminSettingsService } from "./services/settings/service";
 import { DonationService } from "./services/donation/service";
 import { SkillService } from "./services/skill/service";
+import { ExpService } from "./services/exp/service";
 
 export function createApiRouter(services: ApiServices) {
   return t.router(services);
@@ -30,6 +31,7 @@ export type ApiServices = {
   map: MapService;
   meta: MetaService;
   settings: AdminSettingsService;
+  exp: ExpService;
   donation: DonationService;
 };
 
