@@ -6,7 +6,6 @@ import {
   adminSettingsType,
   rAthenaModeType,
 } from "../../api/services/settings/types";
-import { ZodField } from "../controls/ZodField";
 import { Switch } from "../controls/Switch";
 import { TabbedPaper } from "../components/TabbedPaper";
 import { Select } from "../controls/Select";
@@ -24,15 +23,7 @@ export function AdminSettingsForm(props: ZodFormOptions<AdminSettings>) {
             label: "Appearance",
             content: (
               <Stack spacing={2}>
-                <TextField label="Page Title" {...field("pageTitle")} />
-                <ZodField
-                  label="Zeny Colors"
-                  helperText={
-                    "Colors to use for zeny as prices go up. Format: [[price1, color1], [price2, color2], ...]. " +
-                    "Color values can be any css color. Price values must be in rising order."
-                  }
-                  {...field("zenyColors")}
-                />
+                <TextField label="Website Title" {...field("pageTitle")} />
               </Stack>
             ),
           },
