@@ -13,7 +13,7 @@ import { huntStore, KpxUnit, kpxUnits } from "../huntStore";
 import { HuntedItemGrid } from "./HuntedItemGrid";
 import { HuntedMonsterGrid } from "./HuntedMonsterGrid";
 
-export default function HuntToolPage() {
+export default function ViewHuntPage() {
   const { session, normalizeSession, addItems } = useStore(huntStore);
 
   useEffect(normalizeSession, [session, normalizeSession]);
