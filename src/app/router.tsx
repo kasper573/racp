@@ -6,6 +6,7 @@ import {
   Home,
   Image,
   ImageSearch,
+  Info,
   Login,
   Map,
   Paid,
@@ -139,7 +140,7 @@ export const router = t.router({
   serverInfo: t.route
     .path("server-info")
     .renderer(lazy(() => import("./pages/ServerInfoPage")))
-    .meta({ title: "Server Info", icon: <Paid /> }),
+    .meta({ title: "Server Info", icon: <Info /> }),
   tools: t.route
     .path("tools")
     .meta({ title: "Tools" })
