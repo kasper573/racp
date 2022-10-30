@@ -18,7 +18,7 @@ export function createUserRepository({
 
     if (ids.length === 0) {
       groupsResource.logger.warn(
-        `Admin access disabled. No user groups with the permission "${adminPermissionName}" could be found.`
+        `No user groups with the permission "${adminPermissionName}" could be found.`
       );
     }
 
