@@ -148,7 +148,7 @@ export const router = t.router({
       hunt: t.route
         .path("hunt")
         .meta({ title: "Hunt", icon: <ImageSearch /> })
-        .renderer(lazy(() => import("./pages/HuntToolPage"))),
+        .renderer(lazy(() => import("./pages/HuntToolPage/View"))),
     }),
   admin: t.route
     .path("admin", { exact: true })

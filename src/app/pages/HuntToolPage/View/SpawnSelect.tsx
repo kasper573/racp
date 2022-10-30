@@ -3,7 +3,7 @@ import { ComponentProps } from "react";
 import {
   MonsterSpawn,
   MonsterSpawnId,
-} from "../../../api/services/monster/types";
+} from "../../../../api/services/monster/types";
 
 export function SpawnSelect({
   value,

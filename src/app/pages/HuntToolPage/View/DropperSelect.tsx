@@ -1,9 +1,9 @@
 import { MenuItem, Select, useTheme } from "@mui/material";
 import { ComponentProps } from "react";
-import { ItemDrop } from "../../../api/services/drop/types";
-import { MonsterId } from "../../../api/services/monster/types";
-import { MonsterIdentifier } from "../../components/MonsterIdentifier";
-import { dropChanceString } from "../../grids/ItemDropGrid";
+import { ItemDrop } from "../../../../api/services/drop/types";
+import { MonsterId } from "../../../../api/services/monster/types";
+import { MonsterIdentifier } from "../../../components/MonsterIdentifier";
+import { dropChanceString } from "../../../grids/ItemDropGrid";
 
 export function DropperSelect({
   value,
