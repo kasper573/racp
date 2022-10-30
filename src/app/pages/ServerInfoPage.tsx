@@ -1,15 +1,24 @@
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
-import { KVTable } from "../components/KVTable";
 import { ErrorMessage } from "../components/ErrorMessage";
+import { TabbedPaper } from "../components/TabbedPaper";
 import { LoadingPage } from "./LoadingPage";
 
 export default function ServerInfoPage() {
-  const { data, isLoading } = trpc.settings.readPublic.useQuery();
-  if (isLoading) {
+  const settings = trpc.settings.readPublic.useQuery();
+  const dropRates = trpc.drop.rates.useQuery();
+  if (settings.isLoading || dropRates.isLoading) {
     return <LoadingPage />;
   }
-  if (!data) {
+  if (!settings.data || !dropRates.data) {
     return (
       <ErrorMessage error="Something went wrong, please try again later" />
     );
@@ -18,11 +27,39 @@ export default function ServerInfoPage() {
   return (
     <>
       <Header />
-      <KVTable
-        sx={{ maxWidth: 400 }}
-        rows={{
-          Mode: data.rAthenaMode,
-        }}
+      <Typography paragraph>
+        Server is using {settings.data.rAthenaMode} mode.
+      </Typography>
+      <TabbedPaper
+        tabs={[
+          {
+            label: "Drop rates",
+            content: (
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Item type</TableCell>
+                    <TableCell>Common monsters</TableCell>
+                    <TableCell>Boss monsters</TableCell>
+                    <TableCell>Mvp monsters</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {dropRates.data.map(({ name, scales }) => (
+                    <TableRow key={name}>
+                      <TableCell sx={{ whiteSpace: "nowrap" }}>
+                        {name}
+                      </TableCell>
+                      <TableCell>{scales.all * 100}%</TableCell>
+                      <TableCell>{scales.bosses * 100}%</TableCell>
+                      <TableCell>{scales.mvps * 100}%</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ),
+          },
+        ]}
       />
     </>
   );
