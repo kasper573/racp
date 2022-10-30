@@ -13,6 +13,7 @@ export function Menu({ onItemSelected }: { onItemSelected?: () => void }) {
       <RouteList
         aria-label="General"
         routes={defined([
+          routes.serverInfo.$,
           settings?.donations.enabled ? routes.donation.$ : undefined,
         ])}
         onClick={onItemSelected}
