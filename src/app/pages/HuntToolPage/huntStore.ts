@@ -43,10 +43,13 @@ export const huntStore = createStore<HuntStore>()(
       },
       createHunt() {
         set((state) => {
+          const id = uuid();
           state.hunts.push({
-            id: uuid(),
+            id,
             name: "New hunt",
+            editedAt: Date.now(),
           });
+          touchHunt(id, state);
         });
       },
       renameHunt(huntId, newName) {
@@ -73,6 +76,7 @@ export const huntStore = createStore<HuntStore>()(
             state.items.push({ itemId: id, huntId, amount: 0 });
           }
           normalizeHunt(huntId, state);
+          touchHunt(huntId, state);
         });
       },
       updateItem(update) {
@@ -84,6 +88,7 @@ export const huntStore = createStore<HuntStore>()(
             typedAssign(item, update);
             item.amount = Math.max(item.amount, 0);
             normalizeHunt(item.huntId, state);
+            touchHunt(item.huntId, state);
           }
         });
       },
@@ -95,6 +100,7 @@ export const huntStore = createStore<HuntStore>()(
           if (index !== -1) {
             state.items.splice(index, 1);
             normalizeHunt(huntId, state);
+            touchHunt(huntId, state);
           }
         });
       },
@@ -134,6 +140,14 @@ function normalizeHunt(huntId: HuntId, state: HuntStore) {
       (m) => isMatch(m) && m.monsterId === id
     );
     state.monsters.splice(index, 1);
+  }
+}
+
+function touchHunt(huntId: HuntId, state: HuntStore) {
+  const hunt = state.hunts.find((h) => h.id === huntId);
+  if (hunt) {
+    hunt.editedAt = Date.now();
+    state.hunts.sort((a, b) => b.editedAt - a.editedAt);
   }
 }
 
@@ -225,6 +239,7 @@ export type HuntId = zod.infer<typeof huntIdType>;
 export type Hunt = {
   id: HuntId;
   name: string;
+  editedAt: number;
 };
 
 export type HuntedItem = {
