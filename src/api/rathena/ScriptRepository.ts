@@ -5,12 +5,13 @@ import { matchRecursive } from "xregexp";
 import { ZodTypeDef } from "zod/lib/types";
 import { base64encode } from "byte-base64";
 import recursiveWatch = require("recursive-watch");
-import { RAthenaMode } from "../options";
 import { gfs } from "../gfs";
 import { createSegmentedObject } from "../../lib/zod/ZodSegmentedObject";
 import { RepositoryOptions } from "../../lib/repo/Repository";
 import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
 import { defined } from "../../lib/std/defined";
+import { Atom } from "../../lib/repo/Atom";
+import { RAthenaMode } from "../services/settings/types";
 import { modeFolderNames, nonEmptyLines, removeComments } from "./util/parse";
 
 export function createScriptEntityResolver(getRepo: () => ScriptRepository) {
@@ -28,11 +29,11 @@ export function createScriptEntityResolver(getRepo: () => ScriptRepository) {
 
 export type ScriptRepositoryOptions = RepositoryOptions<RawScriptEntity[]> & {
   rAthenaPath: string;
-  rAthenaMode: RAthenaMode;
 };
 
 export class ScriptRepository extends ReactiveRepository<RawScriptEntity[]> {
   private readonly baseFolder = path.resolve(this.options.rAthenaPath, "npc");
+  readonly rAthenaMode = new Atom<RAthenaMode>(() => this.clearCache());
 
   constructor(private options: ScriptRepositoryOptions) {
     super({ defaultValue: options.defaultValue ?? [], ...options });
@@ -43,10 +44,10 @@ export class ScriptRepository extends ReactiveRepository<RawScriptEntity[]> {
   }
 
   protected async readImpl() {
-    const { rAthenaPath, rAthenaMode } = this.options;
+    const { rAthenaPath } = this.options;
     const scriptMainFile = path.resolve(
       this.baseFolder,
-      modeFolderNames[rAthenaMode],
+      modeFolderNames[this.rAthenaMode.get()],
       "scripts_main.conf"
     );
 

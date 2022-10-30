@@ -47,6 +47,9 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
       if (isLoading) {
         return <LoadingSpinner />;
       }
+      if (!monster) {
+        return <span>Monster {hunt.monsterId} not found</span>;
+      }
       return (
         <MonsterIdentifier
           name={monster.Name}

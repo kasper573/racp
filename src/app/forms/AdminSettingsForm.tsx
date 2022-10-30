@@ -4,6 +4,7 @@ import { useZodForm, ZodFormOptions } from "../../lib/zod/useZodForm";
 import {
   AdminSettings,
   adminSettingsType,
+  rAthenaModeType,
 } from "../../api/services/settings/types";
 import { ZodField } from "../controls/ZodField";
 import { Switch } from "../controls/Switch";
@@ -86,6 +87,20 @@ export function AdminSettingsForm(props: ZodFormOptions<AdminSettings>) {
                   label="Exchange rate"
                   helperText={`How many credits does 1 ${props.value.donations.currency} equal?`}
                   {...field("donations.exchangeRate")}
+                />
+              </Stack>
+            ),
+          },
+          {
+            label: "rAthena",
+            content: (
+              <Stack spacing={2}>
+                <Select
+                  label="Mode"
+                  required
+                  options={rAthenaModeType.options}
+                  helperText="Changing mode will reset API caches and may slow down the website for a moment"
+                  {...field("rAthenaMode")}
                 />
               </Stack>
             ),

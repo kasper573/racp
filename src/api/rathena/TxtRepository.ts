@@ -2,19 +2,19 @@ import * as path from "path";
 import * as zod from "zod";
 import { AnyZodObject, ZodRawShape, ZodTypeAny } from "zod";
 import recursiveWatch = require("recursive-watch");
-import { RAthenaMode } from "../options";
 import { gfs } from "../gfs";
 import { ZodCustomObject } from "../../lib/zod/ZodCustomObject";
 import { defined } from "../../lib/std/defined";
 import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
 import { RepositoryOptions } from "../../lib/repo/Repository";
+import { Atom } from "../../lib/repo/Atom";
+import { RAthenaMode } from "../services/settings/types";
 import { modeFolderNames, nonEmptyLines, removeComments } from "./util/parse";
 
 export type TxtRepositoryOptions<ET extends AnyZodObject> = RepositoryOptions<
   zod.infer<ET>[]
 > & {
   rAthenaPath: string;
-  rAthenaMode: RAthenaMode;
   startFolder: string;
   relativeFilePath: string;
   entityType: ET;
@@ -27,6 +27,9 @@ export class TxtRepository<ET extends AnyZodObject> extends ReactiveRepository<
     this.options.rAthenaPath,
     this.options.startFolder
   );
+
+  readonly rAthenaMode = new Atom<RAthenaMode>(() => this.clearCache());
+
   constructor(private options: TxtRepositoryOptions<ET>) {
     super({
       ...options,
@@ -41,7 +44,7 @@ export class TxtRepository<ET extends AnyZodObject> extends ReactiveRepository<
   protected async readImpl() {
     const modeFolder = path.resolve(
       this.baseFolder,
-      modeFolderNames[this.options.rAthenaMode]
+      modeFolderNames[this.rAthenaMode.get()]
     );
 
     const importFolder = path.resolve(this.baseFolder, "import");

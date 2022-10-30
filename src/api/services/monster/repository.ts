@@ -1,7 +1,7 @@
 import { pick } from "lodash";
 import produce from "immer";
-import { RAthenaMode } from "../../options";
 import { ResourceFactory } from "../../resources";
+import { AdminSettingsRepository } from "../settings/repository";
 import {
   Mvp,
   createMvpId,
@@ -15,10 +15,10 @@ import { postProcessMonster } from "./util/postProcessMonster";
 export type MonsterRepository = ReturnType<typeof createMonsterRepository>;
 
 export function createMonsterRepository({
-  rAthenaMode,
+  settings,
   resources,
 }: {
-  rAthenaMode: RAthenaMode;
+  settings: AdminSettingsRepository;
   resources: ResourceFactory;
 }) {
   const images = resources.images("monsters");
@@ -31,8 +31,8 @@ export function createMonsterRepository({
   });
 
   const monsters = monsterDB
-    .and(images)
-    .map("monsters", ([monsterDB, images]) =>
+    .and(images, settings)
+    .map("monsters", ([monsterDB, images, { rAthenaMode }]) =>
       produce(monsterDB, (db) => {
         for (const monster of db.values()) {
           postProcessMonster(monster, {

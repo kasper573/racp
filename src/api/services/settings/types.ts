@@ -38,8 +38,13 @@ export const donationSettingsType = conditionallyRequired(
   "Required when donations are enabled"
 );
 
+export const rAthenaModeType = zod.enum(["Renewal", "Prerenewal"]);
+
+export type RAthenaMode = zod.infer<typeof rAthenaModeType>;
+
 export type AdminSettings = zod.infer<typeof adminSettingsType>;
 export const adminSettingsType = zod.object({
+  rAthenaMode: rAthenaModeType,
   pageTitle: zod.string(),
   zenyColors: zod.object({
     // One for each theme mode

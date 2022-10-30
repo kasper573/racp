@@ -8,12 +8,13 @@ import { typedKeys } from "../../lib/std/typedKeys";
 import { gfs } from "../gfs";
 import { RepositoryOptions } from "../../lib/repo/Repository";
 import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
+import { Atom } from "../../lib/repo/Atom";
+import { RAthenaMode } from "../services/settings/types";
 
 export type YamlRepositoryOptions<ET extends ZodType, Key> = RepositoryOptions<
   Map<Key, zod.infer<ET>>
 > & {
   rAthenaPath: string;
-  rAthenaMode: string;
   file: string;
   resolver: YamlResolver<ET, Key>;
 };
@@ -21,6 +22,8 @@ export type YamlRepositoryOptions<ET extends ZodType, Key> = RepositoryOptions<
 export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
   Map<Key, zod.infer<ET>>
 > {
+  readonly rAthenaMode = new Atom<RAthenaMode>(() => this.clearCache());
+
   constructor(private options: YamlRepositoryOptions<ET, Key>) {
     super({
       ...options,
@@ -52,7 +55,8 @@ export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
   }
 
   private async loadRaw() {
-    const { rAthenaMode, file } = this.options;
+    const { file } = this.options;
+    const rAthenaMode = this.rAthenaMode.get();
     const imports: ImportNode[] = [{ Path: file, Mode: rAthenaMode }];
     const raw: unknown[] = [];
     while (imports.length) {

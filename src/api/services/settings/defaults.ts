@@ -1,6 +1,7 @@
 import { AdminSettings, Currency, ZenyColor } from "./types";
 
 export const defaultAdminSettings: AdminSettings = {
+  rAthenaMode: "Renewal",
   zenyColors: {
     dark: defaultZenyColors("white"),
     light: defaultZenyColors("black"),
