@@ -105,6 +105,8 @@ export function createResourceManager({
     )
     .build();
 
+  manager.add(settings);
+
   scripts = manager.createUsing(() =>
     settings.pipe(new ScriptRepository(options))
   );

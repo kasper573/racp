@@ -66,8 +66,6 @@ const resourceManager = createResourceManager({
   ...args,
 });
 
-resourceManager.add(settings);
-
 const resources = resourceManager.create;
 const npcs = createNpcRepository(resources);
 const user = createUserRepository({ ...args, resources });
