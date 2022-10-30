@@ -10,7 +10,7 @@ import { durationString } from "../../../../lib/std/durationString";
 import { InfoTooltip } from "../../../components/InfoTooltip";
 import { ColumnConventionProps, DataGrid } from "../../../components/DataGrid";
 import { ItemId } from "../../../../api/services/item/types";
-import { HuntedItem, huntStore } from "../huntStore";
+import { estimateHuntDuration, HuntedItem, huntStore } from "../huntStore";
 import { DropperSelect } from "./DropperSelect";
 
 export function HuntedItemGrid({ items }: { items: HuntedItem[] }) {
@@ -87,33 +87,29 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
     sortable: false,
     ...forceWidth(115),
     renderCell({ row: huntedItem }) {
-      const { getRichHunt, estimateHuntDuration, kpxUnit } =
-        useStore(huntStore);
+      const { getRichHunt, ...huntState } = useStore(huntStore);
       const hunt = getRichHunt(huntedItem.huntId);
-      const { data: { entities: allHuntedDroppers = [] } = {} } =
-        trpc.drop.search.useQuery(
-          {
-            filter: {
-              ItemId: { value: huntedItem.itemId, matcher: "=" },
-              MonsterId: {
-                matcher: "oneOfN",
-                value: hunt?.monsters.map((m) => m.monsterId) ?? [],
-              },
+      const { data: { entities: drops = [] } = {} } = trpc.drop.search.useQuery(
+        {
+          filter: {
+            ItemId: { value: huntedItem.itemId, matcher: "=" },
+            MonsterId: {
+              matcher: "oneOfN",
+              value: hunt?.monsters.map((m) => m.monsterId) ?? [],
             },
           },
-          { enabled: !!hunt }
-        );
-      const huntDuration = estimateHuntDuration(
-        huntedItem.huntId,
-        allHuntedDroppers
+        },
+        { enabled: !!hunt }
       );
+
+      const huntDuration = estimateHuntDuration({ hunt, drops, ...huntState });
       return (
         <Typography noWrap textAlign="center">
           {huntDuration === "unknown" ? (
             <InfoTooltip
               title={
                 "Not enough data to estimate hunt duration. " +
-                `Make sure you have selected monster targets and specified ${kpxUnit}.`
+                `Make sure you have selected monster targets and specified ${huntState.kpxUnit}.`
               }
             >
               ?

@@ -102,53 +102,6 @@ export const huntStore = createStore<HuntStore>()(
           }
         });
       },
-      estimateHuntDuration(huntId, itemDrops) {
-        const state = getState();
-        const { kpxUnit, dropChanceMultiplier } = state;
-        const items = state.items.filter((i) => i.huntId === huntId);
-        const monsters = state.monsters.filter((m) => m.huntId === huntId);
-
-        const killsPerUnitLookup = monsters.reduce(
-          (acc, m) => ({ ...acc, [m.monsterId]: m.killsPerUnit }),
-          {} as Record<number, number>
-        );
-
-        const huntLookup = items.reduce(
-          (acc, h) => ({ ...acc, [h.itemId]: h }),
-          {} as Record<number, HuntedItem>
-        );
-
-        let huntUnits: number | undefined;
-        const groups = groupBy(itemDrops, (d) => d.ItemId);
-        for (const drops of Object.values(groups)) {
-          const itemId = drops[0].ItemId;
-          const hunt = huntLookup[itemId];
-          if (!hunt) {
-            continue;
-          }
-          let successesPerUnit = 0;
-          for (const drop of drops) {
-            const attemptsPerUnit = killsPerUnitLookup[drop.MonsterId];
-            if (attemptsPerUnit !== undefined) {
-              const dropChance = (drop.Rate / 100 / 100) * dropChanceMultiplier;
-              successesPerUnit += attemptsPerUnit * dropChance;
-            }
-          }
-          if (successesPerUnit > 0) {
-            if (huntUnits === undefined) {
-              huntUnits = 0;
-            }
-            huntUnits += hunt.amount / successesPerUnit;
-          }
-        }
-
-        if (huntUnits === undefined) {
-          return "unknown";
-        } else {
-          const scale = kpxUnitScales[kpxUnit];
-          return huntUnits * scale;
-        }
-      },
     })),
     { name: "hunts" }
   )
@@ -176,6 +129,61 @@ function normalizeHunt(huntId: HuntId, state: HuntStore) {
   }
 }
 
+export function estimateHuntDuration({
+  hunt,
+  drops,
+  kpxUnit,
+  dropChanceMultiplier,
+}: {
+  hunt?: RichHunt;
+  drops: Pick<ItemDrop, "ItemId" | "MonsterId" | "Rate">[];
+  kpxUnit: KpxUnit;
+  dropChanceMultiplier: number;
+}): number | "unknown" {
+  if (!hunt) {
+    return "unknown";
+  }
+  const killsPerUnitLookup = hunt.monsters.reduce(
+    (map, m) => map.set(m.monsterId, m.killsPerUnit),
+    new Map<MonsterId, number>()
+  );
+  const itemAmountsLookup = hunt.items.reduce(
+    (map, m) => map.set(m.itemId, m.amount),
+    new Map<ItemId, number>()
+  );
+
+  let huntUnits: number | undefined;
+  const groups = groupBy(drops, (d) => d.ItemId);
+  for (const drops of Object.values(groups)) {
+    const itemId = drops[0].ItemId;
+    const itemAmount = itemAmountsLookup.get(itemId);
+    if (itemAmount === undefined) {
+      continue;
+    }
+    let successesPerUnit = 0;
+    for (const drop of drops) {
+      const attemptsPerUnit = killsPerUnitLookup.get(drop.MonsterId);
+      if (attemptsPerUnit !== undefined) {
+        const dropChance = (drop.Rate / 100 / 100) * dropChanceMultiplier;
+        successesPerUnit += attemptsPerUnit * dropChance;
+      }
+    }
+    if (successesPerUnit > 0) {
+      if (huntUnits === undefined) {
+        huntUnits = 0;
+      }
+      huntUnits += itemAmount / successesPerUnit;
+    }
+  }
+
+  if (huntUnits === undefined) {
+    return "unknown";
+  } else {
+    const scale = kpxUnitScales[kpxUnit];
+    return huntUnits * scale;
+  }
+}
+
 export interface RichHunt extends Hunt {
   items: HuntedItem[];
   monsters: HuntedMonster[];
@@ -199,10 +207,6 @@ export interface HuntStore {
   updateMonster: (monster: HuntedMonster) => void;
   createHunt: () => void;
   deleteHunt: (id: HuntId) => void;
-  estimateHuntDuration: (
-    huntId: HuntId,
-    drops: Pick<ItemDrop, "ItemId" | "MonsterId" | "Rate">[]
-  ) => number | "unknown";
   setDropChanceMultiplier: (value: number) => void;
   setKpxUnit: (value: KpxUnit) => void;
 }
