@@ -86,7 +86,7 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
     return new MappedRepository<T | DefaultValue, Mapped>({
       logger: this.logger,
       source: this as Repository<T | DefaultValue>,
-      map: (val) => map(val ?? this.defaultValue),
+      map,
       getDependencyList,
       name,
     });
@@ -129,17 +129,16 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
 export interface MappedRepositoryOptions<Source, Mapped>
   extends RepositoryOptions<Mapped> {
   source: Repository<Source>;
-  map: (source?: Source) => Mapped;
+  map: (source: Source) => Mapped;
   getDependencyList: (source?: Source) => DependencyList;
   name?: string;
 }
 
 export class MappedRepository<Source, Mapped> extends Repository<Mapped> {
   private cache?: { deps: DependencyList; value: Mapped };
-  private mapWithLogging = this.logger.wrap(this.options.map, "map");
 
   constructor(private options: MappedRepositoryOptions<Source, Mapped>) {
-    super({ defaultValue: options.map(), logReads: false, ...options });
+    super({ logReads: false, ...options });
   }
 
   protected async readImpl(): Promise<Mapped> {
