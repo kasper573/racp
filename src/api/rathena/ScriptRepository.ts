@@ -33,7 +33,10 @@ export type ScriptRepositoryOptions = RepositoryOptions<RawScriptEntity[]> & {
 
 export class ScriptRepository extends ReactiveRepository<RawScriptEntity[]> {
   private readonly baseFolder = path.resolve(this.options.rAthenaPath, "npc");
-  readonly rAthenaMode = new Atom<RAthenaMode>(() => this.clearCache());
+  readonly rAthenaMode = new Atom<RAthenaMode>(
+    () => this.clearCache(),
+    "rAthenaMode"
+  );
 
   constructor(private options: ScriptRepositoryOptions) {
     super({ defaultValue: options.defaultValue ?? [], ...options });

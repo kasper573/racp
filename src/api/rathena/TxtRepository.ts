@@ -28,7 +28,10 @@ export class TxtRepository<ET extends AnyZodObject> extends ReactiveRepository<
     this.options.startFolder
   );
 
-  readonly rAthenaMode = new Atom<RAthenaMode>(() => this.clearCache());
+  readonly rAthenaMode = new Atom<RAthenaMode>(
+    () => this.clearCache(),
+    "rAthenaMode"
+  );
 
   constructor(private options: TxtRepositoryOptions<ET>) {
     super({

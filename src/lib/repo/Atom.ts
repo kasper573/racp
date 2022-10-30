@@ -1,7 +1,10 @@
 export class Atom<T> {
   private value?: T;
 
-  constructor(private onChange?: (newValue: T | undefined) => void) {}
+  constructor(
+    private onChange?: (newValue: T | undefined) => void,
+    private name = "Value"
+  ) {}
 
   get<AllowUndefined extends boolean = false>(
     allowUndefined: AllowUndefined = false as AllowUndefined
@@ -10,7 +13,7 @@ export class Atom<T> {
       return this.value as any;
     }
     if (this.value === undefined) {
-      throw new Error("Value must be defined before use");
+      throw new Error(`${this.name} must be defined before use`);
     }
     return this.value;
   }

@@ -22,7 +22,10 @@ export type YamlRepositoryOptions<ET extends ZodType, Key> = RepositoryOptions<
 export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
   Map<Key, zod.infer<ET>>
 > {
-  readonly rAthenaMode = new Atom<RAthenaMode>(() => this.clearCache());
+  readonly rAthenaMode = new Atom<RAthenaMode>(
+    () => this.clearCache(),
+    "rAthenaMode"
+  );
 
   constructor(private options: YamlRepositoryOptions<ET, Key>) {
     super({
@@ -40,9 +43,10 @@ export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
 
   protected async readImpl() {
     const { entityType, getKey, postProcess = noop } = this.options.resolver;
+    const rAthenaMode = this.rAthenaMode.get();
 
     const registry = new Map<Key, zod.infer<ET>>();
-    for (const rawEntity of await this.loadRaw()) {
+    for (const rawEntity of await this.loadRaw(rAthenaMode)) {
       const entity = entityType.parse(rawEntity);
       registry.set(getKey(entity), entity);
     }
@@ -54,9 +58,9 @@ export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
     return registry;
   }
 
-  private async loadRaw() {
+  private async loadRaw(rAthenaMode: RAthenaMode) {
     const { file } = this.options;
-    const rAthenaMode = this.rAthenaMode.get();
+
     const imports: ImportNode[] = [{ Path: file, Mode: rAthenaMode }];
     const raw: unknown[] = [];
     while (imports.length) {
