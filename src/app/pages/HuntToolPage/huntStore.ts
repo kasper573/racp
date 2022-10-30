@@ -3,6 +3,7 @@ import { createStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { groupBy, uniq, without } from "lodash";
+import * as zod from "zod";
 import { MonsterId, MonsterSpawnId } from "../../../api/services/monster/types";
 import { Item, ItemId } from "../../../api/services/item/types";
 import { typedAssign } from "../../../lib/std/typedAssign";
@@ -160,7 +161,8 @@ export interface HuntStore {
   deleteHunt: (id: HuntId) => void;
 }
 
-export type HuntId = string;
+export const huntIdType = zod.string();
+export type HuntId = zod.infer<typeof huntIdType>;
 export type Hunt = {
   id: HuntId;
   name: string;

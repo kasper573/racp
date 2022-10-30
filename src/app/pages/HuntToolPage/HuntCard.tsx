@@ -1,24 +1,21 @@
 import { Add, Delete } from "@mui/icons-material";
 import { ComponentProps } from "react";
 import {
-  Button,
   CardActions,
   CardContent,
   IconButton,
   Tooltip,
   Typography,
 } from "@mui/material";
+import { useStore } from "zustand";
 import { CardListItem } from "../../components/CardList";
 import { Center } from "../../components/Center";
-import { Hunt } from "./huntStore";
+import { LinkButton } from "../../components/Link";
+import { routes } from "../../router";
+import { Hunt, huntStore } from "./huntStore";
 
-export function HuntCard({
-  hunt,
-  onDelete,
-}: {
-  hunt: Hunt;
-  onDelete?: () => void;
-}) {
+export function HuntCard({ hunt }: { hunt: Hunt }) {
+  const { deleteHunt } = useStore(huntStore);
   return (
     <CardListItem sx={{ display: "flex", flexDirection: "column" }}>
       <CardContent
@@ -33,14 +30,14 @@ export function HuntCard({
         </Typography>
       </CardContent>
       <CardActions>
-        <Button sx={{ mr: "auto" }}>View</Button>
+        <LinkButton
+          to={routes.tools.hunt.view.$({ id: hunt.id })}
+          sx={{ mr: "auto" }}
+        >
+          View
+        </LinkButton>
         <Tooltip title={`Delete "${hunt.name}"`}>
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete?.();
-            }}
-          >
+          <IconButton onClick={() => deleteHunt(hunt.id)}>
             <Delete />
           </IconButton>
         </Tooltip>

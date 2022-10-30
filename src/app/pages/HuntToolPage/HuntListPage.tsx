@@ -20,11 +20,7 @@ export default function HuntListPage() {
         <AddHuntCard onClick={createHunt} />
 
         {hunts.map((hunt) => (
-          <HuntCard
-            key={hunt.id}
-            hunt={hunt}
-            onDelete={() => deleteHunt(hunt.id)}
-          />
+          <HuntCard key={hunt.id} hunt={hunt} />
         ))}
       </CardList>
     </>

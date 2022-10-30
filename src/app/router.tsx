@@ -31,6 +31,7 @@ import { requireAuth } from "./util/requireAuth";
 import { requireSettings } from "./util/requireSettings";
 import { t } from "./tsr";
 import { mapViewRoute } from "./pages/MapViewPage/route";
+import { huntIdType } from "./pages/HuntToolPage/huntStore";
 
 export const router = t.router({
   home: t.route
@@ -151,7 +152,8 @@ export const router = t.router({
           .meta({ title: "Hunt", icon: <ImageSearch /> })
           .renderer(lazy(() => import("./pages/HuntToolPage/HuntListPage"))),
         view: t.route
-          .path("view")
+          .path("view/:id")
+          .params({ id: huntIdType })
           .renderer(
             lazy(() => import("./pages/HuntToolPage/View/ViewHuntPage"))
           ),
