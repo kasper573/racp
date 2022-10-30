@@ -1,7 +1,7 @@
 import { memoize } from "lodash";
-import { RAthenaMode } from "../../../options";
 import { Monster, MonsterPostProcess } from "../types";
 import { typedAssign } from "../../../../lib/std/typedAssign";
+import { RAthenaMode } from "../../settings/types";
 import { resolveMonsterModes } from "./resolveMonsterModes";
 
 const memoizedModeResolver = memoize(resolveMonsterModes);

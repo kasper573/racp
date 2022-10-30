@@ -18,6 +18,7 @@ import {
   adminCharName,
 } from "../cypress/support/vars";
 import { createResourceManager } from "../src/api/resources";
+import { createAdminSettingsRepository } from "../src/api/services/settings/repository";
 
 async function resetData() {
   const logger = createLogger(console.log).chain("removeUGC");
@@ -25,7 +26,6 @@ async function resetData() {
     ...pick(
       options,
       "rAthenaPath",
-      "rAthenaMode",
       "adminPermissionName",
       "dataFolder",
       "publicFolder"
@@ -62,8 +62,14 @@ async function resetData() {
     });
   }
 
+  const settings = createAdminSettingsRepository({ ...args, logger });
+  const { create: resources } = createResourceManager({
+    logger,
+    settings,
+    ...args,
+  });
+
   // Insert admin account and character
-  const { create: resources } = createResourceManager({ logger, ...args });
   const user = createUserRepository({ resources, ...args });
   await db.login.table("login").insert({
     account_id: adminAccountId,

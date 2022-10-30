@@ -3,6 +3,7 @@ import {
   Select as MuiSelect,
   InputLabel,
   MenuItem,
+  FormHelperText,
 } from "@mui/material";
 import { ComponentProps, ReactNode, useMemo } from "react";
 import { htmlId } from "../util/htmlId";
@@ -15,6 +16,7 @@ export type SelectPropsBase<Value, Option> = Omit<
   label?: ReactNode;
   empty?: ReactNode;
   autoSort?: boolean;
+  helperText?: ReactNode;
 } & (
     | { value?: Value; onChange?: (value?: Value) => void }
     | { required: true; value: Value; onChange: (value: Value) => void }
@@ -29,6 +31,7 @@ export function Select<Value extends string>({
   multi,
   label,
   value,
+  helperText,
   onChange,
   sx,
   id = typeof label === "string" ? htmlId(label) : undefined,
@@ -85,6 +88,7 @@ export function Select<Value extends string>({
           );
         })}
       </MuiSelect>
+      {helperText && <FormHelperText>{helperText}</FormHelperText>}
     </FormControl>
   );
 }

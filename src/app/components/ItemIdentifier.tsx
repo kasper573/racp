@@ -112,15 +112,19 @@ export function ItemIdentifierByName({
 
 export function ItemIdentifierByFilter({
   filter,
-  fallback,
+  fallback = "Unknown item",
   ...props
 }: ItemIdentifierBaseProps & { filter: ItemFilter; fallback?: ReactNode }) {
-  const { data: { entities: [item] = [] } = {} } = trpc.item.search.useQuery({
-    filter: filter,
-    limit: 1,
-  });
+  const { data: { entities: [item] = [] } = {}, isLoading } =
+    trpc.item.search.useQuery({
+      filter: filter,
+      limit: 1,
+    });
   if (item) {
     return <ItemIdentifier item={item} {...props} />;
+  }
+  if (isLoading) {
+    return <LoadingSpinner />;
   }
   if (fallback) {
     return <>{fallback}</>;

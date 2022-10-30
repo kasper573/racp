@@ -26,7 +26,6 @@ export abstract class CachedRepository<
   }
 
   clearCache() {
-    this.logger.log("Cache cleared");
     this.cache = undefined;
   }
 

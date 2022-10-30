@@ -50,13 +50,20 @@ export class ResourceManager<
     );
   }
 
+  add(instance: Resource<Shape>) {
+    if (this._instances.includes(instance)) {
+      throw new Error("Resource manager already contains this instance");
+    }
+    this._instances.push(instance);
+    instance.initialize?.();
+  }
+
   createUsing<Factory extends ResourceFactory<Shape>>(
     factory: Factory,
     ...args: Parameters<Factory>
   ): ReturnType<Factory> {
     const instance = factory(...args);
-    this._instances.push(instance);
-    instance.initialize?.();
+    this.add(instance);
     return instance as ReturnType<Factory>;
   }
 

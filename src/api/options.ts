@@ -2,11 +2,6 @@
 
 import { donationEnvironments } from "./services/donation/types";
 
-export const rAthenaModes = ["Renewal", "Prerenewal"] as const;
-export type RAthenaMode = typeof rAthenaModes extends Iterable<infer V>
-  ? V
-  : never;
-
 export const options = {
   hostname: {
     type: "string",
@@ -25,10 +20,6 @@ export const options = {
     type: "string",
     required: true,
     description: "Used for auth encryption. Should be unique and secret",
-  },
-  rAthenaMode: {
-    choices: rAthenaModes,
-    default: "Renewal",
   },
   adminPermissionName: {
     type: "string",

@@ -7,18 +7,19 @@ import recursiveWatch = require("recursive-watch");
 import { typedKeys } from "../../lib/std/typedKeys";
 import { gfs } from "../gfs";
 import { RepositoryOptions } from "../../lib/repo/Repository";
-import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
+import { RAthenaMode } from "../services/settings/types";
+import { PipeableRepository } from "../../lib/repo/PipeableRepository";
 
 export type YamlRepositoryOptions<ET extends ZodType, Key> = RepositoryOptions<
   Map<Key, zod.infer<ET>>
 > & {
   rAthenaPath: string;
-  rAthenaMode: string;
   file: string;
   resolver: YamlResolver<ET, Key>;
 };
 
-export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
+export class YamlRepository<ET extends ZodType, Key> extends PipeableRepository<
+  { rAthenaMode: RAthenaMode },
   Map<Key, zod.infer<ET>>
 > {
   constructor(private options: YamlRepositoryOptions<ET, Key>) {
@@ -37,9 +38,10 @@ export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
 
   protected async readImpl() {
     const { entityType, getKey, postProcess = noop } = this.options.resolver;
+    const { rAthenaMode } = this.pipeInput;
 
     const registry = new Map<Key, zod.infer<ET>>();
-    for (const rawEntity of await this.loadRaw()) {
+    for (const rawEntity of await this.loadRaw(rAthenaMode)) {
       const entity = entityType.parse(rawEntity);
       registry.set(getKey(entity), entity);
     }
@@ -51,8 +53,9 @@ export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
     return registry;
   }
 
-  private async loadRaw() {
-    const { rAthenaMode, file } = this.options;
+  private async loadRaw(rAthenaMode: RAthenaMode) {
+    const { file } = this.options;
+
     const imports: ImportNode[] = [{ Path: file, Mode: rAthenaMode }];
     const raw: unknown[] = [];
     while (imports.length) {

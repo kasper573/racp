@@ -23,6 +23,7 @@ export function register(username: string, password: string, email: string) {
   cy.findByLabelText("Password").type(password);
   cy.findByLabelText("Password (confirm)").type(password);
   cy.findByRole("button", { name: "Register" }).click();
+  waitForPageReady();
 }
 
 export function updateProfile({

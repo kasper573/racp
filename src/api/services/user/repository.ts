@@ -10,12 +10,21 @@ export function createUserRepository({
   adminPermissionName?: string;
   resources: ResourceFactory;
 }) {
-  const groups = resources.yaml("conf/groups.yml", UserGroupResolver);
-  const adminGroupIds = groups.map("adminGroupIds", (groups) =>
-    Array.from(groups.values())
+  const groupsResource = resources.yaml("conf/groups.yml", UserGroupResolver);
+  const adminGroupIds = groupsResource.map("adminGroupIds", (groupsMap) => {
+    const groups = Array.from(groupsMap.values());
+    const ids = groups
       .filter((group) => group.Permissions[adminPermissionName])
-      .map((group) => group.Id)
-  );
+      .map((group) => group.Id);
+
+    if (groups.length > 0 && ids.length === 0) {
+      groupsResource.logger.warn(
+        `No user groups with the permission "${adminPermissionName}" could be found.`
+      );
+    }
+
+    return ids;
+  });
 
   return {
     adminGroupIds,

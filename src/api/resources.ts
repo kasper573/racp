@@ -14,13 +14,13 @@ import {
   createScriptEntityResolver,
   ScriptRepository,
 } from "./rathena/ScriptRepository";
-import { RAthenaMode } from "./options";
 import { ImageRepository } from "./common/ImageRepository";
 import { TxtRepository } from "./rathena/TxtRepository";
 import {
   ConfigRepository,
   ConfigRepositoryOptions,
 } from "./rathena/ConfigRepository";
+import { AdminSettingsRepository } from "./services/settings/repository";
 
 export type ResourceFactory = ReturnType<
   typeof createResourceManager
@@ -30,14 +30,15 @@ export function createResourceManager({
   dataFolder,
   linker,
   formatter,
+  settings,
   ...options
 }: {
   rAthenaPath: string;
-  rAthenaMode: RAthenaMode;
   dataFolder?: string;
   logger: Logger;
   linker?: Linker;
   formatter?: ImageFormatter;
+  settings: AdminSettingsRepository;
 }) {
   let scripts: ScriptRepository;
 
@@ -77,19 +78,21 @@ export function createResourceManager({
         relativeFilePath: string,
         entityType: ET
       ) =>
-        new TxtRepository({
-          ...options,
-          startFolder,
-          relativeFilePath,
-          entityType,
-        })
+        settings.pipe(
+          new TxtRepository({
+            ...options,
+            startFolder,
+            relativeFilePath,
+            entityType,
+          })
+        )
     )
     .add(
       "yaml",
       <ET extends ZodType, Key>(
         file: string,
         resolver: YamlResolver<ET, Key>
-      ) => new YamlRepository({ file, resolver, ...options })
+      ) => settings.pipe(new YamlRepository({ file, resolver, ...options }))
     )
     .add(
       "config",
@@ -102,7 +105,11 @@ export function createResourceManager({
     )
     .build();
 
-  scripts = manager.createUsing(() => new ScriptRepository(options));
+  manager.add(settings);
+
+  scripts = manager.createUsing(() =>
+    settings.pipe(new ScriptRepository(options))
+  );
 
   return manager;
 }

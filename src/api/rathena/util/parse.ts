@@ -1,4 +1,4 @@
-import { RAthenaMode } from "../../options";
+import { RAthenaMode } from "../../services/settings/types";
 
 export const nonEmptyLines = (s: string) =>
   s.split(/[\r\n]+/).filter((l) => l.trim());

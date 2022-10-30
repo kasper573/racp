@@ -2,31 +2,32 @@ import * as path from "path";
 import * as zod from "zod";
 import { AnyZodObject, ZodRawShape, ZodTypeAny } from "zod";
 import recursiveWatch = require("recursive-watch");
-import { RAthenaMode } from "../options";
 import { gfs } from "../gfs";
 import { ZodCustomObject } from "../../lib/zod/ZodCustomObject";
 import { defined } from "../../lib/std/defined";
-import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
 import { RepositoryOptions } from "../../lib/repo/Repository";
+import { RAthenaMode } from "../services/settings/types";
+import { PipeableRepository } from "../../lib/repo/PipeableRepository";
 import { modeFolderNames, nonEmptyLines, removeComments } from "./util/parse";
 
 export type TxtRepositoryOptions<ET extends AnyZodObject> = RepositoryOptions<
   zod.infer<ET>[]
 > & {
   rAthenaPath: string;
-  rAthenaMode: RAthenaMode;
   startFolder: string;
   relativeFilePath: string;
   entityType: ET;
 };
 
-export class TxtRepository<ET extends AnyZodObject> extends ReactiveRepository<
+export class TxtRepository<ET extends AnyZodObject> extends PipeableRepository<
+  { rAthenaMode: RAthenaMode },
   zod.infer<ET>[]
 > {
   private readonly baseFolder = path.resolve(
     this.options.rAthenaPath,
     this.options.startFolder
   );
+
   constructor(private options: TxtRepositoryOptions<ET>) {
     super({
       ...options,
@@ -41,7 +42,7 @@ export class TxtRepository<ET extends AnyZodObject> extends ReactiveRepository<
   protected async readImpl() {
     const modeFolder = path.resolve(
       this.baseFolder,
-      modeFolderNames[this.options.rAthenaMode]
+      modeFolderNames[this.pipeInput.rAthenaMode]
     );
 
     const importFolder = path.resolve(this.baseFolder, "import");

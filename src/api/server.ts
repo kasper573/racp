@@ -36,11 +36,11 @@ import { createNpcRepository } from "./services/npc/repository";
 import { createNpcService } from "./services/npc/service";
 import { createAdminSettingsService } from "./services/settings/service";
 import { createDonationService } from "./services/donation/service";
-import { createAdminSettingsRepository } from "./services/settings/repository";
 import { createResourceManager } from "./resources";
 import { coloredConsole, logFormat } from "./common/logFormat";
 import { createSkillRepository } from "./services/skill/repository";
 import { createSkillService } from "./services/skill/service";
+import { createAdminSettingsRepository } from "./services/settings/repository";
 
 enableMapSet();
 
@@ -57,19 +57,20 @@ const linker = createPublicFileLinker({
   port: args.apiPort,
 });
 
+const settings = createAdminSettingsRepository({ ...args, logger });
 const resourceManager = createResourceManager({
   logger,
   formatter,
   linker,
+  settings,
   ...args,
 });
 
 const resources = resourceManager.create;
 const npcs = createNpcRepository(resources);
-const settings = createAdminSettingsRepository(resources);
 const user = createUserRepository({ ...args, resources });
 const items = createItemRepository({ ...args, resources });
-const monsters = createMonsterRepository({ ...args, resources });
+const monsters = createMonsterRepository({ settings, resources });
 const drops = createDropRepository({ ...items, ...monsters, resources });
 const shops = createShopRepository({ ...items, resources });
 const maps = createMapRepository({ ...monsters, resources });
