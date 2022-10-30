@@ -8,10 +8,9 @@ import recursiveWatch = require("recursive-watch");
 import { gfs } from "../gfs";
 import { createSegmentedObject } from "../../lib/zod/ZodSegmentedObject";
 import { RepositoryOptions } from "../../lib/repo/Repository";
-import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
 import { defined } from "../../lib/std/defined";
-import { Atom } from "../../lib/repo/Atom";
 import { RAthenaMode } from "../services/settings/types";
+import { PipeableRepository } from "../../lib/repo/PipeableRepository";
 import { modeFolderNames, nonEmptyLines, removeComments } from "./util/parse";
 
 export function createScriptEntityResolver(getRepo: () => ScriptRepository) {
@@ -31,12 +30,11 @@ export type ScriptRepositoryOptions = RepositoryOptions<RawScriptEntity[]> & {
   rAthenaPath: string;
 };
 
-export class ScriptRepository extends ReactiveRepository<RawScriptEntity[]> {
+export class ScriptRepository extends PipeableRepository<
+  { rAthenaMode: RAthenaMode },
+  RawScriptEntity[]
+> {
   private readonly baseFolder = path.resolve(this.options.rAthenaPath, "npc");
-  readonly rAthenaMode = new Atom<RAthenaMode>(
-    () => this.clearCache(),
-    "rAthenaMode"
-  );
 
   constructor(private options: ScriptRepositoryOptions) {
     super({ defaultValue: options.defaultValue ?? [], ...options });
@@ -50,7 +48,7 @@ export class ScriptRepository extends ReactiveRepository<RawScriptEntity[]> {
     const { rAthenaPath } = this.options;
     const scriptMainFile = path.resolve(
       this.baseFolder,
-      modeFolderNames[this.rAthenaMode.get()],
+      modeFolderNames[this.pipeInput.rAthenaMode],
       "scripts_main.conf"
     );
 

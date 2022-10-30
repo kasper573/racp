@@ -7,9 +7,8 @@ import recursiveWatch = require("recursive-watch");
 import { typedKeys } from "../../lib/std/typedKeys";
 import { gfs } from "../gfs";
 import { RepositoryOptions } from "../../lib/repo/Repository";
-import { ReactiveRepository } from "../../lib/repo/ReactiveRepository";
-import { Atom } from "../../lib/repo/Atom";
 import { RAthenaMode } from "../services/settings/types";
+import { PipeableRepository } from "../../lib/repo/PipeableRepository";
 
 export type YamlRepositoryOptions<ET extends ZodType, Key> = RepositoryOptions<
   Map<Key, zod.infer<ET>>
@@ -19,14 +18,10 @@ export type YamlRepositoryOptions<ET extends ZodType, Key> = RepositoryOptions<
   resolver: YamlResolver<ET, Key>;
 };
 
-export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
+export class YamlRepository<ET extends ZodType, Key> extends PipeableRepository<
+  { rAthenaMode: RAthenaMode },
   Map<Key, zod.infer<ET>>
 > {
-  readonly rAthenaMode = new Atom<RAthenaMode>(
-    () => this.clearCache(),
-    "rAthenaMode"
-  );
-
   constructor(private options: YamlRepositoryOptions<ET, Key>) {
     super({
       ...options,
@@ -43,7 +38,7 @@ export class YamlRepository<ET extends ZodType, Key> extends ReactiveRepository<
 
   protected async readImpl() {
     const { entityType, getKey, postProcess = noop } = this.options.resolver;
-    const rAthenaMode = this.rAthenaMode.get();
+    const { rAthenaMode } = this.pipeInput;
 
     const registry = new Map<Key, zod.infer<ET>>();
     for (const rawEntity of await this.loadRaw(rAthenaMode)) {
