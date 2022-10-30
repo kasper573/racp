@@ -10,29 +10,28 @@ export function Menu({ onItemSelected }: { onItemSelected?: () => void }) {
   const { data: settings } = trpc.settings.readPublic.useQuery();
   return (
     <>
+      <Typography id="server-menu" sx={{ pl: 2 }}>
+        Server
+      </Typography>
+      <Divider />
       <RouteList
-        aria-label="General"
+        aria-labelledby="server-menu"
         routes={defined([
           routes.serverInfo.$,
+          routes.vendor.$,
+          routes.mvp.$,
           settings?.donations.enabled ? routes.donation.$ : undefined,
         ])}
         onClick={onItemSelected}
       />
 
-      <Typography id="tools-menu" sx={{ pl: 2 }}>
+      <Typography id="database-menu" sx={{ pl: 2 }}>
         Database
       </Typography>
       <Divider />
       <RouteList
-        aria-label="Database"
-        routes={[
-          routes.item.$,
-          routes.monster.$,
-          routes.map.$,
-          routes.skill.$,
-          routes.vendor.$,
-          routes.mvp.$,
-        ]}
+        aria-labelledby="database-menu"
+        routes={[routes.item.$, routes.monster.$, routes.map.$, routes.skill.$]}
         onClick={onItemSelected}
       />
 
