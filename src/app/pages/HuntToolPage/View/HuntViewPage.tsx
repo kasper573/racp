@@ -1,5 +1,5 @@
 import { useStore } from "zustand";
-import { Stack, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 import { Item } from "../../../../api/services/item/types";
 import { ItemIdentifier } from "../../../components/ItemIdentifier";
 import { trpc } from "../../../state/client";
@@ -25,6 +25,7 @@ export default function HuntViewPage({
   return (
     <>
       <Header
+        sx={{ mb: { md: 5, xs: 3 } }}
         title={
           <EditableText
             type="text"
@@ -34,11 +35,6 @@ export default function HuntViewPage({
           />
         }
       />
-
-      <Typography paragraph>
-        This page shows an estimate per item how long it will take to farm the
-        amount have specified while hunting the given monsters
-      </Typography>
 
       <SearchField<Item>
         sx={{ width: "100%" }}

@@ -16,7 +16,9 @@ export default function HuntListPage() {
       <Header />
 
       <Typography paragraph>
-        Here you can track the items you are hunting for.
+        Create lists to help track the items you are hunting for.
+        <br />
+        Each list will automatically estimate how long it will take to farm.
       </Typography>
 
       <CardList>
