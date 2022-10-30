@@ -12,9 +12,9 @@ describe("can change", () => {
     cy.findByRole("tab", { name: /appearance/i }).click();
   });
 
-  it("page title", () => {
+  it("website title", () => {
     submitSettings(() =>
-      cy.findByLabelText("Page Title").clear().type("Test Title")
+      cy.findByLabelText("Website Title").clear().type("Test Title")
     );
     cy.findByRole("heading", { name: "Test Title" });
   });
