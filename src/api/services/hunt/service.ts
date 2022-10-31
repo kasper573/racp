@@ -148,7 +148,7 @@ export function createHuntService({
 
         const count = changes.targetMonsterIds?.split(",").length ?? 0;
         const limits = await limitsResource;
-        if (count >= limits.monstersPerItem) {
+        if (count > limits.monstersPerItem) {
           throw new TRPCError({
             code: "FORBIDDEN",
             message: `You cannot have more than ${limits.monstersPerItem} monsters per item.`,

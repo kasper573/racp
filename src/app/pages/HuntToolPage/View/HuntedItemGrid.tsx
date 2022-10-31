@@ -1,9 +1,20 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { Box, IconButton, Tooltip, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { Delete } from "@mui/icons-material";
 import { uniqBy } from "lodash";
 import { useStore } from "zustand";
 import { HuntedItem } from "@prisma/client";
+import { useEffect, useState } from "react";
 import { ItemIdentifierByFilter } from "../../../components/ItemIdentifier";
 import { TextField } from "../../../controls/TextField";
 import { trpc } from "../../../state/client";
@@ -12,6 +23,7 @@ import { InfoTooltip } from "../../../components/InfoTooltip";
 import { ColumnConventionProps, DataGrid } from "../../../components/DataGrid";
 import { ItemId } from "../../../../api/services/item/types";
 import { estimateHuntDuration, huntStore } from "../huntStore";
+import { ErrorMessage } from "../../../components/ErrorMessage";
 import { DropperSelect } from "./DropperSelect";
 
 export function HuntedItemGrid({ items }: { items: HuntedItem[] }) {
@@ -59,8 +71,11 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
     minWidth: 200,
     sortable: false,
     renderCell({ row: hunt }) {
-      const { mutate: updateItem } = trpc.hunt.updateItem.useMutation();
+      const updateItem = trpc.hunt.updateItem.useMutation();
       const { canBeHunted, selected, options } = useDroppersForHunt(hunt);
+      const [dialogError, setDialogError] = useState<unknown>();
+      useEffect(() => setDialogError(updateItem.error), [updateItem.error]);
+
       if (!canBeHunted) {
         return (
           <InfoTooltip title="No monster drops this item">
@@ -68,18 +83,30 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
           </InfoTooltip>
         );
       }
+
       return (
-        <DropperSelect
-          value={selected}
-          options={options}
-          onChange={(selection) => {
-            const monsterIds = selection.map((d) => d.MonsterId);
-            updateItem({
-              ...hunt,
-              targetMonsterIds: monsterIds.join(","),
-            });
-          }}
-        />
+        <>
+          <Dialog open={!!dialogError}>
+            <DialogTitle>Error</DialogTitle>
+            <DialogContent>
+              <ErrorMessage error={dialogError} />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setDialogError(undefined)}>Close</Button>
+            </DialogActions>
+          </Dialog>
+          <DropperSelect
+            value={selected}
+            options={options}
+            onChange={(selection) => {
+              const monsterIds = selection.map((d) => d.MonsterId);
+              updateItem.mutate({
+                ...hunt,
+                targetMonsterIds: monsterIds.join(","),
+              });
+            }}
+          />
+        </>
       );
     },
   },
