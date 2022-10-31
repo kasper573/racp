@@ -26,11 +26,10 @@ export function HuntCard({
         style={{ marginBottom: 2 }}
       >
         <EditableText
-          type="text"
           value={hunt.name}
           onChange={(newName) => renameHunt(hunt.id, newName)}
           sx={{ mb: 1 }}
-          typographyProps={{ variant: "h5" }}
+          variant="h6"
         />
         <HuntSummary id={hunt.id} />
       </CardContent>

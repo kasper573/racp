@@ -28,10 +28,9 @@ export default function HuntViewPage({
         sx={{ mb: { md: 5, xs: 3 } }}
         title={
           <EditableText
-            type="text"
             value={hunt.name}
             onChange={(newName) => renameHunt(huntId, newName)}
-            typographyProps={{ variant: "h6" }}
+            variant="h6"
           />
         }
       />
