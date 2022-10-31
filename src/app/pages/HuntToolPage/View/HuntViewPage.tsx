@@ -9,7 +9,12 @@ import { SearchField } from "../../../components/SearchField";
 import { CommonPageGrid } from "../../../components/CommonPageGrid";
 import { TextField } from "../../../controls/TextField";
 import { Select } from "../../../controls/Select";
-import { huntStore, KpxUnit, kpxUnits, useIsHuntOwner } from "../huntStore";
+import {
+  huntEditorStore,
+  KpxUnit,
+  kpxUnits,
+  useIsHuntOwner,
+} from "../huntEditorStore";
 import { Header } from "../../../layout/Header";
 import { RouteComponentProps } from "../../../../lib/tsr/react/types";
 import { EditableText } from "../../../components/EditableText";
@@ -107,7 +112,7 @@ export default function HuntViewPage({
 
 function Settings() {
   const { dropChanceMultiplier, setDropChanceMultiplier, kpxUnit, setKpxUnit } =
-    useStore(huntStore);
+    useStore(huntEditorStore);
   return (
     <Stack
       spacing={2}

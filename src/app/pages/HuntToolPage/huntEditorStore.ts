@@ -8,7 +8,7 @@ import { ItemDrop } from "../../../api/services/drop/types";
 import { RichHunt } from "../../../api/services/hunt/types";
 import { authStore } from "../../state/auth";
 
-export const huntStore = createStore<{
+export const huntEditorStore = createStore<{
   kpxUnit: KpxUnit;
   dropChanceMultiplier: number;
   setKpxUnit: (unit: KpxUnit) => void;

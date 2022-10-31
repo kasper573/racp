@@ -22,7 +22,11 @@ import { durationString } from "../../../../lib/std/durationString";
 import { InfoTooltip } from "../../../components/InfoTooltip";
 import { ColumnConventionProps, DataGrid } from "../../../components/DataGrid";
 import { ItemId } from "../../../../api/services/item/types";
-import { estimateHuntDuration, huntStore, useIsHuntOwner } from "../huntStore";
+import {
+  estimateHuntDuration,
+  huntEditorStore,
+  useIsHuntOwner,
+} from "../huntEditorStore";
 import { ErrorMessage } from "../../../components/ErrorMessage";
 import { joinNodes } from "../../../../lib/joinNodes";
 import { DropperIdentifier, DropperSelect } from "./DropperSelect";
@@ -141,7 +145,7 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
     ...forceWidth(115),
     renderCell({ row: huntedItem }) {
       const { data: hunt } = trpc.hunt.read.useQuery(huntedItem.huntId);
-      const huntState = useStore(huntStore);
+      const huntState = useStore(huntEditorStore);
       const { data: { entities: drops = [] } = {} } = trpc.drop.search.useQuery(
         {
           filter: {

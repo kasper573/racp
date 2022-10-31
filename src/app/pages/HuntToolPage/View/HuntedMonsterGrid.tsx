@@ -11,7 +11,7 @@ import { LoadingSpinner } from "../../../components/LoadingSpinner";
 import { InfoTooltip } from "../../../components/InfoTooltip";
 import { LinkIconButton } from "../../../components/Link";
 import { routes } from "../../../router";
-import { huntStore, useIsHuntOwner } from "../huntStore";
+import { huntEditorStore, useIsHuntOwner } from "../huntEditorStore";
 import { RichHunt } from "../../../../api/services/hunt/types";
 import { SpawnIdentifier, SpawnSelect } from "./SpawnSelect";
 
@@ -120,7 +120,7 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
   },
   killsPerUnit: {
     renderHeader() {
-      const { kpxUnit } = useStore(huntStore);
+      const { kpxUnit } = useStore(huntEditorStore);
       return kpxUnit;
     },
     renderCell({ row: monster }) {
