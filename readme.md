@@ -1,6 +1,6 @@
 # rAthena Control Panel
 
-A web-based database and control panel for rAthena.
+A web-based database GUI and control panel for [rAthena](https://github.com/rathena/rathena).
 
 ## Demo
 
@@ -40,6 +40,17 @@ If you want to try out the admin features, clone the repo and run it locally.
 > The UI prioritizes functionality over aesthetics. Does not support theming, keeps things simple.
 
 </details>
+
+## Caveats
+
+This is a pet project of mine, so it contains a lot of experimental code that I wrote for fun and practice and that would be inadvisable to use in a professional project.
+
+Here's a list of what's experimental:
+
+- [A custom frontend routing library](src/lib/tsr) (I just wanted to build one, the project really had no need for this)
+- [A custom resource library](src/lib/repo) (born out of necessity and inexperience with what's available off the shelf)
+
+> Everything else however is pretty much industry standard.
 
 ## Prerequisites
 
@@ -112,7 +123,7 @@ To use the automatic deployment:
 - Add the following [GitHub Action Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) to your fork's repository settings:
   - `DEPLOY_HOST` - The host of the server to deploy to
   - `DEPLOY_USERNAME` - The ssh username to connect with when deploying
-  - `DEPLOY_PASSWORD` - The ssh password to connect with when deploying
+  - `DEPLOY_KEY` - The ssh key to connect with when deploying
   - `DEPLOY_JWT_SECRET` - The JWT secret to use for user authentication (Any secret and unique string)
   - `DEPLOY_API_PORT` - The port to run the api on (Whatever port you want)
   - `DEPLOY_APP_PORT` - The port to run the web app on (80 is recommended, but it's up to you)
