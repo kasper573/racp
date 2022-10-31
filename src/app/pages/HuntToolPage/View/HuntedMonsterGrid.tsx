@@ -78,7 +78,7 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
           sort: [{ field: "amount", sort: "desc" }],
         });
       if (isLoading) {
-        return <LoadingSpinner />;
+        return <LoadingSpinner variant="linear" />;
       }
       if (!spawns.length) {
         return (

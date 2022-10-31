@@ -122,7 +122,7 @@ export interface ItemIdentifierByFilterProps extends ItemIdentifierBaseProps {
 export function ItemIdentifierByFilter({
   filter,
   fallback = "Unknown item",
-  loader = <LoadingSpinner />,
+  loader = <LoadingSpinner variant="linear" />,
   ...props
 }: ItemIdentifierByFilterProps) {
   const { data: { entities: [item] = [] } = {}, isLoading } =

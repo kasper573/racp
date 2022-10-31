@@ -40,7 +40,7 @@ export interface MonsterIdentifierByFilterProps
 export function MonsterIdentifierByFilter({
   filter,
   fallback = "Unknown monster",
-  loader = <LoadingSpinner />,
+  loader = <LoadingSpinner variant="linear" />,
   ...props
 }: MonsterIdentifierByFilterProps) {
   const { data: { entities: [monster] = [] } = {}, isLoading } =
