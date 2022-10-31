@@ -1,6 +1,5 @@
 import * as zod from "zod";
 import { TRPCError } from "@trpc/server";
-import { Hunt } from "@prisma/client";
 import { t } from "../../trpc";
 import { RACPDatabaseClient } from "../../common/createRACPDatabaseClient";
 import {
@@ -12,6 +11,9 @@ import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
 import { AdminSettingsRepository } from "../settings/repository";
 import { huntLimitsType, richHuntType } from "./types";
+import { normalizeHunt } from "./utils/normalizeHunt";
+import { touchHunt } from "./utils/touchHunt";
+import { assertHuntAccess } from "./utils/assertHuntAccess";
 
 export type HuntService = ReturnType<typeof createHuntService>;
 
@@ -157,6 +159,7 @@ export function createHuntService({
           data: changes,
           where: { id },
         });
+        await normalizeHunt(db, item.huntId);
         await touchHunt(db, item.huntId);
       }),
     removeItem: t.procedure
@@ -165,6 +168,7 @@ export function createHuntService({
       .mutation(async ({ input: { huntId, itemId }, ctx }) => {
         await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
         await db.huntedItem.deleteMany({ where: { huntId, itemId } });
+        await normalizeHunt(db, huntId);
         await touchHunt(db, huntId);
       }),
     updateMonster: t.procedure
@@ -182,50 +186,5 @@ export function createHuntService({
         await db.huntedMonster.update({ data: changes, where: { id } });
         await touchHunt(db, monster.huntId);
       }),
-  });
-}
-
-async function assertHuntAccess(
-  db: RACPDatabaseClient,
-  ids: {
-    accountId: number;
-    huntId: number;
-  }
-) {
-  const res = await db.hunt.findFirst({
-    select: null,
-    where: { id: ids.huntId, accountId: ids.accountId },
-  });
-  if (res === null) {
-    throw new TRPCError({ code: "UNAUTHORIZED" });
-  }
-}
-
-// function normalizeHunt(huntId: HuntId, state: HuntStore) {
-//   const isMatch = <T extends { huntId: HuntId }>(o: T) => o.huntId === huntId;
-//   const targetIds = uniq(
-//     state.items
-//       .filter(isMatch)
-//       .map((i) => i.targets ?? [])
-//       .flat()
-//   );
-//   const monsterIds = state.monsters.filter(isMatch).map((m) => m.monsterId);
-//   const added = without(targetIds, ...monsterIds);
-//   const removed = without(monsterIds, ...targetIds);
-//   for (const id of added) {
-//     state.monsters.push({ huntId, monsterId: id, killsPerUnit: 0 });
-//   }
-//   for (const id of removed) {
-//     const index = state.monsters.findIndex(
-//       (m) => isMatch(m) && m.monsterId === id
-//     );
-//     state.monsters.splice(index, 1);
-//   }
-// }
-
-async function touchHunt(db: RACPDatabaseClient, huntId: Hunt["id"]) {
-  await db.hunt.update({
-    data: { editedAt: new Date() },
-    where: { id: huntId },
   });
 }
