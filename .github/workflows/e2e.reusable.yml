@@ -57,6 +57,9 @@ jobs:
 
       - run: yarn install --frozen-lockfile
 
+      - name: Deploy database migrations
+        run: npx prisma migrate deploy
+
       - name: Allow access to rathena and cypress directories
         run: |
           chmod -R a+rwX ./node_modules/rathena
