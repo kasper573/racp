@@ -2,6 +2,7 @@ import { Typography } from "@mui/material";
 
 import { useState } from "react";
 import { Hunt } from "@prisma/client";
+import { useQueryClient } from "@tanstack/react-query";
 import { Header } from "../../layout/Header";
 import { CardList } from "../../components/CardList";
 import { ConfirmDialog } from "../../dialogs/ConfirmDialog";
@@ -10,8 +11,12 @@ import { LoadingPage } from "../LoadingPage";
 import { AddHuntCard, HuntCard } from "./HuntCard";
 
 export default function HuntListPage() {
+  const queryClient = useQueryClient();
   const { mutate: createHunt } = trpc.hunt.create.useMutation();
-  const { mutate: deleteHunt } = trpc.hunt.delete.useMutation();
+  const { mutate: deleteHunt } = trpc.hunt.delete.useMutation({
+    // Clearing cache on delete prevents over eager re-fetching of the deleted hunt by other components
+    onSuccess: () => queryClient.getQueryCache().clear(),
+  });
   const { data: hunts = [], isLoading } = trpc.hunt.list.useQuery();
   const [huntToDelete, setHuntToDelete] = useState<Hunt>();
 
