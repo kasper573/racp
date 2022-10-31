@@ -2,6 +2,7 @@ import { gotoMainMenuPage } from "../support/actions/nav";
 import { register } from "../support/actions/user";
 import { nextTestUser, TestUser } from "../fixtures/users";
 import { resetData } from "../support/actions/admin";
+import { ignoreCase } from "../support/util";
 
 // New visitor each test
 beforeEach(() => {
@@ -30,13 +31,23 @@ describe("user", () => {
 
   it("can create new hunt", () => {
     cy.findByRole("button", { name: /create new hunt/i }).click();
-    cy.findByRole("heading", { name: /new hunt/i }).should("exist");
+    findListedHuntTitle("new hunt").should("exist");
   });
 
   it("can delete hunt", () => {
     cy.findByRole("button", { name: /create new hunt/i }).click();
     cy.findByRole("button", { name: /delete hunt/i }).click();
     cy.findByRole("dialog").findByRole("button", { name: /ok/i }).click();
-    cy.findByRole("heading", { name: /new hunt/i }).should("not.exist");
+    findListedHuntTitle("new hunt").should("not.exist");
+  });
+
+  it("can rename hunt", () => {
+    cy.findByRole("button", { name: /create new hunt/i }).click();
+    findListedHuntTitle("new hunt").clear().type("renamed hunt");
+    findListedHuntTitle("renamed hunt").should("exist");
   });
 });
+
+function findListedHuntTitle(huntName: string) {
+  return cy.findByRole("heading", { name: ignoreCase(huntName) });
+}
