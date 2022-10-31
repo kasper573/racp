@@ -41,6 +41,17 @@ If you want to try out the admin features, clone the repo and run it locally.
 
 </details>
 
+## Caveats
+
+This is a pet project of mine, so it contains a lot of experimental code that I wrote for fun and practice and that would be inadvisable to use in a professional project.
+
+Here's a list of what's experimental:
+
+- [A custom frontend routing library](src/lib/tsr) (I just wanted to build one, the project really had no need for this)
+- [A custom resource library](src/lib/repo) (born out of necessity and inexperience with what's available off the shelf)
+
+> Everything else however is pretty much industry standard.
+
 ## Prerequisites
 
 To run RACP you will need the following software installed on your machine:
