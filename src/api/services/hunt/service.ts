@@ -87,6 +87,49 @@ export function createHuntService({
         await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
         await db.hunt.delete({ where: { id: huntId } });
       }),
+    copy: t.procedure
+      .input(huntType.shape.id)
+      .output(huntType)
+      .use(access(UserAccessLevel.User))
+      .mutation(async ({ input: huntId, ctx }) => {
+        const hunt = await db.hunt.findFirst({
+          where: { id: huntId },
+          include: {
+            monsters: true,
+            items: true,
+          },
+        });
+        if (!hunt) {
+          throw new TRPCError({ code: "NOT_FOUND" });
+        }
+        const count = await db.hunt.count({
+          where: { accountId: ctx.auth.id },
+        });
+        const limits = await limitsResource;
+        if (count >= limits.hunts) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: `You cannot have more than ${limits.hunts} hunts.`,
+          });
+        }
+        const huntCopy = await db.hunt.create({
+          data: {
+            name: `${hunt.name} (copy)`,
+            accountId: ctx.auth.id,
+            items: {
+              create: hunt.items.map(
+                ({ itemId, targetMonsterIds, amount }) => ({
+                  itemId,
+                  targetMonsterIds,
+                  amount,
+                })
+              ),
+            },
+          },
+        });
+        await normalizeHunt(db, huntCopy.id);
+        return huntCopy;
+      }),
     addItem: t.procedure
       .input(huntedItemType.pick({ huntId: true, itemId: true }))
       .use(access(UserAccessLevel.User))

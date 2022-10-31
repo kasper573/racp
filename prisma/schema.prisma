@@ -31,7 +31,7 @@ model HuntedItem {
   amount           Int
   itemId           Int
   targetMonsterIds String // CSV list of monster IDs
-  hunt             Hunt   @relation(fields: [huntId], references: [id])
+  hunt             Hunt   @relation(fields: [huntId], references: [id], onDelete: Cascade)
   huntId           Int
 }
 
@@ -40,6 +40,6 @@ model HuntedMonster {
   monsterId    Int
   spawnId      String?
   killsPerUnit Int
-  hunt         Hunt    @relation(fields: [huntId], references: [id])
+  hunt         Hunt    @relation(fields: [huntId], references: [id], onDelete: Cascade)
   huntId       Int
 }

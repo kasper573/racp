@@ -1,6 +1,7 @@
 import { useStore } from "zustand";
-import { Stack } from "@mui/material";
+import { IconButton, Stack, Tooltip } from "@mui/material";
 import { Hunt } from "@prisma/client";
+import { ContentCopy } from "@mui/icons-material";
 import { Item } from "../../../../api/services/item/types";
 import { ItemIdentifier } from "../../../components/ItemIdentifier";
 import { trpc } from "../../../state/client";
@@ -14,13 +15,17 @@ import { RouteComponentProps } from "../../../../lib/tsr/react/types";
 import { EditableText } from "../../../components/EditableText";
 import { LoadingPage } from "../../LoadingPage";
 import { ErrorMessage } from "../../../components/ErrorMessage";
+import { authStore } from "../../../state/auth";
 import { HuntedItemGrid } from "./HuntedItemGrid";
 import { HuntedMonsterGrid } from "./HuntedMonsterGrid";
 
 export default function HuntViewPage({
   params: { id: huntId },
 }: RouteComponentProps<{ id: Hunt["id"] }>) {
+  const { profile } = useStore(authStore);
+  const isSignedIn = !!profile;
   const addItem = trpc.hunt.addItem.useMutation();
+  const copyHunt = trpc.hunt.copy.useMutation();
   const renameHunt = trpc.hunt.rename.useMutation();
   const { data: hunt, isLoading } = trpc.hunt.read.useQuery(huntId);
   const error = addItem.error || renameHunt.error;
@@ -38,12 +43,24 @@ export default function HuntViewPage({
       <Header
         sx={{ mb: { md: 5, xs: 3 } }}
         title={
-          <EditableText
-            value={hunt.name}
-            enabled={isOwner}
-            onChange={(name) => renameHunt.mutate({ id: huntId, name })}
-            variant="h6"
-          />
+          <>
+            <EditableText
+              value={hunt.name}
+              enabled={isOwner}
+              onChange={(name) => renameHunt.mutate({ id: huntId, name })}
+              variant="h6"
+            />
+            {!isOwner && isSignedIn && (
+              <Tooltip title="Add a copy of this hunt to your account">
+                <IconButton
+                  sx={{ ml: 1 }}
+                  onClick={() => copyHunt.mutate(huntId)}
+                >
+                  <ContentCopy />
+                </IconButton>
+              </Tooltip>
+            )}
+          </>
         }
       />
 
