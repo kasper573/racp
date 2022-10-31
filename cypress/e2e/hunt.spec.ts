@@ -62,25 +62,30 @@ describe("user", () => {
         });
 
         it("can add", () => {
-          cy.findByRole("grid", { name: /items/i }).within(() =>
-            expectTableColumn("Item", () => /test item/i)
-          );
+          withinItemGrid(() => expectTableColumn("Item", () => /test item/i));
         });
 
         it("can remove", () => {
-          cy.findByRole("button", { name: /remove item/i }).click();
-          cy.findByRole("grid", { name: /items/i }).within(() =>
-            expectTableColumn("Item", () => /test item/i).should("not.exist")
-          );
+          withinItemGrid(() => {
+            cy.findByRole("button", { name: /remove item/i }).click();
+            expectTableColumn("Item", () => /test item/i).should("not.exist");
+          });
         });
 
         it("can set amount", () => {
-          setItemAmount(5).should("have.value", "5");
+          withinItemGrid(() => setItemAmount(5).should("have.value", "5"));
         });
 
         it("can set target", () => {
+          withinItemGrid(() => setItemTarget(0));
+          withinMonsterGrid(() =>
+            expectTableColumn("Monster", () => /test monster/i)
+          );
+        });
+
+        it("can set monster kill speed", () => {
           setItemTarget(0);
-          cy.findByRole("grid", { name: /monsters/i }).within(() =>
+          withinMonsterGrid(() =>
             expectTableColumn("Monster", () => /test monster/i)
           );
         });
@@ -109,4 +114,12 @@ function setItemAmount(itemAmount: number) {
 function setItemTarget(index: number) {
   cy.get("#targets").select(index);
   waitForPageReady();
+}
+
+function withinItemGrid(fn: () => void) {
+  cy.findByRole("grid", { name: /items/i }).within(fn);
+}
+
+function withinMonsterGrid(fn: () => void) {
+  cy.findByRole("grid", { name: /monsters/i }).within(fn);
 }
