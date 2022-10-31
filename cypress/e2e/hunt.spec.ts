@@ -87,6 +87,16 @@ describe("user", () => {
           setItemTarget(0);
           setKillsPerUnit(7).should("have.value", "7");
         });
+
+        it("can estimate farm time", () => {
+          setItemAmount(5);
+          setItemTarget(0);
+          setKillsPerUnit(7);
+          waitForPageReady();
+          withinItemGrid(() => {
+            expectTableColumn("Estimate", () => /57s/i);
+          });
+        });
       });
     });
   });

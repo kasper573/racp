@@ -136,7 +136,9 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
           id="KillsPerUnit"
           type="number"
           value={monster.killsPerUnit}
-          onChange={(kpu) => updateMonster({ ...monster, killsPerUnit: kpu })}
+          onChange={(kpu) =>
+            updateMonster({ id: monster.id, killsPerUnit: kpu })
+          }
         />
       );
     },

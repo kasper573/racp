@@ -73,7 +73,7 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
           type="number"
           value={item.amount}
           id="ItemAmount"
-          onChange={(amount) => updateItem({ ...item, amount })}
+          onChange={(amount) => updateItem({ id: item.id, amount })}
         />
       );
     },
@@ -132,7 +132,7 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
             onChange={(selection) => {
               const monsterIds = selection.map((d) => d.MonsterId);
               updateItem.mutate({
-                ...item,
+                id: item.id,
                 targetMonsterIds: monsterIds.join(","),
               });
             }}

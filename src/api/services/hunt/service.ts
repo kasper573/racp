@@ -165,7 +165,11 @@ export function createHuntService({
         await touchHunt(db, huntId);
       }),
     updateItem: t.procedure
-      .input(huntedItemType.omit({ huntId: true }).partial())
+      .input(
+        huntedItemType
+          .pick({ id: true })
+          .and(huntedItemType.omit({ id: true, huntId: true }).partial())
+      )
       .use(access(UserAccessLevel.User))
       .mutation(async ({ input: { id, ...changes }, ctx }) => {
         const item = await db.huntedItem.findFirst({ where: { id } });
@@ -203,7 +207,11 @@ export function createHuntService({
         await touchHunt(db, huntId);
       }),
     updateMonster: t.procedure
-      .input(huntedMonsterType.omit({ huntId: true }).partial())
+      .input(
+        huntedMonsterType
+          .pick({ id: true })
+          .and(huntedMonsterType.omit({ id: true, huntId: true }).partial())
+      )
       .use(access(UserAccessLevel.User))
       .mutation(async ({ input: { id, ...changes }, ctx }) => {
         const monster = await db.huntedMonster.findFirst({ where: { id } });
