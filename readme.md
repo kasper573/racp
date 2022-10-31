@@ -1,6 +1,6 @@
 # rAthena Control Panel
 
-A web-based database and control panel for rAthena.
+A web-based database GUI and control panel for [rAthena](https://rathena.org/).
 
 ## Demo
 
