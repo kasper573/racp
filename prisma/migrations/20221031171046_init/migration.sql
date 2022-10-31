@@ -1,23 +1,7 @@
-/*
-  Warnings:
-
-  - You are about to drop the `Post` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `User` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropTable
-PRAGMA foreign_keys=off;
-DROP TABLE "Post";
-PRAGMA foreign_keys=on;
-
--- DropTable
-PRAGMA foreign_keys=off;
-DROP TABLE "User";
-PRAGMA foreign_keys=on;
-
 -- CreateTable
 CREATE TABLE "Hunt" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "accountId" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
     "editedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -26,6 +10,7 @@ CREATE TABLE "Hunt" (
 CREATE TABLE "HuntedItem" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "amount" INTEGER NOT NULL,
+    "itemId" INTEGER NOT NULL,
     "targetMonsterIds" TEXT NOT NULL,
     "huntId" INTEGER NOT NULL,
     CONSTRAINT "HuntedItem_huntId_fkey" FOREIGN KEY ("huntId") REFERENCES "Hunt" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
