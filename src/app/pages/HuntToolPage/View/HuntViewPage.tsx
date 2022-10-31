@@ -126,12 +126,12 @@ function Settings() {
     >
       <TextField
         type="number"
-        label="Drop rate multiplier"
+        label="Drop Rate Multiplier"
         value={dropChanceMultiplier}
         onChange={(value) => setDropChanceMultiplier(value)}
       />
       <Select<KpxUnit>
-        label="Kill scale"
+        label="Kill Scale"
         options={kpxUnits}
         value={kpxUnit}
         onChange={(newUnit) => (newUnit ? setKpxUnit(newUnit) : undefined)}

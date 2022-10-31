@@ -88,13 +88,41 @@ describe("user", () => {
           setKillsPerUnit(7).should("have.value", "7");
         });
 
-        it("can estimate farm time", () => {
-          setItemAmount(5);
-          setItemTarget(0);
-          setKillsPerUnit(7);
-          waitForPageReady();
-          withinItemGrid(() => {
-            expectTableColumn("Estimate", () => /57s/i);
+        describe("can estimate farm time", () => {
+          beforeEach(() => {
+            setItemAmount(5);
+            setItemTarget(0);
+            setKillsPerUnit(7);
+            waitForPageReady();
+          });
+
+          it("in kills per minute", () => {
+            cy.get("#KillScale").select("Kills per minute");
+            withinItemGrid(() => {
+              expectTableColumn("Estimate", () => /57s/i);
+            });
+          });
+
+          it("in kills per minute", () => {
+            cy.get("#KillScale").select("Kills per hour");
+            withinItemGrid(() => {
+              expectTableColumn("Estimate", () => /57m 8s/i);
+            });
+          });
+
+          it("in kills per minute", () => {
+            cy.get("#KillScale").select("Kills per day");
+            withinItemGrid(() => {
+              expectTableColumn("Estimate", () => /22h 51m/i);
+            });
+          });
+
+          it("using multiplier", () => {
+            cy.get("#KillScale").select("Kills per day");
+            cy.findByLabelText("Drop Rate Multiplier").clear().type("15");
+            withinItemGrid(() => {
+              expectTableColumn("Estimate", () => /1h 31m/i);
+            });
           });
         });
       });
