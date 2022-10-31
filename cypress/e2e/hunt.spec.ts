@@ -84,7 +84,7 @@ describe("user", () => {
         });
 
         it("can set monster kill speed", () => {
-          setItemTarget(0);
+          withinItemGrid(() => setItemTarget(0));
           withinMonsterGrid(() =>
             expectTableColumn("Monster", () => /test monster/i)
           );
