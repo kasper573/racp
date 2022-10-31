@@ -28,13 +28,13 @@ import { createFakePayPalClient } from "./createFakePayPalClient";
 export type DonationService = ReturnType<typeof createDonationService>;
 
 export function createDonationService({
-  db,
+  radb,
   env,
   settings: settingsRepo,
   cashStoreItems,
   logger: parentLogger,
 }: {
-  db: RAthenaDatabaseDriver;
+  radb: RAthenaDatabaseDriver;
   env: DonationEnvironment;
   settings: AdminSettingsRepository;
   cashStoreItems: Repository<Item[]>;
@@ -43,7 +43,7 @@ export function createDonationService({
   const logger = parentLogger.chain("donation");
   const creditBalanceAtom = (accountId: number) =>
     new AccRegNumRepository({
-      db,
+      radb,
       logger,
       accountId,
       key: () => settingsRepo.then(({ donations }) => donations.accRegNumKey),

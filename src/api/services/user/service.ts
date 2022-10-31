@@ -17,11 +17,11 @@ import { AuthenticatorSigner } from "./util/Authenticator";
 export type UserService = ReturnType<typeof createUserService>;
 
 export function createUserService({
-  db,
+  radb,
   user: repo,
   sign,
 }: {
-  db: RAthenaDatabaseDriver;
+  radb: RAthenaDatabaseDriver;
   user: UserRepository;
   sign: AuthenticatorSigner;
 }) {
@@ -31,7 +31,7 @@ export function createUserService({
       .output(zod.boolean())
       .mutation(async ({ input: { username, password, email } }) => {
         if (
-          await some(db.login.table("login").where("userid", "=", username))
+          await some(radb.login.table("login").where("userid", "=", username))
         ) {
           throw new TRPCError({
             code: "CONFLICT",
@@ -39,14 +39,14 @@ export function createUserService({
           });
         }
 
-        if (await some(db.login.table("login").where("email", "=", email))) {
+        if (await some(radb.login.table("login").where("email", "=", email))) {
           throw new TRPCError({
             code: "CONFLICT",
             message: "Email already taken",
           });
         }
 
-        const newAccountIds = await db.login.table("login").insert({
+        const newAccountIds = await radb.login.table("login").insert({
           email,
           userid: username,
           user_pass: password,
@@ -58,7 +58,7 @@ export function createUserService({
       .input(loginPayloadType)
       .output(zod.object({ token: zod.string(), profile: userProfileType }))
       .mutation(async ({ input: { username, password } }) => {
-        const user = await db.login
+        const user = await radb.login
           .table("login")
           .select("account_id", "userid", "group_id", "email")
           .where("userid", "=", username)
@@ -90,7 +90,7 @@ export function createUserService({
       .output(zod.boolean())
       .use(access(UserAccessLevel.User))
       .mutation(async ({ input: { email, password }, ctx: { auth } }) => {
-        const emailOwner = await db.login
+        const emailOwner = await radb.login
           .table("login")
           .select("account_id")
           .where("email", "=", email)
@@ -103,7 +103,7 @@ export function createUserService({
           });
         }
 
-        const affected = await db.login
+        const affected = await radb.login
           .table("login")
           .update({
             email,

@@ -22,11 +22,11 @@ export type MonsterService = ReturnType<typeof createMonsterService>;
 
 export function createMonsterService({
   repo,
-  db,
+  radb,
   exposeBossStatuses = true,
 }: {
   repo: MonsterRepository;
-  db: RAthenaDatabaseDriver;
+  radb: RAthenaDatabaseDriver;
   exposeBossStatuses?: boolean;
 }) {
   return t.router({
@@ -45,7 +45,7 @@ export function createMonsterService({
         )
       )
       .mutation(async ({ input: logEntries }) => {
-        await db.log
+        await radb.log
           .table("mvplog")
           .insert(logEntries.map((mvp) => ({ ...mvp, mvp_date: new Date() })));
       }),
@@ -56,7 +56,7 @@ export function createMonsterService({
         let mvps = await repo.mvps;
         if (exposeBossStatuses) {
           const statuses = await Promise.all(
-            mvps.map((boss) => queryMvpStatus(db, boss))
+            mvps.map((boss) => queryMvpStatus(radb, boss))
           );
           mvps = mvps.map((mvp, i) => typedAssign({ ...mvp }, statuses[i]));
         }

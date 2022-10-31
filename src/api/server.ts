@@ -51,7 +51,7 @@ const logger = createLogger(coloredConsole, { format: logFormat });
 
 const app = express();
 const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
-const db = createRAthenaDatabaseDriver({ ...args, logger });
+const radb = createRAthenaDatabaseDriver({ ...args, logger });
 const formatter = createImageFormatter({ extension: ".png", quality: 70 });
 const linker = createPublicFileLinker({
   directory: path.join(process.cwd(), args.publicFolder),
@@ -85,12 +85,12 @@ if (args.preloadAllResources) {
 
 const router = createApiRouter({
   util: createUtilService(),
-  user: createUserService({ db, user, sign: auth.sign, ...args }),
+  user: createUserService({ radb, user, sign: auth.sign, ...args }),
   item: createItemService(items),
-  monster: createMonsterService({ db, repo: monsters }),
+  monster: createMonsterService({ radb, repo: monsters }),
   skill: createSkillService(skills),
   drop: createDropService(drops),
-  vendor: createVendorService({ db, items }),
+  vendor: createVendorService({ radb, items }),
   shop: createShopService(shops),
   npc: createNpcService(npcs),
   map: createMapService(maps),
@@ -98,7 +98,7 @@ const router = createApiRouter({
   meta: createMetaService({ ...items, ...monsters }),
   exp: createExpService(exp),
   donation: createDonationService({
-    db,
+    radb,
     env: args.donationEnvironment,
     logger,
     settings,

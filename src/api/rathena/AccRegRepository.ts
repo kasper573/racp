@@ -5,7 +5,7 @@ import { RAthenaDatabaseDriver } from "./RAthenaDatabaseDriver";
 // Abstractions for interfacing with the rathena "acc_reg_" tables in a type safe manner
 
 export type AccRegRepositoryOptions<T> = RepositoryOptions<T> & {
-  db: RAthenaDatabaseDriver;
+  radb: RAthenaDatabaseDriver;
   accountId: number;
   key: string | (() => Promise<string>);
 };
@@ -22,7 +22,7 @@ export class AccRegNumRepository extends MutableRepository<number> {
   }
 
   private createQuery() {
-    return this.options.db.char.table("acc_reg_num");
+    return this.options.radb.char.table("acc_reg_num");
   }
 
   private async getQueryProps() {

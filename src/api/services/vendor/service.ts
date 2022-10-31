@@ -20,10 +20,10 @@ import {
 export type VendorService = ReturnType<typeof createVendorService>;
 
 export function createVendorService({
-  db,
+  radb,
   items: itemRepo,
 }: {
-  db: RAthenaDatabaseDriver;
+  radb: RAthenaDatabaseDriver;
   items: ItemRepository;
 }) {
   return t.router({
@@ -42,7 +42,7 @@ export function createVendorService({
       .mutation(async ({ input: { items, accountId, charId } }) => {
         async function insertItem(item: VendorItem) {
           const [vendorId, index] = parseVendorItemId(item.id);
-          const [cartId] = await db.map.table("cart_inventory").insert({
+          const [cartId] = await radb.map.table("cart_inventory").insert({
             char_id: charId,
             nameid: item.itemId,
             amount: item.amount,
@@ -65,14 +65,14 @@ export function createVendorService({
             ),
           });
           await Promise.all([
-            db.map.table("vending_items").insert({
+            radb.map.table("vending_items").insert({
               vending_id: vendorId,
               index,
               cartinventory_id: cartId,
               amount: item.amount,
               price: item.price,
             }),
-            db.map.table("vendings").insert({
+            radb.map.table("vendings").insert({
               id: item.vendorId,
               account_id: accountId,
               char_id: charId,
@@ -93,7 +93,7 @@ export function createVendorService({
         const items = await itemRepo.items;
 
         // prettier-ignore
-        let query = db.map
+        let query = radb.map
           .table("vending_items")
           .join("cart_inventory", "cart_inventory.id", "vending_items.cartinventory_id")
           .join("vendings", "vendings.id", "vending_items.vending_id")
