@@ -1,5 +1,6 @@
 import * as zod from "zod";
 import { TRPCError } from "@trpc/server";
+import { Hunt } from "@prisma/client";
 import { t } from "../../trpc";
 import { RACPDatabaseClient } from "../../common/createRACPDatabaseClient";
 import {
@@ -35,6 +36,7 @@ export function createHuntService({
       .query(({ ctx }) =>
         db.hunt.findMany({
           where: { accountId: ctx.auth.id },
+          orderBy: { editedAt: "desc" },
         })
       ),
     richHunt: t.procedure
@@ -127,6 +129,7 @@ export function createHuntService({
             targetMonsterIds: "",
           },
         });
+        await touchHunt(db, huntId);
       }),
     updateItem: t.procedure
       .input(huntedItemType.omit({ huntId: true }).partial())
@@ -154,6 +157,7 @@ export function createHuntService({
           data: changes,
           where: { id },
         });
+        await touchHunt(db, item.huntId);
       }),
     removeItem: t.procedure
       .input(huntedItemType.pick({ huntId: true, itemId: true }))
@@ -161,6 +165,7 @@ export function createHuntService({
       .mutation(async ({ input: { huntId, itemId }, ctx }) => {
         await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
         await db.huntedItem.deleteMany({ where: { huntId, itemId } });
+        await touchHunt(db, huntId);
       }),
     updateMonster: t.procedure
       .input(huntedMonsterType.omit({ huntId: true }).partial())
@@ -175,6 +180,7 @@ export function createHuntService({
           accountId: ctx.auth.id,
         });
         await db.huntedMonster.update({ data: changes, where: { id } });
+        await touchHunt(db, monster.huntId);
       }),
   });
 }
@@ -217,10 +223,9 @@ async function assertHuntAccess(
 //   }
 // }
 
-// function touchHunt(huntId: HuntId, state: HuntStore) {
-//   const hunt = state.hunts.find((h) => h.id === huntId);
-//   if (hunt) {
-//     hunt.editedAt = Date.now();
-//     state.hunts.sort((a, b) => b.editedAt - a.editedAt);
-//   }
-// }
+async function touchHunt(db: RACPDatabaseClient, huntId: Hunt["id"]) {
+  await db.hunt.update({
+    data: { editedAt: new Date() },
+    where: { id: huntId },
+  });
+}
