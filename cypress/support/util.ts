@@ -30,4 +30,5 @@ export function invertCompareFn<T>(compareFn: CompareFn<T>): CompareFn<T> {
 
 export type CompareFn<T = any> = (a: T, b: T) => number;
 
-export const ignoreCase = (name: string) => new RegExp(`^${name}$`, "i");
+export const ignoreCase = (name: string, { exact = true } = {}) =>
+  new RegExp(exact ? `^${name}$` : name, "i");

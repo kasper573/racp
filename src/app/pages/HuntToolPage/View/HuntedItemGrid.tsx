@@ -193,8 +193,8 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
         return;
       }
       return (
-        <Tooltip title="Remove from hunt list">
-          <IconButton onClick={() => removeItem(item)}>
+        <Tooltip title="Remove item from hunt list">
+          <IconButton aria-label="Remove item" onClick={() => removeItem(item)}>
             <Delete />
           </IconButton>
         </Tooltip>
