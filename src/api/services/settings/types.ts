@@ -1,6 +1,7 @@
 import * as zod from "zod";
 import { ZodType } from "zod";
 import { conditionallyRequired } from "../../../lib/zod/conditionallyRequired";
+import { huntLimitsType } from "../hunt/types";
 
 export type Currency = NominalString<"Currency">;
 export const currencyType = zod.string() as ZodType<Currency>;
@@ -44,6 +45,7 @@ export const adminSettingsType = zod.object({
   rAthenaMode: rAthenaModeType,
   pageTitle: zod.string(),
   donations: donationSettingsType,
+  huntLimits: huntLimitsType,
 });
 
 export type AdminPublicSettings = zod.infer<typeof adminPublicSettingsType>;

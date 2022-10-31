@@ -44,6 +44,7 @@ import { createAdminSettingsRepository } from "./services/settings/repository";
 import { createExpRepository } from "./services/exp/repository";
 import { createExpService } from "./services/exp/service";
 import { createRACPDatabaseClient } from "./common/createRACPDatabaseClient";
+import { createHuntService } from "./services/hunt/service";
 
 enableMapSet();
 
@@ -99,6 +100,7 @@ const router = createApiRouter({
   settings: createAdminSettingsService(settings),
   meta: createMetaService({ ...items, ...monsters }),
   exp: createExpService(exp),
+  hunt: createHuntService({ cpdb, settings }),
   donation: createDonationService({
     radb,
     env: args.donationEnvironment,

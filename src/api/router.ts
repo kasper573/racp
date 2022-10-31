@@ -13,6 +13,7 @@ import { AdminSettingsService } from "./services/settings/service";
 import { DonationService } from "./services/donation/service";
 import { SkillService } from "./services/skill/service";
 import { ExpService } from "./services/exp/service";
+import { HuntService } from "./services/hunt/service";
 
 export function createApiRouter(services: ApiServices) {
   return t.router(services);
@@ -32,6 +33,7 @@ export type ApiServices = {
   meta: MetaService;
   settings: AdminSettingsService;
   exp: ExpService;
+  hunt: HuntService;
   donation: DonationService;
 };
 

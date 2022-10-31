@@ -9,13 +9,26 @@ import {
 } from "../../../../prisma/zod";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
-import { HuntLimits, huntLimitsType, richHuntType } from "./types";
+import { AdminSettingsRepository } from "../settings/repository";
+import { huntLimitsType, richHuntType } from "./types";
 
 export type HuntService = ReturnType<typeof createHuntService>;
 
-export function createHuntService(db: RACPDatabaseClient, limits: HuntLimits) {
+export function createHuntService({
+  cpdb: db,
+  settings,
+}: {
+  cpdb: RACPDatabaseClient;
+  settings: AdminSettingsRepository;
+}) {
+  const limitsResource = settings.map(
+    "huntLimits",
+    (settings) => settings.huntLimits
+  );
   return t.router({
-    limits: t.procedure.output(huntLimitsType).query(() => limits),
+    limits: t.procedure
+      .output(huntLimitsType)
+      .query(() => limitsResource.then()),
     hunts: t.procedure
       .output(zod.array(huntType))
       .use(access(UserAccessLevel.User))
@@ -72,6 +85,7 @@ export function createHuntService(db: RACPDatabaseClient, limits: HuntLimits) {
         const count = await db.hunt.count({
           where: { accountId: ctx.auth.id },
         });
+        const limits = await limitsResource;
         if (count >= limits.hunts) {
           throw new TRPCError({
             code: "FORBIDDEN",
@@ -103,6 +117,7 @@ export function createHuntService(db: RACPDatabaseClient, limits: HuntLimits) {
         await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
 
         const count = await db.huntedItem.count({ where: { huntId } });
+        const limits = await limitsResource;
         if (count >= limits.itemsPerHunt) {
           throw new TRPCError({
             code: "FORBIDDEN",
@@ -133,6 +148,7 @@ export function createHuntService(db: RACPDatabaseClient, limits: HuntLimits) {
         });
 
         const count = changes.targetMonsterIds?.split(",").length ?? 0;
+        const limits = await limitsResource;
         if (count >= limits.monstersPerItem) {
           throw new TRPCError({
             code: "FORBIDDEN",
