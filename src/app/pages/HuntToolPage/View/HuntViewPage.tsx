@@ -23,6 +23,7 @@ import { ErrorMessage } from "../../../components/ErrorMessage";
 import { authStore } from "../../../state/auth";
 import { useHistory } from "../../../../lib/tsr/react/useHistory";
 import { routes } from "../../../router";
+import { Spaceless } from "../../../components/Spaceless";
 import { HuntedItemGrid } from "./HuntedItemGrid";
 import { HuntedMonsterGrid } from "./HuntedMonsterGrid";
 
@@ -64,17 +65,16 @@ export default function HuntViewPage({
               variant="h6"
             />
             {!isOwner && isSignedIn && (
-              <Tooltip title="Add a copy of this hunt to your account">
-                <IconButton
-                  sx={{
-                    position: "absolute",
-                    transform: "translateX(calc(100% + 8px))",
-                  }}
-                  onClick={copyAndRedirect}
-                >
-                  <ContentCopy />
-                </IconButton>
-              </Tooltip>
+              <Spaceless>
+                <Tooltip title="Add a copy of this hunt to your account">
+                  <IconButton
+                    sx={{ transform: "translate(8px, -50%)" }}
+                    onClick={copyAndRedirect}
+                  >
+                    <ContentCopy />
+                  </IconButton>
+                </Tooltip>
+              </Spaceless>
             )}
           </>
         }
