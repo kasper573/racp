@@ -56,15 +56,23 @@ describe("user", () => {
         cy.findByRole("link", { name: /view hunt/i }).click();
       });
 
-      it("can add item to hunt", () => {
-        addItemToHunt("test item");
-        expectTableColumn("Item", () => /test item/i);
-      });
+      describe("item", () => {
+        beforeEach(() => {
+          addItemToHunt("test item");
+        });
 
-      it("can remove item from hunt", () => {
-        addItemToHunt("test item");
-        cy.findByRole("button", { name: /remove item/i }).click();
-        expectTableColumn("Item", () => /test item/i).should("not.exist");
+        it("can add", () => {
+          expectTableColumn("Item", () => /test item/i);
+        });
+
+        it("can remove", () => {
+          cy.findByRole("button", { name: /remove item/i }).click();
+          expectTableColumn("Item", () => /test item/i).should("not.exist");
+        });
+
+        it("can set amount", () => {
+          setItemAmount(5).should("have.value", "5");
+        });
       });
     });
   });
@@ -80,4 +88,9 @@ function addItemToHunt(itemName: string) {
   cy.findByRole("option", {
     name: ignoreCase(itemName, { exact: false }),
   }).click();
+  waitForPageReady();
+}
+
+function setItemAmount(itemAmount: number) {
+  return cy.get("#amount").clear().type(`${itemAmount}`);
 }

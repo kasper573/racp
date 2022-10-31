@@ -71,6 +71,7 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
         <TextField
           type="number"
           value={item.amount}
+          id="amount"
           onChange={(amount) => updateItem({ ...item, amount })}
         />
       );
