@@ -33,6 +33,7 @@
     "@paypal/checkout-server-sdk": "^1.0.3",
     "@paypal/react-paypal-js": "^7.8.1",
     "@pmmmwh/react-refresh-webpack-plugin": "0.5.7",
+    "@prisma/client": "^4.5.0",
     "@rmp135/sql-ts": "1.13.0",
     "@swc/core": "1.2.204",
     "@tanstack/react-query": "^4.7.1",
@@ -104,6 +105,8 @@
     "node-fetch": "2.6.7",
     "path-to-regexp": "^6.2.1",
     "prettier": "2.6.2",
+    "prettier-plugin-prisma": "^4.4.0",
+    "prisma": "^4.5.0",
     "rathena": "https://github.com/rathena/rathena.git#4a43856",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -133,6 +136,7 @@
     "yaml": "2.1.1",
     "yargs": "17.5.1",
     "zod": "3.17.3",
+    "zod-prisma": "^0.5.4",
     "zustand": "^4.1.1"
   }
 }

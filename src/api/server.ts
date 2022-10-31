@@ -43,6 +43,7 @@ import { createSkillService } from "./services/skill/service";
 import { createAdminSettingsRepository } from "./services/settings/repository";
 import { createExpRepository } from "./services/exp/repository";
 import { createExpService } from "./services/exp/service";
+import { createRACPDatabaseClient } from "./common/createRACPDatabaseClient";
 
 enableMapSet();
 
@@ -52,6 +53,7 @@ const logger = createLogger(coloredConsole, { format: logFormat });
 const app = express();
 const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
 const radb = createRAthenaDatabaseDriver({ ...args, logger });
+const cpdb = createRACPDatabaseClient();
 const formatter = createImageFormatter({ extension: ".png", quality: 70 });
 const linker = createPublicFileLinker({
   directory: path.join(process.cwd(), args.publicFolder),
