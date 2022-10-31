@@ -133,6 +133,7 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
       }
       return (
         <TextField
+          id="KillsPerUnit"
           type="number"
           value={monster.killsPerUnit}
           onChange={(kpu) => updateMonster({ ...monster, killsPerUnit: kpu })}

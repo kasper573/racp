@@ -73,21 +73,19 @@ describe("user", () => {
         });
 
         it("can set amount", () => {
-          withinItemGrid(() => setItemAmount(5).should("have.value", "5"));
+          setItemAmount(5).should("have.value", "5");
         });
 
         it("can set target", () => {
-          withinItemGrid(() => setItemTarget(0));
+          setItemTarget(0);
           withinMonsterGrid(() =>
             expectTableColumn("Monster", () => /test monster/i)
           );
         });
 
         it("can set monster kill speed", () => {
-          withinItemGrid(() => setItemTarget(0));
-          withinMonsterGrid(() =>
-            expectTableColumn("Monster", () => /test monster/i)
-          );
+          setItemTarget(0);
+          setKillsPerUnit(7).should("have.value", "7");
         });
       });
     });
@@ -108,12 +106,16 @@ function addItemToHunt(itemName: string) {
 }
 
 function setItemAmount(itemAmount: number) {
-  return cy.get("#amount").clear().type(`${itemAmount}`);
+  return cy.get("#ItemAmount").clear().type(`${itemAmount}`);
 }
 
 function setItemTarget(index: number) {
-  cy.get("#targets").select(index);
+  cy.get("#ItemTargets").select(index);
   waitForPageReady();
+}
+
+function setKillsPerUnit(kills: number) {
+  return cy.get("#KillsPerUnit").clear().type(`${kills}`);
 }
 
 function withinItemGrid(fn: () => void) {

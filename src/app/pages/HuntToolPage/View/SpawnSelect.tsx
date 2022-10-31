@@ -19,6 +19,7 @@ export function SpawnSelect({
     options.find((spawn) => spawn.id === id);
   return (
     <Select
+      id="MonsterSpawn"
       size="small"
       multiple={false}
       value={value ?? ""}

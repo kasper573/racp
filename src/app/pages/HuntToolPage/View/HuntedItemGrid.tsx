@@ -72,7 +72,7 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
         <TextField
           type="number"
           value={item.amount}
-          id="amount"
+          id="ItemAmount"
           onChange={(amount) => updateItem({ ...item, amount })}
         />
       );
@@ -126,7 +126,7 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
             </DialogActions>
           </Dialog>
           <DropperSelect
-            id="targets"
+            id="ItemTargets"
             value={selected}
             options={options}
             onChange={(selection) => {
