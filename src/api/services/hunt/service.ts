@@ -44,9 +44,7 @@ export function createHuntService({
     richHunt: t.procedure
       .input(huntType.shape.id)
       .output(richHuntType)
-      .use(access(UserAccessLevel.User))
-      .query(async ({ input: huntId, ctx }) => {
-        await assertHuntAccess(db, { accountId: ctx.auth.id, huntId });
+      .query(async ({ input: huntId }) => {
         const hunt = await db.hunt.findFirst({
           where: { id: huntId },
           include: {
@@ -62,19 +60,15 @@ export function createHuntService({
     items: t.procedure
       .input(huntType.shape.id)
       .output(zod.array(huntedItemType))
-      .use(access(UserAccessLevel.User))
-      .query(async ({ input: huntId, ctx }) => {
-        await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
-        return db.huntedItem.findMany({ where: { huntId } });
-      }),
+      .query(({ input: huntId }) =>
+        db.huntedItem.findMany({ where: { huntId } })
+      ),
     monsters: t.procedure
       .input(huntType.shape.id)
       .output(zod.array(huntedMonsterType))
-      .use(access(UserAccessLevel.User))
-      .query(async ({ input: huntId, ctx }) => {
-        await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
-        return db.huntedMonster.findMany({ where: { huntId } });
-      }),
+      .query(({ input: huntId }) =>
+        db.huntedMonster.findMany({ where: { huntId } })
+      ),
     create: t.procedure
       .input(zod.string())
       .output(huntType)
