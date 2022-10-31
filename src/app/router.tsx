@@ -27,11 +27,11 @@ import { skillFilter } from "../api/services/skill/types";
 import { Redirect } from "../lib/tsr/react/Redirect";
 import { zodLiteralString } from "../lib/zod/zodLiteralString";
 import { RouteLocation } from "../lib/tsr/types";
+import { huntType } from "../../prisma/zod";
 import { requireAuth } from "./util/requireAuth";
 import { requireSettings } from "./util/requireSettings";
 import { t } from "./tsr";
 import { mapViewRoute } from "./pages/MapViewPage/route";
-import { huntIdType } from "./pages/HuntToolPage/huntStore";
 
 export const router = t.router({
   home: t.route
@@ -153,7 +153,7 @@ export const router = t.router({
         .children({
           view: t.route
             .path(":id")
-            .params({ id: huntIdType })
+            .params({ id: huntType.shape.id })
             .renderer(
               lazy(() => import("./pages/HuntToolPage/View/HuntViewPage"))
             ),

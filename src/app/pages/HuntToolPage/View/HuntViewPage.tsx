@@ -1,5 +1,6 @@
 import { useStore } from "zustand";
 import { Stack } from "@mui/material";
+import { Hunt } from "@prisma/client";
 import { Item } from "../../../../api/services/item/types";
 import { ItemIdentifier } from "../../../components/ItemIdentifier";
 import { trpc } from "../../../state/client";
@@ -7,18 +8,23 @@ import { SearchField } from "../../../components/SearchField";
 import { CommonPageGrid } from "../../../components/CommonPageGrid";
 import { TextField } from "../../../controls/TextField";
 import { Select } from "../../../controls/Select";
-import { HuntId, huntStore, KpxUnit, kpxUnits } from "../huntStore";
+import { huntStore, KpxUnit, kpxUnits } from "../huntStore";
 import { Header } from "../../../layout/Header";
 import { RouteComponentProps } from "../../../../lib/tsr/react/types";
 import { EditableText } from "../../../components/EditableText";
+import { LoadingPage } from "../../LoadingPage";
 import { HuntedItemGrid } from "./HuntedItemGrid";
 import { HuntedMonsterGrid } from "./HuntedMonsterGrid";
 
 export default function HuntViewPage({
   params: { id: huntId },
-}: RouteComponentProps<{ id: HuntId }>) {
-  const { getRichHunt, addItems, renameHunt } = useStore(huntStore);
-  const hunt = getRichHunt(huntId);
+}: RouteComponentProps<{ id: Hunt["id"] }>) {
+  const { mutate: addItem } = trpc.hunt.addItem.useMutation();
+  const { mutate: renameHunt } = trpc.hunt.rename.useMutation();
+  const { data: hunt, isLoading } = trpc.hunt.richHunt.useQuery(huntId);
+  if (isLoading) {
+    return <LoadingPage />;
+  }
   if (!hunt) {
     return <Header title="Unknown hunt" />;
   }
@@ -29,7 +35,7 @@ export default function HuntViewPage({
         title={
           <EditableText
             value={hunt.name}
-            onChange={(newName) => renameHunt(huntId, newName)}
+            onChange={(name) => renameHunt({ id: huntId, name })}
             variant="h6"
           />
         }
@@ -37,12 +43,11 @@ export default function HuntViewPage({
 
       <SearchField<Item>
         sx={{ width: "100%" }}
-        onSelected={(items) =>
-          addItems(
-            huntId,
-            items.map((item) => item.Id)
-          )
-        }
+        onSelected={([item]) => {
+          if (item) {
+            addItem({ huntId, itemId: item.Id });
+          }
+        }}
         useQuery={useItemSearchQuery}
         optionKey={(option) => option.Id}
         optionLabel={(option) => option.Name}

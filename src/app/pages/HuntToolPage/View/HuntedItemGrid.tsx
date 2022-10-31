@@ -3,6 +3,7 @@ import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import { Delete } from "@mui/icons-material";
 import { uniqBy } from "lodash";
 import { useStore } from "zustand";
+import { HuntedItem } from "@prisma/client";
 import { ItemIdentifierByFilter } from "../../../components/ItemIdentifier";
 import { TextField } from "../../../controls/TextField";
 import { trpc } from "../../../state/client";
@@ -10,7 +11,7 @@ import { durationString } from "../../../../lib/std/durationString";
 import { InfoTooltip } from "../../../components/InfoTooltip";
 import { ColumnConventionProps, DataGrid } from "../../../components/DataGrid";
 import { ItemId } from "../../../../api/services/item/types";
-import { estimateHuntDuration, HuntedItem, huntStore } from "../huntStore";
+import { estimateHuntDuration, huntStore } from "../huntStore";
 import { DropperSelect } from "./DropperSelect";
 
 export function HuntedItemGrid({ items }: { items: HuntedItem[] }) {
@@ -43,7 +44,7 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
     ...forceWidth(120),
     headerName: "Amount",
     renderCell({ row: hunt }) {
-      const { updateItem } = useStore(huntStore);
+      const { mutate: updateItem } = trpc.hunt.updateItem.useMutation();
       return (
         <TextField
           type="number"
@@ -53,12 +54,12 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
       );
     },
   },
-  targets: {
+  targetMonsterIds: {
     headerName: "Target Monster(s)",
     minWidth: 200,
     sortable: false,
     renderCell({ row: hunt }) {
-      const { updateItem } = useStore(huntStore);
+      const { mutate: updateItem } = trpc.hunt.updateItem.useMutation();
       const { canBeHunted, selected, options } = useDroppersForHunt(hunt);
       if (!canBeHunted) {
         return (
@@ -72,9 +73,10 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
           value={selected}
           options={options}
           onChange={(selection) => {
+            const monsterIds = selection.map((d) => d.MonsterId);
             updateItem({
               ...hunt,
-              targets: selection.map((d) => d.MonsterId),
+              targetMonsterIds: monsterIds.join(","),
             });
           }}
         />
@@ -87,8 +89,8 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
     sortable: false,
     ...forceWidth(115),
     renderCell({ row: huntedItem }) {
-      const { getRichHunt, ...huntState } = useStore(huntStore);
-      const hunt = getRichHunt(huntedItem.huntId);
+      const { data: hunt } = trpc.hunt.richHunt.useQuery(huntedItem.huntId);
+      const huntState = useStore(huntStore);
       const { data: { entities: drops = [] } = {} } = trpc.drop.search.useQuery(
         {
           filter: {
@@ -128,11 +130,11 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
     headerName: "",
     field: "actions",
     ...forceWidth(57),
-    renderCell({ row: hunt }) {
-      const { removeItem } = useStore(huntStore);
+    renderCell({ row: item }) {
+      const { mutate: removeItem } = trpc.hunt.removeItem.useMutation();
       return (
         <Tooltip title="Remove from hunt list">
-          <IconButton onClick={() => removeItem(hunt.huntId, hunt.itemId)}>
+          <IconButton onClick={() => removeItem(item)}>
             <Delete />
           </IconButton>
         </Tooltip>
@@ -158,6 +160,9 @@ function useDroppersForHunt(hunt: HuntedItem) {
 
   const options = uniqBy(all, (d) => d.MonsterId);
   const canBeHunted = isLoading || !!options.length;
-  const selected = options.filter((m) => hunt.targets?.includes(m.MonsterId));
+  const selected = options.filter((m) => {
+    const ids = hunt.targetMonsterIds.split(",").map(parseFloat);
+    return ids.includes(m.MonsterId);
+  });
   return { canBeHunted, selected, options };
 }

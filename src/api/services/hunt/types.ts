@@ -1,7 +1,9 @@
 import * as zod from "zod";
-import { huntType } from "../../../../prisma/zod";
-import { itemIdType } from "../item/types";
-import { monsterIdType } from "../monster/types";
+import {
+  huntedItemType,
+  huntedMonsterType,
+  huntType,
+} from "../../../../prisma/zod";
 
 export type HuntLimits = zod.infer<typeof huntLimitsType>;
 export const huntLimitsType = zod.object({
@@ -10,9 +12,10 @@ export const huntLimitsType = zod.object({
   monstersPerItem: zod.number().int(),
 });
 
+export type RichHunt = zod.infer<typeof richHuntType>;
 export const richHuntType = huntType.and(
   zod.object({
-    items: zod.array(itemIdType),
-    monsters: zod.array(monsterIdType),
+    items: zod.array(huntedItemType),
+    monsters: zod.array(huntedMonsterType),
   })
 );

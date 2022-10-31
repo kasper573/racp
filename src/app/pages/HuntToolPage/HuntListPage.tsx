@@ -1,16 +1,24 @@
 import { Typography } from "@mui/material";
 
-import { useStore } from "zustand";
 import { useState } from "react";
+import { Hunt } from "@prisma/client";
 import { Header } from "../../layout/Header";
 import { CardList } from "../../components/CardList";
 import { ConfirmDialog } from "../../dialogs/ConfirmDialog";
-import { Hunt, huntStore } from "./huntStore";
+import { trpc } from "../../state/client";
+import { LoadingPage } from "../LoadingPage";
 import { AddHuntCard, HuntCard } from "./HuntCard";
 
 export default function HuntListPage() {
-  const { hunts, createHunt, deleteHunt } = useStore(huntStore);
+  const { mutate: createHunt } = trpc.hunt.create.useMutation();
+  const { mutate: deleteHunt } = trpc.hunt.delete.useMutation();
+  const { data: hunts = [], isLoading } = trpc.hunt.list.useQuery();
   const [huntToDelete, setHuntToDelete] = useState<Hunt>();
+
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
   return (
     <>
       <Header />
@@ -22,8 +30,7 @@ export default function HuntListPage() {
       </Typography>
 
       <CardList>
-        <AddHuntCard onClick={createHunt} />
-
+        <AddHuntCard onClick={() => createHunt("New hunt")} />
         {hunts.map((hunt) => (
           <HuntCard key={hunt.id} hunt={hunt} onDelete={setHuntToDelete} />
         ))}

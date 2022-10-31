@@ -29,7 +29,7 @@ export function createHuntService({
     limits: t.procedure
       .output(huntLimitsType)
       .query(() => limitsResource.then()),
-    hunts: t.procedure
+    list: t.procedure
       .output(zod.array(huntType))
       .use(access(UserAccessLevel.User))
       .query(({ ctx }) =>
@@ -43,23 +43,17 @@ export function createHuntService({
       .use(access(UserAccessLevel.User))
       .query(async ({ input: huntId, ctx }) => {
         await assertHuntAccess(db, { accountId: ctx.auth.id, huntId });
-        const hunt = await db.hunt.findFirst({ where: { id: huntId } });
+        const hunt = await db.hunt.findFirst({
+          where: { id: huntId },
+          include: {
+            monsters: true,
+            items: true,
+          },
+        });
         if (!hunt) {
           throw new TRPCError({ code: "NOT_FOUND" });
         }
-        const items = await db.huntedItem.findMany({
-          select: { itemId: true },
-          where: { huntId },
-        });
-        const monsters = await db.huntedMonster.findMany({
-          select: { monsterId: true },
-          where: { huntId },
-        });
-        return {
-          ...hunt,
-          items: items.map((i) => i.itemId),
-          monsters: monsters.map((m) => m.monsterId),
-        };
+        return hunt;
       }),
     items: t.procedure
       .input(huntType.shape.id)
@@ -77,7 +71,7 @@ export function createHuntService({
         await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
         return db.huntedMonster.findMany({ where: { huntId } });
       }),
-    createHunt: t.procedure
+    create: t.procedure
       .input(zod.string())
       .output(huntType)
       .use(access(UserAccessLevel.User))
@@ -96,14 +90,14 @@ export function createHuntService({
           data: { name, accountId: ctx.auth.id, editedAt: new Date() },
         });
       }),
-    renameHunt: t.procedure
+    rename: t.procedure
       .input(zod.object({ id: huntType.shape.id, name: zod.string() }))
       .use(access(UserAccessLevel.User))
       .mutation(async ({ input: { id: huntId, name }, ctx }) => {
         await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
         await db.hunt.update({ data: { name }, where: { id: huntId } });
       }),
-    deleteHunt: t.procedure
+    delete: t.procedure
       .input(huntType.shape.id)
       .use(access(UserAccessLevel.User))
       .mutation(async ({ input: huntId, ctx }) => {
@@ -200,3 +194,33 @@ async function assertHuntAccess(
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 }
+
+// function normalizeHunt(huntId: HuntId, state: HuntStore) {
+//   const isMatch = <T extends { huntId: HuntId }>(o: T) => o.huntId === huntId;
+//   const targetIds = uniq(
+//     state.items
+//       .filter(isMatch)
+//       .map((i) => i.targets ?? [])
+//       .flat()
+//   );
+//   const monsterIds = state.monsters.filter(isMatch).map((m) => m.monsterId);
+//   const added = without(targetIds, ...monsterIds);
+//   const removed = without(monsterIds, ...targetIds);
+//   for (const id of added) {
+//     state.monsters.push({ huntId, monsterId: id, killsPerUnit: 0 });
+//   }
+//   for (const id of removed) {
+//     const index = state.monsters.findIndex(
+//       (m) => isMatch(m) && m.monsterId === id
+//     );
+//     state.monsters.splice(index, 1);
+//   }
+// }
+
+// function touchHunt(huntId: HuntId, state: HuntStore) {
+//   const hunt = state.hunts.find((h) => h.id === huntId);
+//   if (hunt) {
+//     hunt.editedAt = Date.now();
+//     state.hunts.sort((a, b) => b.editedAt - a.editedAt);
+//   }
+// }

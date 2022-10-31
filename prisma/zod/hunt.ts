@@ -9,8 +9,8 @@ export const huntType = z.object({
 })
 
 export interface CompleteHunt extends z.infer<typeof huntType> {
-  HuntedItem: CompleteHuntedItem[]
-  HuntedMonster: CompleteHuntedMonster[]
+  items: CompleteHuntedItem[]
+  monsters: CompleteHuntedMonster[]
 }
 
 /**
@@ -19,6 +19,6 @@ export interface CompleteHunt extends z.infer<typeof huntType> {
  * NOTE: Lazy required in case of potential circular dependencies within schema
  */
 export const relatedHuntType: z.ZodSchema<CompleteHunt> = z.lazy(() => huntType.extend({
-  HuntedItem: relatedHuntedItemType.array(),
-  HuntedMonster: relatedHuntedMonsterType.array(),
+  items: relatedHuntedItemType.array(),
+  monsters: relatedHuntedMonsterType.array(),
 }))

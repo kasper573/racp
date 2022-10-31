@@ -11,10 +11,17 @@ import { LoadingSpinner } from "../../../components/LoadingSpinner";
 import { InfoTooltip } from "../../../components/InfoTooltip";
 import { LinkIconButton } from "../../../components/Link";
 import { routes } from "../../../router";
-import { HuntedMonster, huntStore } from "../huntStore";
+import { huntStore } from "../huntStore";
+import { RichHunt } from "../../../../api/services/hunt/types";
 import { SpawnSelect } from "./SpawnSelect";
 
-export function HuntedMonsterGrid({ monsters }: { monsters: HuntedMonster[] }) {
+type HuntedMonster = RichHunt["monsters"][number];
+
+export function HuntedMonsterGrid({
+  monsters,
+}: {
+  monsters: RichHunt["monsters"];
+}) {
   return (
     <DataGrid<HuntedMonster>
       id={(m) => m.monsterId}
@@ -62,7 +69,7 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
     minWidth: 200,
     sortable: false,
     renderCell({ row: hunt }) {
-      const { updateMonster } = useStore(huntStore);
+      const { mutate: updateMonster } = trpc.hunt.updateMonster.useMutation();
       const { data: { entities: spawns = [] } = {}, isLoading } =
         trpc.monster.searchSpawns.useQuery({
           filter: { monsterId: { value: hunt.monsterId, matcher: "=" } },
@@ -83,7 +90,7 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
         <>
           <SpawnSelect
             sx={{ minWidth: 150, width: 150 }}
-            value={hunt.spawnId}
+            value={hunt.spawnId ?? undefined}
             options={spawns}
             onChange={(spawnId) => updateMonster({ ...hunt, spawnId })}
           />
@@ -112,7 +119,7 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
       return kpxUnit;
     },
     renderCell({ row: hunt }) {
-      const { updateMonster } = useStore(huntStore);
+      const { mutate: updateMonster } = trpc.hunt.updateMonster.useMutation();
       return (
         <TextField
           type="number"
