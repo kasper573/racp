@@ -16,12 +16,15 @@ import { EditableText } from "../../../components/EditableText";
 import { LoadingPage } from "../../LoadingPage";
 import { ErrorMessage } from "../../../components/ErrorMessage";
 import { authStore } from "../../../state/auth";
+import { useHistory } from "../../../../lib/tsr/react/useHistory";
+import { routes } from "../../../router";
 import { HuntedItemGrid } from "./HuntedItemGrid";
 import { HuntedMonsterGrid } from "./HuntedMonsterGrid";
 
 export default function HuntViewPage({
   params: { id: huntId },
 }: RouteComponentProps<{ id: Hunt["id"] }>) {
+  const history = useHistory();
   const { profile } = useStore(authStore);
   const isSignedIn = !!profile;
   const addItem = trpc.hunt.addItem.useMutation();
@@ -30,6 +33,11 @@ export default function HuntViewPage({
   const { data: hunt, isLoading } = trpc.hunt.read.useQuery(huntId);
   const error = addItem.error || renameHunt.error || copyHunt.error;
   const isOwner = useIsHuntOwner(hunt);
+
+  async function copyAndRedirect() {
+    const copy = await copyHunt.mutateAsync(huntId);
+    history.push(routes.tools.hunt.view.$({ id: copy.id }));
+  }
 
   if (isLoading) {
     return <LoadingPage />;
@@ -53,8 +61,11 @@ export default function HuntViewPage({
             {!isOwner && isSignedIn && (
               <Tooltip title="Add a copy of this hunt to your account">
                 <IconButton
-                  sx={{ ml: 1 }}
-                  onClick={() => copyHunt.mutate(huntId)}
+                  sx={{
+                    position: "absolute",
+                    transform: "translateX(calc(100% + 8px))",
+                  }}
+                  onClick={copyAndRedirect}
                 >
                   <ContentCopy />
                 </IconButton>
