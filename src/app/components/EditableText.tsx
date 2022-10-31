@@ -22,7 +22,18 @@ export function EditableText({
       ref={ref}
       contentEditable={enabled}
       suppressContentEditableWarning={enabled}
-      onInput={(e) => onChange?.(e.currentTarget.textContent ?? "")}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          e.currentTarget.blur();
+        }
+      }}
+      onBlur={(e) => {
+        const newValue = e.currentTarget.textContent ?? "";
+        if (newValue !== value) {
+          onChange?.(newValue);
+        }
+      }}
       {...props}
     />
   );
