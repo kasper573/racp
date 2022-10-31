@@ -35,6 +35,7 @@ export function HuntCard({
       </CardContent>
       <CardActions>
         <LinkButton
+          aria-label="View hunt"
           to={routes.tools.hunt.view.$({ id: hunt.id })}
           sx={{ mr: "auto" }}
         >

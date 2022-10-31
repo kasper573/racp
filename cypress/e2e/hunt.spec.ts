@@ -3,6 +3,7 @@ import { register } from "../support/actions/user";
 import { nextTestUser, TestUser } from "../fixtures/users";
 import { resetData } from "../support/actions/admin";
 import { ignoreCase } from "../support/util";
+import { expectTableColumn } from "../support/actions/grid";
 
 // New visitor each test
 beforeEach(() => {
@@ -45,6 +46,14 @@ describe("user", () => {
     cy.findByRole("button", { name: /create new hunt/i }).click();
     findListedHuntTitle("new hunt").clear().type("renamed hunt");
     findListedHuntTitle("renamed hunt").should("exist");
+  });
+
+  it("can add item to hunt", () => {
+    cy.findByRole("button", { name: /create new hunt/i }).click();
+    cy.findByRole("link", { name: /view hunt/i }).click();
+    cy.findByLabelText("Add an item to hunt").type("test it");
+    cy.findByRole("option", { name: /test item/i }).click();
+    expectTableColumn("Item", () => /test item/i);
   });
 });
 
