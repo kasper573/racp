@@ -8,17 +8,19 @@ import { CardList } from "../../components/CardList";
 import { ConfirmDialog } from "../../dialogs/ConfirmDialog";
 import { trpc } from "../../state/client";
 import { LoadingPage } from "../LoadingPage";
+import { ErrorMessage } from "../../components/ErrorMessage";
 import { AddHuntCard, HuntCard } from "./HuntCard";
 
 export default function HuntListPage() {
   const queryClient = useQueryClient();
-  const { mutate: createHunt } = trpc.hunt.create.useMutation();
-  const { mutate: deleteHunt } = trpc.hunt.delete.useMutation({
+  const createHunt = trpc.hunt.create.useMutation();
+  const removeHunt = trpc.hunt.delete.useMutation({
     // Clearing cache on delete prevents over eager re-fetching of the deleted hunt by other components
     onSuccess: () => queryClient.getQueryCache().clear(),
   });
   const { data: hunts = [], isLoading } = trpc.hunt.list.useQuery();
   const [huntToDelete, setHuntToDelete] = useState<Hunt>();
+  const error = removeHunt.error || createHunt.error;
 
   if (isLoading) {
     return <LoadingPage />;
@@ -34,8 +36,10 @@ export default function HuntListPage() {
         Each list will automatically estimate how long it will take to farm.
       </Typography>
 
+      {error && <ErrorMessage sx={{ mb: 2 }} error={error} />}
+
       <CardList>
-        <AddHuntCard onClick={() => createHunt("New hunt")} />
+        <AddHuntCard onClick={() => createHunt.mutate("New hunt")} />
         {hunts.map((hunt) => (
           <HuntCard key={hunt.id} hunt={hunt} onDelete={setHuntToDelete} />
         ))}
@@ -48,7 +52,7 @@ export default function HuntListPage() {
         onConfirm={() =>
           setHuntToDelete((hunt) => {
             if (hunt) {
-              deleteHunt(hunt.id);
+              removeHunt.mutate(hunt.id);
             }
             return undefined;
           })
