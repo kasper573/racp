@@ -116,7 +116,7 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
     sortable: false,
     ...forceWidth(115),
     renderCell({ row: huntedItem }) {
-      const { data: hunt } = trpc.hunt.richHunt.useQuery(huntedItem.huntId);
+      const { data: hunt } = trpc.hunt.read.useQuery(huntedItem.huntId);
       const huntState = useStore(huntStore);
       const { data: { entities: drops = [] } = {} } = trpc.drop.search.useQuery(
         {

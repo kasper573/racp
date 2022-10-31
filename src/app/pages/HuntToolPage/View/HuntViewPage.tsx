@@ -22,7 +22,7 @@ export default function HuntViewPage({
 }: RouteComponentProps<{ id: Hunt["id"] }>) {
   const addItem = trpc.hunt.addItem.useMutation();
   const renameHunt = trpc.hunt.rename.useMutation();
-  const { data: hunt, isLoading } = trpc.hunt.richHunt.useQuery(huntId);
+  const { data: hunt, isLoading } = trpc.hunt.read.useQuery(huntId);
   const error = addItem.error || renameHunt.error;
 
   if (isLoading) {

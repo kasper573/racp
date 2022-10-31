@@ -41,7 +41,7 @@ export function createHuntService({
           orderBy: { editedAt: "desc" },
         })
       ),
-    richHunt: t.procedure
+    read: t.procedure
       .input(huntType.shape.id)
       .output(richHuntType)
       .query(async ({ input: huntId }) => {

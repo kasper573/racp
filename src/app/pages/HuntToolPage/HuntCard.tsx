@@ -66,12 +66,12 @@ export function AddHuntCard({
 }
 
 function HuntSummary({ id }: { id: Hunt["id"] }) {
-  const { data: richHunt } = trpc.hunt.richHunt.useQuery(id);
-  if (!richHunt) {
+  const { data: hunt } = trpc.hunt.read.useQuery(id);
+  if (!hunt) {
     return null;
   }
-  const itemIds = richHunt.items.map((i) => i.itemId);
-  const monsterIds = richHunt.monsters.map((m) => m.monsterId);
+  const itemIds = hunt.items.map((i) => i.itemId);
+  const monsterIds = hunt.monsters.map((m) => m.monsterId);
   const sx = { mb: 2 };
   return (
     <>
