@@ -32,10 +32,18 @@ export function createHuntService(db: RACPDatabaseClient, limits: HuntLimits) {
         assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
         return db.huntedItem.findMany({ where: { huntId } });
       }),
+    monsters: t.procedure
+      .input(huntType.shape.id)
+      .output(zod.array(huntedMonsterType))
+      .use(access(UserAccessLevel.User))
+      .query(({ input: huntId, ctx }) => {
+        assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
+        return db.huntedMonster.findMany({ where: { huntId } });
+      }),
     addItem: t.procedure
       .input(huntedItemType.pick({ huntId: true, itemId: true }))
       .use(access(UserAccessLevel.User))
-      .query(async ({ input: { huntId, itemId }, ctx }) => {
+      .mutation(async ({ input: { huntId, itemId }, ctx }) => {
         assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
 
         const count = await db.huntedItem.count({ where: { huntId } });
@@ -58,7 +66,7 @@ export function createHuntService(db: RACPDatabaseClient, limits: HuntLimits) {
     updateItem: t.procedure
       .input(huntedItemType.omit({ huntId: true }).partial())
       .use(access(UserAccessLevel.User))
-      .query(async ({ input: { id, ...changes }, ctx }) => {
+      .mutation(async ({ input: { id, ...changes }, ctx }) => {
         const item = await db.huntedItem.findFirst({ where: { id } });
         if (!item) {
           throw new TRPCError({ code: "NOT_FOUND" });
@@ -81,22 +89,14 @@ export function createHuntService(db: RACPDatabaseClient, limits: HuntLimits) {
     removeItem: t.procedure
       .input(huntedItemType.pick({ huntId: true, itemId: true }))
       .use(access(UserAccessLevel.User))
-      .query(async ({ input: { huntId, itemId }, ctx }) => {
+      .mutation(async ({ input: { huntId, itemId }, ctx }) => {
         assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
         await db.huntedItem.deleteMany({ where: { huntId, itemId } });
-      }),
-    monsters: t.procedure
-      .input(huntType.shape.id)
-      .output(zod.array(huntedMonsterType))
-      .use(access(UserAccessLevel.User))
-      .query(({ input: huntId, ctx }) => {
-        assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
-        return db.huntedMonster.findMany({ where: { huntId } });
       }),
     updateMonster: t.procedure
       .input(huntedMonsterType.omit({ huntId: true }).partial())
       .use(access(UserAccessLevel.User))
-      .query(async ({ input: { id, ...changes }, ctx }) => {
+      .mutation(async ({ input: { id, ...changes }, ctx }) => {
         const monster = await db.huntedMonster.findFirst({ where: { id } });
         if (!monster) {
           throw new TRPCError({ code: "NOT_FOUND" });
