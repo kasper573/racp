@@ -104,5 +104,5 @@ export const kpxUnitScales: Record<KpxUnit, number> = {
 
 export function useIsHuntOwner(hunt?: RichHunt) {
   const { profile } = useStore(authStore);
-  return hunt && profile && hunt.accountId === profile.id;
+  return !!(hunt && profile && hunt.accountId === profile.id);
 }
