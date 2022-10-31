@@ -6,132 +6,93 @@ import { expectTableColumn } from "../support/actions/grid";
 import { resetData } from "../support/actions/admin";
 import { waitForPageReady } from "../support/actions/common";
 
-// New visitor each test
-beforeEach(() => {
+let user: TestUser;
+before(() => {
   resetData();
-  cy.visit("/");
+  cy.visit("/"); // New visitor each test
+  user = nextTestUser();
+  register(user.name, user.password, user.email);
+  gotoMainMenuPage("Hunt");
 });
 
-describe("guest", () => {
-  it("does not have access to hunt feature", () => {
-    gotoMainMenuPage("Hunt");
-    cy.contains("You need to sign in");
+describe("list", () => {
+  before(() => {
+    cy.findByRole("button", { name: /create new hunt/i }).click();
+  });
+  it("can create new hunt", () => {
+    findListedHuntTitle("new hunt").should("exist");
+  });
+
+  it("can rename hunt", () => {
+    findListedHuntTitle("new hunt").clear().type("renamed hunt");
+    findListedHuntTitle("renamed hunt").should("exist");
+  });
+
+  it("can delete hunt", () => {
+    cy.findByRole("button", { name: /delete hunt/i }).click();
+    cy.findByRole("dialog").findByRole("button", { name: /ok/i }).click();
+    findListedHuntTitle("new hunt").should("not.exist");
   });
 });
 
-describe("user", () => {
-  let user: TestUser;
-  beforeEach(() => {
-    user = nextTestUser();
-    register(user.name, user.password, user.email);
-    gotoMainMenuPage("Hunt");
+describe("details", () => {
+  before(() => {
+    createHunt({ itemAmount: 5, killsPerUnit: 7 });
+    waitForPageReady();
   });
 
-  it("has access to hunt feature", () => {
-    cy.contains("You need to sign in").should("not.exist");
+  it("can add item", () => {
+    withinItemGrid(() => expectTableColumn("Item", () => /test item/i));
   });
 
-  describe("hunts", () => {
-    beforeEach(() => {
-      cy.findByRole("button", { name: /create new hunt/i }).click();
+  it("can estimate farm time in kills per minute", () => {
+    cy.get("#KillScale").select("Kills per minute");
+    withinItemGrid(() => {
+      expectTableColumn("Estimate", () => /57s/i);
     });
+  });
 
-    it("can create new hunt", () => {
-      findListedHuntTitle("new hunt").should("exist");
+  it("can estimate farm time in kills per minute", () => {
+    cy.get("#KillScale").select("Kills per hour");
+    withinItemGrid(() => {
+      expectTableColumn("Estimate", () => /57m 8s/i);
     });
+  });
 
-    it("can delete hunt", () => {
-      cy.findByRole("button", { name: /delete hunt/i }).click();
-      cy.findByRole("dialog").findByRole("button", { name: /ok/i }).click();
-      findListedHuntTitle("new hunt").should("not.exist");
+  it("can estimate farm time in kills per minute", () => {
+    cy.get("#KillScale").select("Kills per day");
+    withinItemGrid(() => {
+      expectTableColumn("Estimate", () => /22h 51m/i);
     });
+  });
 
-    it("can rename hunt", () => {
-      findListedHuntTitle("new hunt").clear().type("renamed hunt");
-      findListedHuntTitle("renamed hunt").should("exist");
+  it("can estimate farm time using multiplier", () => {
+    cy.get("#KillScale").select("Kills per day");
+    cy.findByLabelText("Drop Rate Multiplier").clear().type("15");
+    withinItemGrid(() => {
+      expectTableColumn("Estimate", () => /1h 31m/i);
     });
+  });
 
-    describe("details", () => {
-      beforeEach(() => {
-        cy.findByRole("link", { name: /view hunt/i }).click();
-      });
-
-      describe("item", () => {
-        beforeEach(() => {
-          addItemToHunt("test item");
-        });
-
-        it("can add", () => {
-          withinItemGrid(() => expectTableColumn("Item", () => /test item/i));
-        });
-
-        it("can remove", () => {
-          withinItemGrid(() => {
-            cy.findByRole("button", { name: /remove item/i }).click();
-            expectTableColumn("Item", () => /test item/i).should("not.exist");
-          });
-        });
-
-        it("can set amount", () => {
-          setItemAmount(5).should("have.value", "5");
-        });
-
-        it("can set target", () => {
-          setItemTarget(0);
-          withinMonsterGrid(() =>
-            expectTableColumn("Monster", () => /test monster/i)
-          );
-        });
-
-        it("can set monster kill speed", () => {
-          setItemTarget(0);
-          setKillsPerUnit(7).should("have.value", "7");
-        });
-
-        describe("can estimate farm time", () => {
-          beforeEach(() => {
-            setItemAmount(5);
-            setItemTarget(0);
-            setKillsPerUnit(7);
-            waitForPageReady();
-          });
-
-          it("in kills per minute", () => {
-            cy.get("#KillScale").select("Kills per minute");
-            withinItemGrid(() => {
-              expectTableColumn("Estimate", () => /57s/i);
-            });
-          });
-
-          it("in kills per minute", () => {
-            cy.get("#KillScale").select("Kills per hour");
-            withinItemGrid(() => {
-              expectTableColumn("Estimate", () => /57m 8s/i);
-            });
-          });
-
-          it("in kills per minute", () => {
-            cy.get("#KillScale").select("Kills per day");
-            withinItemGrid(() => {
-              expectTableColumn("Estimate", () => /22h 51m/i);
-            });
-          });
-
-          it("using multiplier", () => {
-            cy.get("#KillScale").select("Kills per day");
-            cy.findByLabelText("Drop Rate Multiplier").clear().type("15");
-            withinItemGrid(() => {
-              expectTableColumn("Estimate", () => /1h 31m/i);
-            });
-          });
-        });
-      });
+  it("can remove item", () => {
+    withinItemGrid(() => {
+      cy.findByRole("button", { name: /remove item/i }).click();
+      cy.contains("No items have been added to the hunt");
     });
   });
 });
 
 function findListedHuntTitle(huntName: string) {
   return cy.findByRole("heading", { name: ignoreCase(huntName) });
+}
+
+function createHunt({ itemAmount = 1, killsPerUnit = 1 }) {
+  cy.findByRole("button", { name: /create new hunt/i }).click();
+  cy.findByRole("link", { name: /view hunt/i }).click();
+  addItemToHunt("test item");
+  setItemAmount(itemAmount);
+  setItemTarget(0);
+  setKillsPerUnit(killsPerUnit);
 }
 
 function addItemToHunt(itemName: string) {
