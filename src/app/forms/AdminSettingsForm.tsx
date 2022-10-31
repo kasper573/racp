@@ -28,6 +28,28 @@ export function AdminSettingsForm(props: ZodFormOptions<AdminSettings>) {
             ),
           },
           {
+            label: "Hunt",
+            content: (
+              <Stack spacing={2}>
+                <TextField
+                  type="number"
+                  label="Max hunts per account"
+                  {...field("huntLimits.hunts")}
+                />
+                <TextField
+                  type="number"
+                  label="Max items per hunt"
+                  {...field("huntLimits.itemsPerHunt")}
+                />
+                <TextField
+                  type="number"
+                  label="Max monsters per item"
+                  {...field("huntLimits.monstersPerItem")}
+                />
+              </Stack>
+            ),
+          },
+          {
             label: "Donations",
             content: (
               <Stack spacing={2}>
