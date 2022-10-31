@@ -8,6 +8,7 @@ import {
 } from "../support/actions/user";
 import { resetData, signInAsAdmin } from "../support/actions/admin";
 import { findMainMenuSection } from "../support/actions/nav";
+import { nextTestUser, TestUser } from "../fixtures/users";
 
 before(resetData);
 
@@ -71,14 +72,3 @@ describe("guest", () => {
     assertSignedOut();
   });
 });
-
-type TestUser = ReturnType<typeof nextTestUser>;
-let testUserCount = 0;
-function nextTestUser() {
-  const id = testUserCount++;
-  return {
-    name: "testUser" + id,
-    password: "foobar",
-    email: `test${id}@users.com`,
-  };
-}
