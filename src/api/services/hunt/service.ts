@@ -57,18 +57,6 @@ export function createHuntService({
         }
         return hunt;
       }),
-    items: t.procedure
-      .input(huntType.shape.id)
-      .output(zod.array(huntedItemType))
-      .query(({ input: huntId }) =>
-        db.huntedItem.findMany({ where: { huntId } })
-      ),
-    monsters: t.procedure
-      .input(huntType.shape.id)
-      .output(zod.array(huntedMonsterType))
-      .query(({ input: huntId }) =>
-        db.huntedMonster.findMany({ where: { huntId } })
-      ),
     create: t.procedure
       .input(zod.string())
       .output(huntType)
