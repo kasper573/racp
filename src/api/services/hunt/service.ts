@@ -10,7 +10,7 @@ import {
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
 import { AdminSettingsRepository } from "../settings/repository";
-import { huntLimitsType, richHuntType } from "./types";
+import { richHuntType } from "./types";
 import { normalizeHunt } from "./utils/normalizeHunt";
 import { touchHunt } from "./utils/touchHunt";
 import { assertHuntAccess } from "./utils/assertHuntAccess";
@@ -29,9 +29,6 @@ export function createHuntService({
     (settings) => settings.huntLimits
   );
   return t.router({
-    limits: t.procedure
-      .output(huntLimitsType)
-      .query(() => limitsResource.then()),
     list: t.procedure
       .output(zod.array(huntType))
       .use(access(UserAccessLevel.User))
