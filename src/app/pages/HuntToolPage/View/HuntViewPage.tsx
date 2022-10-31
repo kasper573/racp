@@ -28,7 +28,7 @@ export default function HuntViewPage({
   const copyHunt = trpc.hunt.copy.useMutation();
   const renameHunt = trpc.hunt.rename.useMutation();
   const { data: hunt, isLoading } = trpc.hunt.read.useQuery(huntId);
-  const error = addItem.error || renameHunt.error;
+  const error = addItem.error || renameHunt.error || copyHunt.error;
   const isOwner = useIsHuntOwner(hunt);
 
   if (isLoading) {
