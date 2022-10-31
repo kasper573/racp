@@ -1,5 +1,7 @@
 import * as path from "path";
 import * as fs from "fs";
+import { exec } from "child_process";
+import { promisify } from "util";
 import { groupBy, pick, uniq } from "lodash";
 import recursiveReadDir = require("recursive-readdir");
 import * as mysql from "mysql";
@@ -19,6 +21,7 @@ import {
 } from "../cypress/support/vars";
 import { createResourceManager } from "../src/api/resources";
 import { createAdminSettingsRepository } from "../src/api/services/settings/repository";
+const execAsync = promisify(exec);
 
 async function resetData() {
   const logger = createLogger(console.log).chain("removeUGC");
@@ -43,10 +46,10 @@ async function resetData() {
     recursiveRemoveFiles(publicFolder),
   ]);
 
-  // Reset databases
+  // Reset rAthena databases
 
-  const db = createRAthenaDatabaseDriver({ ...args, logger });
-  for (const { driver, group } of await groupDatabaseDrivers(db)) {
+  const radb = createRAthenaDatabaseDriver({ ...args, logger });
+  for (const { driver, group } of await groupDatabaseDrivers(radb)) {
     await driver.useConnection(async (conn) => {
       const { database } = await driver.dbInfo();
       logger.log(`Truncating database for drivers: ${group}`);
@@ -62,6 +65,17 @@ async function resetData() {
     });
   }
 
+  // Reset RACP database
+  const { stdout, stderr } = await execAsync(
+    "npx prisma migrate reset --force"
+  );
+  if (stderr) {
+    logger.error(stderr);
+  }
+  if (stdout) {
+    logger.log(stdout);
+  }
+
   const settings = createAdminSettingsRepository({ ...args, logger });
   const { create: resources } = createResourceManager({
     logger,
@@ -71,7 +85,7 @@ async function resetData() {
 
   // Insert admin account and character
   const user = createUserRepository({ resources, ...args });
-  await db.login.table("login").insert({
+  await radb.login.table("login").insert({
     account_id: adminAccountId,
     userid: args.ADMIN_USER,
     user_pass: args.ADMIN_PASSWORD,
@@ -80,13 +94,13 @@ async function resetData() {
     pincode: adminAccountPin,
   });
 
-  await db.char.table("char").insert({
+  await radb.char.table("char").insert({
     account_id: adminAccountId,
     char_id: adminCharId,
     name: adminCharName,
   });
 
-  await db.destroy();
+  await radb.destroy();
 
   return 0;
 }
