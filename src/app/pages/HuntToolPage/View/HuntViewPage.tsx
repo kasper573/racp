@@ -95,7 +95,7 @@ export default function HuntViewPage({
         />
       )}
 
-      <Settings />
+      {isOwner && <Settings />}
 
       <CommonPageGrid sx={{ flex: 1 }} pixelCutoff={1400} flexValues={[5, 3]}>
         <HuntedItemGrid items={hunt.items} />
