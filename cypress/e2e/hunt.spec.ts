@@ -32,4 +32,11 @@ describe("user", () => {
     cy.findByRole("button", { name: /create new hunt/i }).click();
     cy.findByRole("heading", { name: /new hunt/i }).should("exist");
   });
+
+  it("can delete hunt", () => {
+    cy.findByRole("button", { name: /create new hunt/i }).click();
+    cy.findByRole("button", { name: /delete hunt/i }).click();
+    cy.findByRole("dialog").findByRole("button", { name: /ok/i }).click();
+    cy.findByRole("heading", { name: /new hunt/i }).should("not.exist");
+  });
 });

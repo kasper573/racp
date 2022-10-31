@@ -41,7 +41,7 @@ export function HuntCard({
           View
         </LinkButton>
         <Tooltip title={`Delete "${hunt.name}"`}>
-          <IconButton onClick={() => onDelete?.(hunt)}>
+          <IconButton aria-label="Delete hunt" onClick={() => onDelete?.(hunt)}>
             <Delete />
           </IconButton>
         </Tooltip>
