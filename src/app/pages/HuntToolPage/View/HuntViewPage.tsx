@@ -13,21 +13,25 @@ import { Header } from "../../../layout/Header";
 import { RouteComponentProps } from "../../../../lib/tsr/react/types";
 import { EditableText } from "../../../components/EditableText";
 import { LoadingPage } from "../../LoadingPage";
+import { ErrorMessage } from "../../../components/ErrorMessage";
 import { HuntedItemGrid } from "./HuntedItemGrid";
 import { HuntedMonsterGrid } from "./HuntedMonsterGrid";
 
 export default function HuntViewPage({
   params: { id: huntId },
 }: RouteComponentProps<{ id: Hunt["id"] }>) {
-  const { mutate: addItem } = trpc.hunt.addItem.useMutation();
-  const { mutate: renameHunt } = trpc.hunt.rename.useMutation();
+  const addItem = trpc.hunt.addItem.useMutation();
+  const renameHunt = trpc.hunt.rename.useMutation();
   const { data: hunt, isLoading } = trpc.hunt.richHunt.useQuery(huntId);
+  const error = addItem.error || renameHunt.error;
+
   if (isLoading) {
     return <LoadingPage />;
   }
   if (!hunt) {
     return <Header title="Unknown hunt" />;
   }
+
   return (
     <>
       <Header
@@ -35,17 +39,19 @@ export default function HuntViewPage({
         title={
           <EditableText
             value={hunt.name}
-            onChange={(name) => renameHunt({ id: huntId, name })}
+            onChange={(name) => renameHunt.mutate({ id: huntId, name })}
             variant="h6"
           />
         }
       />
 
+      {error && <ErrorMessage sx={{ mb: 2 }} error={error} />}
+
       <SearchField<Item>
         sx={{ width: "100%" }}
         onSelected={([item]) => {
           if (item) {
-            addItem({ huntId, itemId: item.Id });
+            addItem.mutate({ huntId, itemId: item.Id });
           }
         }}
         useQuery={useItemSearchQuery}
