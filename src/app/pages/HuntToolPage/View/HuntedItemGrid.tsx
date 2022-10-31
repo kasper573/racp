@@ -34,6 +34,7 @@ import { DropperIdentifier, DropperSelect } from "./DropperSelect";
 export function HuntedItemGrid({ items }: { items: HuntedItem[] }) {
   return (
     <DataGrid<HuntedItem>
+      aria-label="items"
       id={(item) => item.itemId}
       data={items}
       emptyComponent={Empty}
@@ -125,6 +126,7 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
             </DialogActions>
           </Dialog>
           <DropperSelect
+            id="targets"
             value={selected}
             options={options}
             onChange={(selection) => {

@@ -24,6 +24,7 @@ export function HuntedMonsterGrid({
 }) {
   return (
     <DataGrid<HuntedMonster>
+      aria-label="monsters"
       id={(m) => m.monsterId}
       data={monsters}
       emptyComponent={Empty}

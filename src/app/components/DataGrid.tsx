@@ -111,9 +111,13 @@ export function DataGrid<
     onHoveredEntityChange?.(hovered);
   }
 
+  const ariaLabel = props["aria-label"] ?? "Data Grid";
+  delete props["aria-label"];
+
   return (
     <Box sx={{ flex: 1, ...sx }} {...props}>
       <Grid
+        aria-label={ariaLabel}
         disableColumnFilter
         disableColumnSelector={gridProps?.columnVisibilityModel !== undefined}
         columns={columnList}

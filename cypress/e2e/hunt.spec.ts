@@ -62,16 +62,27 @@ describe("user", () => {
         });
 
         it("can add", () => {
-          expectTableColumn("Item", () => /test item/i);
+          cy.findByRole("grid", { name: /items/i }).within(() =>
+            expectTableColumn("Item", () => /test item/i)
+          );
         });
 
         it("can remove", () => {
           cy.findByRole("button", { name: /remove item/i }).click();
-          expectTableColumn("Item", () => /test item/i).should("not.exist");
+          cy.findByRole("grid", { name: /items/i }).within(() =>
+            expectTableColumn("Item", () => /test item/i).should("not.exist")
+          );
         });
 
         it("can set amount", () => {
           setItemAmount(5).should("have.value", "5");
+        });
+
+        it("can set target", () => {
+          setItemTarget(0);
+          cy.findByRole("grid", { name: /monsters/i }).within(() =>
+            expectTableColumn("Monster", () => /test monster/i)
+          );
         });
       });
     });
@@ -93,4 +104,9 @@ function addItemToHunt(itemName: string) {
 
 function setItemAmount(itemAmount: number) {
   return cy.get("#amount").clear().type(`${itemAmount}`);
+}
+
+function setItemTarget(index: number) {
+  cy.get("#targets").select(index);
+  waitForPageReady();
 }

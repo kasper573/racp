@@ -9,15 +9,18 @@ export function DropperSelect({
   value,
   options,
   onChange,
+  id,
 }: {
   value: ItemDrop[];
   options: ItemDrop[];
   onChange: (drops: ItemDrop[]) => void;
+  id?: string;
 }) {
   const selectOptions = (ids: MonsterId[]) =>
     options.filter((drop) => ids.includes(drop.MonsterId));
   return (
     <Select
+      id={id}
       size="small"
       multiple
       value={value.map((d) => d.MonsterId)}
