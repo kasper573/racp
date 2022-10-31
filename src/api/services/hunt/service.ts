@@ -136,6 +136,15 @@ export function createHuntService({
       .mutation(async ({ input: { huntId, itemId }, ctx }) => {
         await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
 
+        const alreadyAdded = await db.huntedItem.findFirst({
+          where: { huntId, itemId },
+          select: null,
+        });
+
+        if (alreadyAdded) {
+          return;
+        }
+
         const count = await db.huntedItem.count({ where: { huntId } });
         const limits = await limitsResource;
         if (count >= limits.itemsPerHunt) {
