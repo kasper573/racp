@@ -1,5 +1,5 @@
 import { gotoMainMenuPage } from "../support/actions/nav";
-import { register } from "../support/actions/user";
+import { register, signOut } from "../support/actions/user";
 import { nextTestUser, TestUser } from "../fixtures/users";
 import { ignoreCase } from "../support/util";
 import { expectTableColumn } from "../support/actions/grid";
@@ -19,6 +19,7 @@ describe("list", () => {
   before(() => {
     cy.findByRole("button", { name: /create new hunt/i }).click();
   });
+
   it("can create new hunt", () => {
     findListedHuntTitle("new hunt").should("exist");
   });
@@ -37,8 +38,7 @@ describe("list", () => {
 
 describe("details", () => {
   before(() => {
-    createHunt({ itemAmount: 5, killsPerUnit: 7 });
-    waitForPageReady();
+    createHuntWithData({ itemAmount: 5, killsPerUnit: 7 });
   });
 
   it("can add item", () => {
@@ -82,17 +82,40 @@ describe("details", () => {
   });
 });
 
+describe("sharing", () => {
+  it("can view someone else's hunt as guest", () => {
+    createHuntWithData({ itemAmount: 4, killsPerUnit: 8 });
+    cy.url().then((huntUrl) => {
+      signOut();
+      cy.visit(huntUrl);
+      waitForPageReady();
+
+      withinItemGrid(() => {
+        expectTableColumn("Item", () => /test item \[3]/i);
+        expectTableColumn("Amount", () => /^4$/);
+        expectTableColumn("Estimate", () => /^40s$/i);
+      });
+
+      withinMonsterGrid(() => {
+        expectTableColumn("Monster", () => /test monster/i);
+        expectTableColumn("Kills per minute", () => /^8$/);
+      });
+    });
+  });
+});
+
 function findListedHuntTitle(huntName: string) {
   return cy.findByRole("heading", { name: ignoreCase(huntName) });
 }
 
-function createHunt({ itemAmount = 1, killsPerUnit = 1 }) {
+function createHuntWithData({ itemAmount = 1, killsPerUnit = 1 }) {
   cy.findByRole("button", { name: /create new hunt/i }).click();
   cy.findByRole("link", { name: /view hunt/i }).click();
   addItemToHunt("test item");
   setItemAmount(itemAmount);
   setItemTarget(0);
   setKillsPerUnit(killsPerUnit);
+  waitForPageReady();
 }
 
 function addItemToHunt(itemName: string) {
