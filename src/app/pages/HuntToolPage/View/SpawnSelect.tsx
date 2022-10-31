@@ -29,20 +29,20 @@ export function SpawnSelect({
         if (!selected) {
           return "Select map";
         }
-        return <TargetIdentifier spawn={selected} />;
+        return <SpawnIdentifier spawn={selected} />;
       }}
       sx={sx}
     >
       {options.map((spawn) => (
         <MenuItem key={spawn.id} value={spawn.id}>
-          <TargetIdentifier spawn={spawn} />
+          <SpawnIdentifier spawn={spawn} />
         </MenuItem>
       ))}
     </Select>
   );
 }
 
-function TargetIdentifier({ spawn }: { spawn: MonsterSpawn }) {
+export function SpawnIdentifier({ spawn }: { spawn: MonsterSpawn }) {
   return (
     <>
       {spawn.map} ({spawn.amount})

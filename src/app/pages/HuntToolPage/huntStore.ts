@@ -1,4 +1,4 @@
-import { createStore } from "zustand";
+import { createStore, useStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { groupBy } from "lodash";
@@ -6,6 +6,7 @@ import { MonsterId } from "../../../api/services/monster/types";
 import { ItemId } from "../../../api/services/item/types";
 import { ItemDrop } from "../../../api/services/drop/types";
 import { RichHunt } from "../../../api/services/hunt/types";
+import { authStore } from "../../state/auth";
 
 export const huntStore = createStore<{
   kpxUnit: KpxUnit;
@@ -100,3 +101,8 @@ export const kpxUnitScales: Record<KpxUnit, number> = {
   "Kills per hour": 1000 * 60 * 60,
   "Kills per day": 1000 * 60 * 60 * 24,
 };
+
+export function useMayEditHunt(hunt?: RichHunt) {
+  const { profile } = useStore(authStore);
+  return hunt && profile && hunt.accountId === profile.id;
+}

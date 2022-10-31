@@ -22,9 +22,10 @@ import { durationString } from "../../../../lib/std/durationString";
 import { InfoTooltip } from "../../../components/InfoTooltip";
 import { ColumnConventionProps, DataGrid } from "../../../components/DataGrid";
 import { ItemId } from "../../../../api/services/item/types";
-import { estimateHuntDuration, huntStore } from "../huntStore";
+import { estimateHuntDuration, huntStore, useMayEditHunt } from "../huntStore";
 import { ErrorMessage } from "../../../components/ErrorMessage";
-import { DropperSelect } from "./DropperSelect";
+import { joinNodes } from "../../../../lib/joinNodes";
+import { DropperIdentifier, DropperSelect } from "./DropperSelect";
 
 export function HuntedItemGrid({ items }: { items: HuntedItem[] }) {
   return (
@@ -55,13 +56,18 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
   amount: {
     ...forceWidth(120),
     headerName: "Amount",
-    renderCell({ row: hunt }) {
+    renderCell({ row: item }) {
       const { mutate: updateItem } = trpc.hunt.updateItem.useMutation();
+      const { data: hunt } = trpc.hunt.read.useQuery(item.huntId);
+      const mayEdit = useMayEditHunt(hunt);
+      if (!mayEdit) {
+        return item.amount;
+      }
       return (
         <TextField
           type="number"
-          value={hunt.amount}
-          onChange={(amount) => updateItem({ ...hunt, amount })}
+          value={item.amount}
+          onChange={(amount) => updateItem({ ...item, amount })}
         />
       );
     },
@@ -70,9 +76,11 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
     headerName: "Target Monster(s)",
     minWidth: 200,
     sortable: false,
-    renderCell({ row: hunt }) {
+    renderCell({ row: item }) {
+      const { data: hunt } = trpc.hunt.read.useQuery(item.huntId);
+      const mayEdit = useMayEditHunt(hunt);
       const updateItem = trpc.hunt.updateItem.useMutation();
-      const { canBeHunted, selected, options } = useDroppersForHunt(hunt);
+      const { canBeHunted, selected, options } = useDroppersForHunt(item);
       const [dialogError, setDialogError] = useState<unknown>();
       useEffect(() => setDialogError(updateItem.error), [updateItem.error]);
 
@@ -81,6 +89,22 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
           <InfoTooltip title="No monster drops this item">
             Cannot be hunted
           </InfoTooltip>
+        );
+      }
+
+      if (!mayEdit) {
+        return (
+          <>
+            {joinNodes(
+              selected
+                .map((dropper) => (
+                  <DropperIdentifier drop={dropper} showLabelAsTooltip link />
+                ))
+                .slice(0, 4),
+              ""
+            )}
+            {selected.length > 4 && `+ ${selected.length - 4} more`}
+          </>
         );
       }
 
@@ -101,7 +125,7 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
             onChange={(selection) => {
               const monsterIds = selection.map((d) => d.MonsterId);
               updateItem.mutate({
-                ...hunt,
+                ...item,
                 targetMonsterIds: monsterIds.join(","),
               });
             }}
@@ -159,6 +183,11 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
     ...forceWidth(57),
     renderCell({ row: item }) {
       const { mutate: removeItem } = trpc.hunt.removeItem.useMutation();
+      const { data: hunt } = trpc.hunt.read.useQuery(item.huntId);
+      const mayEdit = useMayEditHunt(hunt);
+      if (!mayEdit) {
+        return;
+      }
       return (
         <Tooltip title="Remove from hunt list">
           <IconButton onClick={() => removeItem(item)}>

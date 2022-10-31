@@ -11,9 +11,9 @@ import { LoadingSpinner } from "../../../components/LoadingSpinner";
 import { InfoTooltip } from "../../../components/InfoTooltip";
 import { LinkIconButton } from "../../../components/Link";
 import { routes } from "../../../router";
-import { huntStore } from "../huntStore";
+import { huntStore, useMayEditHunt } from "../huntStore";
 import { RichHunt } from "../../../../api/services/hunt/types";
-import { SpawnSelect } from "./SpawnSelect";
+import { SpawnIdentifier, SpawnSelect } from "./SpawnSelect";
 
 type HuntedMonster = RichHunt["monsters"][number];
 
@@ -68,11 +68,13 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
     },
     minWidth: 200,
     sortable: false,
-    renderCell({ row: hunt }) {
+    renderCell({ row: monster }) {
+      const { data: hunt } = trpc.hunt.read.useQuery(monster.huntId);
+      const mayEdit = useMayEditHunt(hunt);
       const { mutate: updateMonster } = trpc.hunt.updateMonster.useMutation();
       const { data: { entities: spawns = [] } = {}, isLoading } =
         trpc.monster.searchSpawns.useQuery({
-          filter: { monsterId: { value: hunt.monsterId, matcher: "=" } },
+          filter: { monsterId: { value: monster.monsterId, matcher: "=" } },
           sort: [{ field: "amount", sort: "desc" }],
         });
       if (isLoading) {
@@ -85,14 +87,17 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
           </InfoTooltip>
         );
       }
-      const selectedSpawn = spawns.find((s) => s.id === hunt.spawnId);
+      const selectedSpawn = spawns.find((s) => s.id === monster.spawnId);
+      if (!mayEdit) {
+        return selectedSpawn ? <SpawnIdentifier spawn={selectedSpawn} /> : "-";
+      }
       return (
         <>
           <SpawnSelect
             sx={{ minWidth: 150, width: 150 }}
-            value={hunt.spawnId ?? undefined}
+            value={monster.spawnId ?? undefined}
             options={spawns}
-            onChange={(spawnId) => updateMonster({ ...hunt, spawnId })}
+            onChange={(spawnId) => updateMonster({ ...monster, spawnId })}
           />
           {selectedSpawn && (
             <Tooltip title="Go to map">
@@ -118,13 +123,18 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
       const { kpxUnit } = useStore(huntStore);
       return kpxUnit;
     },
-    renderCell({ row: hunt }) {
+    renderCell({ row: monster }) {
       const { mutate: updateMonster } = trpc.hunt.updateMonster.useMutation();
+      const { data: hunt } = trpc.hunt.read.useQuery(monster.huntId);
+      const mayEdit = useMayEditHunt(hunt);
+      if (!mayEdit) {
+        return monster.killsPerUnit;
+      }
       return (
         <TextField
           type="number"
-          value={hunt.killsPerUnit}
-          onChange={(kpu) => updateMonster({ ...hunt, killsPerUnit: kpu })}
+          value={monster.killsPerUnit}
+          onChange={(kpu) => updateMonster({ ...monster, killsPerUnit: kpu })}
         />
       );
     },
