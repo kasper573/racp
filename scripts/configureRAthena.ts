@@ -2,7 +2,7 @@ import { pick } from "lodash";
 import { createLogger } from "../src/lib/logger";
 import { readCliArgs } from "../src/lib/cli";
 import { options } from "../src/api/options";
-import { createDatabaseDriver } from "../src/api/rathena/DatabaseDriver";
+import { createRAthenaDatabaseDriver } from "../src/api/rathena/RAthenaDatabaseDriver";
 import { DBInfo } from "../src/api/rathena/DBInfoDriver";
 
 /**
@@ -19,7 +19,7 @@ async function configureRAthena() {
     MYSQL_DATABASE: { type: "string", required: true },
   });
 
-  const db = createDatabaseDriver({ ...args, logger });
+  const db = createRAthenaDatabaseDriver({ ...args, logger });
   logger.log(`Updating ${db.info.file.filename}...`);
   const success = await db.info.update(
     db.all.reduce(

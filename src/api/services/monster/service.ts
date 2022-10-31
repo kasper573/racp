@@ -4,7 +4,7 @@ import { t } from "../../trpc";
 import { rpcFile } from "../../common/RpcFile";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
-import { DatabaseDriver } from "../../rathena/DatabaseDriver";
+import { RAthenaDatabaseDriver } from "../../rathena/RAthenaDatabaseDriver";
 import { typedAssign } from "../../../lib/std/typedAssign";
 import { MvplogEntityType } from "../../rathena/DatabaseDriver.types";
 import {
@@ -26,7 +26,7 @@ export function createMonsterService({
   exposeBossStatuses = true,
 }: {
   repo: MonsterRepository;
-  db: DatabaseDriver;
+  db: RAthenaDatabaseDriver;
   exposeBossStatuses?: boolean;
 }) {
   return t.router({

@@ -1,9 +1,9 @@
-import { DatabaseDriver } from "../../../rathena/DatabaseDriver";
+import { RAthenaDatabaseDriver } from "../../../rathena/RAthenaDatabaseDriver";
 import { Mvp, MvpStatus } from "../types";
 import { determineMvpLifeStatus } from "./determineMvpLifeStatus";
 
 export async function queryMvpStatus(
-  db: DatabaseDriver,
+  db: RAthenaDatabaseDriver,
   boss: Mvp
 ): Promise<MvpStatus> {
   const logEntry = await db.log

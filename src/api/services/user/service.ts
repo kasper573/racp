@@ -1,7 +1,7 @@
 import * as zod from "zod";
 import { TRPCError } from "@trpc/server";
 import { t } from "../../trpc";
-import { DatabaseDriver } from "../../rathena/DatabaseDriver";
+import { RAthenaDatabaseDriver } from "../../rathena/RAthenaDatabaseDriver";
 import { some } from "../../../lib/knex";
 import { access } from "../../middlewares/access";
 import {
@@ -21,7 +21,7 @@ export function createUserService({
   user: repo,
   sign,
 }: {
-  db: DatabaseDriver;
+  db: RAthenaDatabaseDriver;
   user: UserRepository;
   sign: AuthenticatorSigner;
 }) {

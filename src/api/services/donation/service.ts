@@ -5,7 +5,7 @@ import { access } from "../../middlewares/access";
 import { AccountId, UserAccessLevel } from "../user/types";
 import { Logger } from "../../../lib/logger";
 import { AdminSettingsRepository } from "../settings/repository";
-import { DatabaseDriver } from "../../rathena/DatabaseDriver";
+import { RAthenaDatabaseDriver } from "../../rathena/RAthenaDatabaseDriver";
 import {
   AdminSettings,
   Currency,
@@ -34,7 +34,7 @@ export function createDonationService({
   cashStoreItems,
   logger: parentLogger,
 }: {
-  db: DatabaseDriver;
+  db: RAthenaDatabaseDriver;
   env: DonationEnvironment;
   settings: AdminSettingsRepository;
   cashStoreItems: Repository<Item[]>;

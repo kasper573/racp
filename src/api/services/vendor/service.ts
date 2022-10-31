@@ -2,7 +2,7 @@ import * as zod from "zod";
 import { t } from "../../trpc";
 import { ItemRepository } from "../item/repository";
 import { createSearchTypes } from "../../common/search";
-import { DatabaseDriver } from "../../rathena/DatabaseDriver";
+import { RAthenaDatabaseDriver } from "../../rathena/RAthenaDatabaseDriver";
 import { normalizeItemInstanceProperties } from "../inventory/types";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
@@ -23,7 +23,7 @@ export function createVendorService({
   db,
   items: itemRepo,
 }: {
-  db: DatabaseDriver;
+  db: RAthenaDatabaseDriver;
   items: ItemRepository;
 }) {
   return t.router({

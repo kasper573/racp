@@ -10,7 +10,7 @@ import { createPublicFileLinker } from "../lib/fs/createPublicFileLinker";
 import { createImageFormatter } from "../lib/image/createImageFormatter";
 import { readCliArgs } from "../lib/cli";
 import { loggerToMorgan } from "../lib/loggerToMorgan";
-import { createDatabaseDriver } from "./rathena/DatabaseDriver";
+import { createRAthenaDatabaseDriver } from "./rathena/RAthenaDatabaseDriver";
 import {
   AuthenticatorPayload,
   createAuthenticator,
@@ -51,7 +51,7 @@ const logger = createLogger(coloredConsole, { format: logFormat });
 
 const app = express();
 const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
-const db = createDatabaseDriver({ ...args, logger });
+const db = createRAthenaDatabaseDriver({ ...args, logger });
 const formatter = createImageFormatter({ extension: ".png", quality: 70 });
 const linker = createPublicFileLinker({
   directory: path.join(process.cwd(), args.publicFolder),

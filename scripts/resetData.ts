@@ -8,9 +8,9 @@ import { options } from "../src/api/options";
 import { createLogger } from "../src/lib/logger";
 import { createUserRepository } from "../src/api/services/user/repository";
 import {
-  createDatabaseDriver,
-  DatabaseDriver,
-} from "../src/api/rathena/DatabaseDriver";
+  createRAthenaDatabaseDriver,
+  RAthenaDatabaseDriver,
+} from "../src/api/rathena/RAthenaDatabaseDriver";
 import {
   adminAccountId,
   adminAccountPin,
@@ -45,7 +45,7 @@ async function resetData() {
 
   // Reset databases
 
-  const db = createDatabaseDriver({ ...args, logger });
+  const db = createRAthenaDatabaseDriver({ ...args, logger });
   for (const { driver, group } of await groupDatabaseDrivers(db)) {
     await driver.useConnection(async (conn) => {
       const { database } = await driver.dbInfo();
@@ -98,7 +98,7 @@ const sqlFilesPerDb: Record<string, string> = {
   log_db: "sql-files/logs.sql",
 };
 
-async function groupDatabaseDrivers(db: DatabaseDriver) {
+async function groupDatabaseDrivers(db: RAthenaDatabaseDriver) {
   const dbInfos = await Promise.all(db.all.map((one) => one.dbInfo()));
   const ids = dbInfos.map((one) => `${one.host}:${one.port}:${one.database}`);
   const lookup = Object.values(

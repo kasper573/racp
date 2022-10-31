@@ -1,11 +1,11 @@
 import { MutableRepository } from "../../lib/repo/MutableRepository";
 import { RepositoryOptions } from "../../lib/repo/Repository";
-import { DatabaseDriver } from "./DatabaseDriver";
+import { RAthenaDatabaseDriver } from "./RAthenaDatabaseDriver";
 
 // Abstractions for interfacing with the rathena "acc_reg_" tables in a type safe manner
 
 export type AccRegRepositoryOptions<T> = RepositoryOptions<T> & {
-  db: DatabaseDriver;
+  db: RAthenaDatabaseDriver;
   accountId: number;
   key: string | (() => Promise<string>);
 };

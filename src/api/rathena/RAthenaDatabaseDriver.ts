@@ -5,7 +5,9 @@ import { Tables } from "./DatabaseDriver.types";
 import { DBInfoDriver } from "./DBInfoDriver";
 import { ConfigRepository, ConfigRepositoryOptions } from "./ConfigRepository";
 
-export type DatabaseDriver = ReturnType<typeof createDatabaseDriver>;
+export type RAthenaDatabaseDriver = ReturnType<
+  typeof createRAthenaDatabaseDriver
+>;
 
 export const dbInfoConfigName = "inter_athena.conf";
 
@@ -14,7 +16,7 @@ export const dbInfoConfigName = "inter_athena.conf";
  * Each property is a driver for the database of the same name.
  * The drivers are initialized lazily on first use.
  */
-export function createDatabaseDriver(
+export function createRAthenaDatabaseDriver(
   options: Omit<ConfigRepositoryOptions, "configName">
 ) {
   // Automatically creating config/dbInfo drivers since nothing else is using them
