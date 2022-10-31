@@ -102,7 +102,7 @@ export const kpxUnitScales: Record<KpxUnit, number> = {
   "Kills per day": 1000 * 60 * 60 * 24,
 };
 
-export function useMayEditHunt(hunt?: RichHunt) {
+export function useIsHuntOwner(hunt?: RichHunt) {
   const { profile } = useStore(authStore);
   return hunt && profile && hunt.accountId === profile.id;
 }

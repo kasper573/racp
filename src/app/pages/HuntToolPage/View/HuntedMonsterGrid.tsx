@@ -11,7 +11,7 @@ import { LoadingSpinner } from "../../../components/LoadingSpinner";
 import { InfoTooltip } from "../../../components/InfoTooltip";
 import { LinkIconButton } from "../../../components/Link";
 import { routes } from "../../../router";
-import { huntStore, useMayEditHunt } from "../huntStore";
+import { huntStore, useIsHuntOwner } from "../huntStore";
 import { RichHunt } from "../../../../api/services/hunt/types";
 import { SpawnIdentifier, SpawnSelect } from "./SpawnSelect";
 
@@ -70,7 +70,7 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
     sortable: false,
     renderCell({ row: monster }) {
       const { data: hunt } = trpc.hunt.read.useQuery(monster.huntId);
-      const mayEdit = useMayEditHunt(hunt);
+      const mayEdit = useIsHuntOwner(hunt);
       const { mutate: updateMonster } = trpc.hunt.updateMonster.useMutation();
       const { data: { entities: spawns = [] } = {}, isLoading } =
         trpc.monster.searchSpawns.useQuery({
@@ -126,7 +126,7 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
     renderCell({ row: monster }) {
       const { mutate: updateMonster } = trpc.hunt.updateMonster.useMutation();
       const { data: hunt } = trpc.hunt.read.useQuery(monster.huntId);
-      const mayEdit = useMayEditHunt(hunt);
+      const mayEdit = useIsHuntOwner(hunt);
       if (!mayEdit) {
         return monster.killsPerUnit;
       }

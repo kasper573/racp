@@ -8,7 +8,7 @@ import { SearchField } from "../../../components/SearchField";
 import { CommonPageGrid } from "../../../components/CommonPageGrid";
 import { TextField } from "../../../controls/TextField";
 import { Select } from "../../../controls/Select";
-import { huntStore, KpxUnit, kpxUnits, useMayEditHunt } from "../huntStore";
+import { huntStore, KpxUnit, kpxUnits, useIsHuntOwner } from "../huntStore";
 import { Header } from "../../../layout/Header";
 import { RouteComponentProps } from "../../../../lib/tsr/react/types";
 import { EditableText } from "../../../components/EditableText";
@@ -24,7 +24,7 @@ export default function HuntViewPage({
   const renameHunt = trpc.hunt.rename.useMutation();
   const { data: hunt, isLoading } = trpc.hunt.read.useQuery(huntId);
   const error = addItem.error || renameHunt.error;
-  const mayEdit = useMayEditHunt(hunt);
+  const isOwner = useIsHuntOwner(hunt);
 
   if (isLoading) {
     return <LoadingPage />;
@@ -40,7 +40,7 @@ export default function HuntViewPage({
         title={
           <EditableText
             value={hunt.name}
-            enabled={mayEdit}
+            enabled={isOwner}
             onChange={(name) => renameHunt.mutate({ id: huntId, name })}
             variant="h6"
           />
@@ -49,7 +49,7 @@ export default function HuntViewPage({
 
       {error && <ErrorMessage sx={{ mb: 2 }} error={error} />}
 
-      {mayEdit && (
+      {isOwner && (
         <SearchField<Item>
           sx={{ width: "100%", mb: 3 }}
           onSelected={([item]) => {

@@ -22,7 +22,7 @@ import { durationString } from "../../../../lib/std/durationString";
 import { InfoTooltip } from "../../../components/InfoTooltip";
 import { ColumnConventionProps, DataGrid } from "../../../components/DataGrid";
 import { ItemId } from "../../../../api/services/item/types";
-import { estimateHuntDuration, huntStore, useMayEditHunt } from "../huntStore";
+import { estimateHuntDuration, huntStore, useIsHuntOwner } from "../huntStore";
 import { ErrorMessage } from "../../../components/ErrorMessage";
 import { joinNodes } from "../../../../lib/joinNodes";
 import { DropperIdentifier, DropperSelect } from "./DropperSelect";
@@ -59,7 +59,7 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
     renderCell({ row: item }) {
       const { mutate: updateItem } = trpc.hunt.updateItem.useMutation();
       const { data: hunt } = trpc.hunt.read.useQuery(item.huntId);
-      const mayEdit = useMayEditHunt(hunt);
+      const mayEdit = useIsHuntOwner(hunt);
       if (!mayEdit) {
         return item.amount;
       }
@@ -78,7 +78,7 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
     sortable: false,
     renderCell({ row: item }) {
       const { data: hunt } = trpc.hunt.read.useQuery(item.huntId);
-      const mayEdit = useMayEditHunt(hunt);
+      const mayEdit = useIsHuntOwner(hunt);
       const updateItem = trpc.hunt.updateItem.useMutation();
       const { canBeHunted, selected, options } = useDroppersForHunt(item);
       const [dialogError, setDialogError] = useState<unknown>();
@@ -184,7 +184,7 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
     renderCell({ row: item }) {
       const { mutate: removeItem } = trpc.hunt.removeItem.useMutation();
       const { data: hunt } = trpc.hunt.read.useQuery(item.huntId);
-      const mayEdit = useMayEditHunt(hunt);
+      const mayEdit = useIsHuntOwner(hunt);
       if (!mayEdit) {
         return;
       }
