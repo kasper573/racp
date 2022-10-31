@@ -55,9 +55,14 @@ export function AddHuntCard({
   ...props
 }: ComponentProps<typeof CardListItem>) {
   return (
-    <CardListItem sx={{ cursor: "pointer", ...sx }} {...props}>
+    <CardListItem
+      role="button"
+      aria-label="Create new hunt"
+      sx={{ cursor: "pointer", ...sx }}
+      {...props}
+    >
       <Center>
-        <Tooltip title="New hunt">
+        <Tooltip title="Create new hunt">
           <Add sx={{ fontSize: 96 }} />
         </Tooltip>
       </Center>
