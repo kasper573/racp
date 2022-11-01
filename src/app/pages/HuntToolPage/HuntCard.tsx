@@ -28,7 +28,13 @@ export function HuntCard({
         <EditableText
           value={hunt.name}
           onChange={(name) => renameHunt({ id: hunt.id, name })}
-          sx={{ mb: 1 }}
+          sx={{
+            maxWidth: "100%",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            mb: 1,
+          }}
           variant="h6"
         />
         <HuntSummary id={hunt.id} />
@@ -78,6 +84,10 @@ function HuntSummary({ id }: { id: Hunt["id"] }) {
   }
   const itemIds = hunt.items.map((i) => i.itemId);
   const monsterIds = hunt.monsters.map((m) => m.monsterId);
+  const size = itemIds.length + monsterIds.length;
+  if (!size) {
+    return <i>This list is empty.</i>;
+  }
   const sx = { mb: 2 };
   return (
     <>
