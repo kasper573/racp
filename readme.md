@@ -48,7 +48,7 @@ This is a pet project of mine, so it contains a lot of experimental code that I 
 Here's a list of what's experimental:
 
 - [A custom frontend router](src/lib/tsr) (I just wanted to build one, the project really had no need for this)
-- [A custom logger](src/lib/tsr) (Extremely pointless, I just wanted to code this. There's a million libraries that do exactly this)
+- [A custom logger](src/lib/logger.ts) (Extremely pointless, I just wanted to code this. There's a million libraries that do exactly this)
 - [A custom resource library](src/lib/repo) (born out of necessity and inexperience with what's available off the shelf. I needed some abstraction around all the various static data formats rAthena provides)
 
 > Everything else however is pretty much industry standard.
