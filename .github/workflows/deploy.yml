@@ -69,6 +69,6 @@ jobs:
             export RACP_DATABASE_URL="file:./racp_prod.db"
 
             # Perform migrations
-            npx prisma migrate deploy
+            npx prisma:deploy-migrations
 
             pm2 restart ecosystem.config.json
