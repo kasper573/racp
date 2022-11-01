@@ -93,7 +93,8 @@ describe("details", () => {
 describe("sharing", () => {
   it("is private by default", () => {
     gotoHuntsPageAsNewUser();
-    createHuntWithDetails();
+    createHunt();
+    viewHunt();
     cy.url().then((huntUrl) => {
       signOut();
       cy.visit(huntUrl);
