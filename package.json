@@ -13,7 +13,7 @@
     "app:serve": "serve dist -s -l tcp://0.0.0.0:$appPort",
     "app:prod": "cross-env NODE_ENV=production yarn app:build && yarn app:serve",
     "api:dev": "ts-node-dev --files src/api/server --apiPort 8081 --exposeInternalErrors",
-    "api:prod": "npx prisma generate && cross-env NODE_ENV=production ts-node --files src/api/server",
+    "api:prod": "cross-env NODE_ENV=production ts-node --files src/api/server",
     "cypress": "cross-env CYPRESS_BASE_URL=http://localhost:8080 cypress",
     "e2e:ci:dependencies": "concurrently \"yarn api:prod\" \"yarn app:prod\"",
     "e2e:ci:run": "cross-var npx start-server-and-test e2e:ci:dependencies $CYPRESS_BASE_URL 'cypress run'",
