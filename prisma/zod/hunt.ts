@@ -6,6 +6,7 @@ export const huntType = z.object({
   accountId: z.number().int(),
   name: z.string(),
   editedAt: z.date(),
+  isPublished: z.boolean(),
 })
 
 export interface CompleteHunt extends z.infer<typeof huntType> {

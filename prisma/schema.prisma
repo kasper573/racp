@@ -18,12 +18,13 @@ generator zod {
 }
 
 model Hunt {
-  id        Int             @id @default(autoincrement())
-  accountId Int
-  name      String
-  editedAt  DateTime        @default(now())
-  items     HuntedItem[]
-  monsters  HuntedMonster[]
+  id          Int             @id @default(autoincrement())
+  accountId   Int
+  name        String
+  editedAt    DateTime        @default(now())
+  items       HuntedItem[]
+  monsters    HuntedMonster[]
+  isPublished Boolean         @default(false)
 }
 
 model HuntedItem {

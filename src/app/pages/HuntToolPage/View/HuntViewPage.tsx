@@ -1,7 +1,7 @@
 import { useStore } from "zustand";
 import { IconButton, Stack, Tooltip } from "@mui/material";
 import { Hunt } from "@prisma/client";
-import { ContentCopy } from "@mui/icons-material";
+import { ContentCopy, Visibility, VisibilityOff } from "@mui/icons-material";
 import { Item } from "../../../../api/services/item/types";
 import { ItemIdentifier } from "../../../components/ItemIdentifier";
 import { trpc } from "../../../state/client";
@@ -35,9 +35,16 @@ export default function HuntViewPage({
   const isSignedIn = !!profile;
   const addItem = trpc.hunt.addItem.useMutation();
   const copyHunt = trpc.hunt.copy.useMutation();
+  const publish = trpc.hunt.publish.useMutation();
+  const unpublish = trpc.hunt.unpublish.useMutation();
   const renameHunt = trpc.hunt.rename.useMutation();
   const { data: hunt, isLoading } = trpc.hunt.read.useQuery(huntId);
-  const error = addItem.error || renameHunt.error || copyHunt.error;
+  const error =
+    addItem.error ||
+    renameHunt.error ||
+    copyHunt.error ||
+    publish.error ||
+    unpublish.error;
   const isOwner = useIsHuntOwner(hunt);
 
   async function copyAndRedirect() {
@@ -64,18 +71,36 @@ export default function HuntViewPage({
               onChange={(name) => renameHunt.mutate({ id: huntId, name })}
               variant="h6"
             />
-            {!isOwner && isSignedIn && (
+            {
               <Spaceless>
-                <Tooltip title="Add a copy of this hunt to your account">
-                  <IconButton
-                    sx={{ transform: "translate(8px, -50%)" }}
-                    onClick={copyAndRedirect}
-                  >
-                    <ContentCopy />
-                  </IconButton>
-                </Tooltip>
+                <Stack
+                  direction="row"
+                  sx={{ transform: "translate(8px, -50%)" }}
+                >
+                  {!isOwner && isSignedIn && (
+                    <Tooltip title="Add a copy of this hunt to your account">
+                      <IconButton onClick={copyAndRedirect}>
+                        <ContentCopy />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                  {isOwner &&
+                    (hunt.isPublished ? (
+                      <Tooltip title="Make private">
+                        <IconButton onClick={() => unpublish.mutate(huntId)}>
+                          <Visibility />
+                        </IconButton>
+                      </Tooltip>
+                    ) : (
+                      <Tooltip title="Make public">
+                        <IconButton onClick={() => publish.mutate(huntId)}>
+                          <VisibilityOff />
+                        </IconButton>
+                      </Tooltip>
+                    ))}
+                </Stack>
               </Spaceless>
-            )}
+            }
           </>
         }
       />
