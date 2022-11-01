@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "target": "es6",
+    "module": "CommonJS",
+    "types": ["node", "jest"]
+  },
+  "include": ["**/*.ts", "../lib", "../types"]
+}

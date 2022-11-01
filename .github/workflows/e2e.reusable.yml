@@ -65,7 +65,7 @@ jobs:
           chmod -R a+rwX ./prisma
 
       - name: Deploy database migrations
-        run: yarn prisma:deploy-migrations
+        run: npx prisma migrate deploy
 
       - name: Configure rAthena
         run: yarn configure-rathena
@@ -79,8 +79,11 @@ jobs:
       - name: Inject RAthena fixtures
         run: yarn inject-rathena-fixtures
 
-      - name: Run cypress
-        run: yarn e2e:ci:run
+      - name: Build everything
+        run: yarn build
+
+      - name: Run e2e tests
+        run: yarn test:e2e
         env:
           CYPRESS_VIEWPORT_WIDTH: ${{ inputs.width }}
           CYPRESS_VIEWPORT_HEIGHT: ${{ inputs.height }}

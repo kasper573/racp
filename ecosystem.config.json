@@ -3,7 +3,7 @@
     {
       "name": "racp-api",
       "script": "scripts/exec.js",
-      "args": "--command \"yarn api:prod\""
+      "args": "--command \"yarn api:serve\""
     },
     {
       "name": "racp-app",

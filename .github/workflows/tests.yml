@@ -26,7 +26,7 @@ jobs:
           node-version: "16"
           cache: "yarn"
       - run: yarn install --frozen-lockfile
-      - run: yarn unit
+      - run: yarn test:unit
 
   component-test:
     runs-on: ubuntu-latest
@@ -37,7 +37,7 @@ jobs:
           node-version: "16"
           cache: "yarn"
       - run: yarn install --frozen-lockfile
-      - run: yarn cypress run --component
+      - run: yarn test:component
 
   e2e-widescreen:
     uses: ./.github/workflows/e2e.reusable.yml
