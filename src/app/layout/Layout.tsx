@@ -126,5 +126,5 @@ const ContentSurface = styled("div")`
   position: relative;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
+  max-width: 100%;
 `;
