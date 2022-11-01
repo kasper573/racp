@@ -22,6 +22,7 @@ describe("list", () => {
   beforeEach(() => {
     gotoHuntsPageAsNewUser();
     cy.findByRole("button", { name: /create new hunt/i }).click();
+    waitForPageReady();
   });
 
   it("can create new hunt", () => {
@@ -128,6 +129,7 @@ function createHuntWithData({ itemAmount = 1, killsPerUnit = 1 }) {
   const nameRegex = ignoreCase(name, { exact: false });
 
   cy.findByRole("button", { name: /create new hunt/i }).click();
+  waitForPageReady();
   cy.findByRole("link", { name: /view hunt/i }).click();
   waitForPageReady();
 

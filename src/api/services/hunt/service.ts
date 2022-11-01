@@ -190,8 +190,13 @@ export function createHuntService({
           });
         }
 
+        let { amount, ...rest } = changes;
+        if (amount !== undefined) {
+          amount = Math.max(0, amount);
+        }
+
         await db.huntedItem.update({
-          data: changes,
+          data: { amount, ...rest },
           where: { id },
         });
         await normalizeHunt(db, item.huntId);
@@ -222,7 +227,14 @@ export function createHuntService({
           huntId: monster.huntId,
           accountId: ctx.auth.id,
         });
-        await db.huntedMonster.update({ data: changes, where: { id } });
+        let { killsPerUnit, ...rest } = changes;
+        if (killsPerUnit !== undefined) {
+          killsPerUnit = Math.max(0, killsPerUnit);
+        }
+        await db.huntedMonster.update({
+          data: { killsPerUnit, ...rest },
+          where: { id },
+        });
         await touchHunt(db, monster.huntId);
       }),
   });

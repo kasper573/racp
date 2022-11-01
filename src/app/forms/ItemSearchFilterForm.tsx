@@ -29,8 +29,19 @@ export function ItemSearchFilterForm({
 
   return (
     <>
-      <TextField label="ID" type="number" optional {...field("Id", "=")} />
-      <TextField label="Name" optional {...field("Name", "contains")} />
+      <TextField
+        debounce
+        label="ID"
+        type="number"
+        optional
+        {...field("Id", "=")}
+      />
+      <TextField
+        debounce
+        label="Name"
+        optional
+        {...field("Name", "contains")}
+      />
       <Select
         label="Primary Type"
         multi
@@ -75,11 +86,13 @@ export function ItemSearchFilterForm({
         {...field("Races", "includesSomeString")}
       />
       <TextField
+        debounce
         label="Description contains"
         optional
         {...field("DescriptionList", "someItemContains")}
       />
       <TextField
+        debounce
         label="Script contains"
         optional
         {...field("ScriptList", "someItemContains")}

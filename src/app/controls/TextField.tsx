@@ -1,7 +1,9 @@
-import { ComponentProps, useEffect, useState } from "react";
+import { ComponentProps } from "react";
 import { TextField as MuiTextField } from "@mui/material";
 import { util } from "zod/lib/helpers/util";
+import { useDebouncedCallback } from "use-debounce";
 import { htmlId } from "../util/htmlId";
+import { useReinitializingState } from "../../lib/hooks/useReinitializingState";
 import MakePartial = util.MakePartial;
 
 export type TFPropsVariant<
@@ -11,6 +13,7 @@ export type TFPropsVariant<
 > = Omit<ComponentProps<typeof MuiTextField>, "onChange" | "type"> & {
   type: Type;
   issues?: string[];
+  debounce?: number | boolean;
 } & (Optional extends true
     ? { optional: true; value?: Value; onChange?: (newValue?: Value) => void }
     : { optional?: false; value: Value; onChange?: (newValue: Value) => void });
@@ -25,9 +28,12 @@ export type TextFieldProps =
   | MakePartial<TFPropsVariant<"email", string, false>, "type">
   | MakePartial<TFPropsVariant<"email", string, true>, "type">;
 
+const defaultDebounceTime = 300;
+
 export function TextField({
   value,
   type,
+  debounce = false,
   onChange,
   optional,
   issues,
@@ -36,25 +42,31 @@ export function TextField({
   ...props
 }: TextFieldProps) {
   const readOnly = onChange === undefined;
-  const [text, setText] = useState(valueToText(value));
-  useEffect(() => setText(valueToText(value)), [value]);
+  const [text, setText] = useReinitializingState(valueToText(value));
 
-  function tryEmitChange(text: string) {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debounceTime = debounce === true ? defaultDebounceTime : debounce || 0;
+  const enqueueChange = useDebouncedCallback(
+    (output?: string | number) => (onChange as any)?.(output),
+    debounceTime
+  );
+
+  function tryEnqueueChange(text: string) {
     if (type === "number") {
       const trimmed = text.trim();
       if (optional && trimmed === "") {
-        onChange?.(undefined);
+        enqueueChange(undefined);
         return;
       }
       const num = parseFloat(trimmed);
       if (isNaN(num)) {
         return;
       }
-      onChange?.(num);
+      enqueueChange(num);
       return;
     }
 
-    optional ? onChange?.(text ? text : undefined) : onChange?.(text);
+    optional ? enqueueChange(text ? text : undefined) : enqueueChange(text);
   }
 
   return (
@@ -68,10 +80,10 @@ export function TextField({
       value={text}
       disabled={readOnly}
       InputProps={{ ...props.InputProps, readOnly }}
-      onBlur={() => setText(valueToText(value))}
+      onBlur={() => enqueueChange.flush()}
       onChange={(e) => {
         setText(e.target.value);
-        tryEmitChange(e.target.value);
+        tryEnqueueChange(e.target.value);
       }}
       {...props}
     />

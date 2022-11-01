@@ -66,6 +66,7 @@ export function AdminSettingsForm(props: ZodFormOptions<AdminSettings>) {
                   {...field("donations.paypal.clientId")}
                 />
                 <TextField
+                  type="password"
                   label="PayPal Client Secret"
                   {...field("donations.paypal.clientSecret")}
                 />
