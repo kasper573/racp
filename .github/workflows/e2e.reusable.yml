@@ -80,7 +80,9 @@ jobs:
         run: yarn inject-rathena-fixtures
 
       - name: Build everything
-        run: yarn build
+        run: |
+          export NODE_ENV=production
+          yarn build
 
       - name: Run e2e tests
         run: yarn test:e2e
