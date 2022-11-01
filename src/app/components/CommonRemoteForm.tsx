@@ -28,7 +28,7 @@ export function CommonRemoteForm<T>({
     uploadLatestState,
     isDownloading,
     isUploading,
-    isDirty,
+    hasUnsavedChanges,
     error: rawError,
   } = useRemoteState<T>({
     query,
@@ -46,9 +46,9 @@ export function CommonRemoteForm<T>({
       }}
       isLoading={isUploading}
       buttonComponent={(buttonProps) => (
-        <Tooltip title={isDirty ? "" : "You have no unsaved changes"}>
+        <Tooltip title={hasUnsavedChanges ? "" : "You have no unsaved changes"}>
           <div>
-            <ProgressButton {...buttonProps} disabled={!isDirty} />
+            <ProgressButton {...buttonProps} disabled={!hasUnsavedChanges} />
           </div>
         </Tooltip>
       )}

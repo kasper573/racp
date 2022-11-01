@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { isEqual as isDeepEqual } from "lodash";
 import { useReinitializingState } from "./useReinitializingState";
 import { useBlockNavigation } from "./useBlockNavigation";
@@ -6,7 +6,7 @@ import { useBlockNavigation } from "./useBlockNavigation";
 export interface UseRemoteStateProps<T> {
   query: () => { data?: T; isLoading: boolean; error?: any };
   mutation: () => {
-    mutate: (data: T) => void;
+    mutateAsync: (data: T) => Promise<unknown>;
     isLoading: boolean;
     error?: any;
   };
@@ -27,37 +27,49 @@ export function useRemoteState<T>({
   } = useQuery();
 
   const {
-    mutate: uploadState,
+    mutateAsync: uploadState,
     error: mutationError,
     isLoading: isUploading,
   } = useMutation();
 
   const remoteError = mutationError || queryError;
-  const [localState, setLocalState] = useReinitializingState(remoteState);
+  const [isDirty, setIsDirty] = useState(false);
+  const [localState, setLocalState] = useReinitializingState(
+    remoteState,
+    !isDirty
+  );
   const [localError, setLocalError] = useReinitializingState(remoteError);
 
   useEffect(() => setLocalError(undefined), [localState, setLocalError]);
 
-  const uploadLatestState = useCallback(
-    () => localState !== undefined && uploadState(localState),
-    [localState, uploadState]
+  async function uploadLatestState() {
+    try {
+      await uploadState(localState!);
+      setIsDirty(false);
+    } catch {
+      // Ignore errors
+    }
+  }
+
+  function setLocalStateAndMarkDirty(state: T) {
+    setLocalState(state);
+    setIsDirty(true);
+  }
+
+  const hasUnsavedChanges = useMemo(
+    () => isDirty && !isEqual(localState, remoteState),
+    [isDirty, isEqual, localState, remoteState]
   );
 
-  const isDirty = useMemo(
-    () => localState !== undefined && !isEqual(localState, remoteState),
-    [isEqual, localState, remoteState]
-  );
-
-  useBlockNavigation(isDirty, navigationWarningMessage);
+  useBlockNavigation(hasUnsavedChanges, navigationWarningMessage);
 
   return {
     localState,
-    setLocalState,
+    setLocalState: setLocalStateAndMarkDirty,
     uploadLatestState,
-    uploadState,
     isDownloading,
     isUploading,
-    isDirty,
+    hasUnsavedChanges,
     error: localError,
   };
 }
