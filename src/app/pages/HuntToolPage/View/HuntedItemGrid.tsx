@@ -70,6 +70,7 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
       }
       return (
         <TextField
+          debounce
           type="number"
           value={item.amount}
           id="ItemAmount"

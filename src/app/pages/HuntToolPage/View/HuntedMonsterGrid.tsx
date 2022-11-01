@@ -133,6 +133,7 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
       }
       return (
         <TextField
+          debounce
           id="KillsPerUnit"
           type="number"
           value={monster.killsPerUnit}
