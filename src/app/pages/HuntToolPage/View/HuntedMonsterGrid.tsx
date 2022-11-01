@@ -98,7 +98,7 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
             sx={{ minWidth: 150, width: 150 }}
             value={monster.spawnId ?? undefined}
             options={spawns}
-            onChange={(spawnId) => updateMonster({ ...monster, spawnId })}
+            onChange={(spawnId) => updateMonster({ id: monster.id, spawnId })}
           />
           {selectedSpawn && (
             <Tooltip title="Go to map">

@@ -45,7 +45,7 @@ export function expectTableData(
 }
 
 export function expectTableColumn(
-  columnName: string,
+  columnName: string | RegExp,
   getCellMatcher: (rowIndex: number) => TableCellMatcher | undefined
 ) {
   return cy

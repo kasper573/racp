@@ -98,6 +98,7 @@ describe("sharing", () => {
 
       withinMonsterGrid(() => {
         expectTableColumn("Monster", () => /test monster/i);
+        expectTableColumn(/map/i, () => /test_map/i);
         expectTableColumn("Kills per minute", () => /^8$/);
       });
     });
@@ -109,35 +110,24 @@ function findListedHuntTitle(huntName: string) {
 }
 
 function createHuntWithData({ itemAmount = 1, killsPerUnit = 1 }) {
+  const name = "test item";
+  const nameRegex = ignoreCase(name, { exact: false });
+
   cy.findByRole("button", { name: /create new hunt/i }).click();
   cy.findByRole("link", { name: /view hunt/i }).click();
-  addItemToHunt("test item");
-  setItemAmount(itemAmount);
-  setItemTarget(0);
-  setKillsPerUnit(killsPerUnit);
-  waitForPageReady();
-}
 
-function addItemToHunt(itemName: string) {
-  cy.findByLabelText("Add an item to hunt").type(itemName);
+  cy.findByLabelText("Add an item to hunt").type(name);
   waitForPageReady();
-  cy.findByRole("option", {
-    name: ignoreCase(itemName, { exact: false }),
-  }).click();
+  cy.findByRole("option", { name: nameRegex }).click();
   waitForPageReady();
-}
 
-function setItemAmount(itemAmount: number) {
-  return cy.get("#ItemAmount").clear().type(`${itemAmount}`);
-}
-
-function setItemTarget(index: number) {
-  cy.get("#ItemTargets").select(index);
+  cy.get("#ItemAmount").clear().type(`${itemAmount}`);
+  cy.get("#ItemTargets").select(0);
   waitForPageReady();
-}
 
-function setKillsPerUnit(kills: number) {
-  return cy.get("#KillsPerUnit").clear().type(`${kills}`);
+  cy.get("#KillsPerUnit").clear().type(`${killsPerUnit}`);
+  cy.get("#MonsterSpawn").select(0);
+  waitForPageReady();
 }
 
 function withinItemGrid(fn: () => void) {
