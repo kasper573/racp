@@ -61,84 +61,87 @@ export default function HuntViewPage({
 
   return (
     <>
-      <Header
-        sx={{ mb: { md: 5, xs: 3 } }}
-        title={
-          <>
-            <EditableText
-              value={hunt.name}
-              enabled={isOwner}
-              onChange={(name) => renameHunt.mutate({ id: huntId, name })}
-              variant="h6"
-            />
-            {
-              <Spaceless>
-                <Stack
-                  direction="row"
-                  sx={{ transform: "translate(8px, -50%)" }}
-                >
-                  {!isOwner && isSignedIn && (
-                    <Tooltip title="Add a copy of this hunt to your account">
-                      <IconButton onClick={copyAndRedirect}>
-                        <ContentCopy />
-                      </IconButton>
-                    </Tooltip>
-                  )}
-                  {isOwner &&
-                    (hunt.isPublished ? (
-                      <Tooltip title="Make private">
-                        <IconButton
-                          aria-label="Make private"
-                          onClick={() => unpublish.mutate(huntId)}
-                        >
-                          <Visibility />
+      <Stack spacing={2} sx={{ flex: 1 }}>
+        <Header
+          title={
+            <>
+              <EditableText
+                value={hunt.name}
+                enabled={isOwner}
+                onChange={(name) => renameHunt.mutate({ id: huntId, name })}
+                variant="h6"
+              />
+              {
+                <Spaceless>
+                  <Stack
+                    direction="row"
+                    sx={{ transform: "translate(8px, -50%)" }}
+                  >
+                    {!isOwner && isSignedIn && (
+                      <Tooltip title="Add a copy of this hunt to your account">
+                        <IconButton onClick={copyAndRedirect}>
+                          <ContentCopy />
                         </IconButton>
                       </Tooltip>
-                    ) : (
-                      <Tooltip title="Make public">
-                        <IconButton
-                          aria-label="Make public"
-                          onClick={() => publish.mutate(huntId)}
-                        >
-                          <VisibilityOff />
-                        </IconButton>
-                      </Tooltip>
-                    ))}
-                </Stack>
-              </Spaceless>
-            }
-          </>
-        }
-      />
-
-      {error && <ErrorMessage sx={{ mb: 2 }} error={error} />}
-
-      {isOwner && (
-        <SearchField<Item>
-          sx={{ width: "100%", mb: 3 }}
-          onSelected={([item]) => {
-            if (item) {
-              addItem.mutate({ huntId, itemId: item.Id });
-            }
-          }}
-          useQuery={useItemSearchQuery}
-          optionKey={(option) => option.Id}
-          optionLabel={(option) => option.Name}
-          renderOption={(option) => (
-            <ItemIdentifier link={false} item={option} />
-          )}
-          startSearchingMessage="Enter the name of the item you want to hunt"
-          noResultsText={(searchQuery) => `No items matching "${searchQuery}"`}
-          label="Add an item to hunt"
+                    )}
+                    {isOwner &&
+                      (hunt.isPublished ? (
+                        <Tooltip title="Make private">
+                          <IconButton
+                            aria-label="Make private"
+                            onClick={() => unpublish.mutate(huntId)}
+                          >
+                            <Visibility />
+                          </IconButton>
+                        </Tooltip>
+                      ) : (
+                        <Tooltip title="Make public">
+                          <IconButton
+                            aria-label="Make public"
+                            onClick={() => publish.mutate(huntId)}
+                          >
+                            <VisibilityOff />
+                          </IconButton>
+                        </Tooltip>
+                      ))}
+                  </Stack>
+                </Spaceless>
+              }
+            </>
+          }
         />
-      )}
 
-      {isOwner && <Settings />}
+        {error && <ErrorMessage error={error} />}
 
-      <CommonPageGrid sx={{ flex: 1 }} pixelCutoff={1400} flexValues={[5, 3]}>
-        <HuntedItemGrid items={hunt.items} />
-        <HuntedMonsterGrid monsters={hunt.monsters} />
-      </CommonPageGrid>
+        {isOwner && <Settings />}
+
+        {isOwner && (
+          <SearchField<Item>
+            sx={{ width: "100%" }}
+            onSelected={([item]) => {
+              if (item) {
+                addItem.mutate({ huntId, itemId: item.Id });
+              }
+            }}
+            useQuery={useItemSearchQuery}
+            optionKey={(option) => option.Id}
+            optionLabel={(option) => option.Name}
+            renderOption={(option) => (
+              <ItemIdentifier link={false} item={option} />
+            )}
+            startSearchingMessage="Enter the name of the item you want to hunt"
+            noResultsText={(searchQuery) =>
+              `No items matching "${searchQuery}"`
+            }
+            label="Add an item to hunt"
+          />
+        )}
+
+        <CommonPageGrid sx={{ flex: 1 }} pixelCutoff={1400} flexValues={[5, 3]}>
+          <HuntedItemGrid items={hunt.items} />
+          <HuntedMonsterGrid monsters={hunt.monsters} />
+        </CommonPageGrid>
+      </Stack>
     </>
   );
 }
@@ -151,8 +154,9 @@ function Settings() {
       spacing={2}
       direction="row"
       sx={{
-        mt: { xs: 3, md: 0 },
-        position: { md: "absolute" },
+        position: { lg: "absolute" },
+        mt: { lg: "0 !important" },
+        alignSelf: "flex-end",
         top: 0,
         right: 0,
       }}
