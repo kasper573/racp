@@ -4,22 +4,26 @@ import { util } from "zod/lib/helpers/util";
 import { htmlId } from "../util/htmlId";
 import MakePartial = util.MakePartial;
 
-type TFVariant<Type extends string, Value, Optional extends boolean> = Omit<
-  ComponentProps<typeof MuiTextField>,
-  "onChange" | "type"
-> & { type: Type; issues?: string[] } & (Optional extends true
+export type TFPropsVariant<
+  Type extends string,
+  Value,
+  Optional extends boolean
+> = Omit<ComponentProps<typeof MuiTextField>, "onChange" | "type"> & {
+  type: Type;
+  issues?: string[];
+} & (Optional extends true
     ? { optional: true; value?: Value; onChange?: (newValue?: Value) => void }
     : { optional?: false; value: Value; onChange?: (newValue: Value) => void });
 
 export type TextFieldProps =
-  | TFVariant<"number", number, false>
-  | TFVariant<"number", number, true>
-  | MakePartial<TFVariant<"text", string, false>, "type">
-  | MakePartial<TFVariant<"text", string, true>, "type">
-  | MakePartial<TFVariant<"password", string, false>, "type">
-  | MakePartial<TFVariant<"password", string, true>, "type">
-  | MakePartial<TFVariant<"email", string, false>, "type">
-  | MakePartial<TFVariant<"email", string, true>, "type">;
+  | TFPropsVariant<"number", number, false>
+  | TFPropsVariant<"number", number, true>
+  | MakePartial<TFPropsVariant<"text", string, false>, "type">
+  | MakePartial<TFPropsVariant<"text", string, true>, "type">
+  | MakePartial<TFPropsVariant<"password", string, false>, "type">
+  | MakePartial<TFPropsVariant<"password", string, true>, "type">
+  | MakePartial<TFPropsVariant<"email", string, false>, "type">
+  | MakePartial<TFPropsVariant<"email", string, true>, "type">;
 
 export function TextField({
   value,
@@ -63,7 +67,7 @@ export function TextField({
       helperText={issues?.join(", ")}
       value={text}
       disabled={readOnly}
-      InputProps={{ readOnly }}
+      InputProps={{ ...props.InputProps, readOnly }}
       onBlur={() => setText(valueToText(value))}
       onChange={(e) => {
         setText(e.target.value);

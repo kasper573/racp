@@ -41,7 +41,9 @@ Cypress.Commands.overwrite<"select", "element">(
 
     // Not chained because of MUI portals.
     // Potentially unsafe in case of multiple open selects, but if that happens we can refactor.
-    cy.findAllByRole("option").filter(shouldSelect).click();
+    cy.findAllByRole("option", { hidden: true })
+      .filter(shouldSelect)
+      .click({ force: true });
 
     // Closes the menu. Required to commit the selection.
     cy.closePoppers();

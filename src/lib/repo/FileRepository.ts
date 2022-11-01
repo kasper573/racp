@@ -1,6 +1,6 @@
 import * as path from "path";
+import * as fs from "fs";
 import recursiveWatch = require("recursive-watch");
-import { gfs } from "../../api/gfs";
 import { ensureDir } from "../fs/ensureDir";
 import { ReactiveRepository } from "./ReactiveRepository";
 import { Maybe, RepositoryOptions } from "./Repository";
@@ -41,7 +41,7 @@ export class FileRepository<
   protected async readImpl() {
     let fileContent: string | undefined;
     try {
-      fileContent = await gfs.readFile(this.filename, "utf-8");
+      fileContent = await fs.promises.readFile(this.filename, "utf-8");
     } catch {
       // File missing = content undefined
     }
@@ -60,9 +60,9 @@ export class FileRepository<
 
   protected async writeImpl(data: T | DefaultValue) {
     if (data === undefined) {
-      await gfs.rm(this.filename);
+      await fs.promises.rm(this.filename);
     } else {
-      await gfs.writeFile(
+      await fs.promises.writeFile(
         this.filename,
         this.options.protocol.serialize(data as T),
         "utf-8"

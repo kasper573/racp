@@ -3,7 +3,7 @@ import { ComponentProps } from "react";
 import {
   MonsterSpawn,
   MonsterSpawnId,
-} from "../../../api/services/monster/types";
+} from "../../../../api/services/monster/types";
 
 export function SpawnSelect({
   value,
@@ -19,6 +19,7 @@ export function SpawnSelect({
     options.find((spawn) => spawn.id === id);
   return (
     <Select
+      id="MonsterSpawn"
       size="small"
       multiple={false}
       value={value ?? ""}
@@ -29,20 +30,20 @@ export function SpawnSelect({
         if (!selected) {
           return "Select map";
         }
-        return <TargetIdentifier spawn={selected} />;
+        return <SpawnIdentifier spawn={selected} />;
       }}
       sx={sx}
     >
       {options.map((spawn) => (
         <MenuItem key={spawn.id} value={spawn.id}>
-          <TargetIdentifier spawn={spawn} />
+          <SpawnIdentifier spawn={spawn} />
         </MenuItem>
       ))}
     </Select>
   );
 }
 
-function TargetIdentifier({ spawn }: { spawn: MonsterSpawn }) {
+export function SpawnIdentifier({ spawn }: { spawn: MonsterSpawn }) {
   return (
     <>
       {spawn.map} ({spawn.amount})

@@ -1,12 +1,12 @@
-import { DatabaseDriver } from "../../../rathena/DatabaseDriver";
+import { RAthenaDatabaseDriver } from "../../../rathena/RAthenaDatabaseDriver";
 import { Mvp, MvpStatus } from "../types";
 import { determineMvpLifeStatus } from "./determineMvpLifeStatus";
 
 export async function queryMvpStatus(
-  db: DatabaseDriver,
+  radb: RAthenaDatabaseDriver,
   boss: Mvp
 ): Promise<MvpStatus> {
-  const logEntry = await db.log
+  const logEntry = await radb.log
     .table("mvplog")
     .select("*")
     .orderBy("mvp_date", "desc")
@@ -21,7 +21,7 @@ export async function queryMvpStatus(
 
   const killedBy = logEntry
     ? (
-        await db.char
+        await radb.char
           .table("char")
           .select("name")
           .where({ char_id: logEntry.kill_char_id })

@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("RACP_DATABASE_URL")
+}
+
+generator zod {
+  provider              = "zod-prisma"
+  output                = "./zod"
+  relationModel         = true
+  modelCase             = "camelCase"
+  modelSuffix           = "Type"
+  useDecimalJs          = true
+  prismaJsonNullability = true
+}
+
+model Hunt {
+  id        Int             @id @default(autoincrement())
+  accountId Int
+  name      String
+  editedAt  DateTime        @default(now())
+  items     HuntedItem[]
+  monsters  HuntedMonster[]
+}
+
+model HuntedItem {
+  id               Int    @id @default(autoincrement())
+  amount           Int
+  itemId           Int
+  targetMonsterIds String // CSV list of monster IDs
+  hunt             Hunt   @relation(fields: [huntId], references: [id], onDelete: Cascade)
+  huntId           Int
+}
+
+model HuntedMonster {
+  id           Int     @id @default(autoincrement())
+  monsterId    Int
+  spawnId      String?
+  killsPerUnit Int
+  hunt         Hunt    @relation(fields: [huntId], references: [id], onDelete: Cascade)
+  huntId       Int
+}

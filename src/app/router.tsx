@@ -27,6 +27,7 @@ import { skillFilter } from "../api/services/skill/types";
 import { Redirect } from "../lib/tsr/react/Redirect";
 import { zodLiteralString } from "../lib/zod/zodLiteralString";
 import { RouteLocation } from "../lib/tsr/types";
+import { huntType } from "../../prisma/zod";
 import { requireAuth } from "./util/requireAuth";
 import { requireSettings } from "./util/requireSettings";
 import { t } from "./tsr";
@@ -146,9 +147,17 @@ export const router = t.router({
     .meta({ title: "Tools" })
     .children({
       hunt: t.route
-        .path("hunt")
+        .path("hunt", { exact: true })
         .meta({ title: "Hunt", icon: <ImageSearch /> })
-        .renderer(lazy(() => import("./pages/HuntToolPage"))),
+        .renderer(lazy(() => import("./pages/HuntToolPage/HuntListPage")))
+        .children({
+          view: t.route
+            .path(":id")
+            .params({ id: huntType.shape.id })
+            .renderer(
+              lazy(() => import("./pages/HuntToolPage/View/HuntViewPage"))
+            ),
+        }),
     }),
   admin: t.route
     .path("admin", { exact: true })

@@ -1,6 +1,21 @@
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, LinearProgress, styled } from "@mui/material";
 import { ComponentProps } from "react";
 
-export const LoadingSpinner = (
-  props: ComponentProps<typeof CircularProgress>
-) => <CircularProgress {...props} data-testid="loading-spinner" />;
+export const LoadingSpinner = ({
+  variant = "circular",
+  ...props
+}: Omit<ComponentProps<typeof CircularProgress>, "variant"> & {
+  variant?: "circular" | "linear";
+}) => {
+  const Loader = loaders[variant];
+  return <Loader {...props} data-testid="loading-spinner" />;
+};
+
+const FullWidthLinearProgress = styled(LinearProgress)`
+  width: 100%;
+`;
+
+const loaders = {
+  circular: CircularProgress,
+  linear: FullWidthLinearProgress,
+};

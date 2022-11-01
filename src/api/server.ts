@@ -10,7 +10,7 @@ import { createPublicFileLinker } from "../lib/fs/createPublicFileLinker";
 import { createImageFormatter } from "../lib/image/createImageFormatter";
 import { readCliArgs } from "../lib/cli";
 import { loggerToMorgan } from "../lib/loggerToMorgan";
-import { createDatabaseDriver } from "./rathena/DatabaseDriver";
+import { createRAthenaDatabaseDriver } from "./rathena/RAthenaDatabaseDriver";
 import {
   AuthenticatorPayload,
   createAuthenticator,
@@ -43,6 +43,8 @@ import { createSkillService } from "./services/skill/service";
 import { createAdminSettingsRepository } from "./services/settings/repository";
 import { createExpRepository } from "./services/exp/repository";
 import { createExpService } from "./services/exp/service";
+import { createRACPDatabaseClient } from "./common/createRACPDatabaseClient";
+import { createHuntService } from "./services/hunt/service";
 
 enableMapSet();
 
@@ -51,7 +53,8 @@ const logger = createLogger(coloredConsole, { format: logFormat });
 
 const app = express();
 const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
-const db = createDatabaseDriver({ ...args, logger });
+const radb = createRAthenaDatabaseDriver({ ...args, logger });
+const cpdb = createRACPDatabaseClient();
 const formatter = createImageFormatter({ extension: ".png", quality: 70 });
 const linker = createPublicFileLinker({
   directory: path.join(process.cwd(), args.publicFolder),
@@ -85,20 +88,21 @@ if (args.preloadAllResources) {
 
 const router = createApiRouter({
   util: createUtilService(),
-  user: createUserService({ db, user, sign: auth.sign, ...args }),
+  user: createUserService({ radb, user, sign: auth.sign, ...args }),
   item: createItemService(items),
-  monster: createMonsterService({ db, repo: monsters }),
+  monster: createMonsterService({ radb, repo: monsters }),
   skill: createSkillService(skills),
   drop: createDropService(drops),
-  vendor: createVendorService({ db, items }),
+  vendor: createVendorService({ radb, items }),
   shop: createShopService(shops),
   npc: createNpcService(npcs),
   map: createMapService(maps),
   settings: createAdminSettingsService(settings),
   meta: createMetaService({ ...items, ...monsters }),
   exp: createExpService(exp),
+  hunt: createHuntService({ cpdb, settings }),
   donation: createDonationService({
-    db,
+    radb,
     env: args.donationEnvironment,
     logger,
     settings,

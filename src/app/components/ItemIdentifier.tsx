@@ -20,7 +20,7 @@ import { LoadingSpinner } from "./LoadingSpinner";
 
 export type ItemIdentifierBaseProps = Pick<
   ComponentProps<typeof IconWithLabel>,
-  "sx" | "style" | "className"
+  "sx" | "style" | "className" | "showLabelAsTooltip"
 > & {
   link?: boolean;
 };
@@ -38,6 +38,7 @@ export function ItemIdentifier({
   sx,
   style,
   className,
+  showLabelAsTooltip,
   ...input
 }: ItemIdentifierProps) {
   let id: number;
@@ -82,6 +83,7 @@ export function ItemIdentifier({
     <IconWithLabel
       src={imageUrl}
       alt={props.name}
+      showLabelAsTooltip={showLabelAsTooltip}
       {...{ sx, style, className }}
     >
       {displayName}
@@ -92,7 +94,7 @@ export function ItemIdentifier({
 export function ItemIdentifierByName({
   name = "",
   ...props
-}: ItemIdentifierBaseProps & { name?: string }) {
+}: Omit<ItemIdentifierByFilterProps, "filter"> & { name?: string }) {
   if (!name) {
     return null;
   }
@@ -106,15 +108,23 @@ export function ItemIdentifierByName({
           options: { caseSensitive: false },
         },
       }}
+      {...props}
     />
   );
+}
+
+export interface ItemIdentifierByFilterProps extends ItemIdentifierBaseProps {
+  filter: ItemFilter;
+  fallback?: ReactNode;
+  loader?: ReactNode;
 }
 
 export function ItemIdentifierByFilter({
   filter,
   fallback = "Unknown item",
+  loader = <LoadingSpinner variant="linear" />,
   ...props
-}: ItemIdentifierBaseProps & { filter: ItemFilter; fallback?: ReactNode }) {
+}: ItemIdentifierByFilterProps) {
   const { data: { entities: [item] = [] } = {}, isLoading } =
     trpc.item.search.useQuery({
       filter: filter,
@@ -124,7 +134,7 @@ export function ItemIdentifierByFilter({
     return <ItemIdentifier item={item} {...props} />;
   }
   if (isLoading) {
-    return <LoadingSpinner />;
+    return <>{loader}</>;
   }
   if (fallback) {
     return <>{fallback}</>;

@@ -1,11 +1,11 @@
 import { Box, styled } from "@mui/material";
 import {
-  MouseEvent,
   ComponentProps,
-  useEffect,
-  useState,
   ComponentType,
+  MouseEvent,
+  useEffect,
   useMemo,
+  useState,
 } from "react";
 import {
   DataGrid as MuiDataGrid,
@@ -28,6 +28,7 @@ import { useLatest } from "../../lib/hooks/useLatest";
 import { RouteLocation } from "../../lib/tsr/types";
 import { Link } from "./Link";
 import { LoadingSpinner } from "./LoadingSpinner";
+import { Center } from "./Center";
 
 export type DataGridProps<
   Entity,
@@ -110,9 +111,13 @@ export function DataGrid<
     onHoveredEntityChange?.(hovered);
   }
 
+  const ariaLabel = props["aria-label"] ?? "Data Grid";
+  delete props["aria-label"];
+
   return (
     <Box sx={{ flex: 1, ...sx }} {...props}>
       <Grid
+        aria-label={ariaLabel}
         disableColumnFilter
         disableColumnSelector={gridProps?.columnVisibilityModel !== undefined}
         columns={columnList}
@@ -287,10 +292,3 @@ function LoadingOverlay() {
     </Center>
   );
 }
-
-const Center = styled("div")`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-`;

@@ -1,5 +1,6 @@
 import { ComponentProps, ComponentType, Key, ReactNode, useState } from "react";
 import { Autocomplete, Box, Popper, TextField } from "@mui/material";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 export function SearchField<T>({
   label,
@@ -38,6 +39,8 @@ export function SearchField<T>({
       includeInputInList
       filterSelectedOptions
       clearOnBlur
+      loading={isLoading}
+      loadingText={<LoadingSpinner variant="linear" />}
       clearOnEscape
       value={value ?? localValue}
       multiple

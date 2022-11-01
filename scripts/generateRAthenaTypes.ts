@@ -8,9 +8,9 @@ import { readCliArgs } from "../src/lib/cli";
 import { options } from "../src/api/options";
 import { createLogger } from "../src/lib/logger";
 import {
-  createDatabaseDriver,
+  createRAthenaDatabaseDriver,
   dbInfoConfigName,
-} from "../src/api/rathena/DatabaseDriver";
+} from "../src/api/rathena/RAthenaDatabaseDriver";
 
 /**
  * Generates zod type & typescript definitions of the rAthena mysql database
@@ -26,7 +26,7 @@ async function generate() {
     },
   });
 
-  const db = createDatabaseDriver({
+  const db = createRAthenaDatabaseDriver({
     rAthenaPath,
     logger: createLogger(console.log),
   });

@@ -2,25 +2,31 @@
 import { useStore } from "zustand";
 import { Box, Tooltip } from "@mui/material";
 import { OpenInNew } from "@mui/icons-material";
-import { TextField } from "../../controls/TextField";
-import { trpc } from "../../state/client";
-import { MonsterIdentifier } from "../../components/MonsterIdentifier";
-import { MonsterId } from "../../../api/services/monster/types";
-import { ColumnConventionProps, DataGrid } from "../../components/DataGrid";
-import { LoadingSpinner } from "../../components/LoadingSpinner";
-import { InfoTooltip } from "../../components/InfoTooltip";
-import { LinkIconButton } from "../../components/Link";
-import { routes } from "../../router";
-import { HuntedMonster, huntStore } from "./huntStore";
-import { SpawnSelect } from "./SpawnSelect";
+import { TextField } from "../../../controls/TextField";
+import { trpc } from "../../../state/client";
+import { MonsterIdentifierByFilter } from "../../../components/MonsterIdentifier";
+import { MonsterId } from "../../../../api/services/monster/types";
+import { ColumnConventionProps, DataGrid } from "../../../components/DataGrid";
+import { LoadingSpinner } from "../../../components/LoadingSpinner";
+import { InfoTooltip } from "../../../components/InfoTooltip";
+import { LinkIconButton } from "../../../components/Link";
+import { routes } from "../../../router";
+import { huntEditorStore, useIsHuntOwner } from "../huntEditorStore";
+import { RichHunt } from "../../../../api/services/hunt/types";
+import { SpawnIdentifier, SpawnSelect } from "./SpawnSelect";
 
-export function HuntedMonsterGrid() {
-  const { session } = useStore(huntStore);
+type HuntedMonster = RichHunt["monsters"][number];
 
+export function HuntedMonsterGrid({
+  monsters,
+}: {
+  monsters: RichHunt["monsters"];
+}) {
   return (
     <DataGrid<HuntedMonster>
+      aria-label="monsters"
       id={(m) => m.monsterId}
-      data={session.monsters}
+      data={monsters}
       emptyComponent={Empty}
       columns={columns}
     />
@@ -40,21 +46,9 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
     minWidth: 100,
     sortable: false,
     renderCell({ row: hunt }) {
-      const { data: { entities: [monster] = [] } = {}, isLoading } =
-        trpc.monster.search.useQuery({
-          filter: { Id: { value: hunt.monsterId, matcher: "=" } },
-        });
-      if (isLoading) {
-        return <LoadingSpinner />;
-      }
-      if (!monster) {
-        return <span>Monster {hunt.monsterId} not found</span>;
-      }
       return (
-        <MonsterIdentifier
-          name={monster.Name}
-          id={monster.Id}
-          imageUrl={monster.ImageUrl}
+        <MonsterIdentifierByFilter
+          filter={{ Id: { value: hunt.monsterId, matcher: "=" } }}
           sx={{ whiteSpace: "nowrap" }}
         />
       );
@@ -75,15 +69,17 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
     },
     minWidth: 200,
     sortable: false,
-    renderCell({ row: hunt }) {
-      const { updateMonster } = useStore(huntStore);
+    renderCell({ row: monster }) {
+      const { data: hunt } = trpc.hunt.read.useQuery(monster.huntId);
+      const mayEdit = useIsHuntOwner(hunt);
+      const { mutate: updateMonster } = trpc.hunt.updateMonster.useMutation();
       const { data: { entities: spawns = [] } = {}, isLoading } =
         trpc.monster.searchSpawns.useQuery({
-          filter: { monsterId: { value: hunt.monsterId, matcher: "=" } },
+          filter: { monsterId: { value: monster.monsterId, matcher: "=" } },
           sort: [{ field: "amount", sort: "desc" }],
         });
       if (isLoading) {
-        return <LoadingSpinner />;
+        return <LoadingSpinner variant="linear" />;
       }
       if (!spawns.length) {
         return (
@@ -92,14 +88,17 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
           </InfoTooltip>
         );
       }
-      const selectedSpawn = spawns.find((s) => s.id === hunt.spawnId);
+      const selectedSpawn = spawns.find((s) => s.id === monster.spawnId);
+      if (!mayEdit) {
+        return selectedSpawn ? <SpawnIdentifier spawn={selectedSpawn} /> : "-";
+      }
       return (
         <>
           <SpawnSelect
             sx={{ minWidth: 150, width: 150 }}
-            value={hunt.spawnId}
+            value={monster.spawnId ?? undefined}
             options={spawns}
-            onChange={(spawnId) => updateMonster({ ...hunt, spawnId })}
+            onChange={(spawnId) => updateMonster({ id: monster.id, spawnId })}
           />
           {selectedSpawn && (
             <Tooltip title="Go to map">
@@ -122,16 +121,24 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
   },
   killsPerUnit: {
     renderHeader() {
-      const { kpxUnit } = useStore(huntStore);
+      const { kpxUnit } = useStore(huntEditorStore);
       return kpxUnit;
     },
-    renderCell({ row: hunt }) {
-      const { updateMonster } = useStore(huntStore);
+    renderCell({ row: monster }) {
+      const { mutate: updateMonster } = trpc.hunt.updateMonster.useMutation();
+      const { data: hunt } = trpc.hunt.read.useQuery(monster.huntId);
+      const mayEdit = useIsHuntOwner(hunt);
+      if (!mayEdit) {
+        return monster.killsPerUnit;
+      }
       return (
         <TextField
+          id="KillsPerUnit"
           type="number"
-          value={hunt.killsPerUnit}
-          onChange={(kpu) => updateMonster({ ...hunt, killsPerUnit: kpu })}
+          value={monster.killsPerUnit}
+          onChange={(kpu) =>
+            updateMonster({ id: monster.id, killsPerUnit: kpu })
+          }
         />
       );
     },

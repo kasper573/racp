@@ -56,6 +56,7 @@ export function signIn(
   cy.url().then((urlForSignInPage) => {
     cy.findByRole("button", { name: "Sign in" }).click();
     if (waitForRedirect) {
+      waitForPageReady();
       cy.url().should("not.equal", urlForSignInPage);
       waitForPageReady();
     }

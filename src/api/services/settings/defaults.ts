@@ -3,6 +3,11 @@ import { AdminSettings, Currency } from "./types";
 export const defaultAdminSettings: AdminSettings = {
   rAthenaMode: "Renewal",
   pageTitle: "rAthenaCP",
+  huntLimits: {
+    hunts: 99,
+    monstersPerItem: 99,
+    itemsPerHunt: 99,
+  },
   donations: {
     enabled: false,
     defaultAmount: 5,

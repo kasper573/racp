@@ -1,23 +1,26 @@
 import { MenuItem, Select, useTheme } from "@mui/material";
 import { ComponentProps } from "react";
-import { ItemDrop } from "../../../api/services/drop/types";
-import { MonsterId } from "../../../api/services/monster/types";
-import { MonsterIdentifier } from "../../components/MonsterIdentifier";
-import { dropChanceString } from "../../grids/ItemDropGrid";
+import { ItemDrop } from "../../../../api/services/drop/types";
+import { MonsterId } from "../../../../api/services/monster/types";
+import { MonsterIdentifier } from "../../../components/MonsterIdentifier";
+import { dropChanceString } from "../../../grids/ItemDropGrid";
 
 export function DropperSelect({
   value,
   options,
   onChange,
+  id,
 }: {
   value: ItemDrop[];
   options: ItemDrop[];
   onChange: (drops: ItemDrop[]) => void;
+  id?: string;
 }) {
   const selectOptions = (ids: MonsterId[]) =>
     options.filter((drop) => ids.includes(drop.MonsterId));
   return (
     <Select
+      id={id}
       size="small"
       multiple
       value={value.map((d) => d.MonsterId)}
@@ -36,33 +39,41 @@ export function DropperSelect({
           return "Select targets";
         }
         if (selected.length === 1) {
-          return <TargetIdentifier drop={selected[0]} sx={{ maxWidth: 125 }} />;
+          return (
+            <DropperIdentifier drop={selected[0]} sx={{ maxWidth: 125 }} />
+          );
         }
         return `${selected.length} targets selected`;
       }}
     >
       {options.map((drop) => (
         <MenuItem key={drop.MonsterId} value={drop.MonsterId}>
-          <TargetIdentifier drop={drop} />
+          <DropperIdentifier drop={drop} />
         </MenuItem>
       ))}
     </Select>
   );
 }
 
-function TargetIdentifier({
+export function DropperIdentifier({
   drop,
   sx,
-}: { drop: ItemDrop } & Pick<ComponentProps<typeof MonsterIdentifier>, "sx">) {
+  link = false,
+  ...props
+}: { drop: ItemDrop } & Omit<
+  ComponentProps<typeof MonsterIdentifier>,
+  "name" | "id" | "imageUrl"
+>) {
   const theme = useTheme();
 
   return (
     <MonsterIdentifier
-      link={false}
+      link={link}
       name={drop.MonsterName}
       id={drop.MonsterId}
       imageUrl={drop.MonsterImageUrl}
       sx={{ whiteSpace: "nowrap", ...theme.typography.body2, ...sx }}
+      {...props}
     >
       &nbsp;({dropChanceString(drop.Rate)})
     </MonsterIdentifier>
