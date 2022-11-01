@@ -66,6 +66,12 @@ export default function HuntViewPage({
           title={
             <>
               <EditableText
+                sx={{
+                  maxWidth: 320,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
                 value={hunt.name}
                 enabled={isOwner}
                 onChange={(name) => renameHunt.mutate({ id: huntId, name })}

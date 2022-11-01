@@ -80,7 +80,9 @@ export function createHuntService({
         });
       }),
     rename: t.procedure
-      .input(zod.object({ id: huntType.shape.id, name: zod.string() }))
+      .input(
+        zod.object({ id: huntType.shape.id, name: zod.string().min(1).max(32) })
+      )
       .use(access(UserAccessLevel.User))
       .mutation(async ({ input: { id: huntId, name }, ctx }) => {
         await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
