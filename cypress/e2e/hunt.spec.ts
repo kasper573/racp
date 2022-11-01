@@ -9,38 +9,40 @@ import { waitForPageReady } from "../support/actions/common";
 before(resetData);
 
 let user: TestUser;
-function cleanSlate() {
+function gotoHuntsPageAsNewUser() {
   cy.visit("/"); // New visitor each test is a quicker way to get a clean slate than resetting all data
   user = nextTestUser();
   register(user.name, user.password, user.email);
   gotoMainMenuPage("Hunt");
 }
 
+const defaultHuntName = "new hunt";
+
 describe("list", () => {
   beforeEach(() => {
-    cleanSlate();
+    gotoHuntsPageAsNewUser();
     cy.findByRole("button", { name: /create new hunt/i }).click();
   });
 
   it("can create new hunt", () => {
-    findListedHuntTitle("new hunt").should("exist");
+    findListedHuntTitle(defaultHuntName).should("exist");
   });
 
   it("can rename hunt", () => {
-    findListedHuntTitle("new hunt").clear().type("renamed hunt");
+    findListedHuntTitle(defaultHuntName).clear().type("renamed hunt");
     findListedHuntTitle("renamed hunt").should("exist");
   });
 
   it("can delete hunt", () => {
     cy.findByRole("button", { name: /delete hunt/i }).click();
     cy.findByRole("dialog").findByRole("button", { name: /ok/i }).click();
-    findListedHuntTitle("new hunt").should("not.exist");
+    findListedHuntTitle(defaultHuntName).should("not.exist");
   });
 });
 
 describe("details", () => {
   before(() => {
-    cleanSlate();
+    gotoHuntsPageAsNewUser();
     createHuntWithData({ itemAmount: 5, killsPerUnit: 7 });
   });
 
@@ -86,28 +88,34 @@ describe("details", () => {
 });
 
 describe("sharing", () => {
-  before(cleanSlate);
+  let notYourHuntUrl: string;
+  before(() => {
+    gotoHuntsPageAsNewUser();
+    createHuntWithData({ itemAmount: 4, killsPerUnit: 8 });
+    cy.url().then((url) => (notYourHuntUrl = url));
+    signOut();
+  });
 
   it("can view someone else's hunt as guest", () => {
-    gotoMainMenuPage("Hunt");
-    createHuntWithData({ itemAmount: 4, killsPerUnit: 8 });
-    cy.url().then((huntUrl) => {
-      signOut();
-      cy.visit(huntUrl);
-      waitForPageReady();
+    cy.visit(notYourHuntUrl);
+    waitForPageReady();
 
-      withinItemGrid(() => {
-        expectTableColumn("Item", () => /test item \[3]/i);
-        expectTableColumn("Amount", () => /^4$/);
-        expectTableColumn("Estimate", () => /^40s$/i);
-      });
-
-      withinMonsterGrid(() => {
-        expectTableColumn("Monster", () => /test monster/i);
-        expectTableColumn(/map/i, () => /test_map/i);
-        expectTableColumn("Kills per minute", () => /^8$/);
-      });
+    withinItemGrid(() => {
+      expectTableColumn("Item", () => /test item \[3]/i);
+      expectTableColumn("Amount", () => /^4$/);
+      expectTableColumn("Estimate", () => /^40s$/i);
     });
+
+    withinMonsterGrid(() => {
+      expectTableColumn("Monster", () => /test monster/i);
+      expectTableColumn(/map/i, () => /test_map/i);
+      expectTableColumn("Kills per minute", () => /^8$/);
+    });
+  });
+
+  it("can not see other users hunts in my own list", () => {
+    gotoHuntsPageAsNewUser();
+    findListedHuntTitle(defaultHuntName).should("not.exist");
   });
 });
 
