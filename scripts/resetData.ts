@@ -126,7 +126,12 @@ async function groupDatabaseDrivers(db: RAthenaDatabaseDriver) {
 }
 
 async function recursiveRemoveFiles(path: string) {
-  const files = await recursiveReadDir(path);
+  let files: string[];
+  try {
+    files = await recursiveReadDir(path);
+  } catch {
+    return; // Nothing to remove
+  }
   await Promise.all(files.map((file) => fs.promises.rm(file)));
 }
 
