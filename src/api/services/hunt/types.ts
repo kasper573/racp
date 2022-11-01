@@ -5,6 +5,8 @@ import {
   huntType,
 } from "../../../../prisma/zod";
 
+export const huntNameType = zod.string().min(1).max(32);
+
 export type HuntLimits = zod.infer<typeof huntLimitsType>;
 export const huntLimitsType = zod.object({
   hunts: zod.number().int(),

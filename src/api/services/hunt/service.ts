@@ -10,7 +10,7 @@ import {
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
 import { AdminSettingsRepository } from "../settings/repository";
-import { richHuntType } from "./types";
+import { huntNameType, richHuntType } from "./types";
 import { normalizeHunt } from "./utils/normalizeHunt";
 import { touchHunt } from "./utils/touchHunt";
 import { assertHuntAccess } from "./utils/assertHuntAccess";
@@ -80,9 +80,7 @@ export function createHuntService({
         });
       }),
     rename: t.procedure
-      .input(
-        zod.object({ id: huntType.shape.id, name: zod.string().min(1).max(32) })
-      )
+      .input(zod.object({ id: huntType.shape.id, name: huntNameType }))
       .use(access(UserAccessLevel.User))
       .mutation(async ({ input: { id: huntId, name }, ctx }) => {
         await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });

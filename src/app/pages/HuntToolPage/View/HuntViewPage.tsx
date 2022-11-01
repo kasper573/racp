@@ -1,5 +1,5 @@
 import { useStore } from "zustand";
-import { IconButton, Stack, Tooltip } from "@mui/material";
+import { IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import { Hunt } from "@prisma/client";
 import { ContentCopy, Visibility, VisibilityOff } from "@mui/icons-material";
 import { Item } from "../../../../api/services/item/types";
@@ -17,15 +17,20 @@ import {
 } from "../huntEditorStore";
 import { Header } from "../../../layout/Header";
 import { RouteComponentProps } from "../../../../lib/tsr/react/types";
-import { EditableText } from "../../../components/EditableText";
 import { LoadingPage } from "../../LoadingPage";
-import { ErrorMessage } from "../../../components/ErrorMessage";
+import {
+  ErrorMessage,
+  getErrorMessage,
+} from "../../../components/ErrorMessage";
 import { authStore } from "../../../state/auth";
 import { useHistory } from "../../../../lib/tsr/react/useHistory";
 import { routes } from "../../../router";
 import { Spaceless } from "../../../components/Spaceless";
+import { huntNameType } from "../../../../api/services/hunt/types";
 import { HuntedItemGrid } from "./HuntedItemGrid";
 import { HuntedMonsterGrid } from "./HuntedMonsterGrid";
+
+const nameMaxWidth = 320;
 
 export default function HuntViewPage({
   params: { id: huntId },
@@ -40,11 +45,7 @@ export default function HuntViewPage({
   const renameHunt = trpc.hunt.rename.useMutation();
   const { data: hunt, isLoading } = trpc.hunt.read.useQuery(huntId);
   const error =
-    addItem.error ||
-    renameHunt.error ||
-    copyHunt.error ||
-    publish.error ||
-    unpublish.error;
+    addItem.error || copyHunt.error || publish.error || unpublish.error;
   const isOwner = useIsHuntOwner(hunt);
 
   async function copyAndRedirect() {
@@ -65,18 +66,28 @@ export default function HuntViewPage({
         <Header
           title={
             <>
-              <EditableText
-                sx={{
-                  maxWidth: 320,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-                value={hunt.name}
-                enabled={isOwner}
-                onChange={(name) => renameHunt.mutate({ id: huntId, name })}
-                variant="h6"
-              />
+              {isOwner ? (
+                <TextField
+                  type="text"
+                  sx={{ width: nameMaxWidth }}
+                  value={hunt.name}
+                  issues={getErrorMessage(renameHunt.error?.data)}
+                  onChange={(name) => renameHunt.mutate({ id: huntId, name })}
+                  inputProps={{ maxLength: huntNameType.maxLength }}
+                />
+              ) : (
+                <Typography
+                  variant="h6"
+                  sx={{
+                    maxWidth: nameMaxWidth,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {hunt.name}
+                </Typography>
+              )}
               {
                 <Spaceless>
                   <Stack
