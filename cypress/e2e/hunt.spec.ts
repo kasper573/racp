@@ -84,6 +84,7 @@ describe("details", () => {
 
 describe("sharing", () => {
   it("can view someone else's hunt as guest", () => {
+    gotoMainMenuPage("Hunt");
     createHuntWithData({ itemAmount: 4, killsPerUnit: 8 });
     cy.url().then((huntUrl) => {
       signOut();
