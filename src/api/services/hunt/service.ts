@@ -112,19 +112,18 @@ export function createHuntService({
             message: `You cannot have more than ${limits.hunts} hunts.`,
           });
         }
+        const itemCopies = hunt.items.map(
+          ({ itemId, targetMonsterIds, amount }) => ({
+            itemId,
+            targetMonsterIds,
+            amount,
+          })
+        );
         const huntCopy = await db.hunt.create({
           data: {
             name: `${hunt.name} (copy)`,
             accountId: ctx.auth.id,
-            items: {
-              create: hunt.items.map(
-                ({ itemId, targetMonsterIds, amount }) => ({
-                  itemId,
-                  targetMonsterIds,
-                  amount,
-                })
-              ),
-            },
+            items: { create: itemCopies },
           },
         });
         await normalizeHunt(db, huntCopy.id);
