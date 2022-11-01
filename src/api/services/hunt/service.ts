@@ -1,6 +1,5 @@
 import * as zod from "zod";
 import { TRPCError } from "@trpc/server";
-import { HuntedItem } from "@prisma/client";
 import { t } from "../../trpc";
 import { RACPDatabaseClient } from "../../common/createRACPDatabaseClient";
 import {
@@ -113,18 +112,19 @@ export function createHuntService({
             message: `You cannot have more than ${limits.hunts} hunts.`,
           });
         }
-        const itemCopies = hunt.items.map(
-          ({ itemId, targetMonsterIds, amount }: HuntedItem) => ({
-            itemId,
-            targetMonsterIds,
-            amount,
-          })
-        );
         const huntCopy = await db.hunt.create({
           data: {
             name: `${hunt.name} (copy)`,
             accountId: ctx.auth.id,
-            items: { create: itemCopies },
+            items: {
+              create: hunt.items.map(
+                ({ itemId, targetMonsterIds, amount }) => ({
+                  itemId,
+                  targetMonsterIds,
+                  amount,
+                })
+              ),
+            },
           },
         });
         await normalizeHunt(db, huntCopy.id);
