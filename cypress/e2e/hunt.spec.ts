@@ -6,17 +6,19 @@ import { expectTableColumn } from "../support/actions/grid";
 import { resetData } from "../support/actions/admin";
 import { waitForPageReady } from "../support/actions/common";
 
+before(resetData);
+
 let user: TestUser;
-before(() => {
-  resetData();
-  cy.visit("/"); // New visitor each test
+function cleanSlate() {
+  cy.visit("/"); // New visitor each test is a quicker way to get a clean slate than resetting all data
   user = nextTestUser();
   register(user.name, user.password, user.email);
   gotoMainMenuPage("Hunt");
-});
+}
 
 describe("list", () => {
-  before(() => {
+  beforeEach(() => {
+    cleanSlate();
     cy.findByRole("button", { name: /create new hunt/i }).click();
   });
 
@@ -38,6 +40,7 @@ describe("list", () => {
 
 describe("details", () => {
   before(() => {
+    cleanSlate();
     createHuntWithData({ itemAmount: 5, killsPerUnit: 7 });
   });
 
@@ -83,6 +86,8 @@ describe("details", () => {
 });
 
 describe("sharing", () => {
+  before(cleanSlate);
+
   it("can view someone else's hunt as guest", () => {
     gotoMainMenuPage("Hunt");
     createHuntWithData({ itemAmount: 4, killsPerUnit: 8 });
@@ -116,6 +121,7 @@ function createHuntWithData({ itemAmount = 1, killsPerUnit = 1 }) {
 
   cy.findByRole("button", { name: /create new hunt/i }).click();
   cy.findByRole("link", { name: /view hunt/i }).click();
+  waitForPageReady();
 
   cy.findByLabelText("Add an item to hunt").type(name);
   waitForPageReady();
