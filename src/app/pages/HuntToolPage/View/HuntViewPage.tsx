@@ -69,6 +69,7 @@ export default function HuntViewPage({
               {isOwner ? (
                 <TextField
                   debounce
+                  variant="standard"
                   type="text"
                   sx={{ width: nameMaxWidth }}
                   value={hunt.name}
