@@ -30,7 +30,9 @@ describe("list", () => {
   });
 
   it("can rename hunt", () => {
-    findListedHuntTitle(defaultHuntName).clear().type("renamed hunt");
+    viewHunt();
+    cy.findByLabelText("Hunt name").clear().type("renamed hunt");
+    gotoMainMenuPage("Hunt");
     findListedHuntTitle("renamed hunt").should("exist");
   });
 

@@ -71,6 +71,7 @@ export default function HuntViewPage({
                   type="text"
                   sx={{ width: nameMaxWidth }}
                   value={hunt.name}
+                  aria-label="Hunt name"
                   issues={getErrorMessage(renameHunt.error?.data)}
                   onChange={(name) => renameHunt.mutate({ id: huntId, name })}
                   inputProps={{ maxLength: huntNameType.maxLength }}

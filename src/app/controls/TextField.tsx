@@ -79,6 +79,11 @@ export function TextField({
     optional ? enqueueChange(text ? text : undefined) : enqueueChange(text);
   }
 
+  let ariaLabel = props["aria-label"];
+  if (ariaLabel !== undefined) {
+    delete props["aria-label"];
+  }
+
   return (
     <MuiTextField
       size="small"
@@ -89,6 +94,7 @@ export function TextField({
       InputProps={{
         ...props.InputProps,
         readOnly,
+        componentsProps: { input: { "aria-label": ariaLabel } },
         endAdornment: !!issues.length && (
           <InputAdornment position="end">
             <Tooltip title={issues.join(", ")}>
