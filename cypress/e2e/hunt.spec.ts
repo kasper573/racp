@@ -44,7 +44,7 @@ describe("list", () => {
 describe("details", () => {
   before(() => {
     gotoHuntsPageAsNewUser();
-    createHuntWithData({ itemAmount: 5, killsPerUnit: 7 });
+    createHuntWithDetails({ itemAmount: 5, killsPerUnit: 7 });
   });
 
   it("can add item", () => {
@@ -89,32 +89,32 @@ describe("details", () => {
 });
 
 describe("sharing", () => {
-  let notYourHuntUrl: string;
-  before(() => {
+  it("is private by default", () => {
     gotoHuntsPageAsNewUser();
-    createHuntWithData({ itemAmount: 4, killsPerUnit: 8 });
-    cy.url().then((url) => (notYourHuntUrl = url));
-    signOut();
+    createHuntWithDetails();
+    cy.url().then((huntUrl) => {
+      signOut();
+      cy.visit(huntUrl);
+      waitForPageReady();
+      cy.contains("Unknown hunt");
+    });
   });
 
-  it("can view someone else's hunt as guest", () => {
-    cy.visit(notYourHuntUrl);
-    waitForPageReady();
-
-    withinItemGrid(() => {
-      expectTableColumn("Item", () => /test item \[3]/i);
-      expectTableColumn("Amount", () => /^4$/);
-      expectTableColumn("Estimate", () => /^40s$/i);
-    });
-
-    withinMonsterGrid(() => {
-      expectTableColumn("Monster", () => /test monster/i);
-      expectTableColumn(/map/i, () => /test_map/i);
-      expectTableColumn("Kills per minute", () => /^8$/);
+  it("can publish", () => {
+    gotoHuntsPageAsNewUser();
+    createHuntWithDetails({ itemAmount: 4, killsPerUnit: 8, publish: true });
+    cy.url().then((huntUrl) => {
+      signOut();
+      cy.visit(huntUrl);
+      waitForPageReady();
+      assertHuntDetails({ itemAmount: 4, estimate: "40s", killsPerUnit: 8 });
     });
   });
 
   it("can not see other users hunts in my own list", () => {
+    gotoHuntsPageAsNewUser();
+    createHunt();
+    signOut();
     gotoHuntsPageAsNewUser();
     findListedHuntTitle(defaultHuntName).should("not.exist");
   });
@@ -124,14 +124,52 @@ function findListedHuntTitle(huntName: string) {
   return cy.findByRole("heading", { name: ignoreCase(huntName) });
 }
 
-function createHuntWithData({ itemAmount = 1, killsPerUnit = 1 }) {
+function createHunt() {
+  cy.findByRole("button", { name: /create new hunt/i }).click();
+}
+
+function viewHunt() {
+  cy.findByRole("link", { name: /view hunt/i }).click();
+}
+
+function publishHunt() {
+  cy.findByRole("button", { name: /make public/i }).click();
+}
+
+function assertHuntDetails({
+  itemAmount = 1,
+  estimate = "1s",
+  killsPerUnit = 1,
+}) {
+  withinItemGrid(() => {
+    expectTableColumn("Item", () => /test item \[3]/i);
+    expectTableColumn("Amount", () => itemAmount);
+    expectTableColumn("Estimate", () => estimate);
+  });
+
+  withinMonsterGrid(() => {
+    expectTableColumn("Monster", () => /test monster/i);
+    expectTableColumn(/map/i, () => /test_map/i);
+    expectTableColumn("Kills per minute", () => killsPerUnit);
+  });
+}
+
+function createHuntWithDetails({
+  itemAmount = 1,
+  killsPerUnit = 1,
+  publish = false,
+} = {}) {
   const name = "test item";
   const nameRegex = ignoreCase(name, { exact: false });
 
-  cy.findByRole("button", { name: /create new hunt/i }).click();
+  createHunt();
   waitForPageReady();
-  cy.findByRole("link", { name: /view hunt/i }).click();
+  viewHunt();
   waitForPageReady();
+
+  if (publish) {
+    publishHunt();
+  }
 
   cy.findByLabelText("Add an item to hunt").type(name);
   waitForPageReady();

@@ -87,13 +87,19 @@ export default function HuntViewPage({
                   {isOwner &&
                     (hunt.isPublished ? (
                       <Tooltip title="Make private">
-                        <IconButton onClick={() => unpublish.mutate(huntId)}>
+                        <IconButton
+                          aria-label="Make private"
+                          onClick={() => unpublish.mutate(huntId)}
+                        >
                           <Visibility />
                         </IconButton>
                       </Tooltip>
                     ) : (
                       <Tooltip title="Make public">
-                        <IconButton onClick={() => publish.mutate(huntId)}>
+                        <IconButton
+                          aria-label="Make public"
+                          onClick={() => publish.mutate(huntId)}
+                        >
                           <VisibilityOff />
                         </IconButton>
                       </Tooltip>
