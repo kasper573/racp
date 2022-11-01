@@ -70,8 +70,8 @@ To run RACP you will need the following software installed on your machine:
 - Run `yarn api:dev` to start the api in dev mode.
 - Run `yarn app:dev` to start the app in dev mode.
 - Visit `http://localhost:8080/` in your browser.
-- (Optional) Run `yarn unit` to run the unit tests (add `--watch` to keep the runner active).
-- (Optional) Run `yarn cypress open` to run open the E2E test development tool.
+- (Optional) Run `yarn test:unit` to run the unit tests (add `--watch` to keep the runner active).
+- (Optional) Run `npx cypress open` to run open the E2E test development tool.
 
 ### Developing against a custom rAthena instance
 
@@ -100,10 +100,10 @@ As for unit tests, they are not required, but are encouraged for more complex un
 This is a fairly standard React + Express.js application, so you can use the provided [scripts](package.json) to manually manage a production deployment if you have the technical experience to do so:
 
 - Clone this repository a server matching the [prerequisites](#prerequisites)
-- Run `yarn api:prod` to start the api in prod mode.
-- Run `yarn app:prod` to start the app in prod mode.
+- Run `yarn build` to build both the API and pp, or `yarn (api|app):build` to build one.
+- Run `yarn serve` to serve both the API and app, or `yarn (api|app):serve` to serve one.
 
-You will need to provide the proper configuration options to the `api` and `app` commands, since only their `dev` variants come with all required configuration embedded. To see which configuration options are available:
+However, first you will need to provide the proper production configuration. To see which configuration options are available:
 
 - For the Api: run `yarn api:prod --help`. Options are set via CLI or environment variables.
 - For the App: check [webpack.config.ts](webpack.config.ts). Options are set via environment variables.
