@@ -105,7 +105,7 @@ This is a fairly standard React + Express.js application, so you can use the pro
 
 However, first you will need to provide the proper production configuration. To see which configuration options are available:
 
-- For the Api: run `yarn api:prod --help`. Options are set via CLI or environment variables.
+- For the Api: run `yarn api:serve --help`. Options are set via CLI or environment variables.
 - For the App: check [webpack.config.ts](webpack.config.ts). Options are set via environment variables.
 
 ### Automatic
