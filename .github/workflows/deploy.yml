@@ -69,6 +69,7 @@ jobs:
             export RACP_DATABASE_URL="file:./racp_prod.db"
 
             # Codegen required remotely since generated prisma code is node_modules, which is not uploaded
+            chmod -R a+rwX ./node_modules/.prisma
             yarn codegen:prisma
 
             # Perform migrations
