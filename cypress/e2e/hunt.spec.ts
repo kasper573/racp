@@ -123,10 +123,12 @@ function createHuntWithData({ itemAmount = 1, killsPerUnit = 1 }) {
   waitForPageReady();
 
   cy.get("#ItemAmount").clear().type(`${itemAmount}`);
+  waitForPageReady();
   cy.get("#ItemTargets").select(0);
   waitForPageReady();
 
   cy.get("#KillsPerUnit").clear().type(`${killsPerUnit}`);
+  waitForPageReady();
   cy.get("#MonsterSpawn").select(0);
   waitForPageReady();
 }

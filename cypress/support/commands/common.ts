@@ -12,7 +12,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("closePoppers", () => {
-  cy.get("body").click("bottomRight", { force: true });
+  cy.get("body").click("bottomRight");
 });
 
 Cypress.Commands.add(
