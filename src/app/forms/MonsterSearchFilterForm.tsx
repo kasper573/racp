@@ -26,8 +26,19 @@ export function MonsterSearchFilterForm({
 
   return (
     <>
-      <TextField label="ID" type="number" optional {...field("Id", "=")} />
-      <TextField label="Name" optional {...field("Name", "contains")} />
+      <TextField
+        debounce
+        label="ID"
+        type="number"
+        optional
+        {...field("Id", "=")}
+      />
+      <TextField
+        debounce
+        label="Name"
+        optional
+        {...field("Name", "contains")}
+      />
       <Select
         label="Race"
         multi

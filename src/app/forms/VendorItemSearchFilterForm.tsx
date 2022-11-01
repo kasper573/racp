@@ -24,13 +24,20 @@ export function VendorItemSearchFilterForm({
   return (
     <>
       <TextField
+        debounce
         label="Item ID"
         type="number"
         optional
         {...field("itemId", "=")}
       />
-      <TextField label="Item name" optional {...field("name", "contains")} />
       <TextField
+        debounce
+        label="Item name"
+        optional
+        {...field("name", "contains")}
+      />
+      <TextField
+        debounce
         label="Vendor"
         optional
         {...field("vendorTitle", "contains")}

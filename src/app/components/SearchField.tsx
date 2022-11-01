@@ -1,5 +1,6 @@
 import { ComponentProps, ComponentType, Key, ReactNode, useState } from "react";
 import { Autocomplete, Box, Popper, TextField } from "@mui/material";
+import { useDebounce } from "use-debounce";
 import { LoadingSpinner } from "./LoadingSpinner";
 
 export function SearchField<T>({
@@ -28,7 +29,10 @@ export function SearchField<T>({
 } & Pick<ComponentProps<typeof Box>, "sx" | "style" | "className">) {
   const [localValue, setLocalValue] = useState<T[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const { data: options = [], isLoading } = useQuery(searchQuery);
+  const [debouncedQuery, debounceControls] = useDebounce(searchQuery, 300);
+  const { data: options = [], isLoading: isSearching } =
+    useQuery(debouncedQuery);
+  const isLoading = debounceControls.isPending() || isSearching;
   return (
     <Autocomplete
       {...props}

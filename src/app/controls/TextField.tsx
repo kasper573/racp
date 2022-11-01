@@ -1,9 +1,8 @@
-import { ComponentProps, useCallback } from "react";
+import { ComponentProps } from "react";
 import { TextField as MuiTextField } from "@mui/material";
 import { util } from "zod/lib/helpers/util";
-import { debounce } from "lodash";
+import { useDebouncedCallback } from "use-debounce";
 import { htmlId } from "../util/htmlId";
-import { useLatest } from "../../lib/hooks/useLatest";
 import { useReinitializingState } from "../../lib/hooks/useReinitializingState";
 import MakePartial = util.MakePartial;
 
@@ -14,6 +13,7 @@ export type TFPropsVariant<
 > = Omit<ComponentProps<typeof MuiTextField>, "onChange" | "type"> & {
   type: Type;
   issues?: string[];
+  debounce?: number | boolean;
 } & (Optional extends true
     ? { optional: true; value?: Value; onChange?: (newValue?: Value) => void }
     : { optional?: false; value: Value; onChange?: (newValue: Value) => void });
@@ -28,9 +28,12 @@ export type TextFieldProps =
   | MakePartial<TFPropsVariant<"email", string, false>, "type">
   | MakePartial<TFPropsVariant<"email", string, true>, "type">;
 
+const defaultDebounceTime = 300;
+
 export function TextField({
   value,
   type,
+  debounce = false,
   onChange,
   optional,
   issues,
@@ -40,15 +43,12 @@ export function TextField({
 }: TextFieldProps) {
   const readOnly = onChange === undefined;
   const [text, setText] = useReinitializingState(valueToText(value));
-  const latestOnChange = useLatest(onChange);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const enqueueChange = useCallback(
-    debounce(
-      (output?: string | number) => (latestOnChange.current as any)?.(output),
-      300
-    ),
-    [latestOnChange]
+  const debounceTime = debounce === true ? defaultDebounceTime : debounce || 0;
+  const enqueueChange = useDebouncedCallback(
+    (output?: string | number) => (onChange as any)?.(output),
+    debounceTime
   );
 
   function tryEnqueueChange(text: string) {
@@ -80,7 +80,7 @@ export function TextField({
       value={text}
       disabled={readOnly}
       InputProps={{ ...props.InputProps, readOnly }}
-      onBlur={() => setText(valueToText(value))}
+      onBlur={() => enqueueChange.flush()}
       onChange={(e) => {
         setText(e.target.value);
         tryEnqueueChange(e.target.value);
