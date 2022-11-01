@@ -93,7 +93,9 @@ export default function HuntViewPage({
           useQuery={useItemSearchQuery}
           optionKey={(option) => option.Id}
           optionLabel={(option) => option.Name}
-          renderOption={(option) => <ItemIdentifier item={option} />}
+          renderOption={(option) => (
+            <ItemIdentifier link={false} item={option} />
+          )}
           startSearchingMessage="Enter the name of the item you want to hunt"
           noResultsText={(searchQuery) => `No items matching "${searchQuery}"`}
           label="Add an item to hunt"
