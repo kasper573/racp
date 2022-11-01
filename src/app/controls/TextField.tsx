@@ -1,7 +1,10 @@
-import { ComponentProps, useEffect, useState } from "react";
+import { ComponentProps, useCallback } from "react";
 import { TextField as MuiTextField } from "@mui/material";
 import { util } from "zod/lib/helpers/util";
+import { debounce } from "lodash";
 import { htmlId } from "../util/htmlId";
+import { useLatest } from "../../lib/hooks/useLatest";
+import { useReinitializingState } from "../../lib/hooks/useReinitializingState";
 import MakePartial = util.MakePartial;
 
 export type TFPropsVariant<
@@ -36,25 +39,34 @@ export function TextField({
   ...props
 }: TextFieldProps) {
   const readOnly = onChange === undefined;
-  const [text, setText] = useState(valueToText(value));
-  useEffect(() => setText(valueToText(value)), [value]);
+  const [text, setText] = useReinitializingState(valueToText(value));
+  const latestOnChange = useLatest(onChange);
 
-  function tryEmitChange(text: string) {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const enqueueChange = useCallback(
+    debounce(
+      (output?: string | number) => (latestOnChange.current as any)?.(output),
+      300
+    ),
+    [latestOnChange]
+  );
+
+  function tryEnqueueChange(text: string) {
     if (type === "number") {
       const trimmed = text.trim();
       if (optional && trimmed === "") {
-        onChange?.(undefined);
+        enqueueChange(undefined);
         return;
       }
       const num = parseFloat(trimmed);
       if (isNaN(num)) {
         return;
       }
-      onChange?.(num);
+      enqueueChange(num);
       return;
     }
 
-    optional ? onChange?.(text ? text : undefined) : onChange?.(text);
+    optional ? enqueueChange(text ? text : undefined) : enqueueChange(text);
   }
 
   return (
@@ -71,7 +83,7 @@ export function TextField({
       onBlur={() => setText(valueToText(value))}
       onChange={(e) => {
         setText(e.target.value);
-        tryEmitChange(e.target.value);
+        tryEnqueueChange(e.target.value);
       }}
       {...props}
     />
