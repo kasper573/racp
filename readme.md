@@ -51,7 +51,7 @@ Here's a list of what's experimental:
 - [A custom logger](src/lib/logger.ts) (Extremely pointless, I just wanted to code this. There's a million libraries that do exactly this)
 - [A custom resource library](src/lib/repo) (born out of necessity and inexperience with what's available off the shelf. I needed some abstraction around all the various static data formats rAthena provides)
 
-> Everything else however is pretty much industry standard.
+Everything else however is pretty much industry standard.
 
 ## Prerequisites
 
@@ -139,3 +139,10 @@ If you do not do this things like item descriptions, monster and map images, etc
 
 To do this, simply sign in to your admin account and go to the Assets page and use the asset uploader.
 Additional instructions are available on the page.
+
+## High level technical details
+
+- All rAthena specific code is abstracted away and located in the [rathena](src/api/rathena) folder. All API services are agnostic to the underlying data source.
+- The rAthena version we integrate towards is a fixed commit hash in package.json.
+- The rAthena database is interfaced with using [knex](https://knexjs.org/) and an introspected type definition generated with `yarn codegen:rathena`. Use this command and commit the changes to keep the knex bindings up to date whenever bumping the rAthena version.
+- The RACP database is defined using a standard [prisma](https://www.prisma.io/) setup.
