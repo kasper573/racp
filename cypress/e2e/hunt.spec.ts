@@ -21,7 +21,7 @@ const defaultHuntName = "new hunt";
 describe("list", () => {
   beforeEach(() => {
     gotoHuntsPageAsNewUser();
-    cy.findByRole("button", { name: /create new hunt/i }).click();
+    createHunt();
     waitForPageReady();
   });
 
