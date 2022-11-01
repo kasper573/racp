@@ -193,7 +193,7 @@ const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {
       const { data: hunt } = trpc.hunt.read.useQuery(item.huntId);
       const mayEdit = useIsHuntOwner(hunt);
       if (!mayEdit) {
-        return;
+        return <>&nbsp;</>;
       }
       return (
         <Tooltip title="Remove item from hunt list">
