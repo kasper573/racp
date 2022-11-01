@@ -1,7 +1,12 @@
 import { ComponentProps } from "react";
-import { TextField as MuiTextField } from "@mui/material";
+import {
+  InputAdornment,
+  TextField as MuiTextField,
+  Tooltip,
+} from "@mui/material";
 import { util } from "zod/lib/helpers/util";
 import { useDebouncedCallback } from "use-debounce";
+import { Error } from "@mui/icons-material";
 import { htmlId } from "../util/htmlId";
 import { useReinitializingState } from "../../lib/hooks/useReinitializingState";
 import MakePartial = util.MakePartial;
@@ -12,7 +17,7 @@ export type TFPropsVariant<
   Optional extends boolean
 > = Omit<ComponentProps<typeof MuiTextField>, "onChange" | "type"> & {
   type: Type;
-  issues?: string[];
+  issues?: string[] | string;
   debounce?: number | boolean;
 } & (Optional extends true
     ? { optional: true; value?: Value; onChange?: (newValue?: Value) => void }
@@ -36,13 +41,18 @@ export function TextField({
   debounce = false,
   onChange,
   optional,
-  issues,
+  issues: issuesOrIssue,
   label,
   id = typeof label === "string" ? htmlId(label) : undefined,
   ...props
 }: TextFieldProps) {
   const readOnly = onChange === undefined;
   const [text, setText] = useReinitializingState(valueToText(value));
+  const issues = Array.isArray(issuesOrIssue)
+    ? issuesOrIssue
+    : issuesOrIssue
+    ? [issuesOrIssue]
+    : [];
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debounceTime = debounce === true ? defaultDebounceTime : debounce || 0;
@@ -69,6 +79,11 @@ export function TextField({
     optional ? enqueueChange(text ? text : undefined) : enqueueChange(text);
   }
 
+  let ariaLabel = props["aria-label"];
+  if (ariaLabel !== undefined) {
+    delete props["aria-label"];
+  }
+
   return (
     <MuiTextField
       size="small"
@@ -76,10 +91,20 @@ export function TextField({
       id={id}
       label={label}
       error={(issues?.length ?? 0) > 0}
-      helperText={issues?.join(", ")}
+      InputProps={{
+        ...props.InputProps,
+        readOnly,
+        componentsProps: { input: { "aria-label": ariaLabel } },
+        endAdornment: !!issues.length && (
+          <InputAdornment position="end">
+            <Tooltip title={issues.join(", ")}>
+              <Error color="error" />
+            </Tooltip>
+          </InputAdornment>
+        ),
+      }}
       value={text}
       disabled={readOnly}
-      InputProps={{ ...props.InputProps, readOnly }}
       onBlur={() => enqueueChange.flush()}
       onChange={(e) => {
         setText(e.target.value);

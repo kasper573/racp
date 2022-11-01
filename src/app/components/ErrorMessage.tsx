@@ -26,6 +26,9 @@ export function getErrorMessage(error?: ErrorLike): string | undefined {
   if (!error) {
     return;
   }
+  if (Array.isArray(error)) {
+    return error.map(getErrorMessage).join(", ");
+  }
   if (typeof error === "string") {
     return error;
   }

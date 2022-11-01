@@ -10,7 +10,7 @@ import {
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
 import { AdminSettingsRepository } from "../settings/repository";
-import { richHuntType } from "./types";
+import { huntNameType, richHuntType } from "./types";
 import { normalizeHunt } from "./utils/normalizeHunt";
 import { touchHunt } from "./utils/touchHunt";
 import { assertHuntAccess } from "./utils/assertHuntAccess";
@@ -41,7 +41,7 @@ export function createHuntService({
     read: t.procedure
       .input(huntType.shape.id)
       .output(richHuntType)
-      .query(async ({ input: huntId }) => {
+      .query(async ({ input: huntId, ctx }) => {
         const hunt = await db.hunt.findFirst({
           where: { id: huntId },
           include: {
@@ -49,8 +49,14 @@ export function createHuntService({
             items: true,
           },
         });
+
         if (!hunt) {
           throw new TRPCError({ code: "NOT_FOUND" });
+        }
+        const isOwner = hunt.accountId === ctx.auth?.id;
+        const mayRead = hunt.isPublished || isOwner;
+        if (!mayRead) {
+          throw new TRPCError({ code: "UNAUTHORIZED" });
         }
         return hunt;
       }),
@@ -74,11 +80,31 @@ export function createHuntService({
         });
       }),
     rename: t.procedure
-      .input(zod.object({ id: huntType.shape.id, name: zod.string() }))
+      .input(zod.object({ id: huntType.shape.id, name: huntNameType }))
       .use(access(UserAccessLevel.User))
       .mutation(async ({ input: { id: huntId, name }, ctx }) => {
         await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
         await db.hunt.update({ data: { name }, where: { id: huntId } });
+      }),
+    publish: t.procedure
+      .input(huntType.shape.id)
+      .use(access(UserAccessLevel.User))
+      .mutation(async ({ input: huntId, ctx }) => {
+        await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
+        await db.hunt.update({
+          data: { isPublished: true },
+          where: { id: huntId },
+        });
+      }),
+    unpublish: t.procedure
+      .input(huntType.shape.id)
+      .use(access(UserAccessLevel.User))
+      .mutation(async ({ input: huntId, ctx }) => {
+        await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
+        await db.hunt.update({
+          data: { isPublished: false },
+          where: { id: huntId },
+        });
       }),
     delete: t.procedure
       .input(huntType.shape.id)

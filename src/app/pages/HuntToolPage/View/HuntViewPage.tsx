@@ -1,7 +1,7 @@
 import { useStore } from "zustand";
-import { IconButton, Stack, Tooltip } from "@mui/material";
+import { IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import { Hunt } from "@prisma/client";
-import { ContentCopy } from "@mui/icons-material";
+import { ContentCopy, Visibility, VisibilityOff } from "@mui/icons-material";
 import { Item } from "../../../../api/services/item/types";
 import { ItemIdentifier } from "../../../components/ItemIdentifier";
 import { trpc } from "../../../state/client";
@@ -17,15 +17,20 @@ import {
 } from "../huntEditorStore";
 import { Header } from "../../../layout/Header";
 import { RouteComponentProps } from "../../../../lib/tsr/react/types";
-import { EditableText } from "../../../components/EditableText";
 import { LoadingPage } from "../../LoadingPage";
-import { ErrorMessage } from "../../../components/ErrorMessage";
+import {
+  ErrorMessage,
+  getErrorMessage,
+} from "../../../components/ErrorMessage";
 import { authStore } from "../../../state/auth";
 import { useHistory } from "../../../../lib/tsr/react/useHistory";
 import { routes } from "../../../router";
 import { Spaceless } from "../../../components/Spaceless";
+import { huntNameType } from "../../../../api/services/hunt/types";
 import { HuntedItemGrid } from "./HuntedItemGrid";
 import { HuntedMonsterGrid } from "./HuntedMonsterGrid";
+
+const nameMaxWidth = 320;
 
 export default function HuntViewPage({
   params: { id: huntId },
@@ -35,9 +40,12 @@ export default function HuntViewPage({
   const isSignedIn = !!profile;
   const addItem = trpc.hunt.addItem.useMutation();
   const copyHunt = trpc.hunt.copy.useMutation();
+  const publish = trpc.hunt.publish.useMutation();
+  const unpublish = trpc.hunt.unpublish.useMutation();
   const renameHunt = trpc.hunt.rename.useMutation();
   const { data: hunt, isLoading } = trpc.hunt.read.useQuery(huntId);
-  const error = addItem.error || renameHunt.error || copyHunt.error;
+  const error =
+    addItem.error || copyHunt.error || publish.error || unpublish.error;
   const isOwner = useIsHuntOwner(hunt);
 
   async function copyAndRedirect() {
@@ -54,60 +62,106 @@ export default function HuntViewPage({
 
   return (
     <>
-      <Header
-        sx={{ mb: { md: 5, xs: 3 } }}
-        title={
-          <>
-            <EditableText
-              value={hunt.name}
-              enabled={isOwner}
-              onChange={(name) => renameHunt.mutate({ id: huntId, name })}
-              variant="h6"
-            />
-            {!isOwner && isSignedIn && (
-              <Spaceless>
-                <Tooltip title="Add a copy of this hunt to your account">
-                  <IconButton
+      <Stack spacing={2} sx={{ flex: 1 }}>
+        <Header
+          title={
+            <>
+              {isOwner ? (
+                <TextField
+                  debounce
+                  variant="standard"
+                  type="text"
+                  sx={{ width: nameMaxWidth }}
+                  value={hunt.name}
+                  aria-label="Hunt name"
+                  issues={getErrorMessage(renameHunt.error?.data)}
+                  onChange={(name) => renameHunt.mutate({ id: huntId, name })}
+                  inputProps={{ maxLength: huntNameType.maxLength }}
+                />
+              ) : (
+                <Typography
+                  variant="h6"
+                  sx={{
+                    maxWidth: nameMaxWidth,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {hunt.name}
+                </Typography>
+              )}
+              {
+                <Spaceless>
+                  <Stack
+                    direction="row"
                     sx={{ transform: "translate(8px, -50%)" }}
-                    onClick={copyAndRedirect}
                   >
-                    <ContentCopy />
-                  </IconButton>
-                </Tooltip>
-              </Spaceless>
-            )}
-          </>
-        }
-      />
-
-      {error && <ErrorMessage sx={{ mb: 2 }} error={error} />}
-
-      {isOwner && (
-        <SearchField<Item>
-          sx={{ width: "100%", mb: 3 }}
-          onSelected={([item]) => {
-            if (item) {
-              addItem.mutate({ huntId, itemId: item.Id });
-            }
-          }}
-          useQuery={useItemSearchQuery}
-          optionKey={(option) => option.Id}
-          optionLabel={(option) => option.Name}
-          renderOption={(option) => (
-            <ItemIdentifier link={false} item={option} />
-          )}
-          startSearchingMessage="Enter the name of the item you want to hunt"
-          noResultsText={(searchQuery) => `No items matching "${searchQuery}"`}
-          label="Add an item to hunt"
+                    {!isOwner && isSignedIn && (
+                      <Tooltip title="Add a copy of this hunt to your account">
+                        <IconButton onClick={copyAndRedirect}>
+                          <ContentCopy />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                    {isOwner &&
+                      (hunt.isPublished ? (
+                        <Tooltip title="Make private">
+                          <IconButton
+                            aria-label="Make private"
+                            onClick={() => unpublish.mutate(huntId)}
+                          >
+                            <Visibility />
+                          </IconButton>
+                        </Tooltip>
+                      ) : (
+                        <Tooltip title="Make public">
+                          <IconButton
+                            aria-label="Make public"
+                            onClick={() => publish.mutate(huntId)}
+                          >
+                            <VisibilityOff />
+                          </IconButton>
+                        </Tooltip>
+                      ))}
+                  </Stack>
+                </Spaceless>
+              }
+            </>
+          }
         />
-      )}
 
-      {isOwner && <Settings />}
+        {error && <ErrorMessage error={error} />}
 
-      <CommonPageGrid sx={{ flex: 1 }} pixelCutoff={1400} flexValues={[5, 3]}>
-        <HuntedItemGrid items={hunt.items} />
-        <HuntedMonsterGrid monsters={hunt.monsters} />
-      </CommonPageGrid>
+        {isOwner && <Settings />}
+
+        {isOwner && (
+          <SearchField<Item>
+            sx={{ width: "100%" }}
+            onSelected={([item]) => {
+              if (item) {
+                addItem.mutate({ huntId, itemId: item.Id });
+              }
+            }}
+            useQuery={useItemSearchQuery}
+            optionKey={(option) => option.Id}
+            optionLabel={(option) => option.Name}
+            renderOption={(option) => (
+              <ItemIdentifier link={false} item={option} />
+            )}
+            startSearchingMessage="Enter the name of the item you want to hunt"
+            noResultsText={(searchQuery) =>
+              `No items matching "${searchQuery}"`
+            }
+            label="Add an item to hunt"
+          />
+        )}
+
+        <CommonPageGrid sx={{ flex: 1 }} pixelCutoff={1400} flexValues={[5, 3]}>
+          <HuntedItemGrid items={hunt.items} />
+          <HuntedMonsterGrid monsters={hunt.monsters} />
+        </CommonPageGrid>
+      </Stack>
     </>
   );
 }
@@ -120,8 +174,9 @@ function Settings() {
       spacing={2}
       direction="row"
       sx={{
-        mt: { xs: 3, md: 0 },
-        position: { md: "absolute" },
+        position: { lg: "absolute" },
+        mt: { lg: "0 !important" },
+        alignSelf: "flex-end",
         top: 0,
         right: 0,
       }}
