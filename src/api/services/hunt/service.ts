@@ -1,5 +1,6 @@
 import * as zod from "zod";
 import { TRPCError } from "@trpc/server";
+import { HuntedItem } from "@prisma/client";
 import { t } from "../../trpc";
 import { RACPDatabaseClient } from "../../common/createRACPDatabaseClient";
 import {
@@ -113,7 +114,7 @@ export function createHuntService({
           });
         }
         const itemCopies = hunt.items.map(
-          ({ itemId, targetMonsterIds, amount }) => ({
+          ({ itemId, targetMonsterIds, amount }: HuntedItem) => ({
             itemId,
             targetMonsterIds,
             amount,
