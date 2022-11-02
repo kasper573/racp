@@ -79,9 +79,6 @@ jobs:
           export NODE_ENV=production
           yarn build
 
-      - name: Make sure http server can read from dist
-        run: chmod -R a+rwX ./dist
-
       - name: Run e2e tests
         run: yarn test:e2e
         env:
