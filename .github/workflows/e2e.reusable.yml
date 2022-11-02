@@ -76,9 +76,6 @@ jobs:
           MYSQL_PASSWORD: racp
           MYSQL_DATABASE: racp
 
-      - name: Inject RAthena fixtures
-        run: yarn inject-rathena-fixtures
-
       - name: Build everything
         run: |
           export NODE_ENV=production

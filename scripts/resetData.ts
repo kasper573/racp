@@ -54,11 +54,14 @@ async function resetData() {
       const { database } = await driver.dbInfo();
       logger.log(`Truncating database for drivers: ${group}`);
       await runSqlQuery(conn, createTruncateDBQuery(database));
-      const sqlFiles = uniq(
-        group.map((name) => path.resolve(args.rAthenaPath, sqlFilesPerDb[name]))
+      const relativeSqlFiles = uniq(
+        group.map((driverName) => sqlFilesPerDb[driverName])
       );
-      for (const sqlFile of sqlFiles) {
-        const sqlQuery = await fs.promises.readFile(sqlFile, "utf-8");
+      for (const relativeSqlFile of relativeSqlFiles) {
+        const [sqlFile, sqlQuery] = await resolveRAthenaSqlFile(
+          args.rAthenaPath,
+          relativeSqlFile
+        );
         logger.log(`Executing sql file: ${sqlFile}`);
         await runSqlQuery(conn, sqlQuery);
       }
@@ -112,6 +115,29 @@ const sqlFilesPerDb: Record<string, string> = {
   log_db: "sql-files/logs.sql",
 };
 
+async function resolveRAthenaSqlFile(
+  rAthenaPath: string,
+  sqlFileRelativePath: string
+) {
+  const localSqlFile = path.resolve(rAthenaPath, sqlFileRelativePath);
+  try {
+    return [
+      localSqlFile,
+      await fs.promises.readFile(localSqlFile, "utf8"),
+    ] as const;
+  } catch {
+    const fallbackSqlFile = path.resolve(
+      __dirname,
+      "../node_modules/rathena",
+      sqlFileRelativePath
+    );
+    return [
+      fallbackSqlFile,
+      await fs.promises.readFile(fallbackSqlFile, "utf8"),
+    ] as const;
+  }
+}
+
 async function groupDatabaseDrivers(db: RAthenaDatabaseDriver) {
   const dbInfos = await Promise.all(db.all.map((one) => one.dbInfo()));
   const ids = dbInfos.map((one) => `${one.host}:${one.port}:${one.database}`);
@@ -139,7 +165,7 @@ function runSqlQuery(conn: mysql.Connection, query: string) {
   return new Promise<void>((resolve, reject) =>
     conn.query(query, (err) => {
       if (err) {
-        reject(err);
+        reject(`${err}`.slice(0, 150));
       } else {
         resolve();
       }
