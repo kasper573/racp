@@ -77,40 +77,41 @@ jobs:
           MYSQL_PASSWORD: racp
           MYSQL_DATABASE: racp
 
-      - name: Build everything
+      - name: Build
         run: yarn build
         env:
           NODE_ENV: production
 
+      - name: Run e2e tests
+        run: yarn test:e2e
+        env:
+          NODE_ENV: production
+          CYPRESS_VIEWPORT_WIDTH: ${{ inputs.width }}
+          CYPRESS_VIEWPORT_HEIGHT: ${{ inputs.height }}
+
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: E2E Test Report (${{ inputs.name }})
+          path: cypress/reports/**/*.xml
+          reporter: java-junit
+          fail-on-error: false
+
       - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: cypress-screenshots-${{ inputs.name }}
+          path: cypress/screenshots
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: cypress-videos-${{ inputs.name }}
+          path: cypress/videos
+
+      - uses: actions/upload-artifact@v3
+        if: failure()
         with:
           name: dist-${{ inputs.name }}
           path: dist
-#
-#      - name: Run e2e tests
-#        run: yarn test:e2e
-#        env:
-#          NODE_ENV: production
-#          CYPRESS_VIEWPORT_WIDTH: ${{ inputs.width }}
-#          CYPRESS_VIEWPORT_HEIGHT: ${{ inputs.height }}
-#
-#      - name: Test Report
-#        uses: dorny/test-reporter@v1
-#        if: always()
-#        with:
-#          name: E2E Test Report (${{ inputs.name }})
-#          path: cypress/reports/**/*.xml
-#          reporter: java-junit
-#          fail-on-error: false
-#
-#      - uses: actions/upload-artifact@v3
-#        if: failure()
-#        with:
-#          name: cypress-screenshots-${{ inputs.name }}
-#          path: cypress/screenshots
-#
-#      - uses: actions/upload-artifact@v3
-#        if: always()
-#        with:
-#          name: cypress-videos-${{ inputs.name }}
-#          path: cypress/videos
