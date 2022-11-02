@@ -56,21 +56,21 @@ describe("details", () => {
   it("can estimate farm time in kills per minute", () => {
     cy.get("#KillScale").select("Kills per minute");
     withinItemGrid(() => {
-      expectTableColumn("Estimate", () => /57s/i);
+      expectTableColumn("Estimate", () => /1m 25s/i);
     });
   });
 
   it("can estimate farm time in kills per minute", () => {
     cy.get("#KillScale").select("Kills per hour");
     withinItemGrid(() => {
-      expectTableColumn("Estimate", () => /57m 8s/i);
+      expectTableColumn("Estimate", () => /1h 25m/i);
     });
   });
 
   it("can estimate farm time in kills per minute", () => {
     cy.get("#KillScale").select("Kills per day");
     withinItemGrid(() => {
-      expectTableColumn("Estimate", () => /22h 51m/i);
+      expectTableColumn("Estimate", () => /1d 10h/i);
     });
   });
 
@@ -78,7 +78,7 @@ describe("details", () => {
     cy.get("#KillScale").select("Kills per day");
     cy.findByLabelText("Drop Rate Multiplier").clear().type("15");
     withinItemGrid(() => {
-      expectTableColumn("Estimate", () => /1h 31m/i);
+      expectTableColumn("Estimate", () => /2h 17m/i);
     });
   });
 
@@ -98,7 +98,6 @@ describe("sharing", () => {
     cy.url().then((huntUrl) => {
       signOut();
       cy.visit(huntUrl);
-      waitForPageReady();
       cy.contains("Unknown hunt");
     });
   });
@@ -109,7 +108,6 @@ describe("sharing", () => {
     cy.url().then((huntUrl) => {
       signOut();
       cy.visit(huntUrl);
-      waitForPageReady();
       assertHuntDetails({ itemAmount: 4, estimate: "40s", killsPerUnit: 8 });
     });
   });

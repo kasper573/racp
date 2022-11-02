@@ -39,7 +39,7 @@ export function estimateHuntDuration({
   kpxUnit,
   dropChanceMultiplier,
 }: {
-  hunt?: RichHunt;
+  hunt?: RichHunt | null;
   drops: Pick<ItemDrop, "ItemId" | "MonsterId" | "Rate">[];
   kpxUnit: KpxUnit;
   dropChanceMultiplier: number;
@@ -102,7 +102,7 @@ export const kpxUnitScales: Record<KpxUnit, number> = {
   "Kills per day": 1000 * 60 * 60 * 24,
 };
 
-export function useIsHuntOwner(hunt?: RichHunt) {
+export function useIsHuntOwner(hunt?: RichHunt | null) {
   const { profile } = useStore(authStore);
   return !!(hunt && profile && hunt.accountId === profile.id);
 }
