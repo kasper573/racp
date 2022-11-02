@@ -50,6 +50,8 @@ enableMapSet();
 const args = readCliArgs(createOptions(process.cwd()));
 const logger = createLogger(coloredConsole, { format: logFormat });
 
+console.log("Starting server with args", args);
+
 const app = express();
 const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
 const radb = createRAthenaDatabaseDriver({ ...args, logger });

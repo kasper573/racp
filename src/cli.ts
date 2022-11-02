@@ -11,6 +11,7 @@ export function readCliArgs<T extends Record<string, Options>>(options: T) {
   return yargs(withEnvArgs(process.argv.slice(2), options))
     .version(false)
     .options(options)
+    .parserConfiguration({ "strip-aliased": true, "strip-dashed": true })
     .parseSync();
 }
 
