@@ -49,10 +49,11 @@ jobs:
           cache: "yarn"
       - run: yarn install --frozen-lockfile
       - run: yarn api:build
-      - run: |
-          export NODE_ENV=production
-          export donationEnvironment=fake
-          yarn test:integration
+      - name: Test rAthena integration
+        env:
+          NODE_ENV: production
+          donationEnvironment: fake
+        run: yarn test:integration
 
   e2e-widescreen:
     uses: ./.github/workflows/e2e.reusable.yml
