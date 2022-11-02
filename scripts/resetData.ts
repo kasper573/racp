@@ -5,7 +5,7 @@ import { promisify } from "util";
 import { groupBy, pick, uniq } from "lodash";
 import recursiveReadDir = require("recursive-readdir");
 import * as mysql from "mysql";
-import { readCliArgs } from "../src/lib/cli";
+import { readCliArgs } from "../src/cli";
 import { options } from "../src/api/options";
 import { createLogger } from "../src/lib/logger";
 import { createUserRepository } from "../src/api/services/user/repository";
@@ -39,11 +39,9 @@ async function resetData() {
 
   // Remove uploaded files
   logger.log("Removing uploaded files...");
-  const dataFolder = path.join(__dirname, "..", args.dataFolder);
-  const publicFolder = path.join(__dirname, "..", args.publicFolder);
   await Promise.all([
-    recursiveRemoveFiles(dataFolder),
-    recursiveRemoveFiles(publicFolder),
+    recursiveRemoveFiles(args.dataFolder),
+    recursiveRemoveFiles(args.publicFolder),
   ]);
 
   // Reset rAthena databases
@@ -70,7 +68,8 @@ async function resetData() {
 
   // Reset RACP database
   const { stdout, stderr } = await execAsync(
-    "npx prisma migrate reset --force"
+    "npx prisma migrate reset --force",
+    { cwd: path.resolve(__dirname, "..") }
   );
   if (stderr) {
     logger.error(stderr);

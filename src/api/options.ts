@@ -1,6 +1,7 @@
-// Common yargs CLI argument options used in all scripts
-
+import * as path from "path";
 import { donationEnvironments } from "./services/donation/types";
+
+// Common yargs CLI argument options used in most scripts
 
 export const options = {
   hostname: {
@@ -34,20 +35,23 @@ export const options = {
   },
   rAthenaPath: {
     type: "string",
+    coerce: ensureAbsolutePath,
     required: true,
-    description: "Absolute path to your rAthena folder",
+    description: "Path to your rAthena folder (absolute or relative to root)",
   },
   dataFolder: {
     type: "string",
     default: "data",
+    coerce: ensureAbsolutePath,
     description:
-      "Folder to store non-public file uploads in (relative to root)",
+      "Folder to store non-public file uploads in (absolute or relative to root)",
   },
   publicFolder: {
     type: "string",
     default: "assets",
+    coerce: ensureAbsolutePath,
     description:
-      "Folder to mount public web server files in (relative to root)",
+      "Folder to mount public web server files in (absolute or relative to root)",
   },
   donationEnvironment: {
     type: "string",
@@ -69,3 +73,10 @@ export const options = {
       "but can be disabled for development for improved DX.",
   },
 } as const;
+
+const rootFolder = path.resolve(__dirname, "../../");
+function ensureAbsolutePath(possiblyRelativePath: string) {
+  return path.isAbsolute(possiblyRelativePath)
+    ? possiblyRelativePath
+    : path.resolve(rootFolder, possiblyRelativePath);
+}

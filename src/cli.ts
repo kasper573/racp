@@ -1,6 +1,11 @@
-import "dotenv-flow/config";
+import * as path from "path";
+import * as dotEnvFlow from "dotenv-flow";
 import { Options } from "yargs";
 import yargs = require("yargs");
+
+dotEnvFlow.config({
+  path: path.resolve(__dirname, "../"),
+});
 
 export function readCliArgs<T extends Record<string, Options>>(options: T) {
   return yargs(withEnvArgs(process.argv.slice(2), options))

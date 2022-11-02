@@ -1,5 +1,4 @@
 import * as http from "http";
-import * as path from "path";
 import * as express from "express";
 import cors = require("cors");
 import { Request as JWTRequest } from "express-jwt";
@@ -8,7 +7,7 @@ import { enableMapSet } from "immer";
 import { createLogger } from "../lib/logger";
 import { createPublicFileLinker } from "../lib/fs/createPublicFileLinker";
 import { createImageFormatter } from "../lib/image/createImageFormatter";
-import { readCliArgs } from "../lib/cli";
+import { readCliArgs } from "../cli";
 import { loggerToMorgan } from "../lib/loggerToMorgan";
 import { createRAthenaDatabaseDriver } from "./rathena/RAthenaDatabaseDriver";
 import {
@@ -57,7 +56,7 @@ const radb = createRAthenaDatabaseDriver({ ...args, logger });
 const cpdb = createRACPDatabaseClient();
 const formatter = createImageFormatter({ extension: ".png", quality: 70 });
 const linker = createPublicFileLinker({
-  directory: path.join(process.cwd(), args.publicFolder),
+  directory: args.publicFolder,
   hostname: args.hostname,
   port: args.apiPort,
 });
