@@ -2,7 +2,7 @@ import "dotenv-flow/config";
 import "webpack-dev-server";
 import * as path from "path";
 import * as webpack from "webpack";
-import { omit } from "lodash";
+import { pick } from "lodash";
 import ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 import ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 import HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -35,7 +35,7 @@ const config: webpack.Configuration = {
   devtool: isDevBuild ? "source-map" : undefined,
   mode: isDevBuild ? "development" : "production",
   plugins: defined([
-    new webpack.EnvironmentPlugin(omit(env, "reactRefresh")),
+    new webpack.EnvironmentPlugin(pick(env, "NODE_ENV", "apiBaseUrl")),
     new HtmlWebpackPlugin({
       favicon: path.resolve(appDirectory, "favicon.png"),
       template: path.resolve(appDirectory, "index.html"),
