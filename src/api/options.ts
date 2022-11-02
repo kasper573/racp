@@ -21,6 +21,7 @@ export function createOptions(
     apiPort: {
       type: "number",
       description: "The port to run the api server on",
+      required: true,
     },
     log: {
       choices: ["verbose", "truncated"] as const,

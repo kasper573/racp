@@ -15,8 +15,8 @@ import { readCliArgs } from "./src/cli";
 const env = readCliArgs({
   NODE_ENV: { type: "string", default: "development" },
   reactRefresh: { type: "boolean", default: false },
-  apiBaseUrl: { type: "string" },
-  appPort: { type: "number" },
+  apiBaseUrl: { type: "string", required: true },
+  appPort: { type: "number", required: true },
   analyzeBundles: { type: "boolean", default: false },
 });
 
