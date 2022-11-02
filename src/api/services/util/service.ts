@@ -1,3 +1,4 @@
+import * as path from "path";
 import * as zod from "zod";
 import { t } from "../../trpc";
 import { bufferToLuaCode, parseLuaTableAs } from "../../common/parseLuaTableAs";
@@ -10,8 +11,9 @@ import { ReducedLuaTables, reducedLuaTables } from "./types";
 
 export type UtilService = ReturnType<typeof createUtilService>;
 
-export function createUtilService() {
+export function createUtilService(binFolder: string) {
   const unluac = createUnluac({
+    jarFile: path.resolve(binFolder, "unluac.jar"),
     write: gfs.writeFile,
     read: gfs.readFile,
     remove: gfs.unlink,

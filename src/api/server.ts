@@ -1,4 +1,5 @@
 import * as http from "http";
+import * as path from "path";
 import * as express from "express";
 import cors = require("cors");
 import { Request as JWTRequest } from "express-jwt";
@@ -99,7 +100,7 @@ if (args.validateResources) {
 }
 
 const router = createApiRouter({
-  util: createUtilService(),
+  util: createUtilService(path.resolve(rootFolder, "bin")),
   user: createUserService({ radb, user, sign: auth.sign, ...args }),
   item: createItemService(items),
   monster: createMonsterService({ radb, repo: monsters }),
