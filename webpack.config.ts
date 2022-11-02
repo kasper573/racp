@@ -2,7 +2,6 @@ import "dotenv-flow/config";
 import "webpack-dev-server";
 import * as path from "path";
 import * as webpack from "webpack";
-import { load as loadEnv } from "ts-dotenv";
 import { omit } from "lodash";
 import ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 import ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
@@ -11,13 +10,14 @@ import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
 import { WebpackPluginInstance } from "webpack";
 import { defined } from "./src/lib/std/defined";
 import { rootId } from "./src/app/layout/globalStyles";
+import { readCliArgs } from "./src/cli";
 
-const env = loadEnv({
-  NODE_ENV: { type: String, default: "development" },
-  reactRefresh: { type: Boolean, optional: true },
-  apiBaseUrl: { type: String, default: "/" },
-  appPort: { type: Number, default: 8080 },
-  analyzeBundles: { type: Boolean, default: false },
+const env = readCliArgs({
+  NODE_ENV: { type: "string", default: "development" },
+  reactRefresh: { type: "boolean", default: false },
+  apiBaseUrl: { type: "string" },
+  appPort: { type: "number" },
+  analyzeBundles: { type: "boolean", default: false },
 });
 
 console.log("Building app with options", env);

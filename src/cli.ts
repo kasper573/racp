@@ -7,7 +7,11 @@ export function readCliArgs<T extends Record<string, Options>>(
   options: T,
   rootFolder: string = path.resolve(__dirname, "..")
 ) {
-  dotEnvFlow.config({ path: rootFolder, purge_dotenv: true });
+  dotEnvFlow.config({
+    path: rootFolder,
+    default_node_env: "development",
+    purge_dotenv: true,
+  });
 
   return yargs(withEnvArgs(process.argv.slice(2), options))
     .version(false)

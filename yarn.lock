@@ -10375,11 +10375,6 @@ trim-right@^1.0.1:
   resolved "https://registry.yarnpkg.com/trim-right/-/trim-right-1.0.1.tgz#cb2e1203067e0c8de1f614094b9fe45704ea6003"
   integrity sha512-WZGXGstmCWgeevgTL54hrCuw1dyMQIzWy7ZfqRJfSmJZBwklI15egmQytFP6bPidmw3M8d5yEowl1niq4vmqZw==
 
-ts-dotenv@0.8.3:
-  version "0.8.3"
-  resolved "https://registry.yarnpkg.com/ts-dotenv/-/ts-dotenv-0.8.3.tgz#1c8dbda2601bc7f088fa45248120d40c212f8594"
-  integrity sha512-S1wYF0j0C02SaV+escizhCcq0bC58as87cW7M+9zYnEhlgihGEU/Sl+CoshT2VU6Gp7wSrsoaOgt5OSBgsVaVA==
-
 ts-jest@28.0.3:
   version "28.0.3"
   resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-28.0.3.tgz#d1c47f167e56eef3989bb51afaf7fc1c87a04c52"
