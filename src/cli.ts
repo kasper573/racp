@@ -1,23 +1,28 @@
 import * as path from "path";
 import * as dotEnvFlow from "dotenv-flow";
-import { Options } from "yargs";
+import { InferredOptionTypes, Options } from "yargs";
 import yargs = require("yargs");
 
 export function readCliArgs<T extends Record<string, Options>>(
   options: T,
   rootFolder: string = path.resolve(__dirname, "..")
-) {
+): InferredOptionTypes<T> {
   dotEnvFlow.config({
     path: rootFolder,
     default_node_env: "development",
     purge_dotenv: true,
   });
 
-  return yargs(withEnvArgs(process.argv.slice(2), options))
+  const { _, $0, ...args } = yargs(withEnvArgs(process.argv.slice(2), options))
     .version(false)
     .options(options)
-    .parserConfiguration({ "strip-aliased": true, "strip-dashed": true })
+    .parserConfiguration({
+      "strip-aliased": true,
+      "strip-dashed": true,
+    })
     .parseSync();
+
+  return args as InferredOptionTypes<T>;
 }
 
 /**
