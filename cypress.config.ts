@@ -15,7 +15,6 @@ export default defineConfig({
   chromeWebSecurity: false,
 
   e2e: {
-    requestTimeout: 60000, // Very high to avoid flakiness caused by admin operations causing API to clear cache
     specPattern: "cypress/**/*.spec.ts",
     setupNodeEvents(on, config) {
       return dotenvFlowPlugin(config, undefined, true);

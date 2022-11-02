@@ -7,18 +7,14 @@ export function menuSlide(name: string, newValueOrValues: number | number[]) {
   cy.findByRole("textbox", { name, hidden: true }).click({ force: true }); // Close menu
 }
 
-export function waitForPageReady(
-  // Long default timeout because a lot of e2e tests involve admin operations
-  // which cause the API to rebuild cache, which may take a while.
-  timeout = 60000
-) {
-  cy.waitForNetworkIdle(200); // Make sure page has been loaded
+export function waitForPageReady(timeout?: number) {
+  cy.waitForNetworkIdle(100); // Make sure page has been loaded
 
   // Page is ready when no loading spinner has been visible for 1 second
   cy.get("body").then(($body) =>
     cy.shouldFor(
       () => $body.find(`[data-testid="loading-spinner"]`).length === 0,
-      1000,
+      100,
       { timeout, name: "No loading spinner" }
     )
   );

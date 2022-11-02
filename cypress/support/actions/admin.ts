@@ -18,9 +18,7 @@ export function uploadAssets() {
   cy.selectFileByName("data", `${fixtures}/data.grf`);
   cy.findByRole("button", { name: "Upload" }).click();
 
-  // Uploads will cause the API to rebuild cache a lot which can take some time,
-  // so having a long timeout here is a good safety measure against flake.
-  waitForPageReady(60 * 1000 * 2);
+  waitForPageReady();
 
   cy.contains("Upload completed");
   cy.contains("Errors during upload").should("not.exist");
