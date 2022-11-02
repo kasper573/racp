@@ -20,7 +20,7 @@
     "test:unit": "jest src --passWithNoTests",
     "test:component": "cypress run --component",
     "test:integration": "cross-env rAthenaPath=node_modules/rathena yarn api:serve --validateResources",
-    "test:e2e": "cross-var npx start-server-and-test serve $CYPRESS_BASE_URL 'cypress run'",
+    "test:e2e": "cross-var npx start-server-and-test serve $CYPRESS_BASE_URL 'cypress run --record'",
     "reset-data": "cd scripts && node -r @swc-node/register resetData.ts",
     "configure-rathena": "ts-node --files scripts/configureRAthena.ts",
     "analyze-bundles": "cross-env NODE_ENV=production analyzeBundles=true webpack"
