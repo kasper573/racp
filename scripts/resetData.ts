@@ -164,7 +164,7 @@ function runSqlQuery(conn: mysql.Connection, query: string) {
   return new Promise<void>((resolve, reject) =>
     conn.query(query, (err) => {
       if (err) {
-        reject(`${err}`.slice(0, 150));
+        reject(err);
       } else {
         resolve();
       }
