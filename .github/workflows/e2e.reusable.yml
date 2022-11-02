@@ -78,7 +78,6 @@ jobs:
           NODE_ENV: production
 
       - uses: actions/upload-artifact@v3
-        if: failure()
         with:
           name: dist-${{ inputs.name }}
           path: dist
