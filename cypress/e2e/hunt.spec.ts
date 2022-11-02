@@ -108,7 +108,7 @@ describe("sharing", () => {
     cy.url().then((huntUrl) => {
       signOut();
       cy.visit(huntUrl);
-      assertHuntDetails({ itemAmount: 4, estimate: "40s", killsPerUnit: 8 });
+      assertHuntDetails({ itemAmount: 4, estimate: "1m", killsPerUnit: 8 });
     });
   });
 
