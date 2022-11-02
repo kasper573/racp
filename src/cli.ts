@@ -1,14 +1,21 @@
 import * as path from "path";
+import * as fs from "fs";
 import * as dotEnvFlow from "dotenv-flow";
 import { Options } from "yargs";
 import yargs = require("yargs");
 
-dotEnvFlow.config({
-  path: path.resolve(__dirname, "../"),
-});
+export function readCliArgs<T extends Record<string, Options>>(
+  options: T,
+  rootFolder: string = path.resolve(__dirname, "..")
+) {
+  const envType = process.env.NODE_ENV ?? "development";
+  const envFiles = dotEnvFlow
+    .listDotenvFiles(rootFolder, { node_env: envType })
+    .filter((file) => fs.existsSync(file))
+    .reverse();
+  const envVars = { ...process.env, ...dotEnvFlow.parse(envFiles) };
 
-export function readCliArgs<T extends Record<string, Options>>(options: T) {
-  return yargs(withEnvArgs(process.argv.slice(2), options))
+  return yargs(withEnvArgs(process.argv.slice(2), options, envVars))
     .version(false)
     .options(options)
     .parserConfiguration({ "strip-aliased": true, "strip-dashed": true })
@@ -19,11 +26,15 @@ export function readCliArgs<T extends Record<string, Options>>(options: T) {
  * Returns a new args array with env values for all given option names.
  * If argument is already provided the env value will be ignored.
  */
-function withEnvArgs(args: string[], options: Record<string, Options>) {
+function withEnvArgs(
+  args: string[],
+  options: Record<string, Options>,
+  env: Record<string, string | undefined>
+) {
   const updatedArgs: string[] = args.slice();
 
-  for (const key in process.env) {
-    const value = process.env[key];
+  for (const key in env) {
+    const value = env[key];
     const option = options[key];
     if (args.includes(arg(key)) || !value || !option) {
       continue;

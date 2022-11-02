@@ -47,7 +47,8 @@ import { createHuntService } from "./services/hunt/service";
 
 enableMapSet();
 
-const args = readCliArgs(createOptions(process.cwd()));
+const rootFolder = process.cwd();
+const args = readCliArgs(createOptions(rootFolder), rootFolder);
 const logger = createLogger(coloredConsole, { format: logFormat });
 
 console.log("Starting server with args", args);
