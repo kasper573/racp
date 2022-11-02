@@ -28,6 +28,8 @@ export function createMetaService({
 function collectMonsterMeta(monsters: Monster[]) {
   return {
     sizes: options(monsters, (i) => i.Size),
+    races: options(monsters, ({ Race }) => Race),
+    elements: options(monsters, ({ Element }) => Element),
     monsterModes: options(monsters, (i) => Object.keys(i.Modes ?? {})),
     monsterLevels: collectRange(monsters.map((m) => m.Level)),
     monsterWalkSpeeds: collectRange(monsters.map((m) => m.WalkSpeed ?? 0)),
@@ -45,9 +47,7 @@ function collectItemMeta(items: Item[]) {
     classes: options(items, (i) => Object.keys(i.Classes ?? {})),
     jobs: options(items, (item) => Object.keys(item.Jobs ?? {})),
     locations: options(items, (i) => Object.keys(i.Locations ?? {})),
-    elements: options(items, ({ Script }) => Script?.meta.elements),
     statuses: options(items, ({ Script }) => Script?.meta.statuses),
-    races: options(items, ({ Script }) => Script?.meta.races),
   };
 }
 
