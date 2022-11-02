@@ -81,7 +81,17 @@ const maps = createMapRepository({ ...monsters, resources });
 const skills = createSkillRepository(resources);
 const exp = createExpRepository(resources);
 
-if (args.preloadAllResources) {
+if (args.validateResources) {
+  Promise.all(resourceManager.instances).then(() => {
+    const failed =
+      resourceManager.instances.filter((r) => r.status.type === "rejected")
+        .length > 0;
+    failed
+      ? logger.error("Resource validation failed")
+      : logger.log("Resource validation passed");
+    process.exit(failed ? 1 : 0);
+  });
+} else if (args.preloadResources) {
   Promise.all(resourceManager.instances);
 }
 

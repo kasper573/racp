@@ -73,13 +73,22 @@ export function createOptions(
       description:
         "Set to true to share stack traces and error messages for internal server errors with clients.",
     },
-    preloadAllResources: {
+    preloadResources: {
       type: "boolean",
       default: false,
       description:
         "All resources will be preloaded on server start instead of on demand. Delays the server start, " +
         "but improves user experience for API consumers. Recommended for production, " +
         "but can be disabled for development for improved DX.",
+    },
+    validateResources: {
+      type: "boolean",
+      default: false,
+      description:
+        "Starts server, preloads all resources and looks for errors. " +
+        "Exits with 0 if no errors were found. Exits with a non-zero exit code if errors were found." +
+        "Useful as server is fault resistant by default and proceeds serving even if some resources fail. " +
+        "This command is intended for CI/CD pipelines.",
     },
   } as const;
 }
