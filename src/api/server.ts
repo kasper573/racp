@@ -51,7 +51,7 @@ const rootFolder = process.cwd();
 const args = readCliArgs(createOptions(rootFolder), rootFolder);
 const logger = createLogger(coloredConsole, { format: logFormat });
 
-console.log("Starting server with args", args);
+console.log("Starting API with options", args);
 
 const app = express();
 const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
