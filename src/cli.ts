@@ -1,5 +1,4 @@
 import * as path from "path";
-import * as fs from "fs";
 import * as dotEnvFlow from "dotenv-flow";
 import { Options } from "yargs";
 import yargs = require("yargs");
@@ -8,12 +7,8 @@ export function readCliArgs<T extends Record<string, Options>>(
   options: T,
   rootFolder: string = path.resolve(__dirname, "..")
 ) {
-  const envFiles = dotEnvFlow
-    .listDotenvFiles(rootFolder)
-    .filter((file) => fs.existsSync(file));
-  const envVars = { ...process.env, ...dotEnvFlow.parse(envFiles) };
-
-  return yargs(withEnvArgs(process.argv.slice(2), options, envVars))
+  const { parsed: env = process.env } = dotEnvFlow.config({ path: rootFolder });
+  return yargs(withEnvArgs(process.argv.slice(2), options, env))
     .version(false)
     .options(options)
     .parserConfiguration({ "strip-aliased": true, "strip-dashed": true })
