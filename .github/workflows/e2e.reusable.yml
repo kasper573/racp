@@ -76,13 +76,14 @@ jobs:
           MYSQL_DATABASE: racp
 
       - name: Build everything
-        run: |
-          export NODE_ENV=production
-          yarn build
+        run: yarn build
+        env:
+          NODE_ENV: production
 
       - name: Run e2e tests
         run: yarn test:e2e
         env:
+          NODE_ENV: production
           CYPRESS_VIEWPORT_WIDTH: ${{ inputs.width }}
           CYPRESS_VIEWPORT_HEIGHT: ${{ inputs.height }}
 
