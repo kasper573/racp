@@ -40,7 +40,7 @@ export function createHuntService({
       ),
     read: t.procedure
       .input(huntType.shape.id)
-      .output(richHuntType.nullable())
+      .output(richHuntType)
       .query(async ({ input: huntId, ctx }) => {
         const hunt = await db.hunt.findFirst({
           where: { id: huntId },
@@ -51,7 +51,7 @@ export function createHuntService({
         });
 
         if (!hunt) {
-          return null;
+          throw new TRPCError({ code: "FORBIDDEN", message: "Unknown hunt" });
         }
         const isOwner = hunt.accountId === ctx.auth?.id;
         const mayRead = hunt.isPublished || isOwner;
