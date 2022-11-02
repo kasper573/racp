@@ -4,9 +4,6 @@ on:
       CYPRESS_PROJECT_ID:
         description: "Cypress project ID"
         required: false
-      CYPRESS_RECORD_KEY:
-        description: "Cypress record key"
-        required: false
     inputs:
       name:
         description: "Name of test"
@@ -45,7 +42,6 @@ jobs:
       CYPRESS_CI: true
       CYPRESS_BASE_URL: http://localhost:8080
       CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
-      CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
     steps:
       - uses: actions/checkout@v3
 
