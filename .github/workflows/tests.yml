@@ -10,33 +10,66 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-      - run: yarn install --frozen-lockfile
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "yarn"
+
+      - name: Install project dependencies
+        run: yarn --prefer-offline
+
       - run: yarn lint
 
   unit-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-      - run: yarn install --frozen-lockfile
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "yarn"
+
+      - name: Install project dependencies
+        run: yarn --prefer-offline
+
       - run: yarn test:unit
 
   component-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-      - run: yarn install --frozen-lockfile
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "yarn"
+
+      - name: Install project dependencies
+        run: yarn --prefer-offline
+
       - run: yarn test:component
 
   integration-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-      - run: yarn install --frozen-lockfile
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "yarn"
+
+      - name: Install project dependencies
+        run: yarn --prefer-offline
+
       - run: yarn api:build
+
       - name: Test rAthena integration
         env:
           NODE_ENV: production
