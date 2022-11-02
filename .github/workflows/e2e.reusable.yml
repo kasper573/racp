@@ -37,6 +37,7 @@ jobs:
       appPort: 8080
       donationEnvironment: "fake"
       exposeInternalErrors: true
+      jwtSecret: test
       apiBaseUrl: http://localhost:8081
       CYPRESS_CI: true
       CYPRESS_BASE_URL: http://localhost:8080

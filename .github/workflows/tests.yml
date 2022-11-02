@@ -53,6 +53,7 @@ jobs:
         env:
           NODE_ENV: production
           donationEnvironment: fake
+          jwtSecret: test
         run: yarn test:integration
 
   e2e-widescreen:
