@@ -20,7 +20,7 @@
     "test:unit": "jest src --passWithNoTests",
     "test:component": "cypress run --component",
     "test:e2e": "cross-var npx start-server-and-test serve $CYPRESS_BASE_URL 'cypress run'",
-    "reset-data": "ts-node --files scripts/resetData.ts",
+    "reset-data": "cd scripts && node -r @swc-node/register resetData.ts",
     "configure-rathena": "ts-node --files scripts/configureRAthena.ts",
     "analyze-bundles": "cross-env NODE_ENV=production analyzeBundles=true webpack"
   },
@@ -118,6 +118,7 @@
     "zustand": "4.1.1"
   },
   "devDependencies": {
+    "@swc-node/register": "^1.5.4",
     "@types/body-parser": "1.19.2",
     "@types/cors": "2.8.12",
     "@types/dotenv-flow": "3.2.0",
