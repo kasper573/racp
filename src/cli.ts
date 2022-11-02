@@ -7,7 +7,8 @@ export function readCliArgs<T extends Record<string, Options>>(
   options: T,
   rootFolder: string = path.resolve(__dirname, "..")
 ) {
-  const { parsed: env = process.env } = dotEnvFlow.config({ path: rootFolder });
+  const { parsed } = dotEnvFlow.config({ path: rootFolder });
+  const env = { ...process.env, ...parsed };
   return yargs(withEnvArgs(process.argv.slice(2), options, env))
     .version(false)
     .options(options)
