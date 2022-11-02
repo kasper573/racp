@@ -39,6 +39,17 @@ jobs:
       - run: yarn install --frozen-lockfile
       - run: yarn test:component
 
+  integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "yarn"
+      - run: yarn install --frozen-lockfile
+      - run: yarn test:integration
+
   e2e-widescreen:
     uses: ./.github/workflows/e2e.reusable.yml
     with:
