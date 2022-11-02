@@ -5,6 +5,7 @@ Body:
     Type: Weapon
     SubType: 1hSword
     Buy: 100
+    Sell: 15000
     Weight: 500
     Attack: 25
     Range: 1
