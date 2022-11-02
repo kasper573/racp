@@ -8,11 +8,9 @@ export function readCliArgs<T extends Record<string, Options>>(
   options: T,
   rootFolder: string = path.resolve(__dirname, "..")
 ) {
-  const envType = process.env.NODE_ENV ?? "development";
   const envFiles = dotEnvFlow
-    .listDotenvFiles(rootFolder, { node_env: envType })
-    .filter((file) => fs.existsSync(file))
-    .reverse();
+    .listDotenvFiles(rootFolder)
+    .filter((file) => fs.existsSync(file));
   const envVars = { ...process.env, ...dotEnvFlow.parse(envFiles) };
 
   return yargs(withEnvArgs(process.argv.slice(2), options, envVars))
