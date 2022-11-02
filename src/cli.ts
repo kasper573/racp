@@ -7,9 +7,9 @@ export function readCliArgs<T extends Record<string, Options>>(
   options: T,
   rootFolder: string = path.resolve(__dirname, "..")
 ) {
-  const { parsed } = dotEnvFlow.config({ path: rootFolder });
-  const env = { ...process.env, ...parsed };
-  return yargs(withEnvArgs(process.argv.slice(2), options, env))
+  dotEnvFlow.config({ path: rootFolder, purge_dotenv: true });
+
+  return yargs(withEnvArgs(process.argv.slice(2), options))
     .version(false)
     .options(options)
     .parserConfiguration({ "strip-aliased": true, "strip-dashed": true })
@@ -20,15 +20,11 @@ export function readCliArgs<T extends Record<string, Options>>(
  * Returns a new args array with env values for all given option names.
  * If argument is already provided the env value will be ignored.
  */
-function withEnvArgs(
-  args: string[],
-  options: Record<string, Options>,
-  env: Record<string, string | undefined>
-) {
+function withEnvArgs(args: string[], options: Record<string, Options>) {
   const updatedArgs: string[] = args.slice();
 
-  for (const key in env) {
-    const value = env[key];
+  for (const key in process.env) {
+    const value = process.env[key];
     const option = options[key];
     if (args.includes(arg(key)) || !value || !option) {
       continue;
