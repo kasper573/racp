@@ -6,7 +6,7 @@ import { groupBy, pick, uniq } from "lodash";
 import recursiveReadDir = require("recursive-readdir");
 import * as mysql from "mysql";
 import { readCliArgs } from "../src/cli";
-import { options } from "../src/api/options";
+import { createOptions } from "../src/api/options";
 import { createLogger } from "../src/lib/logger";
 import { createUserRepository } from "../src/api/services/user/repository";
 import {
@@ -27,7 +27,7 @@ async function resetData() {
   const logger = createLogger(console.log).chain("removeUGC");
   const args = readCliArgs({
     ...pick(
-      options,
+      createOptions(),
       "rAthenaPath",
       "adminPermissionName",
       "dataFolder",

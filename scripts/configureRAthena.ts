@@ -1,7 +1,7 @@
 import { pick } from "lodash";
 import { createLogger } from "../src/lib/logger";
 import { readCliArgs } from "../src/cli";
-import { options } from "../src/api/options";
+import { createOptions } from "../src/api/options";
 import { createRAthenaDatabaseDriver } from "../src/api/rathena/RAthenaDatabaseDriver";
 import { DBInfo } from "../src/api/rathena/DBInfoDriver";
 
@@ -11,7 +11,7 @@ import { DBInfo } from "../src/api/rathena/DBInfoDriver";
 async function configureRAthena() {
   const logger = createLogger(console.log).chain("configureRAthena");
   const args = readCliArgs({
-    ...pick(options, "rAthenaPath"),
+    ...pick(createOptions(), "rAthenaPath"),
     MYSQL_HOST: { type: "string", required: true },
     MYSQL_PORT: { type: "number", required: true },
     MYSQL_USER: { type: "string", required: true },

@@ -17,7 +17,7 @@ import {
 import { createUserService } from "./services/user/service";
 import { createUtilService } from "./services/util/service";
 import { createItemService } from "./services/item/service";
-import { options } from "./options";
+import { createOptions } from "./options";
 import { createMonsterService } from "./services/monster/service";
 import { createMetaService } from "./services/meta/service";
 import { createItemRepository } from "./services/item/repository";
@@ -47,7 +47,7 @@ import { createHuntService } from "./services/hunt/service";
 
 enableMapSet();
 
-const args = readCliArgs(options);
+const args = readCliArgs(createOptions(process.cwd()));
 const logger = createLogger(coloredConsole, { format: logFormat });
 
 const app = express();
