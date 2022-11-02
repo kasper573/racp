@@ -7,17 +7,8 @@ export function menuSlide(name: string, newValueOrValues: number | number[]) {
   cy.findByRole("textbox", { name, hidden: true }).click({ force: true }); // Close menu
 }
 
-export function waitForPageReady(timeout?: number) {
+export function waitForPageReady() {
   cy.waitForNetworkIdle(100); // Make sure page has been loaded
-
-  // Page is ready when no loading spinner has been visible for 1 second
-  cy.get("body").then(($body) =>
-    cy.shouldFor(
-      () => $body.find(`[data-testid="loading-spinner"]`).length === 0,
-      100,
-      { timeout, name: "No loading spinner" }
-    )
-  );
 }
 
 export function unwrap<T>(query: JQuery<T>) {
