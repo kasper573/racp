@@ -10,7 +10,3 @@ before(() => {
   // load the app without triggering any unnecessary API requests
   cy.visit("/page-that-doesnt-exist");
 });
-
-afterEach(() => {
-  cy.get("@consoleError").should("not.have.been.called");
-});
