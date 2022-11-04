@@ -1,13 +1,13 @@
 import { ComponentType, lazy } from "react";
 
-export function lazyDebug<T extends ComponentType<any>>(
-  ctor: () => PromiseLike<{ default: T }>
+export function lazyWithErrorBoundary<T extends ComponentType<any>>(
+  loadComponent: () => PromiseLike<{ default: T }>
 ) {
   return lazy<T>(async () => {
     try {
-      return await ctor();
+      return await loadComponent();
     } catch (e) {
-      console.error("Lazy loading failed", e);
+      console.error("Failed loading component", e);
       return Promise.resolve({
         default: createErrorBoundary<T>(e),
       });
