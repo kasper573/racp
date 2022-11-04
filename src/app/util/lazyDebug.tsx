@@ -5,7 +5,7 @@ export function lazyDebug<T extends ComponentType<any>>(
 ) {
   return lazy<T>(async () => {
     try {
-      return ctor();
+      return await ctor();
     } catch (e) {
       console.log("Lazy loading failed", e);
       return Promise.resolve({
