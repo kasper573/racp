@@ -11,6 +11,7 @@ import { Layout } from "./layout/Layout";
 import { createTheme } from "./fixtures/theme";
 import { themeStore } from "./state/theme";
 import { trpc } from "./state/client";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 export function App({
   history,
@@ -26,21 +27,26 @@ export function App({
   const { mode } = useStore(themeStore);
   const theme = useMemo(() => createTheme(mode), [mode]);
   return (
-    <StrictMode>
-      <RouterHistoryProvider history={history}>
-        <trpc.Provider client={trpcClient} queryClient={queryClient}>
-          <QueryClientProvider client={queryClient}>
-            <HelmetProvider>
-              <ThemeProvider theme={theme}>
-                <CssBaseline />
-                <Layout>
-                  <RouterSwitch router={router} variant="leaf" />
-                </Layout>
-              </ThemeProvider>
-            </HelmetProvider>
-          </QueryClientProvider>
-        </trpc.Provider>
-      </RouterHistoryProvider>
-    </StrictMode>
+    <ErrorBoundary
+      enabled={!!process.env.enableErrorBoundary}
+      showErrorDetails={!!process.env.showDetailsInErrorBoundary}
+    >
+      <StrictMode>
+        <RouterHistoryProvider history={history}>
+          <trpc.Provider client={trpcClient} queryClient={queryClient}>
+            <QueryClientProvider client={queryClient}>
+              <HelmetProvider>
+                <ThemeProvider theme={theme}>
+                  <CssBaseline />
+                  <Layout>
+                    <RouterSwitch router={router} variant="leaf" />
+                  </Layout>
+                </ThemeProvider>
+              </HelmetProvider>
+            </QueryClientProvider>
+          </trpc.Provider>
+        </RouterHistoryProvider>
+      </StrictMode>
+    </ErrorBoundary>
   );
 }
