@@ -1,7 +1,7 @@
 import { Component, ErrorInfo, ReactElement } from "react";
 
 interface ErrorBoundaryState {
-  errorProps?: { error: Error; errorInfo: ErrorInfo };
+  errorProps?: { error: unknown; errorInfo: ErrorInfo };
 }
 
 interface ErrorBoundaryProps {
@@ -20,7 +20,7 @@ export class ErrorBoundary extends Component<
     return { error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  componentDidCatch(error: unknown, errorInfo: ErrorInfo) {
     this.setState({ errorProps: { error, errorInfo } });
   }
 
@@ -34,10 +34,7 @@ export class ErrorBoundary extends Component<
         <h1>Something went wrong.</h1>
         {this.props.showErrorDetails && (
           <pre>
-            Name: {error.name}
-            Message: {error.message}
-            Stack: {error.stack}
-            Cause: {`${error.cause}`}
+            Error: {`${error}`}
             ComponentStack: {errorInfo.componentStack}
           </pre>
         )}
