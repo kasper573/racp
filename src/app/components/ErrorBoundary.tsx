@@ -28,9 +28,6 @@ export class ErrorBoundary extends Component<
     if (!this.state.errorProps || !this.props.enabled) {
       return this.props.children;
     }
-    if (process.env.NODE_ENV === "production") {
-      return <h1>Something went wrong.</h1>;
-    }
     return (
       <>
         <h1>Something went wrong.</h1>
