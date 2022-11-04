@@ -11,9 +11,10 @@ import {
 } from "../support/util";
 import { menuSlide } from "../support/actions/common";
 import { generateSearchPageTests } from "../support/actions/search";
-import { ensureAssets } from "../support/actions/admin";
+import { ensureAssets, resetData } from "../support/actions/admin";
 import { testItemId } from "../fixtures/ids";
 
+before(resetData);
 before(ensureAssets);
 
 describe("search", () => {

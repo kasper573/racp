@@ -78,9 +78,6 @@ jobs:
           MYSQL_PASSWORD: racp
           MYSQL_DATABASE: racp
 
-      - name: Reset data
-        run: yarn reset-data
-
       - name: Build
         run: yarn build
         env:
