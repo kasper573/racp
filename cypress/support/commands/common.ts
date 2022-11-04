@@ -2,6 +2,18 @@
 import "@testing-library/cypress/add-commands";
 import { unwrap } from "../actions/common";
 
+Cypress.Commands.overwrite<"visit", "window">(
+  "visit",
+  (originalFn, url, options) =>
+    originalFn(url, {
+      ...options,
+      onBeforeLoad(win) {
+        options?.onBeforeLoad?.(win);
+        cy.stub(win.console, "error").as("consoleError");
+      },
+    })
+);
+
 Cypress.Commands.add(
   "shouldBeBetween",
   { prevSubject: true },
