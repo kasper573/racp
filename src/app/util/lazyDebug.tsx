@@ -8,7 +8,16 @@ export function lazyDebug<T extends ComponentType<any>>(
       return ctor();
     } catch (e) {
       console.log("Lazy loading failed", e);
-      throw e;
+      return Promise.resolve({
+        default: createErrorBoundary(e) as unknown as T,
+      });
     }
   });
+}
+
+function createErrorBoundary(error: unknown) {
+  function ErrorBoundary() {
+    return <>Error: {`${error}`}</>;
+  }
+  return ErrorBoundary;
 }
