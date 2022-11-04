@@ -32,10 +32,7 @@ export class ErrorBoundary extends Component<
       <>
         <h1>Something went wrong.</h1>
         {this.props.showErrorDetails && (
-          <pre>
-            {this.state.errorProps.error.message}
-            {this.state.errorProps.errorInfo.componentStack}
-          </pre>
+          <pre>{JSON.stringify(this.state.errorProps, null, 2)}</pre>
         )}
       </>
     );
