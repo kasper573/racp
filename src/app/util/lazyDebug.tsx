@@ -7,17 +7,17 @@ export function lazyDebug<T extends ComponentType<any>>(
     try {
       return await ctor();
     } catch (e) {
-      console.log("Lazy loading failed", e);
+      console.error("Lazy loading failed", e);
       return Promise.resolve({
-        default: createErrorBoundary(e) as unknown as T,
+        default: createErrorBoundary<T>(e),
       });
     }
   });
 }
 
-function createErrorBoundary(error: unknown) {
+function createErrorBoundary<T extends ComponentType<any>>(error: unknown): T {
   function ErrorBoundary() {
-    return <>{`${error}`}</>;
+    throw error;
   }
-  return ErrorBoundary;
+  return ErrorBoundary as unknown as T;
 }
