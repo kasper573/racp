@@ -28,11 +28,18 @@ export class ErrorBoundary extends Component<
     if (!this.state.errorProps || !this.props.enabled) {
       return this.props.children;
     }
+    const { error, errorInfo } = this.state.errorProps;
     return (
       <>
         <h1>Something went wrong.</h1>
         {this.props.showErrorDetails && (
-          <pre>{JSON.stringify(this.state.errorProps, null, 2)}</pre>
+          <pre>
+            Name: {error.name}
+            Message: {error.message}
+            Stack: {error.stack}
+            Cause: {`${error.cause}`}
+            ComponentStack: {errorInfo.componentStack}
+          </pre>
         )}
       </>
     );
