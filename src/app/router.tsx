@@ -1,4 +1,3 @@
-import { lazy } from "react";
 import {
   AccountCircle,
   AdminPanelSettings,
@@ -32,6 +31,7 @@ import { requireAuth } from "./util/requireAuth";
 import { requireSettings } from "./util/requireSettings";
 import { t } from "./tsr";
 import { mapViewRoute } from "./pages/MapViewPage/route";
+import { lazyDebug as lazy } from "./util/lazyDebug";
 
 export const router = t.router({
   home: t.route
