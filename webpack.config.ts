@@ -18,7 +18,6 @@ const env = readCliArgs({
   apiBaseUrl: { type: "string", required: true },
   appPort: { type: "number", required: true },
   analyzeBundles: { type: "boolean", default: false },
-  enableErrorBoundary: { type: "boolean", default: false },
   showDetailsInErrorBoundary: { type: "boolean", default: false },
 });
 
@@ -38,13 +37,7 @@ const config: webpack.Configuration = {
   mode: isDevBuild ? "development" : "production",
   plugins: defined([
     new webpack.EnvironmentPlugin(
-      pick(
-        env,
-        "NODE_ENV",
-        "apiBaseUrl",
-        "showDetailsInErrorBoundary",
-        "enableErrorBoundary"
-      )
+      pick(env, "NODE_ENV", "apiBaseUrl", "showDetailsInErrorBoundary")
     ),
     new HtmlWebpackPlugin({
       favicon: path.resolve(appDirectory, "favicon.png"),
