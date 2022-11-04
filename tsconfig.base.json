@@ -8,6 +8,7 @@
     "useDefineForClassFields": true,
     "downlevelIteration": true,
     "target": "es5",
+    "module": "CommonJS",
     "lib": ["ESNext", "dom"]
   }
 }

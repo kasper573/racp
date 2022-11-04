@@ -33,6 +33,7 @@ const config: webpack.Configuration = {
     path: path.resolve(__dirname, "./dist/app"),
     publicPath: "/",
     filename: "bundle.js",
+    chunkFilename: "[name].bundle.js",
   },
   devtool: isDevBuild ? "source-map" : undefined,
   mode: isDevBuild ? "development" : "production",

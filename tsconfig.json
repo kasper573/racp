@@ -6,7 +6,6 @@
   "ts-node": {
     "compilerOptions": {
       "target": "es6",
-      "module": "CommonJS",
       "types": ["node", "jest"]
     }
   },
