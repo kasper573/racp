@@ -12,6 +12,7 @@ import { Layout } from "./layout/Layout";
 import { createTheme } from "./fixtures/theme";
 import { themeStore } from "./state/theme";
 import { trpc } from "./state/client";
+import { ErrorFallback } from "./ErrorFallback";
 
 export function App({
   history,
@@ -48,21 +49,5 @@ export function App({
         </RouterHistoryProvider>
       </StrictMode>
     </ErrorBoundary>
-  );
-}
-
-function ErrorFallback({ error }: { error: Error }) {
-  return (
-    <div role="alert">
-      <h1>Something went wrong</h1>
-      {process.env.showDetailsInErrorBoundary && (
-        <pre>
-          Name: {error.name}
-          Message: {error.message}
-          Stack: {error.stack}
-        </pre>
-      )}
-      <button onClick={() => window.location.reload()}>Try again</button>
-    </div>
   );
 }
