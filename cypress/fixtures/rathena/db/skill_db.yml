@@ -22,26 +22,26 @@ Body:
       Weapon:
         Fist: true
   - Id: 1
-    Name: Filler 1
+    Description: Filler 1
   - Id: 2
-    Name: Filler 2
+    Description: Filler 2
   - Id: 3
-    Name: Filler 3
+    Description: Filler 3
   - Id: 4
-    Name: Filler 4
+    Description: Filler 4
   - Id: 5
-    Name: Filler 5
+    Description: Filler 5
   - Id: 6
-    Name: Filler 6
+    Description: Filler 6
   - Id: 7
-    Name: Filler 7
+    Description: Filler 7
   - Id: 8
-    Name: Filler 8
+    Description: Filler 8
   - Id: 9
-    Name: Filler 9
+    Description: Filler 9
   - Id: 10
-    Name: Filler 10
+    Description: Filler 10
   - Id: 11
-    Name: Filler 11
+    Description: Filler 11
   - Id: 12
-    Name: Filler 12
+    Description: Filler 12
