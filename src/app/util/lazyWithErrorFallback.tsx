@@ -1,6 +1,6 @@
 import { ComponentType, lazy } from "react";
 
-export function lazyWithErrorBoundary<T extends ComponentType<any>>(
+export function lazyWithErrorFallback<T extends ComponentType<any>>(
   loadComponent: () => PromiseLike<{ default: T }>
 ) {
   return lazy<T>(async () => {
@@ -9,15 +9,15 @@ export function lazyWithErrorBoundary<T extends ComponentType<any>>(
     } catch (e) {
       console.error("Failed loading component", e);
       return Promise.resolve({
-        default: createErrorBoundary<T>(e),
+        default: createErrorFallback<T>(e),
       });
     }
   });
 }
 
-function createErrorBoundary<T extends ComponentType<any>>(error: unknown): T {
-  function ErrorBoundary() {
+function createErrorFallback<T extends ComponentType<any>>(error: unknown): T {
+  function ErrorFallback() {
     throw error;
   }
-  return ErrorBoundary as unknown as T;
+  return ErrorFallback as unknown as T;
 }
