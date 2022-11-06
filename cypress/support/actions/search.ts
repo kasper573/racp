@@ -24,7 +24,7 @@ export function generateSearchPageTests({
   // Lazy test: doesn't test all possible pagination options.
   // This test assumes that the implementation uses a generic solution
   // and that if one pagination option works, they all work.
-  it.skip("can paginate", () => {
+  it("can paginate", () => {
     findDataRowIds().then((idsBeforePagination) => {
       cy.findByRole("button", { name: "Go to next page" }).click();
       waitForPageReady();
