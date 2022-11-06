@@ -11,7 +11,7 @@
     "serve": "concurrently \"yarn api:serve\" \"yarn app:serve\"",
     "app:dev": "webpack serve",
     "app:build": "webpack",
-    "app:serve": "cross-var npx local-web-server --static.maxage 0 --spa index.html --directory dist/app --compress --log.format dev --port $appPort",
+    "app:serve": "cross-var npx local-web-server --spa index.html --directory dist/app --compress --log.format dev --port $appPort",
     "api:dev": "ts-node-dev --files src/api/server",
     "api:build": "yarn codegen:prisma && cd src/api && tsc --outDir ../../dist/api",
     "api:serve": "node dist/api/src/api/server.js",
