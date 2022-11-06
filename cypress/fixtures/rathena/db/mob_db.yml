@@ -30,3 +30,39 @@ Body:
     Drops:
       - Item: test_item
         Rate: 5000
+  - Id: 1
+    AegisName: filler_1
+    Name: Filler 1
+  - Id: 2
+    AegisName: filler_2
+    Name: Filler 2
+  - Id: 3
+    AegisName: filler_3
+    Name: Filler 3
+  - Id: 4
+    AegisName: filler_4
+    Name: Filler 4
+  - Id: 5
+    AegisName: filler_5
+    Name: Filler 5
+  - Id: 6
+    AegisName: filler_6
+    Name: Filler 6
+  - Id: 7
+    AegisName: filler_7
+    Name: Filler 7
+  - Id: 8
+    AegisName: filler_8
+    Name: Filler 8
+  - Id: 9
+    AegisName: filler_9
+    Name: Filler 9
+  - Id: 10
+    AegisName: filler_10
+    Name: Filler 10
+  - Id: 11
+    AegisName: filler_11
+    Name: Filler 11
+  - Id: 12
+    AegisName: filler_12
+    Name: Filler 12
