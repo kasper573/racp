@@ -86,7 +86,6 @@ jobs:
       - name: Run e2e tests
         run: yarn test:e2e
         env:
-          NODE_ENV: production
           CYPRESS_VIEWPORT_WIDTH: ${{ inputs.width }}
           CYPRESS_VIEWPORT_HEIGHT: ${{ inputs.height }}
 
