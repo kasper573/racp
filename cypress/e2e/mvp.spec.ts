@@ -37,7 +37,7 @@ describe("search", () => {
       },
       mapId: {
         input: (menu) => menu().findByLabelText("Map ID").type(testMapId),
-        verify: () => expectTableColumn("Monster", () => /test monster/i),
+        verify: () => expectTableColumn("Map", () => testMapId),
       },
       mapName: {
         input: (menu) => menu().findByLabelText("Map name").type("test"),
