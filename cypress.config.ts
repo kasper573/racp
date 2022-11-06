@@ -15,7 +15,7 @@ export default defineConfig({
   chromeWebSecurity: false,
 
   e2e: {
-    specPattern: "cypress/**/item.spec.ts",
+    specPattern: "cypress/**/*.spec.ts",
     setupNodeEvents(on, config) {
       return dotenvFlowPlugin(config, undefined, true);
     },
