@@ -81,7 +81,6 @@ jobs:
       - name: Build
         run: yarn build
         env:
-          reactRefresh: true
           NODE_ENV: production
 
       - name: Run e2e tests
