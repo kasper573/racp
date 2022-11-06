@@ -31,7 +31,7 @@ import { requireAuth } from "./util/requireAuth";
 import { requireSettings } from "./util/requireSettings";
 import { t } from "./tsr";
 import { mapViewRoute } from "./pages/MapViewPage/route";
-import { lazyWithErrorFallback as lazy } from "./util/lazyWithErrorFallback";
+import { enhancedLazyComponent as lazy } from "./util/enhancedLazyComponent";
 
 export const router = t.router({
   home: t.route
