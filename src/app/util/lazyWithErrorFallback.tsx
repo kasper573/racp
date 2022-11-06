@@ -5,7 +5,7 @@ export function lazyWithErrorFallback<T extends ComponentType<any>>(
 ) {
   return lazy<T>(async () => {
     try {
-      return await tryNTimes(3, loadComponent);
+      return await tryNTimes(3, 1000, loadComponent);
     } catch (e) {
       console.error("Failed loading component", e);
       return Promise.resolve({
@@ -22,18 +22,19 @@ function createErrorFallback<T extends ComponentType<any>>(error: unknown): T {
   return ErrorFallback as unknown as T;
 }
 
-function tryNTimes<T>(n: number, fn: () => PromiseLike<T>) {
-  return new Promise<T>((resolve, reject) => {
-    let tries = 0;
-    function tryFn() {
-      fn().then(resolve, (e) => {
-        if (tries++ < n) {
-          tryFn();
-        } else {
-          reject(e);
-        }
-      });
+// An async function that retries the given function up to n times with a delay between each attempt
+async function tryNTimes<T>(
+  n: number,
+  delay: number,
+  fn: () => PromiseLike<T>
+): Promise<T> {
+  try {
+    return await fn();
+  } catch (e) {
+    if (n > 1) {
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      return tryNTimes(n - 1, delay, fn);
     }
-    tryFn();
-  });
+    throw e;
+  }
 }
