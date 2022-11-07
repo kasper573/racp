@@ -2,11 +2,9 @@ import { TextField } from "../controls/TextField";
 import { useZodMatcherForm } from "../../lib/zod/useZodMatcherForm";
 import { matcher } from "../../api/matcher";
 import {
-  UserAccessLevel,
   userProfileFilter,
   UserProfileFilter,
 } from "../../api/services/user/types";
-import { Select } from "../controls/Select";
 
 export interface UserProfileSearchFilterFormProps {
   value: UserProfileFilter;
@@ -44,13 +42,6 @@ export function UserProfileSearchFilterForm({
         label="Email"
         optional
         {...field("email", "contains")}
-      />
-      <Select
-        label="Access"
-        multi
-        getOptionValue={(name) => UserAccessLevel[name as any]}
-        options={["Admin", "User", "Guest"]}
-        {...field("access", "oneOfN")}
       />
     </>
   );

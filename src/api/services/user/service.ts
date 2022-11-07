@@ -6,7 +6,6 @@ import { count, some } from "../../../lib/knex";
 import { access } from "../../middlewares/access";
 import { createSearchTypes } from "../../common/search";
 import { knexMatcher } from "../../matcher";
-import { defined } from "../../../lib/std/defined";
 import {
   loginPayloadType,
   UserAccessLevel,
@@ -35,23 +34,10 @@ export function createUserService({
       .input(searchUsersTypes.queryType)
       .output(searchUsersTypes.resultType)
       .query(async ({ input }) => {
-        if (input.filter?.access?.value !== undefined) {
-          if (Array.isArray(input.filter.access.value)) {
-            input.filter.access.value = await Promise.all(
-              defined(input.filter.access.value).map(repo.userLevelToGroupId)
-            );
-          } else if (typeof input.filter.access.value === "number") {
-            input.filter.access.value = await repo.userLevelToGroupId(
-              input.filter.access.value
-            );
-          }
-        }
-
         const query = knexMatcher.search(createUserQuery(radb), input, {
           id: "account_id",
           username: "userid",
           email: "email",
-          access: "group_id",
         });
 
         const [users, total] = await Promise.all([query, count(query)]);

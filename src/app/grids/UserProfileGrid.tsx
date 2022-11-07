@@ -12,6 +12,7 @@ export const UserProfileGrid = DataGrid.define(trpc.user.search.useQuery)({
     email: true,
     access: {
       headerName: "Access",
+      sortable: false,
       renderCell({ value }) {
         return getEnumName(UserAccessLevel, value);
       },
