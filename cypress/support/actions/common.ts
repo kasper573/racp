@@ -14,7 +14,7 @@ export function waitForPageReady(
 ) {
   cy.waitForNetworkIdle(100);
 
-  // Page is ready when no loading spinner has been visible for 1 second
+  // Page is ready when no loading spinner has been visible long enough
   cy.get("body").then(($body) =>
     cy.shouldFor(
       () => $body.find(`[data-testid="loading-indicator"]`).length === 0,
