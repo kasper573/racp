@@ -2,7 +2,7 @@ import { Box, styled, Typography } from "@mui/material";
 import { ComponentProps, createContext, useState } from "react";
 import { useImage } from "../../../lib/hooks/useImage";
 import { MapBounds } from "../../../api/services/map/types";
-import { LoadingSpinner } from "../../components/LoadingSpinner";
+import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { ImageWithFallback } from "../../components/ImageWithFallback";
 
 export interface MapContainerProps extends ComponentProps<typeof Container> {
@@ -51,7 +51,7 @@ export function MapContainer({
         <Typography color="error">Map image could not be loaded</Typography>
       )}
       {image.isLoading && (
-        <LoadingSpinner size={96} sx={{ margin: "0 auto", marginTop: 4 }} />
+        <LoadingIndicator size={96} sx={{ margin: "0 auto", marginTop: 4 }} />
       )}
       {!mapBounds && (
         <Typography color="error">

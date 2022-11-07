@@ -27,7 +27,7 @@ import { useOnChange } from "../../lib/hooks/useOnChange";
 import { useLatest } from "../../lib/hooks/useLatest";
 import { RouteLocation } from "../../lib/tsr/types";
 import { Link } from "./Link";
-import { LoadingSpinner } from "./LoadingSpinner";
+import { LoadingIndicator } from "./LoadingIndicator";
 import { Center } from "./Center";
 
 export type DataGridProps<
@@ -288,7 +288,7 @@ const emptyCellValue = "-";
 function LoadingOverlay() {
   return (
     <Center>
-      <LoadingSpinner />
+      <LoadingIndicator />
     </Center>
   );
 }

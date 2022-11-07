@@ -4,7 +4,7 @@ import { MonsterFilter } from "../../api/services/monster/types";
 import { trpc } from "../state/client";
 import { Link } from "./Link";
 import { IconWithLabel } from "./IconWithLabel";
-import { LoadingSpinner } from "./LoadingSpinner";
+import { LoadingIndicator } from "./LoadingIndicator";
 
 export interface MonsterIdentifierProps
   extends Omit<ComponentProps<typeof IconWithLabel>, "alt" | "id"> {
@@ -40,7 +40,7 @@ export interface MonsterIdentifierByFilterProps
 export function MonsterIdentifierByFilter({
   filter,
   fallback = "Unknown monster",
-  loader = <LoadingSpinner variant="linear" />,
+  loader = <LoadingIndicator variant="linear" />,
   ...props
 }: MonsterIdentifierByFilterProps) {
   const { data: { entities: [monster] = [] } = {}, isLoading } =
