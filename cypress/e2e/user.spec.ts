@@ -17,6 +17,10 @@ import { adminAccountId } from "../support/vars";
 before(resetData);
 
 describe("guest", () => {
+  beforeEach(() => {
+    cy.visit("/");
+  });
+
   it("does not have access to admin menu", () => {
     findMainMenuSection("Admin").should("not.exist");
   });
