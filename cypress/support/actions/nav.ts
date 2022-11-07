@@ -48,12 +48,12 @@ export function findMainMenuItem(itemName: string) {
 }
 
 export function gotoMainMenuPage(...args: Parameters<typeof findMainMenuItem>) {
-  waitForPageReady(); // Wait for any pending requests to finish before navigating
   findMainMenuItem(...args).click();
   waitForPageReady(); // Wait for any initial requests to finish before proceeding
 }
 
 export function findMainMenu() {
+  waitForPageReady();
   return cy.get("body").then(($body) => {
     const [menuTrigger] = $body.find(`button[aria-label="Open main menu"]`);
     if (menuTrigger) {
