@@ -5,7 +5,7 @@ export const LoadingIndicator = ({
   variant = "circular",
   ...props
 }: Omit<ComponentProps<typeof CircularProgress>, "variant"> & {
-  variant?: "circular" | "linear";
+  variant?: LoadingIndicatorVariant;
 }) => {
   const Indicator = variantComponents[variant];
   return (
@@ -20,6 +20,8 @@ export const LoadingIndicator = ({
 const FullWidthLinearProgress = styled(LinearProgress)`
   width: 100%;
 `;
+
+export type LoadingIndicatorVariant = keyof typeof variantComponents;
 
 const variantComponents = {
   circular: CircularProgress,

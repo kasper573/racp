@@ -13,9 +13,11 @@ import {
 } from "@mui/material";
 import { Helmet } from "react-helmet-async";
 import { Menu as MenuIcon } from "@mui/icons-material";
+import { useIsFetching, useIsMutating } from "@tanstack/react-query";
 import { LoadingPage } from "../pages/LoadingPage";
 import { trpc } from "../state/client";
 import { useReadyMediaQuery } from "../../lib/hooks/useReadyMediaQuery";
+import { LoadingIndicator } from "../components/LoadingIndicator";
 import { globalStyles } from "./globalStyles";
 import { Toolbar } from "./Toolbar";
 import { Menu } from "./Menu";
@@ -101,7 +103,9 @@ export function Layout({ children }: { children?: ReactNode }) {
         <Menu onItemSelected={handleDrawerCloseRequest} />
       </MuiDrawer>
       <Box component="main" sx={contentBounds}>
-        <MuiToolbar />
+        <MuiToolbar>
+          <GlobalLoadingIndicator />
+        </MuiToolbar>
         <ContentBounds maxWidth={maxContentWidth}>
           <ContentSurface>
             <Suspense fallback={<LoadingPage />}>{children}</Suspense>
@@ -119,6 +123,7 @@ const ContentBounds = styled(Container)`
   display: flex;
   flex: 1;
   padding: ${({ theme }) => theme.spacing(3)};
+  position: relative;
 `;
 
 const ContentSurface = styled("div")`
@@ -128,3 +133,24 @@ const ContentSurface = styled("div")`
   flex-direction: column;
   max-width: 100%;
 `;
+
+function GlobalLoadingIndicator() {
+  const fetchCount = useIsFetching();
+  const mutationCount = useIsMutating();
+  const isLoading = fetchCount > 0 || mutationCount > 0;
+  if (!isLoading) {
+    return null;
+  }
+  return (
+    <LoadingIndicator
+      variant="linear"
+      sx={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        transform: "translateY(100%)",
+      }}
+    />
+  );
+}
