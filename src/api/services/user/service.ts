@@ -33,6 +33,7 @@ export function createUserService({
     search: t.procedure
       .input(searchUsersTypes.queryType)
       .output(searchUsersTypes.resultType)
+      .use(access(UserAccessLevel.Admin))
       .query(async ({ input }) => {
         const query = knexMatcher.search(createUserQuery(radb), input, {
           id: "account_id",
