@@ -18,7 +18,7 @@ export function waitForPageReady(
   cy.get("body").then(($body) =>
     cy.shouldFor(
       () => $body.find(`[data-testid="loading-indicator"]`).length === 0,
-      1000,
+      100,
       { timeout, name: "No loading spinner" }
     )
   );
