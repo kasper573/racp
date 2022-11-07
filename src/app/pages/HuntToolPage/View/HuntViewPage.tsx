@@ -29,7 +29,10 @@ import { huntNameType } from "../../../../api/services/hunt/types";
 import { HuntedItemGrid } from "./HuntedItemGrid";
 import { HuntedMonsterGrid } from "./HuntedMonsterGrid";
 
-const nameMaxWidth = 320;
+const nameMaxWidth = {
+  xs: 200,
+  md: 320,
+};
 
 export default function HuntViewPage({
   params: { id: huntId },
