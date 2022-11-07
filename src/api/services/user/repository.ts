@@ -1,5 +1,6 @@
 import { ResourceFactory } from "../../resources";
 import { UserGroupResolver } from "./util/UserGroupResolver";
+import { UserAccessLevel } from "./types";
 
 export type UserRepository = ReturnType<typeof createUserRepository>;
 
@@ -27,6 +28,16 @@ export function createUserRepository({
   });
 
   return {
-    adminGroupIds,
+    groupIdToUserLevel: async (groupId: number): Promise<UserAccessLevel> => {
+      return (await adminGroupIds).includes(groupId)
+        ? UserAccessLevel.Admin
+        : UserAccessLevel.User;
+    },
+    userLevelToGroupId: async (level: UserAccessLevel): Promise<number> => {
+      if (level === UserAccessLevel.Admin) {
+        return (await adminGroupIds)[0];
+      }
+      return 0;
+    },
   };
 }

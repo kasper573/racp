@@ -16,7 +16,7 @@ import {
   Storefront,
 } from "@mui/icons-material";
 import * as zod from "zod";
-import { UserAccessLevel } from "../api/services/user/types";
+import { UserAccessLevel, userProfileFilter } from "../api/services/user/types";
 import { itemFilter } from "../api/services/item/types";
 import { monsterFilter, mvpFilter } from "../api/services/monster/types";
 import { mapInfoFilter } from "../api/services/map/types";
@@ -171,7 +171,8 @@ export const router = t.router({
         .renderer(lazy(() => import("./pages/AdminAssetsPage")))
         .meta({ title: "Assets", icon: <Image /> }),
       users: t.route
-        .path("users")
+        .path("users/:filter?")
+        .params({ filter: userProfileFilter.type.optional() })
         .renderer(lazy(() => import("./pages/AdminUsersPage")))
         .meta({ title: "Users", icon: <AccountCircle /> }),
     }),

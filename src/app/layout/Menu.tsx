@@ -52,7 +52,11 @@ export function Menu({ onItemSelected }: { onItemSelected?: () => void }) {
         <Divider />
         <RouteList
           aria-labelledby="admin-menu"
-          routes={[routes.admin.settings.$, routes.admin.assets.$]}
+          routes={[
+            routes.admin.settings.$,
+            routes.admin.assets.$,
+            routes.admin.users.$,
+          ]}
           onClick={onItemSelected}
         />
       </Auth>

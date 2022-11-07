@@ -3,6 +3,8 @@ import { getZodType } from "../../../lib/zod/zodPath";
 import { LoginEntityType } from "../../rathena/DatabaseDriver.types";
 import { createPropertyMatchRefiner } from "../../../lib/zod/propertyMatchRefiner";
 import { toggleRecordType } from "../../../lib/zod/zodToggle";
+import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
+import { matcher } from "../../matcher";
 
 export enum UserAccessLevel {
   Guest,
@@ -67,3 +69,6 @@ export const userGroupType = zod.object({
   Permissions: toggleRecordType,
   Inherit: toggleRecordType,
 });
+
+export type UserProfileFilter = zod.infer<typeof userProfileFilter.type>;
+export const userProfileFilter = createEntityFilter(matcher, userProfileType);
