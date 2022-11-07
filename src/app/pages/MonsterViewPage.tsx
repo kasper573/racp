@@ -141,5 +141,3 @@ export default function MonsterViewPage({
     </>
   );
 }
-
-// Stress test commit
