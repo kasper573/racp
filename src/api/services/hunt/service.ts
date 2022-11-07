@@ -58,7 +58,7 @@ export function createHuntService({
           throw new TRPCError({ code: "FORBIDDEN", message: "Unknown hunt" });
         }
         if (!hunt.isPublished) {
-          await assertHuntAccess(db, { huntId, accountId: ctx.auth?.id });
+          await assertHuntAccess(db, { huntId, ...ctx });
         }
         return hunt;
       }),
@@ -85,14 +85,14 @@ export function createHuntService({
       .input(zod.object({ id: huntType.shape.id, name: huntNameType }))
       .use(access(UserAccessLevel.User))
       .mutation(async ({ input: { id: huntId, name }, ctx }) => {
-        await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
+        await assertHuntAccess(db, { huntId, ...ctx });
         await db.hunt.update({ data: { name }, where: { id: huntId } });
       }),
     publish: t.procedure
       .input(huntType.shape.id)
       .use(access(UserAccessLevel.User))
       .mutation(async ({ input: huntId, ctx }) => {
-        await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
+        await assertHuntAccess(db, { huntId, ...ctx });
         await db.hunt.update({
           data: { isPublished: true },
           where: { id: huntId },
@@ -102,7 +102,7 @@ export function createHuntService({
       .input(huntType.shape.id)
       .use(access(UserAccessLevel.User))
       .mutation(async ({ input: huntId, ctx }) => {
-        await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
+        await assertHuntAccess(db, { huntId, ...ctx });
         await db.hunt.update({
           data: { isPublished: false },
           where: { id: huntId },
@@ -112,7 +112,7 @@ export function createHuntService({
       .input(huntType.shape.id)
       .use(access(UserAccessLevel.User))
       .mutation(async ({ input: huntId, ctx }) => {
-        await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
+        await assertHuntAccess(db, { huntId, ...ctx });
         await db.hunt.delete({ where: { id: huntId } });
       }),
     copy: t.procedure
@@ -162,7 +162,7 @@ export function createHuntService({
       .input(huntedItemType.pick({ huntId: true, itemId: true }))
       .use(access(UserAccessLevel.User))
       .mutation(async ({ input: { huntId, itemId }, ctx }) => {
-        await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
+        await assertHuntAccess(db, { huntId, ...ctx });
 
         const alreadyAdded = await db.huntedItem.findFirst({
           where: { huntId, itemId },
@@ -204,10 +204,7 @@ export function createHuntService({
         if (!item) {
           throw new TRPCError({ code: "NOT_FOUND" });
         }
-        await assertHuntAccess(db, {
-          huntId: item.huntId,
-          accountId: ctx.auth.id,
-        });
+        await assertHuntAccess(db, { ...item, ...ctx });
 
         const count = changes.targetMonsterIds?.split(",").length ?? 0;
         const limits = await limitsResource;
@@ -234,7 +231,7 @@ export function createHuntService({
       .input(huntedItemType.pick({ huntId: true, itemId: true }))
       .use(access(UserAccessLevel.User))
       .mutation(async ({ input: { huntId, itemId }, ctx }) => {
-        await assertHuntAccess(db, { huntId, accountId: ctx.auth.id });
+        await assertHuntAccess(db, { huntId, ...ctx });
         await db.huntedItem.deleteMany({ where: { huntId, itemId } });
         await normalizeHunt(db, huntId);
         await touchHunt(db, huntId);
@@ -251,10 +248,7 @@ export function createHuntService({
         if (!monster) {
           throw new TRPCError({ code: "NOT_FOUND" });
         }
-        await assertHuntAccess(db, {
-          huntId: monster.huntId,
-          accountId: ctx.auth.id,
-        });
+        await assertHuntAccess(db, { ...monster, ...ctx });
         let { killsPerUnit, ...rest } = changes;
         if (killsPerUnit !== undefined) {
           killsPerUnit = Math.max(0, killsPerUnit);

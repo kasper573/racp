@@ -1,21 +1,31 @@
 import { TRPCError } from "@trpc/server";
+import { Hunt } from "@prisma/client";
 import { RACPDatabaseClient } from "../../../common/createRACPDatabaseClient";
+import { AuthenticatorPayload } from "../../user/util/Authenticator";
+import { UserAccessLevel } from "../../user/types";
 
 export async function assertHuntAccess(
   db: RACPDatabaseClient,
-  ids: {
-    accountId?: number;
-    huntId: number;
+  {
+    huntId,
+    auth,
+  }: {
+    huntId: Hunt["id"];
+    auth?: AuthenticatorPayload;
   }
 ) {
-  if (ids.accountId !== undefined) {
-    const res = await db.hunt.findFirst({
-      select: null,
-      where: { id: ids.huntId, accountId: ids.accountId },
-    });
-    if (res !== null) {
-      return;
-    }
+  if (auth && auth.access >= UserAccessLevel.Admin) {
+    return; // admins can access any hunt
   }
-  throw new TRPCError({ code: "UNAUTHORIZED" });
+
+  const res = auth
+    ? await db.hunt.findFirst({
+        select: null,
+        where: { id: huntId, accountId: auth.id },
+      })
+    : null;
+
+  if (res === null) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
 }
