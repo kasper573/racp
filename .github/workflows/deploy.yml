@@ -68,7 +68,7 @@ jobs:
             export jwtSecret=${{ secrets.DEPLOY_JWT_SECRET }}
             export log=verbose
             export donationEnvironment=live
-            export preloadAllResources=true
+            export preloadResources=true
             export RACP_DATABASE_URL="file:./racp_prod.db"
 
             # Codegen required remotely since generated prisma code is node_modules, which is not uploaded
