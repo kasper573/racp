@@ -6,7 +6,6 @@ import { Link } from "../components/Link";
 import { routes } from "../router";
 import { Auth } from "../components/Auth";
 import { UserAccessLevel } from "../../api/services/user/types";
-import { LoadingPage } from "./LoadingPage";
 
 export default function DonationsPage() {
   const { data: balance } = trpc.donation.balance.useQuery();
@@ -17,7 +16,7 @@ export default function DonationsPage() {
   } = trpc.settings.readPublic.useQuery();
 
   if (isLoading) {
-    return <LoadingPage />;
+    return null;
   }
   if (error || !settings) {
     return <Header title="Something went wrong" />;

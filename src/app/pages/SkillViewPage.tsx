@@ -9,7 +9,6 @@ import { durationString } from "../../lib/std/durationString";
 import { ItemIdentifierByName } from "../components/ItemIdentifier";
 import { Zeny } from "../components/Zeny";
 import { RouteComponentProps } from "../../lib/tsr/react/types";
-import { LoadingPage } from "./LoadingPage";
 
 export default function SkillViewPage({
   params: { id },
@@ -20,7 +19,7 @@ export default function SkillViewPage({
     });
 
   if (isLoading) {
-    return <LoadingPage />;
+    return null;
   }
 
   if (!skill) {

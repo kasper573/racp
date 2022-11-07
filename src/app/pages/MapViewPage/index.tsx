@@ -5,7 +5,6 @@ import { Header } from "../../layout/Header";
 import { trpc } from "../../state/client";
 import { routes } from "../../router";
 import { Point } from "../../../lib/geometry";
-import { LoadingPage } from "../LoadingPage";
 import { CommonPageGrid } from "../../components/CommonPageGrid";
 import { WarpGrid } from "../../grids/WarpGrid";
 import { MonsterSpawnGrid } from "../../grids/MonsterSpawnGrid";
@@ -88,7 +87,7 @@ export default function MapViewPage({
   };
 
   if (isLoading || isFetching) {
-    return <LoadingPage />;
+    return null;
   }
   if (!map || error) {
     return <Header title="Map not found" />;

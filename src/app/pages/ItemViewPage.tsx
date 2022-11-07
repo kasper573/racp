@@ -16,7 +16,6 @@ import { ShopItemGrid } from "../grids/ShopItemGrid";
 import { TabSwitch } from "../components/TabSwitch";
 import { renderToggles } from "../util/renderToggles";
 import { RouteComponentProps } from "../../lib/tsr/react/types";
-import { LoadingPage } from "./LoadingPage";
 
 export default function ItemViewPage({
   params: { id },
@@ -33,7 +32,7 @@ export default function ItemViewPage({
     });
 
   if (isLoading) {
-    return <LoadingPage />;
+    return <></>;
   }
   if (!item || error) {
     return <Header title="Item not found" />;

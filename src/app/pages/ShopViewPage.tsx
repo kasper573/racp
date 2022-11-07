@@ -6,7 +6,6 @@ import { trpc } from "../state/client";
 import { ShopItemGrid } from "../grids/ShopItemGrid";
 import { Link } from "../components/Link";
 import { RouteComponentProps } from "../../lib/tsr/react/types";
-import { LoadingPage } from "./LoadingPage";
 
 export default function ShopViewPage({
   params: { id },
@@ -21,7 +20,7 @@ export default function ShopViewPage({
   });
 
   if (isLoading) {
-    return <LoadingPage />;
+    return <></>;
   }
 
   if (!shop || error) {

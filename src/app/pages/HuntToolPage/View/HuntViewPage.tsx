@@ -17,7 +17,6 @@ import {
 } from "../huntEditorStore";
 import { Header } from "../../../layout/Header";
 import { RouteComponentProps } from "../../../../lib/tsr/react/types";
-import { LoadingPage } from "../../LoadingPage";
 import {
   ErrorMessage,
   getErrorMessage,
@@ -54,7 +53,7 @@ export default function HuntViewPage({
   }
 
   if (isLoading) {
-    return <LoadingPage />;
+    return null;
   }
   if (!hunt) {
     return <Header title="Unknown hunt" />;

@@ -16,7 +16,6 @@ import { KVTable } from "../components/KVTable";
 import { Zeny } from "../components/Zeny";
 import { ExpConfig } from "../../api/services/exp/types";
 import { Percentage } from "../components/Percentage";
-import { LoadingPage } from "./LoadingPage";
 
 export default function ServerInfoPage() {
   const settings = trpc.settings.readPublic.useQuery();
@@ -24,7 +23,7 @@ export default function ServerInfoPage() {
   const exp = trpc.exp.config.useQuery();
 
   if (settings.isLoading || dropRates.isLoading || exp.isLoading) {
-    return <LoadingPage />;
+    return null;
   }
 
   if (!settings.data || !dropRates.data || !exp.data) {
