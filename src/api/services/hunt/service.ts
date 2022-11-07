@@ -57,10 +57,8 @@ export function createHuntService({
         if (!hunt) {
           throw new TRPCError({ code: "FORBIDDEN", message: "Unknown hunt" });
         }
-        const isOwner = hunt.accountId === ctx.auth?.id;
-        const mayRead = hunt.isPublished || isOwner;
-        if (!mayRead) {
-          throw new TRPCError({ code: "UNAUTHORIZED" });
+        if (!hunt.isPublished) {
+          await assertHuntAccess(db, { huntId, accountId: ctx.auth?.id });
         }
         return hunt;
       }),
