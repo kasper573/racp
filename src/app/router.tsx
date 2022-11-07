@@ -170,6 +170,10 @@ export const router = t.router({
         .path("assets")
         .renderer(lazy(() => import("./pages/AdminAssetsPage")))
         .meta({ title: "Assets", icon: <Image /> }),
+      stats: t.route
+        .path("stats")
+        .renderer(lazy(() => import("./pages/AdminStatsPage")))
+        .meta({ title: "Stats", icon: <Image /> }),
     }),
   notFound: t.route
     .path("")

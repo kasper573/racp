@@ -29,6 +29,10 @@ export function createHuntService({
     (settings) => settings.huntLimits
   );
   return t.router({
+    count: t.procedure
+      .output(zod.number())
+      .use(access(UserAccessLevel.Admin))
+      .query(() => db.hunt.count()),
     list: t.procedure
       .output(zod.array(huntType))
       .use(access(UserAccessLevel.User))
