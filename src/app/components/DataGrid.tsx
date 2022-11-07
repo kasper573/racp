@@ -27,7 +27,6 @@ import { useOnChange } from "../../lib/hooks/useOnChange";
 import { useLatest } from "../../lib/hooks/useLatest";
 import { RouteLocation } from "../../lib/tsr/types";
 import { Link } from "./Link";
-import { LoadingIndicator } from "./LoadingIndicator";
 import { Center } from "./Center";
 
 export type DataGridProps<
@@ -286,9 +285,6 @@ function processColumnConvention<Entity, Id extends GridRowId>({
 const emptyCellValue = "-";
 
 function LoadingOverlay() {
-  return (
-    <Center>
-      <LoadingIndicator />
-    </Center>
-  );
+  // Disabled because we already have a global loading indicator
+  return null;
 }
