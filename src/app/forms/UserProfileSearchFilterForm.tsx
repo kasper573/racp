@@ -47,7 +47,9 @@ export function UserProfileSearchFilterForm({
       />
       <Select
         label="Access"
-        options={Object.values(UserAccessLevel)}
+        multi
+        getOptionValue={(name) => UserAccessLevel[name as any]}
+        options={["Admin", "User", "Guest"]}
         {...field("access", "oneOfN")}
       />
     </>

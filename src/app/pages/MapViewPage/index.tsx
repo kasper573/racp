@@ -99,7 +99,7 @@ export default function MapViewPage({
       <CommonPageGrid>
         <Stack direction="column" sx={{ flex: 2 }}>
           <Stack direction="column" sx={{ height: 48 }}>
-            <Select
+            <Select<PinName, PinName>
               sx={{ alignSelf: "flex-end" }}
               label="Pins"
               options={pinOptions}

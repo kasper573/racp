@@ -8,7 +8,7 @@ import {
 import { ComponentProps, ReactNode, useMemo } from "react";
 import { htmlId } from "../util/htmlId";
 
-export type SelectPropsBase<Value, Option> = Omit<
+export type SelectProps<Option, Value> = Omit<
   ComponentProps<typeof FormControl>,
   "onChange"
 > & {
@@ -17,17 +17,26 @@ export type SelectPropsBase<Value, Option> = Omit<
   empty?: ReactNode;
   autoSort?: boolean;
   helperText?: ReactNode;
+  getOptionValue?: (option: Option) => Value;
 } & (
-    | { value?: Value; onChange?: (value?: Value) => void }
-    | { required: true; value: Value; onChange: (value: Value) => void }
+    | { multi?: false; value?: Value; onChange?: (value?: Value) => void }
+    | {
+        multi?: false;
+        required: true;
+        value: Value;
+        onChange: (value: Value) => void;
+      }
+    | { multi: true; value?: Value[]; onChange?: (value?: Value[]) => void }
+    | {
+        multi: true;
+        required: true;
+        value: Value[];
+        onChange: (value: Value[]) => void;
+      }
   );
 
-export type SelectProps<Value extends string> =
-  | (SelectPropsBase<Value, Value> & { multi?: false })
-  | (SelectPropsBase<Value[], Value> & { multi: true });
-
-export function Select<Value extends string>({
-  options = emptyStringList as Value[],
+export function Select<Option extends string, Value = Option>({
+  options = emptyStringList as Option[],
   multi,
   label,
   value,
@@ -38,8 +47,9 @@ export function Select<Value extends string>({
   empty = "No options",
   autoSort = true,
   required,
+  getOptionValue = (option) => option as unknown as Value,
   ...props
-}: SelectProps<Value>) {
+}: SelectProps<Option, Value>) {
   const sortedOptions = useMemo(
     () => (autoSort ? options.slice().sort() : options),
     [options, autoSort]
@@ -57,23 +67,25 @@ export function Select<Value extends string>({
           multi
             ? required
               ? (e) => {
-                  const values = e.target.value as Value[];
-                  if (values.length) {
-                    onChange?.(values);
+                  const selectedOptions = e.target.value as Option[];
+                  if (selectedOptions.length) {
+                    onChange?.(selectedOptions.map(getOptionValue));
                   }
                 }
               : (e) => {
-                  const values = e.target.value as Value[];
-                  onChange?.(values.length ? values : undefined);
+                  const options = e.target.value as Option[];
+                  onChange?.(
+                    options.length ? options.map(getOptionValue) : undefined
+                  );
                 }
             : required
             ? (e) => {
                 if (e.target.value) {
-                  onChange?.(e.target.value as Value);
+                  onChange?.(getOptionValue(e.target.value as Option));
                 }
               }
             : (e) => {
-                onChange?.(e.target.value as Value);
+                onChange?.(getOptionValue(e.target.value as Option));
               }
         }
       >
