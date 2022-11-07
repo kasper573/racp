@@ -2,7 +2,7 @@ import * as zod from "zod";
 import { TRPCError } from "@trpc/server";
 import { t } from "../../trpc";
 import { RAthenaDatabaseDriver } from "../../rathena/RAthenaDatabaseDriver";
-import { count, some } from "../../../lib/knex";
+import { some } from "../../../lib/knex";
 import { access } from "../../middlewares/access";
 import {
   loginPayloadType,
@@ -26,10 +26,6 @@ export function createUserService({
   sign: AuthenticatorSigner;
 }) {
   return t.router({
-    count: t.procedure
-      .output(zod.number())
-      .use(access(UserAccessLevel.Admin))
-      .query(() => count(radb.login.table("login"))),
     register: t.procedure
       .input(userRegisterPayloadType)
       .output(zod.boolean())
