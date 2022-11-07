@@ -55,11 +55,11 @@ describe("search", () => {
       },
       "move speed": {
         input: (menu) =>
-          menu().within(() => menuSlide("Move Speed", [100, 200])),
+          menu().within(() => menuSlide("Move Speed", [300, 500])),
         verify: () =>
           expectTableColumn(
             "Move Speed",
-            () => (text) => +text >= 100 && +text <= 200
+            () => (text) => +text >= 300 && +text <= 500
           ),
       },
       "attack range": {
@@ -71,11 +71,11 @@ describe("search", () => {
           ),
       },
       "skill range": {
-        input: (menu) => menu().within(() => menuSlide("Skill Range", [4, 8])),
+        input: (menu) => menu().within(() => menuSlide("Skill Range", [4, 12])),
         verify: () =>
           expectTableColumn(
             "Skill Range",
-            () => (text) => +text >= 4 && +text <= 8
+            () => (text) => +text >= 4 && +text <= 12
           ),
       },
       "chase range": {
@@ -88,24 +88,24 @@ describe("search", () => {
       },
       "base xp": {
         input: (menu) => {
-          menu().findByLabelText("Base XP (min)").type("5000");
-          menu().findByLabelText("Base XP (max)").type("6000");
+          menu().findByLabelText("Base XP (min)").type("100");
+          menu().findByLabelText("Base XP (max)").type("200");
         },
         verify: () =>
           expectTableColumn(
             "Base XP",
-            () => (text) => +text >= 5000 && +text <= 6000
+            () => (text) => +text >= 100 && +text <= 200
           ),
       },
       "job xp": {
         input: (menu) => {
-          menu().findByLabelText("Job XP (min)").type("5000");
-          menu().findByLabelText("Job XP (max)").type("6000");
+          menu().findByLabelText("Job XP (min)").type("20");
+          menu().findByLabelText("Job XP (max)").type("60");
         },
         verify: () =>
           expectTableColumn(
             "Job XP",
-            () => (text) => +text >= 5000 && +text <= 6000
+            () => (text) => +text >= 20 && +text <= 60
           ),
       },
       modes: {

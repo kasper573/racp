@@ -1,6 +1,6 @@
 import { Button } from "@mui/material";
 import { ComponentProps, useState } from "react";
-import { LoadingSpinner } from "./LoadingSpinner";
+import { LoadingIndicator } from "./LoadingIndicator";
 
 export interface ProgressButtonProps extends ComponentProps<typeof Button> {
   isLoading?: boolean;
@@ -14,7 +14,7 @@ export function ProgressButton({
 }: ProgressButtonProps) {
   return (
     <Button disabled={disabled || isLoading} {...props}>
-      {isLoading ? <LoadingSpinner size={24} /> : children}
+      {isLoading ? <LoadingIndicator size={24} /> : children}
     </Button>
   );
 }

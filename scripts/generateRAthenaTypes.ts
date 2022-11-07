@@ -4,8 +4,8 @@ import { execSync } from "child_process";
 import sqlts from "@rmp135/sql-ts";
 import { pick } from "lodash";
 import * as zod from "zod";
-import { readCliArgs } from "../src/lib/cli";
-import { options } from "../src/api/options";
+import { readCliArgs } from "../src/cli";
+import { createOptions } from "../src/api/options";
 import { createLogger } from "../src/lib/logger";
 import {
   createRAthenaDatabaseDriver,
@@ -17,7 +17,7 @@ import {
  */
 async function generate() {
   const { rAthenaPath, template } = readCliArgs({
-    ...pick(options, "rAthenaPath"),
+    ...pick(createOptions(), "rAthenaPath"),
     template: {
       default: "login_server",
       description:

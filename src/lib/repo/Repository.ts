@@ -8,6 +8,12 @@ export type RepositoryOptions<T, DefaultValue extends Maybe<T> = undefined> = {
   logReads?: boolean;
 };
 
+export type RepositoryStatus =
+  | { type: "pending" }
+  | { type: "resolved" }
+  | { type: "rejected"; error: unknown }
+  | { type: "idle" };
+
 export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
   implements PromiseLike<T | DefaultValue>
 {
@@ -16,6 +22,7 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
 
   private _isInitialized = false;
   private _isDisposed = false;
+  private _status: RepositoryStatus = { type: "idle" };
 
   get isInitialized() {
     return this._isInitialized;
@@ -23,6 +30,10 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
 
   get isDisposed() {
     return this._isDisposed;
+  }
+
+  get status() {
+    return this._status;
   }
 
   // Lazy resolve of logger because it needs to read
@@ -57,14 +68,17 @@ export abstract class Repository<T, DefaultValue extends Maybe<T> = T>
       if (this.logReads) {
         promise = this.logger.track(promise, "read");
       }
+      this._status = { type: "pending" };
       this.pendingReadPromise = promise
         .then((value) => {
+          this._status = { type: "resolved" };
           delete this.pendingReadPromise;
           return value ?? this.defaultValue;
         })
-        .catch((e) => {
+        .catch((error) => {
+          this._status = { type: "rejected", error };
           delete this.pendingReadPromise;
-          this.logger.error("Failed to read:", e);
+          this.logger.error("Failed to read:", error);
           return this.defaultValue;
         });
     }

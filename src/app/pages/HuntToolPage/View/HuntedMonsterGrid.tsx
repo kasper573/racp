@@ -7,7 +7,7 @@ import { trpc } from "../../../state/client";
 import { MonsterIdentifierByFilter } from "../../../components/MonsterIdentifier";
 import { MonsterId } from "../../../../api/services/monster/types";
 import { ColumnConventionProps, DataGrid } from "../../../components/DataGrid";
-import { LoadingSpinner } from "../../../components/LoadingSpinner";
+import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { InfoTooltip } from "../../../components/InfoTooltip";
 import { LinkIconButton } from "../../../components/Link";
 import { routes } from "../../../router";
@@ -79,7 +79,7 @@ const columns: ColumnConventionProps<HuntedMonster, MonsterId>["columns"] = {
           sort: [{ field: "amount", sort: "desc" }],
         });
       if (isLoading) {
-        return <LoadingSpinner variant="linear" />;
+        return <LoadingIndicator variant="linear" />;
       }
       if (!spawns.length) {
         return (

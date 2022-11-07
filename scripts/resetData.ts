@@ -5,8 +5,8 @@ import { promisify } from "util";
 import { groupBy, pick, uniq } from "lodash";
 import recursiveReadDir = require("recursive-readdir");
 import * as mysql from "mysql";
-import { readCliArgs } from "../src/lib/cli";
-import { options } from "../src/api/options";
+import { readCliArgs } from "../src/cli";
+import { createOptions } from "../src/api/options";
 import { createLogger } from "../src/lib/logger";
 import { createUserRepository } from "../src/api/services/user/repository";
 import {
@@ -27,7 +27,7 @@ async function resetData() {
   const logger = createLogger(console.log).chain("removeUGC");
   const args = readCliArgs({
     ...pick(
-      options,
+      createOptions(),
       "rAthenaPath",
       "adminPermissionName",
       "dataFolder",
@@ -39,11 +39,9 @@ async function resetData() {
 
   // Remove uploaded files
   logger.log("Removing uploaded files...");
-  const dataFolder = path.join(__dirname, "..", args.dataFolder);
-  const publicFolder = path.join(__dirname, "..", args.publicFolder);
   await Promise.all([
-    recursiveRemoveFiles(dataFolder),
-    recursiveRemoveFiles(publicFolder),
+    recursiveRemoveFiles(args.dataFolder),
+    recursiveRemoveFiles(args.publicFolder),
   ]);
 
   // Reset rAthena databases
@@ -54,11 +52,14 @@ async function resetData() {
       const { database } = await driver.dbInfo();
       logger.log(`Truncating database for drivers: ${group}`);
       await runSqlQuery(conn, createTruncateDBQuery(database));
-      const sqlFiles = uniq(
-        group.map((name) => path.resolve(args.rAthenaPath, sqlFilesPerDb[name]))
+      const relativeSqlFiles = uniq(
+        group.map((driverName) => sqlFilesPerDb[driverName])
       );
-      for (const sqlFile of sqlFiles) {
-        const sqlQuery = await fs.promises.readFile(sqlFile, "utf-8");
+      for (const relativeSqlFile of relativeSqlFiles) {
+        const [sqlFile, sqlQuery] = await resolveRAthenaSqlFile(
+          args.rAthenaPath,
+          relativeSqlFile
+        );
         logger.log(`Executing sql file: ${sqlFile}`);
         await runSqlQuery(conn, sqlQuery);
       }
@@ -67,7 +68,8 @@ async function resetData() {
 
   // Reset RACP database
   const { stdout, stderr } = await execAsync(
-    "npx prisma migrate reset --force"
+    "npx prisma migrate reset --force",
+    { cwd: path.resolve(__dirname, "..") }
   );
   if (stderr) {
     logger.error(stderr);
@@ -111,6 +113,29 @@ const sqlFilesPerDb: Record<string, string> = {
   char_server: "sql-files/main.sql",
   log_db: "sql-files/logs.sql",
 };
+
+async function resolveRAthenaSqlFile(
+  rAthenaPath: string,
+  sqlFileRelativePath: string
+) {
+  const localSqlFile = path.resolve(rAthenaPath, sqlFileRelativePath);
+  try {
+    return [
+      localSqlFile,
+      await fs.promises.readFile(localSqlFile, "utf8"),
+    ] as const;
+  } catch {
+    const fallbackSqlFile = path.resolve(
+      __dirname,
+      "../node_modules/rathena",
+      sqlFileRelativePath
+    );
+    return [
+      fallbackSqlFile,
+      await fs.promises.readFile(fallbackSqlFile, "utf8"),
+    ] as const;
+  }
+}
 
 async function groupDatabaseDrivers(db: RAthenaDatabaseDriver) {
   const dbInfos = await Promise.all(db.all.map((one) => one.dbInfo()));

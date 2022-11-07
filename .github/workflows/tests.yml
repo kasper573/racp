@@ -10,34 +10,72 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: "16"
           cache: "yarn"
-      - run: yarn install --frozen-lockfile
+
+      - name: Install project dependencies
+        run: yarn --prefer-offline
+
       - run: yarn lint
 
   unit-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: "16"
           cache: "yarn"
-      - run: yarn install --frozen-lockfile
+
+      - name: Install project dependencies
+        run: yarn --prefer-offline
+
       - run: yarn test:unit
 
   component-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: "16"
           cache: "yarn"
-      - run: yarn install --frozen-lockfile
+
+      - name: Install project dependencies
+        run: yarn --prefer-offline
+
       - run: yarn test:component
+
+  integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "yarn"
+
+      - name: Install project dependencies
+        run: yarn --prefer-offline
+
+      - run: yarn api:build
+
+      - name: Test rAthena integration
+        env:
+          NODE_ENV: production
+          donationEnvironment: fake
+          jwtSecret: test
+        run: yarn test:integration
 
   e2e-widescreen:
     uses: ./.github/workflows/e2e.reusable.yml

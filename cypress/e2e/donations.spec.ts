@@ -120,6 +120,7 @@ function paypalFlow() {
 function submitSettings(editSomeSettings: Function) {
   editSomeSettings();
   cy.findByRole("form").submit();
+  waitForPageReady();
 }
 
 function updateSettingsAndGotoDonations(editSomeSettings: Function) {

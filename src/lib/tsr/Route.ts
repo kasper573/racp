@@ -104,6 +104,10 @@ class RouteMembers<Def extends RouteDefinition> {
     return createRoute({ ...this.def, path, matchOptions } as any);
   }
 
+  mirror(mirror: Def["mirror"]): Route<Def> {
+    return createRoute({ ...this.def, mirror });
+  }
+
   params<ParamsType extends RouteParamsTypeFor<Def["path"]>>(
     params: ParamsType
   ): Route<

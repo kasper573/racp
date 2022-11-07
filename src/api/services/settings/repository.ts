@@ -1,4 +1,3 @@
-import * as path from "path";
 import { zodJsonProtocol } from "../../../lib/zod/zodJsonProtocol";
 import { FileRepository } from "../../../lib/repo/FileRepository";
 import { Logger } from "../../../lib/logger";
@@ -18,7 +17,7 @@ export function createAdminSettingsRepository({
 }) {
   return new FileRepository({
     logger,
-    directory: path.join(process.cwd(), dataFolder),
+    directory: dataFolder,
     relativeFilename: "settings.json",
     protocol: zodJsonProtocol(adminSettingsType),
     defaultValue: defaultAdminSettings,

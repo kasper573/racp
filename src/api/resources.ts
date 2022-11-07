@@ -1,4 +1,3 @@
-import * as path from "path";
 import { AnyZodObject, ZodType } from "zod";
 import { createResourceManager as createResourceManagerImpl } from "../lib/createResourceManager";
 import { Logger } from "../lib/logger";
@@ -57,7 +56,7 @@ export function createResourceManager({
         return new FileRepository({
           ...options,
           ...inlineOptions,
-          directory: path.join(process.cwd(), dataFolder),
+          directory: dataFolder,
         });
       }
     )

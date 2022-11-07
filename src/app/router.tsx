@@ -1,9 +1,7 @@
-import { lazy } from "react";
 import {
   AccountCircle,
   AdminPanelSettings,
   EmojiEvents,
-  Home,
   Image,
   ImageSearch,
   Info,
@@ -24,7 +22,6 @@ import { monsterFilter, mvpFilter } from "../api/services/monster/types";
 import { mapInfoFilter } from "../api/services/map/types";
 import { vendorItemFilter } from "../api/services/vendor/types";
 import { skillFilter } from "../api/services/skill/types";
-import { Redirect } from "../lib/tsr/react/Redirect";
 import { zodLiteralString } from "../lib/zod/zodLiteralString";
 import { RouteLocation } from "../lib/tsr/types";
 import { huntType } from "../../prisma/zod";
@@ -32,15 +29,15 @@ import { requireAuth } from "./util/requireAuth";
 import { requireSettings } from "./util/requireSettings";
 import { t } from "./tsr";
 import { mapViewRoute } from "./pages/MapViewPage/route";
+import { enhancedLazyComponent as lazy } from "./util/enhancedLazyComponent";
 
 export const router = t.router({
   home: t.route
     .path("", { exact: true })
-    .renderer(lazy(() => import("./pages/HomePage")))
-    .meta({ title: "Home", icon: <Home /> }),
+    .mirror((): RouteLocation => routes.item.$({})),
   user: t.route
     .path("user", { exact: true })
-    .renderer(() => <Redirect to={routes.user.settings({})} />)
+    .mirror((): RouteLocation => routes.user.settings.$({}))
     .children({
       settings: t.route
         .path("settings")
@@ -59,7 +56,7 @@ export const router = t.router({
     }),
   item: t.route
     .path("item", { exact: true })
-    .renderer(() => <Redirect to={routes.item.search({})} />)
+    .mirror((): RouteLocation => routes.item.search.$({}))
     .meta({ title: "Items", icon: <Redeem /> })
     .children({
       search: t.route
@@ -73,7 +70,7 @@ export const router = t.router({
     }),
   skill: t.route
     .path("skill", { exact: true })
-    .renderer(() => <Redirect to={routes.skill.search({})} />)
+    .mirror((): RouteLocation => routes.skill.search.$({}))
     .meta({ title: "Skills", icon: <School /> })
     .children({
       search: t.route
@@ -96,7 +93,7 @@ export const router = t.router({
     .meta({ title: "Mvps", icon: <EmojiEvents /> }),
   monster: t.route
     .path("monster", { exact: true })
-    .renderer(() => <Redirect to={routes.monster.search({})} />)
+    .mirror((): RouteLocation => routes.monster.search.$({}))
     .meta({ title: "Monsters", icon: <PestControlRodent /> })
     .children({
       search: t.route
@@ -113,7 +110,7 @@ export const router = t.router({
     }),
   map: t.route
     .path("map", { exact: true })
-    .renderer(() => <Redirect to={routes.map.search({})} />)
+    .mirror((): RouteLocation => routes.map.search.$({}))
     .meta({ title: "Maps", icon: <Map /> })
     .children({
       search: t.route
@@ -161,7 +158,7 @@ export const router = t.router({
     }),
   admin: t.route
     .path("admin", { exact: true })
-    .renderer(() => <Redirect to={routes.admin.settings({})} />)
+    .mirror((): RouteLocation => routes.admin.settings.$({}))
     .meta({ title: "Admin", icon: <AdminPanelSettings /> })
     .use(requireAuth(UserAccessLevel.Admin))
     .children({

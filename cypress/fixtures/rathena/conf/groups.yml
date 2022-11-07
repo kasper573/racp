@@ -1,0 +1,4 @@
+Body:
+  - Id: 99
+    Permissions:
+      channel_admin: true

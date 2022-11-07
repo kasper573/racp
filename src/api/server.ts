@@ -8,7 +8,7 @@ import { enableMapSet } from "immer";
 import { createLogger } from "../lib/logger";
 import { createPublicFileLinker } from "../lib/fs/createPublicFileLinker";
 import { createImageFormatter } from "../lib/image/createImageFormatter";
-import { readCliArgs } from "../lib/cli";
+import { readCliArgs } from "../cli";
 import { loggerToMorgan } from "../lib/loggerToMorgan";
 import { createRAthenaDatabaseDriver } from "./rathena/RAthenaDatabaseDriver";
 import {
@@ -18,7 +18,7 @@ import {
 import { createUserService } from "./services/user/service";
 import { createUtilService } from "./services/util/service";
 import { createItemService } from "./services/item/service";
-import { options } from "./options";
+import { createOptions } from "./options";
 import { createMonsterService } from "./services/monster/service";
 import { createMetaService } from "./services/meta/service";
 import { createItemRepository } from "./services/item/repository";
@@ -48,8 +48,11 @@ import { createHuntService } from "./services/hunt/service";
 
 enableMapSet();
 
-const args = readCliArgs(options);
+const rootFolder = process.cwd();
+const args = readCliArgs(createOptions(rootFolder), rootFolder);
 const logger = createLogger(coloredConsole, { format: logFormat });
+
+console.log("Starting API with options", args);
 
 const app = express();
 const auth = createAuthenticator({ secret: args.jwtSecret, ...args });
@@ -57,7 +60,7 @@ const radb = createRAthenaDatabaseDriver({ ...args, logger });
 const cpdb = createRACPDatabaseClient();
 const formatter = createImageFormatter({ extension: ".png", quality: 70 });
 const linker = createPublicFileLinker({
-  directory: path.join(process.cwd(), args.publicFolder),
+  directory: args.publicFolder,
   hostname: args.hostname,
   port: args.apiPort,
 });
@@ -82,12 +85,22 @@ const maps = createMapRepository({ ...monsters, resources });
 const skills = createSkillRepository(resources);
 const exp = createExpRepository(resources);
 
-if (args.preloadAllResources) {
+if (args.validateResources) {
+  Promise.all(resourceManager.instances).then(() => {
+    const failed =
+      resourceManager.instances.filter((r) => r.status.type === "rejected")
+        .length > 0;
+    failed
+      ? logger.error("Resource validation failed")
+      : logger.log("Resource validation passed");
+    process.exit(failed ? 1 : 0);
+  });
+} else if (args.preloadResources) {
   Promise.all(resourceManager.instances);
 }
 
 const router = createApiRouter({
-  util: createUtilService(),
+  util: createUtilService(path.resolve(rootFolder, "bin")),
   user: createUserService({ radb, user, sign: auth.sign, ...args }),
   item: createItemService(items),
   monster: createMonsterService({ radb, repo: monsters }),

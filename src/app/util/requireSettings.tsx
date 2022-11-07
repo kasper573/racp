@@ -1,7 +1,6 @@
 import { NoAccessPage } from "../pages/NoAccessPage";
 import { AdminPublicSettings } from "../../api/services/settings/types";
 import { trpc } from "../state/client";
-import { LoadingPage } from "../pages/LoadingPage";
 import { t } from "../tsr";
 
 export function requireSettings(
@@ -10,7 +9,7 @@ export function requireSettings(
   return t.middleware((LockedComponent) => (props) => {
     const { data, isLoading } = trpc.settings.readPublic.useQuery();
     if (isLoading) {
-      return <LoadingPage />;
+      return null;
     }
     if (!data || !hasSettings(data)) {
       return <NoAccessPage />;

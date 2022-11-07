@@ -15,11 +15,16 @@ export default defineConfig({
   chromeWebSecurity: false,
 
   e2e: {
-    requestTimeout: 60000, // Very high to avoid flakiness caused by admin operations causing API to clear cache
     specPattern: "cypress/**/*.spec.ts",
     setupNodeEvents(on, config) {
       return dotenvFlowPlugin(config, undefined, true);
     },
+
+    // High timeout explained:
+    // The default timeout is not enough due to a lot of our e2e flows involving navigating between several pages,
+    // which causes lazy loading of JS due to code splitting, which on some dry runs cause delays.
+    // The default timeout would work in most cases, but we want to be safe and not have flaky tests.
+    defaultCommandTimeout: 10000,
   },
 
   component: {

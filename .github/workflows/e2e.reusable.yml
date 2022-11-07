@@ -37,8 +37,9 @@ jobs:
       appPort: 8080
       donationEnvironment: "fake"
       exposeInternalErrors: true
+      showDetailsInErrorBoundary: true
+      jwtSecret: test
       apiBaseUrl: http://localhost:8081
-      rAthenaPath: ./node_modules/rathena
       CYPRESS_CI: true
       CYPRESS_BASE_URL: http://localhost:8080
       CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
@@ -50,16 +51,17 @@ jobs:
           distribution: "zulu"
           java-version: "17"
 
-      - uses: actions/setup-node@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: "16"
           cache: "yarn"
 
-      - run: yarn install --frozen-lockfile
+      - name: Install project dependencies
+        run: yarn --prefer-offline
 
       - name: Directory access permissions
         run: |
-          chmod -R a+rwX ./node_modules/rathena
           chmod -R a+rwX ./node_modules/.prisma
           chmod -R a+rwX ./cypress
           chmod -R a+rwX ./prisma
@@ -76,17 +78,15 @@ jobs:
           MYSQL_PASSWORD: racp
           MYSQL_DATABASE: racp
 
-      - name: Inject RAthena fixtures
-        run: yarn inject-rathena-fixtures
-
-      - name: Build everything
-        run: |
-          export NODE_ENV=production
-          yarn build
+      - name: Build
+        run: yarn build
+        env:
+          NODE_ENV: production
 
       - name: Run e2e tests
         run: yarn test:e2e
         env:
+          NODE_ENV: production
           CYPRESS_VIEWPORT_WIDTH: ${{ inputs.width }}
           CYPRESS_VIEWPORT_HEIGHT: ${{ inputs.height }}
 
@@ -110,3 +110,9 @@ jobs:
         with:
           name: cypress-videos-${{ inputs.name }}
           path: cypress/videos
+
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: dist-${{ inputs.name }}
+          path: dist

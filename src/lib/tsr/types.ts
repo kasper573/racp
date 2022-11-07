@@ -20,6 +20,7 @@ export interface RouteDefinition<
   children: Children;
   middlewares: Array<RouteMiddleware<ParamsType, TSRDef["renderResult"]>>;
   matchOptions?: RouteMatchOptions;
+  mirror?: () => RouteLocation | undefined;
 }
 
 export type RouteMiddleware<

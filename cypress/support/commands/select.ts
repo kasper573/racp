@@ -39,6 +39,12 @@ Cypress.Commands.overwrite<"select", "element">(
     // Material UI selects
     const wrappedSubject = cy.wrap(subject).click();
 
+    Cypress.log({
+      name: "select",
+      displayName: "Select",
+      message: `Selecting ${vtiNormalized.join(", ")}`,
+    });
+
     // Not chained because of MUI portals.
     // Potentially unsafe in case of multiple open selects, but if that happens we can refactor.
     cy.findAllByRole("option", { hidden: true })

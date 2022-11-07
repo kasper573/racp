@@ -16,7 +16,7 @@ import { trpc } from "../state/client";
 import { ShopItem } from "../../api/services/shop/types";
 import { Link } from "./Link";
 import { IconWithLabel } from "./IconWithLabel";
-import { LoadingSpinner } from "./LoadingSpinner";
+import { LoadingIndicator } from "./LoadingIndicator";
 
 export type ItemIdentifierBaseProps = Pick<
   ComponentProps<typeof IconWithLabel>,
@@ -122,7 +122,7 @@ export interface ItemIdentifierByFilterProps extends ItemIdentifierBaseProps {
 export function ItemIdentifierByFilter({
   filter,
   fallback = "Unknown item",
-  loader = <LoadingSpinner variant="linear" />,
+  loader = <LoadingIndicator variant="linear" />,
   ...props
 }: ItemIdentifierByFilterProps) {
   const { data: { entities: [item] = [] } = {}, isLoading } =
@@ -190,7 +190,7 @@ function TooltipContent({
       {...props}
     >
       {isLoading ? (
-        <LoadingSpinner />
+        <LoadingIndicator />
       ) : (
         <>
           {cards.map((item, index) => (

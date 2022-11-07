@@ -23,16 +23,19 @@ jobs:
 
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: "16"
           cache: "yarn"
+
+      - name: Install project dependencies
+        run: yarn --prefer-offline
 
       - name: Build
         env:
           apiBaseUrl: //${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_API_PORT }}
         run: |
-          yarn install --frozen-lockfile
           export NODE_ENV=production
           yarn build
 

@@ -12,13 +12,13 @@ export function waitForPageReady(
   // which cause the API to rebuild cache, which may take a while.
   timeout = 60000
 ) {
-  cy.waitForNetworkIdle(200); // Make sure page has been loaded
+  cy.waitForNetworkIdle(100);
 
   // Page is ready when no loading spinner has been visible for 1 second
   cy.get("body").then(($body) =>
     cy.shouldFor(
-      () => $body.find(`[data-testid="loading-spinner"]`).length === 0,
-      1000,
+      () => $body.find(`[data-testid="loading-indicator"]`).length === 0,
+      100,
       { timeout, name: "No loading spinner" }
     )
   );

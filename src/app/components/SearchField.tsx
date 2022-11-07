@@ -1,7 +1,7 @@
 import { ComponentProps, ComponentType, Key, ReactNode, useState } from "react";
 import { Autocomplete, Box, Popper, TextField } from "@mui/material";
 import { useDebounce } from "use-debounce";
-import { LoadingSpinner } from "./LoadingSpinner";
+import { LoadingIndicator } from "./LoadingIndicator";
 
 export function SearchField<T>({
   label,
@@ -44,7 +44,7 @@ export function SearchField<T>({
       filterSelectedOptions
       clearOnBlur
       loading={isLoading}
-      loadingText={<LoadingSpinner variant="linear" />}
+      loadingText={<LoadingIndicator variant="linear" />}
       clearOnEscape
       value={value ?? localValue}
       multiple

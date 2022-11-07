@@ -59,8 +59,8 @@ export const userRegisterPayloadType = zod
 
 export const userGroupType = zod.object({
   Id: zod.number(),
-  Name: zod.string(),
-  Level: zod.number(),
+  Name: zod.string().default(""),
+  Level: zod.number().default(0),
   LogCommands: zod.boolean().default(false),
   Commands: toggleRecordType,
   CharCommands: toggleRecordType,

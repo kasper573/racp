@@ -51,7 +51,7 @@ export function createHuntService({
         });
 
         if (!hunt) {
-          throw new TRPCError({ code: "NOT_FOUND" });
+          throw new TRPCError({ code: "FORBIDDEN", message: "Unknown hunt" });
         }
         const isOwner = hunt.accountId === ctx.auth?.id;
         const mayRead = hunt.isPublished || isOwner;

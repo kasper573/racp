@@ -1,3 +1,4 @@
+import { uniq } from "lodash";
 import { Item, ItemId } from "../item/types";
 import { dedupe, dedupeRecordInsert } from "../../rathena/util/dedupe";
 import { ClientTextNode } from "../../common/clientTextType";
@@ -15,10 +16,18 @@ export function createMetaService({
   items: Repository<Map<ItemId, Item>>;
   monsters: Repository<Map<MonsterId, Monster>>;
 }) {
-  const meta = items.and(monsters).map("meta", ([items, monsters]) => ({
-    ...collectItemMeta(Array.from(items.values())),
-    ...collectMonsterMeta(Array.from(monsters.values())),
-  }));
+  const meta = items.and(monsters).map("meta", ([items, monsters]) => {
+    const itemMeta = collectItemMeta(Array.from(items.values()));
+    const monsterMeta = collectMonsterMeta(Array.from(monsters.values()));
+    const elements = uniq([...itemMeta.elements, ...monsterMeta.elements]);
+    const races = uniq([...itemMeta.races, ...monsterMeta.races]);
+    return {
+      ...itemMeta,
+      ...monsterMeta,
+      elements,
+      races,
+    };
+  });
 
   return t.router({
     read: t.procedure.output(metaType).query(() => meta.then()),
@@ -28,6 +37,8 @@ export function createMetaService({
 function collectMonsterMeta(monsters: Monster[]) {
   return {
     sizes: options(monsters, (i) => i.Size),
+    races: options(monsters, ({ Race }) => Race),
+    elements: options(monsters, ({ Element }) => Element),
     monsterModes: options(monsters, (i) => Object.keys(i.Modes ?? {})),
     monsterLevels: collectRange(monsters.map((m) => m.Level)),
     monsterWalkSpeeds: collectRange(monsters.map((m) => m.WalkSpeed ?? 0)),
@@ -45,8 +56,8 @@ function collectItemMeta(items: Item[]) {
     classes: options(items, (i) => Object.keys(i.Classes ?? {})),
     jobs: options(items, (item) => Object.keys(item.Jobs ?? {})),
     locations: options(items, (i) => Object.keys(i.Locations ?? {})),
-    elements: options(items, ({ Script }) => Script?.meta.elements),
     statuses: options(items, ({ Script }) => Script?.meta.statuses),
+    elements: options(items, ({ Script }) => Script?.meta.elements),
     races: options(items, ({ Script }) => Script?.meta.races),
   };
 }

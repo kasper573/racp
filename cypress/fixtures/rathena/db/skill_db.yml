@@ -1,0 +1,47 @@
+Body:
+  - Id: 9999999
+    Name: TEST_SKILL
+    Description: Test Skill
+    MaxLevel: 3
+    Type: Weapon
+    TargetType: Attack
+    Range: -1
+    Hit: Single
+    HitCount: 1
+    Element: Weapon
+    Status: Stun
+    Duration2: 4500
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 8
+        - Level: 2
+          Amount: 8
+        - Level: 3
+          Amount: 8
+      Weapon:
+        Fist: true
+  - Id: 1
+    Description: Filler 1
+  - Id: 2
+    Description: Filler 2
+  - Id: 3
+    Description: Filler 3
+  - Id: 4
+    Description: Filler 4
+  - Id: 5
+    Description: Filler 5
+  - Id: 6
+    Description: Filler 6
+  - Id: 7
+    Description: Filler 7
+  - Id: 8
+    Description: Filler 8
+  - Id: 9
+    Description: Filler 9
+  - Id: 10
+    Description: Filler 10
+  - Id: 11
+    Description: Filler 11
+  - Id: 12
+    Description: Filler 12

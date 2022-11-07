@@ -98,7 +98,6 @@ describe("sharing", () => {
     cy.url().then((huntUrl) => {
       signOut();
       cy.visit(huntUrl);
-      waitForPageReady();
       cy.contains("Unknown hunt");
     });
   });
@@ -109,7 +108,6 @@ describe("sharing", () => {
     cy.url().then((huntUrl) => {
       signOut();
       cy.visit(huntUrl);
-      waitForPageReady();
       assertHuntDetails({ itemAmount: 4, estimate: "40s", killsPerUnit: 8 });
     });
   });

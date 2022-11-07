@@ -16,7 +16,6 @@ import { Spaceless } from "../components/Spaceless";
 import { renderToggles } from "../util/renderToggles";
 import { useHistory } from "../../lib/tsr/react/useHistory";
 import { RouteComponentProps } from "../../lib/tsr/react/types";
-import { LoadingPage } from "./LoadingPage";
 
 export default function MonsterViewPage({
   params: { id, tab },
@@ -29,7 +28,7 @@ export default function MonsterViewPage({
   const monster = data?.entities[0];
 
   if (isLoading) {
-    return <LoadingPage />;
+    return <></>;
   }
   if (!monster || error) {
     return <Header title="Monster not found" />;

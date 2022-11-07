@@ -7,7 +7,7 @@ import {
 } from "@paypal/react-paypal-js";
 import { TextField } from "../controls/TextField";
 import { AdminPublicSettings } from "../../api/services/settings/types";
-import { LoadingSpinner } from "../components/LoadingSpinner";
+import { LoadingIndicator } from "../components/LoadingIndicator";
 import { UserProfile } from "../../api/services/user/types";
 import { calculateRewardedCredits } from "../../api/services/donation/utils/calculateRewardedCredits";
 import { trpc } from "../state/client";
@@ -41,7 +41,7 @@ export function DonationForm({
       }}
     >
       <PayPalSuspense
-        pending={<LoadingSpinner />}
+        pending={<LoadingIndicator />}
         rejected={<>Could not connect to PayPal. Please try again later.</>}
         initial={<>Connecting to PayPal. Please wait a moment.</>}
       >
@@ -85,7 +85,7 @@ export function DonationForm({
             <Stack direction="row" spacing={2} alignItems="center">
               {donationStateDescription.spinner && (
                 <div>
-                  <LoadingSpinner />
+                  <LoadingIndicator />
                 </div>
               )}
               <Typography color={donationStateDescription.color}>
@@ -187,7 +187,7 @@ const PayPalButtonProviders = {
   sandbox: RealPayPalButton,
   live: RealPayPalButton,
   fake: FakePayPalButton,
-  pending: () => <LoadingSpinner />,
+  pending: () => <LoadingIndicator />,
 };
 
 /**
