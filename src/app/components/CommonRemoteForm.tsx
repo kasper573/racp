@@ -1,11 +1,12 @@
 import { ComponentProps, ComponentType } from "react";
-import { LinearProgress, Tooltip } from "@mui/material";
+import { Tooltip } from "@mui/material";
 import {
   useRemoteState,
   UseRemoteStateProps,
 } from "../../lib/hooks/useRemoteState";
 import { CommonForm } from "./CommonForm";
 import { ProgressButton } from "./ProgressButton";
+import { LoadingIndicator } from "./LoadingIndicator";
 
 export type CommonRemoteFormProps<T> = UseRemoteStateProps<T> &
   Omit<ComponentProps<typeof CommonForm>, "children"> & {
@@ -54,7 +55,7 @@ export function CommonRemoteForm<T>({
       )}
       {...props}
     >
-      {isDownloading && <LinearProgress />}
+      {isDownloading && <LoadingIndicator variant="linear" />}
       {localState !== undefined && (
         <FormControls
           value={localState}
