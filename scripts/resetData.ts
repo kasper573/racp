@@ -3,8 +3,8 @@ import * as fs from "fs";
 import { exec } from "child_process";
 import { promisify } from "util";
 import { groupBy, pick, uniq } from "lodash";
-import recursiveReadDir = require("recursive-readdir");
 import * as mysql from "mysql";
+import recursiveReadDir = require("recursive-readdir");
 import { readCliArgs } from "../src/cli";
 import { createOptions } from "../src/api/options";
 import { createLogger } from "../src/lib/logger";
@@ -21,6 +21,8 @@ import {
 } from "../cypress/support/vars";
 import { createResourceManager } from "../src/api/resources";
 import { createAdminSettingsRepository } from "../src/api/services/settings/repository";
+import { UserAccessLevel } from "../src/api/services/user/types";
+
 const execAsync = promisify(exec);
 
 async function resetData() {
@@ -92,7 +94,7 @@ async function resetData() {
     userid: args.ADMIN_USER,
     user_pass: args.ADMIN_PASSWORD,
     email: "admin@localhost",
-    group_id: (await user.adminGroupIds)[0],
+    group_id: await user.userLevelToGroupId(UserAccessLevel.Admin),
     pincode: adminAccountPin,
   });
 

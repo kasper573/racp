@@ -2,11 +2,16 @@ import * as zod from "zod";
 import { TRPCError } from "@trpc/server";
 import { t } from "../../trpc";
 import { RAthenaDatabaseDriver } from "../../rathena/RAthenaDatabaseDriver";
-import { some } from "../../../lib/knex";
+import { count, some } from "../../../lib/knex";
 import { access } from "../../middlewares/access";
+import { createSearchTypes } from "../../common/search";
+import { knexMatcher } from "../../matcher";
+import { defined } from "../../../lib/std/defined";
 import {
   loginPayloadType,
   UserAccessLevel,
+  UserProfile,
+  userProfileFilter,
   userProfileMutationType,
   userProfileType,
   userRegisterPayloadType,
@@ -26,6 +31,37 @@ export function createUserService({
   sign: AuthenticatorSigner;
 }) {
   return t.router({
+    search: t.procedure
+      .input(searchUsersTypes.queryType)
+      .output(searchUsersTypes.resultType)
+      .query(async ({ input }) => {
+        if (input.filter?.access?.value !== undefined) {
+          if (Array.isArray(input.filter.access.value)) {
+            input.filter.access.value = await Promise.all(
+              defined(input.filter.access.value).map(repo.userLevelToGroupId)
+            );
+          } else if (typeof input.filter.access.value === "number") {
+            input.filter.access.value = await repo.userLevelToGroupId(
+              input.filter.access.value
+            );
+          }
+        }
+
+        const query = knexMatcher.search(createUserQuery(radb), input, {
+          id: "account_id",
+          username: "userid",
+          email: "email",
+          access: "group_id",
+        });
+
+        const [users, total] = await Promise.all([query, count(query)]);
+        const profiles = await usersToProfiles(repo, ...users);
+
+        return {
+          total,
+          entities: profiles,
+        };
+      }),
     register: t.procedure
       .input(userRegisterPayloadType)
       .output(zod.boolean())
@@ -58,9 +94,7 @@ export function createUserService({
       .input(loginPayloadType)
       .output(zod.object({ token: zod.string(), profile: userProfileType }))
       .mutation(async ({ input: { username, password } }) => {
-        const user = await radb.login
-          .table("login")
-          .select("account_id", "userid", "group_id", "email")
+        const user = await createUserQuery(radb)
           .where("userid", "=", username)
           .where("user_pass", "=", password)
           .first();
@@ -69,20 +103,14 @@ export function createUserService({
           throw new TRPCError({ code: "UNAUTHORIZED" });
         }
 
-        const id = user.account_id;
-        const ids = await repo.adminGroupIds;
-        const access = ids.includes(user.group_id)
-          ? UserAccessLevel.Admin
-          : UserAccessLevel.User;
+        const [profile] = await usersToProfiles(repo, user);
 
         return {
-          token: sign({ id, access }),
-          profile: {
-            id,
-            username: user.userid,
-            email: user.email,
-            access,
-          },
+          profile,
+          token: sign({
+            id: profile.id,
+            access: profile.access,
+          }),
         };
       }),
     updateMyProfile: t.procedure
@@ -114,4 +142,31 @@ export function createUserService({
         return affected > 0;
       }),
   });
+}
+
+const searchUsersTypes = createSearchTypes(
+  userProfileType,
+  userProfileFilter.type
+);
+
+function createUserQuery(radb: RAthenaDatabaseDriver) {
+  return radb.login
+    .table("login")
+    .select("account_id", "userid", "group_id", "email");
+}
+
+function usersToProfiles(
+  repo: UserRepository,
+  ...users: Awaited<ReturnType<typeof createUserQuery>>
+) {
+  return Promise.all(
+    users.map(
+      async (user): Promise<UserProfile> => ({
+        email: user.email,
+        access: await repo.groupIdToUserLevel(user.group_id),
+        id: user.account_id,
+        username: user.userid,
+      })
+    )
+  );
 }
