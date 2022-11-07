@@ -14,6 +14,7 @@ import {
   RAthenaDatabaseDriver,
 } from "../src/api/rathena/RAthenaDatabaseDriver";
 import {
+  adminAccountEmail,
   adminAccountId,
   adminAccountPin,
   adminCharId,
@@ -93,7 +94,7 @@ async function resetData() {
     account_id: adminAccountId,
     userid: args.ADMIN_USER,
     user_pass: args.ADMIN_PASSWORD,
-    email: "admin@localhost",
+    email: adminAccountEmail,
     group_id: await user.userLevelToGroupId(UserAccessLevel.Admin),
     pincode: adminAccountPin,
   });

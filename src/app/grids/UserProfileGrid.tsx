@@ -7,9 +7,9 @@ export const UserProfileGrid = DataGrid.define(trpc.user.search.useQuery)({
   emptyComponent: () => <>No users found</>,
   id: (user) => user.id,
   columns: {
-    id: true,
-    username: true,
-    email: true,
+    id: "Id",
+    username: "Name",
+    email: "Email",
     access: {
       headerName: "Access",
       sortable: false,
