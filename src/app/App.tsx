@@ -8,7 +8,6 @@ import { ErrorBoundary } from "react-error-boundary";
 import { RouterHistoryProvider } from "../lib/tsr/react/RouterContext";
 import { RouterSwitch } from "../lib/tsr/react/RouterSwitch";
 import { ReactRouter } from "../lib/tsr/react/types";
-import { Layout } from "./layout/Layout";
 import { createTheme } from "./fixtures/theme";
 import { themeStore } from "./state/theme";
 import { trpc } from "./state/client";
@@ -39,9 +38,7 @@ export function App({
               <HelmetProvider>
                 <ThemeProvider theme={theme}>
                   <CssBaseline />
-                  <Layout>
-                    <RouterSwitch router={router} variant="leaf" />
-                  </Layout>
+                  <RouterSwitch router={router} variant="tree" />
                 </ThemeProvider>
               </HelmetProvider>
             </QueryClientProvider>
