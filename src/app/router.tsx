@@ -152,9 +152,14 @@ export const router = new Router(
       .children({
         hunt: t.route
           .path("hunt", { exact: true })
+          .mirror((): RouteLocation => routes.tools.hunt.list.$({}))
           .meta({ title: "Hunt", icon: <ImageSearch /> })
-          .renderer(lazy(() => import("./pages/HuntToolPage/HuntListPage")))
           .children({
+            list: t.route
+              .path("list")
+              .renderer(
+                lazy(() => import("./pages/HuntToolPage/HuntListPage"))
+              ),
             view: t.route
               .path(":id")
               .params({ id: huntType.shape.id })
