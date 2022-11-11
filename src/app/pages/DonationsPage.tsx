@@ -6,6 +6,7 @@ import { Link } from "../components/Link";
 import { routes } from "../router";
 import { Auth } from "../components/Auth";
 import { UserAccessLevel } from "../../api/services/user/types";
+import { Page } from "../layout/Page";
 
 export default function DonationsPage() {
   const { data: balance } = trpc.donation.balance.useQuery();
@@ -23,7 +24,7 @@ export default function DonationsPage() {
   }
 
   return (
-    <>
+    <Page>
       <Header />
       {settings.donations.presentation.split(/[\r\n]+/).map((line, index) => (
         <Typography key={index} paragraph>
@@ -57,6 +58,6 @@ export default function DonationsPage() {
           to make a donation.
         </Typography>
       </Auth>
-    </>
+    </Page>
   );
 }

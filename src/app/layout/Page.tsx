@@ -1,15 +1,15 @@
 import { Container, styled } from "@mui/material";
 import { ComponentProps } from "react";
 
-export const maxContentWidth = "xl" as const;
+export const pageMaxWidth = "xl" as const;
 
-export function ContentContainer({
+export function Page({
   children,
-  maxWidth = maxContentWidth,
+  maxWidth = pageMaxWidth,
   ...props
 }: ComponentProps<typeof Outer>) {
   return (
-    <Outer maxWidth={maxContentWidth} {...props}>
+    <Outer maxWidth={pageMaxWidth} {...props}>
       <Inner>{children}</Inner>
     </Outer>
   );

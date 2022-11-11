@@ -6,6 +6,7 @@ import { trpc } from "../state/client";
 import { ShopItemGrid } from "../grids/ShopItemGrid";
 import { Link } from "../components/Link";
 import { RouteComponentProps } from "../../lib/tsr/react/types";
+import { Page } from "../layout/Page";
 
 export default function ShopViewPage({
   params: { id },
@@ -28,7 +29,7 @@ export default function ShopViewPage({
   }
 
   return (
-    <>
+    <Page>
       <Header
         title={
           <>
@@ -61,6 +62,6 @@ export default function ShopViewPage({
           shopId: { value: shop.id, matcher: "equals" },
         }}
       />
-    </>
+    </Page>
   );
 }

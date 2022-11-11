@@ -26,6 +26,7 @@ import { useHistory } from "../../../../lib/tsr/react/useHistory";
 import { routes } from "../../../router";
 import { Spaceless } from "../../../components/Spaceless";
 import { huntNameType } from "../../../../api/services/hunt/types";
+import { Page } from "../../../layout/Page";
 import { HuntedItemGrid } from "./HuntedItemGrid";
 import { HuntedMonsterGrid } from "./HuntedMonsterGrid";
 
@@ -63,7 +64,7 @@ export default function HuntViewPage({
   }
 
   return (
-    <>
+    <Page>
       <Stack spacing={2} sx={{ flex: 1 }}>
         <Header
           title={
@@ -164,7 +165,7 @@ export default function HuntViewPage({
           <HuntedMonsterGrid monsters={hunt.monsters} />
         </CommonPageGrid>
       </Stack>
-    </>
+    </Page>
   );
 }
 

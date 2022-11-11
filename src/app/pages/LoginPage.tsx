@@ -9,6 +9,7 @@ import { LoginPayload } from "../../api/services/user/types";
 import { useLogin } from "../state/auth";
 import { RouteComponentProps } from "../../lib/tsr/react/types";
 import { RouteLocation } from "../../lib/tsr/types";
+import { Page } from "../layout/Page";
 
 export default function LoginPage({
   params: { destination },
@@ -25,7 +26,7 @@ export default function LoginPage({
   }
 
   return (
-    <>
+    <Page>
       <Header />
       <CenteredContent>
         <UserLoginForm
@@ -42,6 +43,6 @@ export default function LoginPage({
           <Link to={routes.user.register({})}>Create a new account</Link>.
         </Typography>
       </CenteredContent>
-    </>
+    </Page>
   );
 }

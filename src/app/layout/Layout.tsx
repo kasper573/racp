@@ -20,7 +20,7 @@ import { globalStyles } from "./globalStyles";
 import { Toolbar } from "./Toolbar";
 import { Menu } from "./Menu";
 import { Logo } from "./Logo";
-import { ContentContainer, maxContentWidth } from "./ContentContainer";
+import { pageMaxWidth } from "./Page";
 
 export function Layout({ children }: { children?: ReactNode }) {
   const theme = useTheme();
@@ -58,7 +58,7 @@ export function Layout({ children }: { children?: ReactNode }) {
       {globalStyles}
       <AppBar position="fixed" sx={contentBounds}>
         <MuiToolbar disableGutters>
-          <Container maxWidth={maxContentWidth} sx={{ display: "flex" }}>
+          <Container maxWidth={pageMaxWidth} sx={{ display: "flex" }}>
             <Toolbar>
               {!isDrawerPermanent && (
                 <Stack direction="row" spacing={1} alignItems="center">
@@ -111,7 +111,7 @@ export function Layout({ children }: { children?: ReactNode }) {
           <MuiToolbar>
             <GlobalLoadingIndicator />
           </MuiToolbar>
-          <ContentContainer>{children}</ContentContainer>
+          {children}
         </Suspense>
       </Box>
     </>

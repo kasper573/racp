@@ -4,6 +4,7 @@ import { useRouteState } from "../../lib/tsr/react/useRouteState";
 import { SkillGrid } from "../grids/SkillGrid";
 import { FilterMenu } from "../components/FilterMenu";
 import { SkillSearchFilterForm } from "../forms/SkillSearchFilterForm";
+import { Page } from "../layout/Page";
 
 export default function SkillSearchPage() {
   const [filter = {}, setFilter] = useRouteState(
@@ -11,7 +12,7 @@ export default function SkillSearchPage() {
     "filter"
   );
   return (
-    <>
+    <Page>
       <Header>
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}
@@ -21,6 +22,6 @@ export default function SkillSearchPage() {
         />
       </Header>
       <SkillGrid filter={filter} sx={{ mt: 1 }} />
-    </>
+    </Page>
   );
 }

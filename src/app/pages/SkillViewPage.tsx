@@ -9,6 +9,7 @@ import { durationString } from "../../lib/std/durationString";
 import { ItemIdentifierByName } from "../components/ItemIdentifier";
 import { Zeny } from "../components/Zeny";
 import { RouteComponentProps } from "../../lib/tsr/react/types";
+import { Page } from "../layout/Page";
 
 export default function SkillViewPage({
   params: { id },
@@ -27,7 +28,7 @@ export default function SkillViewPage({
   }
 
   return (
-    <>
+    <Page>
       <Header title={skill.DisplayName} />
 
       <CommonPageGrid>
@@ -126,7 +127,7 @@ export default function SkillViewPage({
           ]}
         />
       </CommonPageGrid>
-    </>
+    </Page>
   );
 }
 

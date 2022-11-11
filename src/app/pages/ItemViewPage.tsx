@@ -16,6 +16,7 @@ import { ShopItemGrid } from "../grids/ShopItemGrid";
 import { TabSwitch } from "../components/TabSwitch";
 import { renderToggles } from "../util/renderToggles";
 import { RouteComponentProps } from "../../lib/tsr/react/types";
+import { Page } from "../layout/Page";
 
 export default function ItemViewPage({
   params: { id },
@@ -46,7 +47,7 @@ export default function ItemViewPage({
   );
 
   return (
-    <>
+    <Page>
       <Header
         title={
           <>
@@ -141,6 +142,6 @@ export default function ItemViewPage({
           </Box>
         </CommonPageGrid>
       </Stack>
-    </>
+    </Page>
   );
 }
