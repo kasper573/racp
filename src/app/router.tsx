@@ -129,13 +129,17 @@ export const router = new Router(
       .meta({ title: "Vendings", icon: <Storefront /> }),
     donation: t.route
       .path("donation")
-      .renderer(lazy(() => import("./pages/DonationsPage")))
       .meta({ title: "Donations", icon: <Paid /> })
+      .mirror((): RouteLocation => routes.donation.donate.$({}))
       .use(requireSettings((settings) => settings.donations.enabled))
       .children({
+        donate: t.route
+          .path("", { exact: true })
+          .renderer(lazy(() => import("./pages/DonationsPage"))),
         items: t.route
           .path("items/:filter?")
           .params({ filter: itemFilter.type.optional() })
+          .meta({ title: "Items" })
           .renderer(lazy(() => import("./pages/DonationItemsPage"))),
       }),
     serverInfo: t.route
