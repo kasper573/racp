@@ -70,12 +70,14 @@ function readDropRates(values: Config, name: DropRateGroupName): DropRateGroup {
     return parseFloat(value);
   }
 
+  const baseRate = readProp(`item_rate_${name}`);
   return {
     name,
     scales: {
-      all: readProp(`item_rate_${name}`) / 100,
-      bosses: readProp(`item_rate_${name}_boss`, name !== "mvp", 100) / 100,
-      mvps: readProp(`item_rate_${name}_mvp`, name !== "mvp", 100) / 100,
+      all: baseRate / 100,
+      bosses:
+        readProp(`item_rate_${name}_boss`, name !== "mvp", baseRate) / 100,
+      mvps: readProp(`item_rate_${name}_mvp`, name !== "mvp", baseRate) / 100,
     },
     min: readProp(`item_drop_${name}_min`),
     max: readProp(`item_drop_${name}_max`),
