@@ -5,7 +5,6 @@
   "main": "index.js",
   "license": "UNLICENSED",
   "scripts": {
-    "postinstall": "yarn codegen:prisma",
     "lint": "eslint . & prettier . --check",
     "lint:fix": "eslint . --fix & prettier . --write",
     "build": "yarn api:build && yarn app:build",
