@@ -56,6 +56,12 @@ export function ItemSearchFilterForm({
         {...field("SubType", "oneOf")}
       />
       <Select
+        label="Location"
+        multi
+        options={meta?.locations}
+        {...field("Locations", "enabled")}
+      />
+      <Select
         label="Class"
         multi
         options={meta?.classes}
