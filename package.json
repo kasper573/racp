@@ -5,6 +5,7 @@
   "main": "index.js",
   "license": "UNLICENSED",
   "scripts": {
+    "postinstall": "yarn codegen:prisma",
     "lint": "eslint . & prettier . --check",
     "lint:fix": "eslint . --fix & prettier . --write",
     "build": "yarn api:build && yarn app:build",
@@ -16,6 +17,7 @@
     "api:dev": "ts-node-dev --files src/api/server",
     "api:build": "yarn codegen:prisma && cd src/api && tsc --outDir ../../dist/api",
     "api:serve": "node dist/api/src/api/server.js",
+    "db:deploy": "npx prisma migrate deploy",
     "codegen:prisma": "npx prisma generate",
     "codegen:rathena": "ts-node --files scripts/generateRAthenaTypes.ts",
     "test:unit": "jest src --passWithNoTests",

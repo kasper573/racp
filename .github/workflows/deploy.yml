@@ -68,17 +68,12 @@ jobs:
             appPort=${{ secrets.DEPLOY_APP_PORT }}
             rAthenaPath=${{ secrets.DEPLOY_RATHENA_PATH }}
             jwtSecret=${{ secrets.DEPLOY_JWT_SECRET }}
-            log=verbose
             donationEnvironment=live
             preloadResources=true
             RACP_DATABASE_URL="file:./racp_prod.db"
             EOT
 
-            # Codegen required remotely since generated prisma code is node_modules, which is not uploaded
-            chmod -R a+rwX ./node_modules/.prisma
-            yarn codegen:prisma
-
             # Perform migrations
-            npx prisma migrate deploy
+            yarn db:deploy
 
             pm2 restart ecosystem.config.json

@@ -57,7 +57,7 @@ Everything else however is pretty much industry standard.
 
 To run RACP you will need the following software installed on your machine:
 
-- [Node.js](https://nodejs.org/en/)
+- [Node.js](https://nodejs.org/en/) + [Yarn](https://yarnpkg.com/)
 - [Mysql](https://www.mysql.com/)
 - [Java](https://www.java.com/)
 - [rAthena](https://github.com/rathena/) (Or a fork)
@@ -100,13 +100,29 @@ As for unit tests, they are not required, but are encouraged for more complex un
 This is a fairly standard React + Express.js application, so you can use the provided [scripts](package.json) to manually manage a production deployment if you have the technical experience to do so:
 
 - Clone this repository a server matching the [prerequisites](#prerequisites)
+- Create a `.env.local` file in the project root folder with your desired settings (see below)
+- Run `yarn install` to install latest dependencies
+- Run `yarn db:deploy` to deploy database migrations
 - Run `yarn build` to build both the API and pp, or `yarn (api|app):build` to build one.
 - Run `yarn serve` to serve both the API and app, or `yarn (api|app):serve` to serve one.
 
-However, first you will need to provide the proper production configuration. To see which configuration options are available:
+This `.env.local` configuration will work for most users:
 
-- For the Api: run `yarn api:serve --help`. Options are set via CLI or environment variables.
-- For the App: check [webpack.config.ts](webpack.config.ts). Options are set via environment variables.
+```text
+NODE_ENV=production
+reactRefresh=false
+hostname=<your servers hostname>
+apiPort=<your desired port for the api>
+apiBaseUrl="//<hostname>/<apiPort>"
+appPort=<your desired port for the app>
+rAthenaPath="<path to your rAthena folder>"
+jwtSecret=<your secret>
+```
+
+You can see which configuration options are available:
+
+- For the Api: run `yarn api:serve --help`.
+- For the App: see the `env` variable in [webpack.config.ts](webpack.config.ts).
 
 ### Automatic
 

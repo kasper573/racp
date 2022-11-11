@@ -67,7 +67,7 @@ jobs:
           chmod -R a+rwX ./prisma
 
       - name: Deploy database migrations
-        run: npx prisma migrate deploy
+        run: yarn db:deploy
 
       - name: Configure rAthena
         run: yarn configure-rathena
