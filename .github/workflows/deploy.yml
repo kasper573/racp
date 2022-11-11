@@ -60,16 +60,19 @@ jobs:
             # Make sure dependencies are installed on remote machine
             yarn install
 
-            # Set API env vars
-            export hostname=${{ secrets.DEPLOY_HOST }}
-            export apiPort=${{ secrets.DEPLOY_API_PORT }}
-            export appPort=${{ secrets.DEPLOY_APP_PORT }}
-            export rAthenaPath=${{ secrets.DEPLOY_RATHENA_PATH }}
-            export jwtSecret=${{ secrets.DEPLOY_JWT_SECRET }}
-            export log=verbose
-            export donationEnvironment=live
-            export preloadResources=true
-            export RACP_DATABASE_URL="file:./racp_prod.db"
+            # Create local production env file
+            rm -f .env.local
+            cat <<EOT >> .env.local
+            hostname=${{ secrets.DEPLOY_HOST }}
+            apiPort=${{ secrets.DEPLOY_API_PORT }}
+            appPort=${{ secrets.DEPLOY_APP_PORT }}
+            rAthenaPath=${{ secrets.DEPLOY_RATHENA_PATH }}
+            jwtSecret=${{ secrets.DEPLOY_JWT_SECRET }}
+            log=verbose
+            donationEnvironment=live
+            preloadResources=true
+            RACP_DATABASE_URL="file:./racp_prod.db"
+            EOT
 
             # Codegen required remotely since generated prisma code is node_modules, which is not uploaded
             chmod -R a+rwX ./node_modules/.prisma
