@@ -8,13 +8,18 @@ import {
   Stack,
   styled,
   Tooltip,
-  TooltipProps,
   Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import { FilterList } from "@mui/icons-material";
-import { ComponentProps, ComponentType, MouseEvent, useState } from "react";
+import {
+  ComponentProps,
+  ComponentType,
+  MouseEvent,
+  ReactNode,
+  useState,
+} from "react";
 import { concatFunctions } from "../../lib/std/concatFunctions";
 
 type AnyFilter = Record<string, any>;
@@ -22,7 +27,7 @@ type AnyFilter = Record<string, any>;
 export interface FilterMenuProps<T extends AnyFilter>
   extends Omit<ComponentProps<typeof IconButton>, "form" | "title"> {
   title?: string;
-  selectedText?: (numFilters: number) => TooltipProps["title"];
+  describeFilter?: (filter: T) => ReactNode;
   filter: T;
   setFilter: (filter: T) => void;
   fields: ComponentType<{ value: T; onChange: (filter: T) => void }>;
@@ -30,12 +35,7 @@ export interface FilterMenuProps<T extends AnyFilter>
 
 export function FilterMenu<T extends AnyFilter>({
   title = "Filters",
-  selectedText = (n) =>
-    n === 0
-      ? "No filters selected"
-      : n === 1
-      ? "1 filter selected"
-      : `${n} filters selected`,
+  describeFilter = defaultFilterDescriber,
   onClick,
   filter,
   setFilter,
@@ -111,7 +111,7 @@ export function FilterMenu<T extends AnyFilter>({
         spacing={1}
         {...{ style, sx, className }}
       >
-        <Typography>{selectedText(numFilters)}</Typography>
+        <Typography>{describeFilter(filter)}</Typography>
         <div>
           <Tooltip title="Select filters">
             <IconButton
@@ -122,6 +122,7 @@ export function FilterMenu<T extends AnyFilter>({
                 overlap="circular"
                 color="info"
                 badgeContent={numFilters}
+                invisible
                 anchorOrigin={{ vertical: "top", horizontal: "right" }}
               >
                 <FilterList />
@@ -134,6 +135,18 @@ export function FilterMenu<T extends AnyFilter>({
     </>
   );
 }
+
+const defaultFilterDescriber = (filter: AnyFilter) => {
+  const n = Object.keys(filter).length;
+  switch (n) {
+    case 0:
+      return "No filters selected";
+    case 1:
+      return "1 filter selected";
+    default:
+      return `${n} filters selected`;
+  }
+};
 
 const FieldsContainer = styled("div")`
   display: grid;
