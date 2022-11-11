@@ -61,7 +61,10 @@ jobs:
         run: yarn --prefer-offline
 
       - name: Directory access permissions
-        run: ./permissions.sh
+        run: |
+          chmod -R a+rwX ./node_modules/.prisma
+          chmod -R a+rwX ./cypress
+          chmod -R a+rwX ./prisma
 
       - name: Deploy database migrations
         run: yarn db:deploy
