@@ -22,7 +22,7 @@ type AnyFilter = Record<string, any>;
 export interface FilterMenuProps<T extends AnyFilter>
   extends Omit<ComponentProps<typeof IconButton>, "form" | "title"> {
   title?: string;
-  tooltipTitle?: (numFilters: number) => TooltipProps["title"];
+  selectedText?: (numFilters: number) => TooltipProps["title"];
   filter: T;
   setFilter: (filter: T) => void;
   fields: ComponentType<{ value: T; onChange: (filter: T) => void }>;
@@ -30,14 +30,19 @@ export interface FilterMenuProps<T extends AnyFilter>
 
 export function FilterMenu<T extends AnyFilter>({
   title = "Filters",
-  tooltipTitle = (n) =>
-    n === 0 ? title : n === 1 ? "1 filter selected" : `${n} filters selected`,
+  selectedText = (n) =>
+    n === 0
+      ? "No filters selected"
+      : n === 1
+      ? "1 filter selected"
+      : `${n} filters selected`,
   onClick,
-  children,
   filter,
   setFilter,
   fields: FilterForm,
-  ...props
+  style,
+  sx,
+  className,
 }: FilterMenuProps<T>) {
   const theme = useTheme();
   const [anchor, setAnchor] = useState<HTMLButtonElement | null>(null);
@@ -100,22 +105,31 @@ export function FilterMenu<T extends AnyFilter>({
 
   return (
     <>
-      <Tooltip title={tooltipTitle(numFilters)}>
-        <IconButton
-          aria-label={`Show ${title}`}
-          onClick={concatFunctions(open, onClick)}
-          {...props}
-        >
-          <Badge
-            overlap="circular"
-            color="info"
-            badgeContent={numFilters}
-            anchorOrigin={{ vertical: "top", horizontal: "right" }}
-          >
-            <FilterList />
-          </Badge>
-        </IconButton>
-      </Tooltip>
+      <Stack
+        direction="row"
+        alignItems="center"
+        spacing={1}
+        {...{ style, sx, className }}
+      >
+        <Typography>{selectedText(numFilters)}</Typography>
+        <div>
+          <Tooltip title="Select filters">
+            <IconButton
+              aria-label={`Show ${title}`}
+              onClick={concatFunctions(open, onClick)}
+            >
+              <Badge
+                overlap="circular"
+                color="info"
+                badgeContent={numFilters}
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+              >
+                <FilterList />
+              </Badge>
+            </IconButton>
+          </Tooltip>
+        </div>
+      </Stack>
       {content}
     </>
   );
