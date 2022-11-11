@@ -7,7 +7,6 @@ import {
   Fade,
   IconButton,
   Stack,
-  styled,
   Toolbar as MuiToolbar,
   useTheme,
 } from "@mui/material";
@@ -21,6 +20,7 @@ import { globalStyles } from "./globalStyles";
 import { Toolbar } from "./Toolbar";
 import { Menu } from "./Menu";
 import { Logo } from "./Logo";
+import { ContentContainer, maxContentWidth } from "./ContentContainer";
 
 export function Layout({ children }: { children?: ReactNode }) {
   const theme = useTheme();
@@ -41,7 +41,6 @@ export function Layout({ children }: { children?: ReactNode }) {
   }
 
   const drawerWidth = 240;
-  const maxContentWidth = "xl" as const;
   const contentBounds: CSSProperties = {
     width: isDrawerPermanent ? `calc(100% - ${drawerWidth}px)` : undefined,
     marginLeft: isDrawerPermanent ? `${drawerWidth}px` : undefined,
@@ -112,9 +111,7 @@ export function Layout({ children }: { children?: ReactNode }) {
           <MuiToolbar>
             <GlobalLoadingIndicator />
           </MuiToolbar>
-          <ContentBounds maxWidth={maxContentWidth}>
-            <ContentSurface>{children}</ContentSurface>
-          </ContentBounds>
+          <ContentContainer>{children}</ContentContainer>
         </Suspense>
       </Box>
     </>
@@ -123,21 +120,6 @@ export function Layout({ children }: { children?: ReactNode }) {
 
 // The purpose of the bounds/surface separation is to provide a relative element for content to dock into,
 // while still relying on the MUI Container to set the bounds (Having margin + bounds on the same element wouldn't work).
-
-const ContentBounds = styled(Container)`
-  display: flex;
-  flex: 1;
-  padding: ${({ theme }) => theme.spacing(3)};
-  position: relative;
-`;
-
-const ContentSurface = styled("div")`
-  flex: 1;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  max-width: 100%;
-`;
 
 function GlobalLoadingIndicator({
   isLoading: inputLoadingState,

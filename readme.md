@@ -99,7 +99,7 @@ As for unit tests, they are not required, but are encouraged for more complex un
 
 This is a fairly standard React + Express.js application, so you can use the provided [scripts](package.json) to manually manage a production deployment if you have the technical experience to do so:
 
-- Clone this repository a server matching the [prerequisites](#prerequisites)
+- Clone this repository on a server matching the [prerequisites](#prerequisites)
 - Create a `.env.local` file in the project root folder with your desired settings (see below)
 - Run `yarn install` to install latest dependencies
 - Run `yarn db:deploy` to deploy database migrations
