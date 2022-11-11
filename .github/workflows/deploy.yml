@@ -39,6 +39,19 @@ jobs:
           export NODE_ENV=production
           yarn build
 
+      - name: Create .env.local for production
+        run: |
+          cat <<EOT >> .env.local
+          hostname=${{ secrets.DEPLOY_HOST }}
+          apiPort=${{ secrets.DEPLOY_API_PORT }}
+          appPort=${{ secrets.DEPLOY_APP_PORT }}
+          rAthenaPath=${{ secrets.DEPLOY_RATHENA_PATH }}
+          jwtSecret=${{ secrets.DEPLOY_JWT_SECRET }}
+          donationEnvironment=live
+          preloadResources=true
+          RACP_DATABASE_URL="file:./racp_prod.db"
+          EOT
+
       - name: Upload
         uses: burnett01/rsync-deployments@5.2.1
         with:
@@ -56,24 +69,6 @@ jobs:
           key: ${{ secrets.DEPLOY_KEY }}
           script: |
             cd ${{ env.DEPLOY_PATH }}
-
-            # Make sure dependencies are installed on remote machine
             yarn install
-
-            # Create local production env file
-            rm -f .env.local
-            cat <<EOT >> .env.local
-            hostname=${{ secrets.DEPLOY_HOST }}
-            apiPort=${{ secrets.DEPLOY_API_PORT }}
-            appPort=${{ secrets.DEPLOY_APP_PORT }}
-            rAthenaPath=${{ secrets.DEPLOY_RATHENA_PATH }}
-            jwtSecret=${{ secrets.DEPLOY_JWT_SECRET }}
-            donationEnvironment=live
-            preloadResources=true
-            RACP_DATABASE_URL="file:./racp_prod.db"
-            EOT
-
-            # Perform migrations
             yarn db:deploy
-
             pm2 restart ecosystem.config.json
