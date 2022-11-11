@@ -11,13 +11,13 @@ export const AssetUploader = memo(function () {
     useState<boolean>(false);
   const [files, setFiles] = useState<AssetFiles>({});
   const uploader = useAssetUploader();
-  const isReadyToUpload = !!(files.mapInfo && files.itemInfo && files.data);
+  const isReadyToUpload = !!(files.mapInfo || files.itemInfo || files.data);
 
   async function uploadFiles() {
     setShowCompletedMessage(false);
     try {
       if (isReadyToUpload) {
-        await uploader.upload(files.mapInfo!, files.itemInfo!, files.data!);
+        await uploader.upload(files.mapInfo, files.itemInfo, files.data);
       }
     } finally {
       setFiles({});

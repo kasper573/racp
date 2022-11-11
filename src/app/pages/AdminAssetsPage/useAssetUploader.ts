@@ -31,6 +31,7 @@ export function useAssetUploader() {
   // We'll invalidate it manually when we're done.
   const opts = { onSuccess: () => CANCEL_INVALIDATE };
   const queryClient = useQueryClient();
+  const trpcClient = trpc.useContext();
 
   const { mutateAsync: uploadMapImages, ...mapImageUpload } =
     trpc.map.uploadImages.useMutation(opts);
@@ -84,13 +85,19 @@ export function useAssetUploader() {
 
   const errors = [...serverErrors, ...trackerErrors];
 
-  async function uploadMapData(grf: GRF, mapInfoFile: File) {
-    await tracker.track([
-      {
-        group: `Uploading map info`,
-        fn: () => toRpcFile(mapInfoFile).then(uploadMapInfo),
-      },
-    ]);
+  async function uploadMapData(grf?: GRF, mapInfoFile?: File) {
+    if (mapInfoFile) {
+      await tracker.track([
+        {
+          group: `Uploading map info`,
+          fn: () => toRpcFile(mapInfoFile).then(uploadMapInfo),
+        },
+      ]);
+    }
+
+    if (!grf) {
+      return;
+    }
 
     const boundsAndImages = await tracker.track(createMapDataUnpackJobs(grf));
 
@@ -146,7 +153,24 @@ export function useAssetUploader() {
     );
   }
 
-  async function uploadItemData(grf: GRF, infoFile: File) {
+  async function uploadItemData(grf?: GRF, infoFile?: File) {
+    if (!infoFile) {
+      return;
+    }
+
+    if (infoFile) {
+      await tracker.track([
+        {
+          group: "Uploading item info",
+          fn: async () => updateItemInfo(await toRpcFile(infoFile)),
+        },
+      ]);
+    }
+
+    if (!grf) {
+      return;
+    }
+
     await tracker.track([
       {
         group: "Uploading item option texts",
@@ -159,20 +183,10 @@ export function useAssetUploader() {
 
     const [resourceNames] = await tracker.track([
       {
-        group: "Uploading item info",
-        fn: async () => {
-          const res = await updateItemInfo(await toRpcFile(infoFile));
-          if (!Object.keys(res).length) {
-            throw new Error("No resource names found in item info file");
-          }
-          return res;
-        },
+        group: "Downloading resource names",
+        fn: () => trpcClient.item.resourceNames.fetch(),
       },
     ]);
-
-    if (!resourceNames) {
-      return;
-    }
 
     const itemImages = flatten(
       await tracker.track(
@@ -192,25 +206,29 @@ export function useAssetUploader() {
     );
   }
 
-  async function upload(mapInfoFile: File, itemInfoFile: File, grfFile: File) {
+  async function upload(
+    mapInfoFile?: File,
+    itemInfoFile?: File,
+    grfFile?: File
+  ) {
     tracker.reset();
 
-    const [grf] = await tracker.track([
-      {
-        group: "Loading GRF file",
-        id: grfFile.name,
-        fn: () => GRF.load(grfFile),
-      },
-    ]);
-
-    if (!grf) {
-      return;
-    }
+    const [grf] = grfFile
+      ? await tracker.track([
+          {
+            group: "Loading GRF file",
+            id: grfFile.name,
+            fn: () => GRF.load(grfFile),
+          },
+        ])
+      : [];
 
     // Sequence to save memory (since we're dealing with potentially several GB of data)
     await uploadMapData(grf, mapInfoFile);
-    await uploadMonsterData(grf);
     await uploadItemData(grf, itemInfoFile);
+    if (grf) {
+      await uploadMonsterData(grf);
+    }
 
     // Done, invalidate query cache
     queryClient.invalidateQueries();
