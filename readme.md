@@ -132,7 +132,8 @@ version of RACP to a server of your choice whenever you make changes to the repo
 
 This process has **additional** prerequisites for your server:
 
-- Must be a UNIX server.
+- Server must accept SSH & Rsync connections
+  > Most unix distros support this by default. Windows has to enable this via i.e. OpenSSH for Windows, WSL or [Cygwin](https://www.cygwin.com/).
 - Requires [PM2](https://pm2.keymetrics.io/) to be installed.
 
 To use the automatic deployment:
