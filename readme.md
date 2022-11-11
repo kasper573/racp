@@ -105,6 +105,7 @@ This is a fairly standard React + Express.js application, so you can use the pro
 - Run `yarn db:deploy` to deploy database migrations
 - Run `yarn build` to build both the API and pp, or `yarn (api|app):build` to build one.
 - Run `yarn serve` to serve both the API and app, or `yarn (api|app):serve` to serve one.
+- (Optional but recommended): Instead of `yarn serve` you can use [PM2](https://pm2.keymetrics.io/) for better stability and monitoring: `pm2 restart ecosystem.config.json`
 
 This `.env.local` configuration will work for most users:
 
