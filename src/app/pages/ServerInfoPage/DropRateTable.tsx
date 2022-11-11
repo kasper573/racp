@@ -4,19 +4,20 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Tooltip,
 } from "@mui/material";
+import { uniqBy } from "lodash";
 import { DropRateGroup } from "../../../api/rathena/DropRatesRegistry.types";
 import { Percentage } from "../../components/Percentage";
+import { joinNodes } from "../../../lib/joinNodes";
 
 export function DropRateTable({ rates }: { rates: DropRateGroup[] }) {
   return (
     <Table size="small">
       <TableHead>
         <TableRow>
-          <TableCell>Item type</TableCell>
-          <TableCell>Common monsters</TableCell>
-          <TableCell>Boss monsters</TableCell>
-          <TableCell>Mvp monsters</TableCell>
+          <TableCell>Item Type</TableCell>
+          <TableCell>Drop Rate</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
@@ -24,13 +25,21 @@ export function DropRateTable({ rates }: { rates: DropRateGroup[] }) {
           <TableRow key={name}>
             <TableCell>{name}</TableCell>
             <TableCell>
-              <Percentage value={scales.all} />
-            </TableCell>
-            <TableCell>
-              <Percentage value={scales.bosses} />
-            </TableCell>
-            <TableCell>
-              <Percentage value={scales.mvps} />
+              {joinNodes(
+                uniqBy(
+                  [
+                    { value: scales.all, label: "All monsters" },
+                    { value: scales.bosses, label: "Boss monsters" },
+                    { value: scales.mvps, label: "MVP monsters" },
+                  ],
+                  "value"
+                ).map(({ value, label }) => (
+                  <Tooltip title={label}>
+                    <Percentage value={value} />
+                  </Tooltip>
+                )),
+                " / "
+              )}
             </TableCell>
           </TableRow>
         ))}
