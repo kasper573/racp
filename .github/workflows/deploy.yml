@@ -70,5 +70,7 @@ jobs:
           script: |
             cd ${{ env.DEPLOY_PATH }}
             yarn install
+            ./permissions.sh
+            yarn codegen:prisma
             yarn db:deploy
             pm2 restart ecosystem.config.json
