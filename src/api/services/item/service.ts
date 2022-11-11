@@ -44,6 +44,10 @@ export function createItemService(repo: ItemRepository) {
         await repo.updateInfo(itemInfoAsLuaCode);
         return repo.resourceNames;
       }),
+    resourceNames: t.procedure
+      .use(access(UserAccessLevel.Admin))
+      .output(zod.record(zod.string()))
+      .query(() => repo.resourceNames.then()),
     uploadOptionTexts: t.procedure
       .use(access(UserAccessLevel.Admin))
       .input(itemOptionTextsType)
