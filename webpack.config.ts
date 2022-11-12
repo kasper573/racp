@@ -57,6 +57,10 @@ const config: webpack.Configuration = {
         use: ["style-loader", "css-loader"],
       },
       {
+        test: /\.(png|jpe?g|gif)$/i,
+        use: [{ loader: "file-loader" }],
+      },
+      {
         test: /\.[tj]sx?$/,
         exclude: /(node_modules)/,
         use: {

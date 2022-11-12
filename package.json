@@ -136,6 +136,7 @@
     "eslint-config-react-app": "7.0.1",
     "eslint-plugin-import": "2.26.0",
     "eslint-plugin-unused-imports": "2.0.0",
+    "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "7.2.11",
     "html-webpack-plugin": "5.5.0",
     "mocha-junit-reporter": "https://github.com/h4de5/mocha-junit-reporter#110e644276c31e71d0eab155f053bbfeb14fb234",
