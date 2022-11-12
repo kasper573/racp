@@ -24,7 +24,7 @@ export function createHuntService({
   cpdb: RACPDatabaseClient;
   settings: AdminSettingsRepository;
 }) {
-  const limitsResource = settings.map(
+  const limitsResource = settings.all.map(
     "huntLimits",
     (settings) => settings.huntLimits
   );

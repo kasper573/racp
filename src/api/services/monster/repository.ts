@@ -31,7 +31,7 @@ export function createMonsterRepository({
   });
 
   const monsters = monsterDB
-    .and(images, settings)
+    .and(images, settings.all)
     .map("monsters", ([monsterDB, images, { rAthenaMode }]) =>
       produce(monsterDB, (db) => {
         for (const monster of db.values()) {

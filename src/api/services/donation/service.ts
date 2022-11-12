@@ -46,7 +46,8 @@ export function createDonationService({
       radb,
       logger,
       accountId,
-      key: () => settingsRepo.then(({ donations }) => donations.accRegNumKey),
+      key: () =>
+        settingsRepo.all.then(({ donations }) => donations.accRegNumKey),
     });
 
   return t.router({
@@ -70,7 +71,7 @@ export function createDonationService({
       .output(zod.string().optional())
       .use(access(UserAccessLevel.User))
       .mutation(async ({ input: { value, currency }, ctx: { auth } }) => {
-        const client = createPayPalClient(await settingsRepo, env);
+        const client = createPayPalClient(await settingsRepo.all, env);
         const { result }: { result?: paypal.orders.Order } =
           await client.execute(
             new paypal.orders.OrdersCreateRequest().requestBody({
@@ -99,7 +100,7 @@ export function createDonationService({
             auth: { id: accountId },
           },
         }) => {
-          const settings = await settingsRepo;
+          const settings = await settingsRepo.all;
           const client = createPayPalClient(settings, env);
 
           const { result: order }: { result?: paypal.orders.Order } =

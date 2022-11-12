@@ -77,7 +77,7 @@ export function createResourceManager({
         relativeFilePath: string,
         entityType: ET
       ) =>
-        settings.pipe(
+        settings.all.pipe(
           new TxtRepository({
             ...options,
             startFolder,
@@ -91,7 +91,7 @@ export function createResourceManager({
       <ET extends ZodType, Key>(
         file: string,
         resolver: YamlResolver<ET, Key>
-      ) => settings.pipe(new YamlRepository({ file, resolver, ...options }))
+      ) => settings.all.pipe(new YamlRepository({ file, resolver, ...options }))
     )
     .add(
       "config",
@@ -104,10 +104,10 @@ export function createResourceManager({
     )
     .build();
 
-  manager.add(settings);
+  manager.add(settings.all);
 
   scripts = manager.createUsing(() =>
-    settings.pipe(new ScriptRepository(options))
+    settings.all.pipe(new ScriptRepository(options))
   );
 
   return manager;
