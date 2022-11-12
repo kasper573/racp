@@ -6,16 +6,15 @@ import defaultBannerUrl from "./defaultBanner.png";
 
 export default function HomePage() {
   const { data: settings, isLoading } = trpc.settings.readPublic.useQuery();
+  const backgroundImage = isLoading
+    ? undefined
+    : `url("${settings?.homePageBannerUrl ?? defaultBannerUrl}")`;
   return (
     <>
       <Banner
         role="banner"
         aria-label={settings?.homePageBannerTitle}
-        style={{
-          backgroundImage: isLoading
-            ? undefined
-            : `url(${settings?.homePageBannerUrl ?? defaultBannerUrl})`,
-        }}
+        style={{ backgroundImage }}
       >
         {settings?.homePageBannerTitle}
       </Banner>
