@@ -17,7 +17,7 @@ export function BorderWithLabel({
 const Border = styled(Box)`
   border: ${({ theme }) => `1px solid ${theme.palette.divider}`};
   border-radius: ${({ theme }) => theme.shape.borderRadius}px;
-  padding: 11px 13px;
+  padding: 7px 13px;
   position: relative;
 `;
 
