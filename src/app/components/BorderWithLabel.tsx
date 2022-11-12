@@ -26,6 +26,5 @@ const Label = styled(InputLabel)`
   top: -8px;
   left: 8px;
   padding: 0 8px;
-  background: ${({ theme }) => theme.palette.background.default};
   display: inline-block;
 `;

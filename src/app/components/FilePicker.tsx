@@ -8,6 +8,7 @@ import { BorderWithLabel } from "./BorderWithLabel";
 export interface FilePickerProps<Value>
   extends Omit<ComponentProps<typeof Stack>, "onChange"> {
   buttonText?: ReactNode;
+  clearText?: ReactNode;
   isLoading?: boolean;
   value?: Value;
   onChange?: (files: Value) => void;
@@ -17,6 +18,7 @@ export interface FilePickerProps<Value>
   label?: ReactNode;
   disabled?: boolean;
   direction?: "row" | "column";
+  clearable?: boolean;
 }
 
 export function FilePicker({
@@ -24,12 +26,15 @@ export function FilePicker({
   value,
   onChange,
   buttonText = "Select file",
+  clearable,
+  clearText = "Clear",
   name,
   accept,
   emptyText = "No file selected",
   disabled,
   label = name,
   direction = "row",
+  children,
   ...props
 }: FilePickerProps<File[]>) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -61,6 +66,17 @@ export function FilePicker({
         >
           {buttonText}
         </ProgressButton>
+        {clearable && value?.length ? (
+          <ProgressButton
+            disabled={disabled}
+            variant="contained"
+            isLoading={isLoading}
+            onClick={() => onChange?.([])}
+          >
+            {clearText}
+          </ProgressButton>
+        ) : undefined}
+        {children}
       </Stack>
     </BorderWithLabel>
   );
@@ -70,7 +86,7 @@ export function RpcFilePicker({
   value: rpcFile,
   onChange: emitRpcFiles,
   ...props
-}: FilePickerProps<RpcFile>) {
+}: FilePickerProps<RpcFile | undefined>) {
   const files = useMemo(
     () => (rpcFile ? [toBrowserFile(rpcFile)] : []),
     [rpcFile]
@@ -80,7 +96,7 @@ export function RpcFilePicker({
       value={files}
       onChange={async ([newFile]) => {
         if (emitRpcFiles) {
-          const newRpcFile = await toRpcFile(newFile);
+          const newRpcFile = newFile ? await toRpcFile(newFile) : undefined;
           emitRpcFiles(newRpcFile);
         }
       }}
