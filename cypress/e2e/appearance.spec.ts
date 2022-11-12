@@ -22,8 +22,7 @@ describe("can change", () => {
     submitSettings(() =>
       cy.findByLabelText("Home Page Banner Title").clear().type("Banner Title")
     );
-    cy.visit("/");
-    waitForPageReady();
+    gotoMainMenuPage("rAthenaCP");
     findHomePageBanner("Banner Title");
   });
 
@@ -34,8 +33,7 @@ describe("can change", () => {
         `${Cypress.config("fixturesFolder")}/banner.png`
       )
     );
-    cy.visit("/");
-    waitForPageReady();
+    gotoMainMenuPage("rAthenaCP");
     findHomePageBanner().isFixtureImage("banner.png");
   });
 
@@ -43,8 +41,7 @@ describe("can change", () => {
     submitSettings(() =>
       cy.findByLabelText("Home Page Content").clear().type("Foo Bar Baz")
     );
-    cy.visit("/");
-    waitForPageReady();
+    gotoMainMenuPage("rAthenaCP");
     cy.contains("Foo Bar Baz");
   });
 });
