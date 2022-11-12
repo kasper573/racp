@@ -25,7 +25,7 @@ import { getErrorMessage } from "../../components/ErrorMessage";
 import { trimExtension } from "../../../lib/std/trimExtension";
 import { canvasToBlob } from "../../../lib/image/canvasToBlob";
 import { imageDataToCanvas } from "../../../lib/image/imageDataToCanvas";
-import { toRpcFile } from "../../util/rpcFileTransformer";
+import { toRpcFile } from "../../util/rpcFileUtils";
 
 export function useAssetUploader() {
   // Since we're uploading so much we don't want mutations to invalidate cache.

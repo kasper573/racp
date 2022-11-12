@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Page } from "../../layout/Page";
 import { trpc } from "../../state/client";
 import { Markdown } from "../../components/Markdown";
-import { toBrowserFile } from "../../util/rpcFileTransformer";
+import { toBrowserFile } from "../../util/rpcFileUtils";
 import { Banner } from "./Banner";
 import defaultBannerUrl from "./defaultBanner.png";
 

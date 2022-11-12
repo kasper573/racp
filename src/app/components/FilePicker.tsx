@@ -1,7 +1,7 @@
 import { ComponentProps, ReactNode, useEffect, useMemo, useRef } from "react";
 import { Stack, styled, Typography } from "@mui/material";
 import { RpcFile } from "../../api/common/RpcFile";
-import { toBrowserFile, toRpcFile } from "../util/rpcFileTransformer";
+import { toBrowserFile, toRpcFile } from "../util/rpcFileUtils";
 import { ProgressButton } from "./ProgressButton";
 import { BorderWithLabel } from "./BorderWithLabel";
 
