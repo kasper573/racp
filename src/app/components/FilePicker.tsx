@@ -1,4 +1,11 @@
-import { ComponentProps, ReactNode, useEffect, useMemo, useRef } from "react";
+import {
+  ComponentProps,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Stack, styled, Typography } from "@mui/material";
 import { RpcFile } from "../../api/common/RpcFile";
 import { toBrowserFile, toRpcFile } from "../util/rpcFileUtils";
@@ -85,8 +92,10 @@ export function FilePicker({
 export function RpcFilePicker({
   value: rpcFile,
   onChange: emitRpcFiles,
+  isLoading,
   ...props
 }: FilePickerProps<RpcFile | undefined>) {
+  const [isConvertingFile, setIsConvertingFile] = useState(false);
   const files = useMemo(
     () => (rpcFile ? [toBrowserFile(rpcFile)] : []),
     [rpcFile]
@@ -96,10 +105,16 @@ export function RpcFilePicker({
       value={files}
       onChange={async ([newFile]) => {
         if (emitRpcFiles) {
-          const newRpcFile = newFile ? await toRpcFile(newFile) : undefined;
-          emitRpcFiles(newRpcFile);
+          try {
+            setIsConvertingFile(true);
+            const newRpcFile = newFile ? await toRpcFile(newFile) : undefined;
+            emitRpcFiles(newRpcFile);
+          } finally {
+            setIsConvertingFile(false);
+          }
         }
       }}
+      isLoading={isConvertingFile || isLoading}
       {...props}
     />
   );
