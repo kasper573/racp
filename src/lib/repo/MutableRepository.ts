@@ -14,17 +14,22 @@ export abstract class MutableRepository<
     throw new Error("Write not supported");
   }
 
-  async write(value: T | DefaultValue): Promise<boolean> {
+  async write(value: T | DefaultValue) {
+    await this.logger.track(this.writeImpl(value), "write");
+  }
+
+  async safeWrite(value: T | DefaultValue) {
     try {
-      await this.logger.track(this.writeImpl(value), "write");
+      await this.write(value);
       return true;
-    } catch (e) {
-      this.logger.error("Failed to write:", e);
+    } catch {
       return false;
     }
   }
 
   transform(createValue: (currentValue: T | DefaultValue) => DefaultValue) {
-    return this.then((currentValue) => this.write(createValue(currentValue)));
+    return this.then((currentValue) =>
+      this.safeWrite(createValue(currentValue))
+    );
   }
 }
