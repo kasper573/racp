@@ -25,6 +25,10 @@ export function AdminSettingsForm(props: ZodFormOptions<AdminSettings>) {
             content: (
               <Stack spacing={2}>
                 <TextField label="Website Title" {...field("pageTitle")} />
+                <MarkdownField
+                  label="Home page content"
+                  {...field("homePageContent")}
+                />
               </Stack>
             ),
           },
@@ -82,7 +86,6 @@ export function AdminSettingsForm(props: ZodFormOptions<AdminSettings>) {
                 />
                 <MarkdownField
                   label="Presentation"
-                  helperText="Welcome text on the donations page to explain how donations work."
                   {...field("donations.presentation")}
                 />
                 <TextField

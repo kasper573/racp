@@ -44,6 +44,7 @@ export type AdminSettings = zod.infer<typeof adminSettingsType>;
 export const adminSettingsType = zod.object({
   rAthenaMode: rAthenaModeType,
   pageTitle: zod.string(),
+  homePageContent: zod.string(),
   donations: donationSettingsType,
   huntLimits: huntLimitsType,
 });

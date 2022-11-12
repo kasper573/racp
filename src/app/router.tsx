@@ -37,7 +37,7 @@ export const router = new Router(
   t.route.renderer(Layout).children({
     home: t.route
       .path("", { exact: true })
-      .mirror((): RouteLocation => routes.item.$({})),
+      .renderer(lazy(() => import("./pages/HomePage"))),
     user: t.route
       .path("user", { exact: true })
       .mirror((): RouteLocation => routes.user.settings.$({}))
