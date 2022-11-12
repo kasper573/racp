@@ -18,6 +18,8 @@ describe("can change", () => {
       cy.findByLabelText("Website Title").clear().type("Test Title")
     );
     cy.findByRole("heading", { name: "Test Title" });
+    gotoMainMenuPage("Test Title");
+    cy.findByRole("banner", { name: "Test Title" });
   });
 });
 

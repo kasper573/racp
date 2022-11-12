@@ -9,6 +9,8 @@ export default function HomePage() {
   return (
     <>
       <Banner
+        role="banner"
+        aria-label={settings?.pageTitle}
         style={{
           backgroundImage: isLoading
             ? undefined
