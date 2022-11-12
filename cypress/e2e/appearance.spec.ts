@@ -2,13 +2,11 @@ import { resetData, signInAsAdmin } from "../support/actions/admin";
 import { gotoMainMenuPage } from "../support/actions/nav";
 import { waitForPageReady } from "../support/actions/common";
 
-before(() => {
-  resetData();
-  signInAsAdmin();
-});
-
 describe("can change", () => {
   beforeEach(() => {
+    resetData();
+    cy.visit("/");
+    signInAsAdmin();
     gotoMainMenuPage("Settings");
     cy.findByRole("tab", { name: /appearance/i }).click();
   });
