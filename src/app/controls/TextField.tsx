@@ -92,7 +92,6 @@ export function TextField({
       label={label}
       error={(issues?.length ?? 0) > 0}
       InputProps={{
-        ...props.InputProps,
         readOnly,
         componentsProps: { input: { "aria-label": ariaLabel } },
         endAdornment: !!issues.length && (
@@ -102,6 +101,7 @@ export function TextField({
             </Tooltip>
           </InputAdornment>
         ),
+        ...props.InputProps,
       }}
       value={text}
       disabled={readOnly}
