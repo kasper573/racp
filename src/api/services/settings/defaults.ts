@@ -6,7 +6,7 @@ export const defaultAdminSettings: AdminSettings = {
   homePageContent:
     "Welcome to rAthenaCP!\n\n" +
     "The landing page be edited in the admin settings and supports [markdown](https://commonmark.org) out of the box.\n\n" +
-    "You can also fork RACP and completely customize your landing page by editing src/app/pages/HomePage.",
+    "You can also fork RACP and completely customize your landing page by editing `src/app/pages/HomePage.`",
   huntLimits: {
     hunts: 99,
     monstersPerItem: 99,
