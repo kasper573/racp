@@ -1,5 +1,7 @@
 import { ComponentProps, ReactNode, useEffect, useMemo, useRef } from "react";
 import { Stack, styled, Typography } from "@mui/material";
+import { RpcFile } from "../../api/common/RpcFile";
+import { toBrowserFile, toRpcFile } from "../util/rpcFileTransformer";
 import { ProgressButton } from "./ProgressButton";
 import { BorderWithLabel } from "./BorderWithLabel";
 
@@ -61,6 +63,29 @@ export function FilePicker({
         </ProgressButton>
       </Stack>
     </BorderWithLabel>
+  );
+}
+
+export function RpcFilePicker({
+  value: rpcFile,
+  onChange: emitRpcFiles,
+  ...props
+}: FilePickerProps<RpcFile>) {
+  const files = useMemo(
+    () => (rpcFile ? [toBrowserFile(rpcFile)] : []),
+    [rpcFile]
+  );
+  return (
+    <FilePicker
+      value={files}
+      onChange={async ([newFile]) => {
+        if (emitRpcFiles) {
+          const newRpcFile = await toRpcFile(newFile);
+          emitRpcFiles(newRpcFile);
+        }
+      }}
+      {...props}
+    />
   );
 }
 
