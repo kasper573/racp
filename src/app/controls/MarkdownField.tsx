@@ -1,6 +1,7 @@
 import { Box, Button, Link, styled } from "@mui/material";
 import { useState } from "react";
 import { Markdown } from "../components/Markdown";
+import { BorderWithLabel } from "../components/BorderWithLabel";
 import { TextField, TextFieldProps } from "./TextField";
 
 export interface MarkdownFieldProps
@@ -20,16 +21,18 @@ export function MarkdownField({
 
   if (isPreviewing) {
     return (
-      <PreviewContainer {...styleProps}>
-        <Markdown>{props.value}</Markdown>
-        <Button
-          size="small"
-          sx={{ position: "absolute", top: 0, right: 0 }}
-          onClick={() => setIsPreviewing(false)}
-        >
-          Edit
-        </Button>
-      </PreviewContainer>
+      <BorderWithLabel label={props.label} {...styleProps}>
+        <PreviewContainer>
+          <Markdown>{props.value}</Markdown>
+          <Button
+            size="small"
+            sx={{ position: "absolute", top: 0, right: 0 }}
+            onClick={() => setIsPreviewing(false)}
+          >
+            Edit
+          </Button>
+        </PreviewContainer>
+      </BorderWithLabel>
     );
   }
   return (

@@ -17,14 +17,14 @@ export function BorderWithLabel({
 const Border = styled(Box)`
   border: ${({ theme }) => `1px solid ${theme.palette.divider}`};
   border-radius: ${({ theme }) => theme.shape.borderRadius}px;
-  padding: ${({ theme }) => theme.spacing(2)};
+  padding: 11px 13px;
   position: relative;
 `;
 
 const Label = styled(InputLabel)`
   position: absolute;
-  top: -8px;
-  left: 8px;
+  top: -9px;
+  left: 7px;
   padding: 0 8px;
   display: inline-block;
 `;
