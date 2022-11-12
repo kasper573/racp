@@ -44,16 +44,19 @@ export class ImageRepository extends ReactiveRepository<UrlMap> {
   }
 
   readonly update = async (files: RpcFile[]) => {
-    await Promise.all(
+    const { linker, formatter } = this.options;
+    const newBaseNames = await Promise.all(
       files.map((file) =>
-        openFilesBottleneck.schedule(() =>
-          this.options.formatter.write(
-            this.options.linker.path(path.basename(file.name)),
+        openFilesBottleneck.schedule(async () => {
+          const newFileName = await formatter.write(
+            linker.path(path.basename(file.name)),
             Buffer.from(decodeRpcFileData(file.data))
-          )
-        )
+          );
+          return path.basename(newFileName);
+        })
       )
     );
+    return newBaseNames;
   };
 
   toString(): string {
