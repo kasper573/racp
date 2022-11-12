@@ -1,4 +1,4 @@
-import { FormControlLabel, Stack } from "@mui/material";
+import { FormControlLabel, Stack, Typography } from "@mui/material";
 import { TextField } from "../controls/TextField";
 import { useZodForm, ZodFormOptions } from "../../lib/zod/useZodForm";
 import {
@@ -10,6 +10,8 @@ import { Switch } from "../controls/Switch";
 import { TabbedPaper } from "../components/TabbedPaper";
 import { Select } from "../controls/Select";
 import { trpc } from "../state/client";
+import { MarkdownField } from "../controls/MarkdownField";
+import { RpcFilePicker } from "../components/FilePicker";
 
 export function AdminSettingsForm(props: ZodFormOptions<AdminSettings>) {
   const { data: currencies = [] } = trpc.donation.currencies.useQuery();
@@ -24,6 +26,22 @@ export function AdminSettingsForm(props: ZodFormOptions<AdminSettings>) {
             content: (
               <Stack spacing={2}>
                 <TextField label="Website Title" {...field("pageTitle")} />
+                <RpcFilePicker
+                  name="homePageBanner"
+                  label="Home Page Banner"
+                  emptyText={
+                    <Typography component="span" color="gray">
+                      Default
+                    </Typography>
+                  }
+                  clearText="Use default"
+                  clearable
+                  {...field("homePageBanner")}
+                />
+                <MarkdownField
+                  label="Home Page Content"
+                  {...field("homePageContent")}
+                />
               </Stack>
             ),
           },
@@ -79,10 +97,8 @@ export function AdminSettingsForm(props: ZodFormOptions<AdminSettings>) {
                   }
                   {...field("donations.accRegNumKey")}
                 />
-                <TextField
-                  multiline
+                <MarkdownField
                   label="Presentation"
-                  helperText="Welcome text on the donations page to explain how donations work."
                   {...field("donations.presentation")}
                 />
                 <TextField

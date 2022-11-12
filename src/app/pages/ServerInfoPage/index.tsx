@@ -4,6 +4,7 @@ import { trpc } from "../../state/client";
 import { ErrorMessage } from "../../components/ErrorMessage";
 import { TabbedPaper } from "../../components/TabbedPaper";
 import { CommonPageGrid } from "../../components/CommonPageGrid";
+import { Page } from "../../layout/Page";
 import { DropRateTable } from "./DropRateTable";
 import { ExperienceConfigTable } from "./ExperienceConfigTable";
 
@@ -23,7 +24,7 @@ export default function ServerInfoPage() {
   }
 
   return (
-    <>
+    <Page>
       <Header />
       <Typography paragraph>
         Server is using {settings.data.rAthenaMode} mode.
@@ -46,6 +47,6 @@ export default function ServerInfoPage() {
           ]}
         />
       </CommonPageGrid>
-    </>
+    </Page>
   );
 }

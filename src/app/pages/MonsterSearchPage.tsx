@@ -4,6 +4,7 @@ import { MonsterGrid } from "../grids/MonsterGrid";
 import { useRouteState } from "../../lib/tsr/react/useRouteState";
 import { routes } from "../router";
 import { FilterMenu } from "../components/FilterMenu";
+import { Page } from "../layout/Page";
 
 export default function MonsterSearchPage() {
   const [filter = {}, setFilter] = useRouteState(
@@ -11,7 +12,7 @@ export default function MonsterSearchPage() {
     "filter"
   );
   return (
-    <>
+    <Page>
       <Header>
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}
@@ -21,6 +22,6 @@ export default function MonsterSearchPage() {
         />
       </Header>
       <MonsterGrid filter={filter} sx={{ mt: 1 }} />
-    </>
+    </Page>
   );
 }

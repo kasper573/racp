@@ -11,10 +11,12 @@ export function createImageFormatter({
 }) {
   return {
     fileExtension: extension,
-    write(targetPath: string, data: Buffer) {
-      return Jimp.read(data).then((image) =>
-        image.quality(quality).writeAsync(setExtension(targetPath, extension))
+    async write(targetPath: string, data: Buffer) {
+      const newFileName = setExtension(targetPath, extension);
+      await Jimp.read(data).then((image) =>
+        image.quality(quality).writeAsync(newFileName)
       );
+      return newFileName;
     },
   };
 }

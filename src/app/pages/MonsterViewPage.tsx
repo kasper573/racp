@@ -16,6 +16,7 @@ import { Spaceless } from "../components/Spaceless";
 import { renderToggles } from "../util/renderToggles";
 import { useHistory } from "../../lib/tsr/react/useHistory";
 import { RouteComponentProps } from "../../lib/tsr/react/types";
+import { Page } from "../layout/Page";
 
 export default function MonsterViewPage({
   params: { id, tab },
@@ -35,7 +36,7 @@ export default function MonsterViewPage({
   }
 
   return (
-    <>
+    <Page>
       <Header
         title={
           <>
@@ -138,6 +139,6 @@ export default function MonsterViewPage({
           />
         </Stack>
       </CommonPageGrid>
-    </>
+    </Page>
   );
 }

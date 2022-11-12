@@ -15,6 +15,7 @@ import { NpcGrid } from "../../grids/NpcGrid";
 
 import { useHistory } from "../../../lib/tsr/react/useHistory";
 import { RouteComponentProps } from "../../../lib/tsr/react/types";
+import { Page } from "../../layout/Page";
 import { useHighlighter } from "./useHighlighter";
 import { WarpPins } from "./pins/WarpPins";
 import { SpawnPins } from "./pins/SpawnPins";
@@ -94,7 +95,7 @@ export default function MapViewPage({
   }
 
   return (
-    <>
+    <Page>
       <Header title={map.displayName} />
       <CommonPageGrid>
         <Stack direction="column" sx={{ flex: 2 }}>
@@ -185,7 +186,7 @@ export default function MapViewPage({
           />
         </Stack>
       </CommonPageGrid>
-    </>
+    </Page>
   );
 }
 

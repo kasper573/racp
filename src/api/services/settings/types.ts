@@ -2,6 +2,7 @@ import * as zod from "zod";
 import { ZodType } from "zod";
 import { conditionallyRequired } from "../../../lib/zod/conditionallyRequired";
 import { huntLimitsType } from "../hunt/types";
+import { rpcFile } from "../../common/RpcFile";
 
 export type Currency = NominalString<"Currency">;
 export const currencyType = zod.string() as ZodType<Currency>;
@@ -44,13 +45,16 @@ export type AdminSettings = zod.infer<typeof adminSettingsType>;
 export const adminSettingsType = zod.object({
   rAthenaMode: rAthenaModeType,
   pageTitle: zod.string(),
+  homePageBanner: rpcFile.optional(),
+  homePageBannerUrl: zod.string().optional(),
+  homePageContent: zod.string(),
   donations: donationSettingsType,
   huntLimits: huntLimitsType,
 });
 
 export type AdminPublicSettings = zod.infer<typeof adminPublicSettingsType>;
 export const adminPublicSettingsType = zod.object({
-  ...adminSettingsType.shape,
+  ...adminSettingsType.omit({ homePageBanner: true }).shape,
   donations: zod.object({
     ...donationSettingsBaseType.shape,
     paypal: paypalSettingsType.omit({ clientSecret: true }),

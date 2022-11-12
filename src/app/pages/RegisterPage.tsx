@@ -5,6 +5,7 @@ import { UserRegisterPayload } from "../../api/services/user/types";
 import { CenteredContent } from "../components/CenteredContent";
 import { Header } from "../layout/Header";
 import { useLogin } from "../state/auth";
+import { Page } from "../layout/Page";
 
 export default function RegisterPage() {
   const [registerPayload, setRegisterPayload] = useState<UserRegisterPayload>({
@@ -31,7 +32,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <>
+    <Page>
       <Header />
       <CenteredContent>
         <UserRegisterForm
@@ -42,6 +43,6 @@ export default function RegisterPage() {
           isLoading={isLoading}
         />
       </CenteredContent>
-    </>
+    </Page>
   );
 }

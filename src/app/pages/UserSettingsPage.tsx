@@ -7,6 +7,7 @@ import { UserProfileMutation } from "../../api/services/user/types";
 import { UserProfileForm } from "../forms/UserProfileForm";
 import { CenteredContent } from "../components/CenteredContent";
 import { authStore } from "../state/auth";
+import { Page } from "../layout/Page";
 
 const defaultProfileMutation = {
   email: "",
@@ -46,7 +47,7 @@ export default function UserSettingsPage() {
   }
 
   return (
-    <>
+    <Page>
       <Header />
       <CenteredContent>
         <UserProfileForm
@@ -60,6 +61,6 @@ export default function UserSettingsPage() {
           }}
         />
       </CenteredContent>
-    </>
+    </Page>
   );
 }

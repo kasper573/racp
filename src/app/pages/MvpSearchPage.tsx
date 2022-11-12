@@ -6,11 +6,12 @@ import { routes } from "../router";
 import { FilterMenu } from "../components/FilterMenu";
 import { MvpSearchFilterForm } from "../forms/MvpSearchFilterForm";
 import { Link } from "../components/Link";
+import { Page } from "../layout/Page";
 
 export default function MvpSearchPage() {
   const [filter = {}, setFilter] = useRouteState(routes.mvp.$, "filter");
   return (
-    <>
+    <Page>
       <Header>
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}
@@ -34,6 +35,6 @@ export default function MvpSearchPage() {
         .
       </Typography>
       <MvpGrid filter={filter} sx={{ mt: 1 }} />
-    </>
+    </Page>
   );
 }

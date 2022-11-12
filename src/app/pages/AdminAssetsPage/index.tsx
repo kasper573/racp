@@ -8,6 +8,7 @@ import { ExpandMore } from "@mui/icons-material";
 import { Header } from "../../layout/Header";
 import { trpc } from "../../state/client";
 import { routes } from "../../router";
+import { Page } from "../../layout/Page";
 import { AssetUploader } from "./AssetUploader";
 import { LargeStringList } from "./LargeStringList";
 
@@ -23,7 +24,7 @@ export default function AdminAssetsPage() {
   const { data: missingItemImages = [] } = trpc.item.missingImages.useQuery();
 
   return (
-    <>
+    <Page>
       <Header />
       <Typography paragraph>
         This page is for uploading assets required to properly display items,
@@ -118,6 +119,6 @@ export default function AdminAssetsPage() {
         You can resolve this issue by updating your client files and then
         re-uploading them to RACP.
       </Typography>
-    </>
+    </Page>
   );
 }

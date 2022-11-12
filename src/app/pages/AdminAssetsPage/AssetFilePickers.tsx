@@ -25,6 +25,7 @@ export const AssetFilePickers = memo(function ({
         const ext = uploaderFilesRequired[name];
         return (
           <FilePicker
+            direction="column"
             name={name}
             key={name}
             value={defined([files?.[name]])}

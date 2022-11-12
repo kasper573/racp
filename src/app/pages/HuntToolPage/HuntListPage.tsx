@@ -12,6 +12,7 @@ import { ErrorMessage } from "../../components/ErrorMessage";
 import { authStore } from "../../state/auth";
 import { Link } from "../../components/Link";
 import { routes } from "../../router";
+import { Page } from "../../layout/Page";
 import { AddHuntCard, HuntCard } from "./HuntCard";
 
 export default function HuntListPage() {
@@ -30,7 +31,7 @@ export default function HuntListPage() {
   const error = removeHunt.error || createHunt.error;
 
   return (
-    <>
+    <Page>
       <Header />
 
       <Typography paragraph>
@@ -76,6 +77,6 @@ export default function HuntListPage() {
         This will permanently delete this hunt. <br />
         Are you sure you want to proceed?
       </ConfirmDialog>
-    </>
+    </Page>
   );
 }

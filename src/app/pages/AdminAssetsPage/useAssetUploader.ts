@@ -25,6 +25,7 @@ import { getErrorMessage } from "../../components/ErrorMessage";
 import { trimExtension } from "../../../lib/std/trimExtension";
 import { canvasToBlob } from "../../../lib/image/canvasToBlob";
 import { imageDataToCanvas } from "../../../lib/image/imageDataToCanvas";
+import { toRpcFile } from "../../util/rpcFileUtils";
 
 export function useAssetUploader() {
   // Since we're uploading so much we don't want mutations to invalidate cache.
@@ -395,14 +396,3 @@ const mapImageCropColor: RGB = [255, 0, 255]; // Magenta
 
 const divide = <T>(list: T[], parts: number): T[][] =>
   chunk(list, Math.ceil(list.length / parts));
-
-async function toRpcFile(
-  file: File | { data: Uint8Array; name: string }
-): Promise<RpcFile> {
-  const data =
-    "data" in file ? file.data : new Uint8Array(await file.arrayBuffer());
-  return {
-    name: file.name,
-    data: encodeRpcFileData(data),
-  };
-}

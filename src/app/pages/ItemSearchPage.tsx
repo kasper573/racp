@@ -4,6 +4,7 @@ import { ItemGrid } from "../grids/ItemGrid";
 import { routes } from "../router";
 import { useRouteState } from "../../lib/tsr/react/useRouteState";
 import { FilterMenu } from "../components/FilterMenu";
+import { Page } from "../layout/Page";
 
 export default function ItemSearchPage() {
   const [filter = {}, setFilter] = useRouteState(
@@ -11,7 +12,7 @@ export default function ItemSearchPage() {
     "filter"
   );
   return (
-    <>
+    <Page>
       <Header>
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}
@@ -21,6 +22,6 @@ export default function ItemSearchPage() {
         />
       </Header>
       <ItemGrid filter={filter} sx={{ mt: 1 }} />
-    </>
+    </Page>
   );
 }

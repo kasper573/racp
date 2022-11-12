@@ -106,6 +106,16 @@ export function createResourceManager({
 
   manager.add(settings);
 
+  try {
+    settings.images = manager.create.images("settings");
+  } catch (e) {
+    options.logger.warn(
+      `Could not provide image repository to settings repository: ${
+        (e as Error)?.message
+      }`
+    );
+  }
+
   scripts = manager.createUsing(() =>
     settings.pipe(new ScriptRepository(options))
   );

@@ -1,30 +1,49 @@
-import { ComponentProps, ReactNode, useEffect, useRef } from "react";
+import {
+  ComponentProps,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Stack, styled, Typography } from "@mui/material";
+import { RpcFile } from "../../api/common/RpcFile";
+import { toBrowserFile, toRpcFile } from "../util/rpcFileUtils";
 import { ProgressButton } from "./ProgressButton";
+import { BorderWithLabel } from "./BorderWithLabel";
 
-export interface FilePickerProps
+export interface FilePickerProps<Value>
   extends Omit<ComponentProps<typeof Stack>, "onChange"> {
-  buttonText: ReactNode;
+  buttonText?: ReactNode;
+  clearText?: ReactNode;
   isLoading?: boolean;
-  value?: File[];
-  onChange?: (files: File[]) => void;
+  value?: Value;
+  onChange?: (files: Value) => void;
   name?: string;
   accept?: string;
-  emptyText?: string;
+  emptyText?: ReactNode;
+  label?: ReactNode;
   disabled?: boolean;
+  direction?: "row" | "column";
+  clearable?: boolean;
 }
 
 export function FilePicker({
   isLoading,
   value,
   onChange,
-  buttonText,
+  buttonText = "Select file",
+  clearable,
+  clearText = "Clear",
   name,
   accept,
   emptyText = "No file selected",
   disabled,
+  label = name,
+  direction = "row",
+  children,
   ...props
-}: FilePickerProps) {
+}: FilePickerProps<File[]>) {
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!value?.length && inputRef.current) {
@@ -32,7 +51,7 @@ export function FilePicker({
     }
   }, [value]);
   return (
-    <Stack direction="column" spacing={2} {...props}>
+    <BorderWithLabel label={label} {...props}>
       <HiddenInput
         type="file"
         ref={inputRef}
@@ -40,18 +59,64 @@ export function FilePicker({
         accept={accept}
         onChange={(e) => onChange?.(fileListToArray(e.target.files))}
       />
-      <Typography sx={{ textAlign: "center" }}>
-        {value?.length ? value?.map((file) => file.name).join(", ") : emptyText}
-      </Typography>
-      <ProgressButton
-        disabled={disabled}
-        variant="contained"
-        isLoading={isLoading}
-        onClick={() => inputRef.current?.click()}
-      >
-        {buttonText}
-      </ProgressButton>
-    </Stack>
+      <Stack direction={direction} alignItems="center" spacing={2}>
+        <Typography sx={{ textAlign: "center" }}>
+          {value?.length
+            ? value?.map((file) => file.name).join(", ")
+            : emptyText}
+        </Typography>
+        <ProgressButton
+          disabled={disabled}
+          variant="contained"
+          isLoading={isLoading}
+          onClick={() => inputRef.current?.click()}
+        >
+          {buttonText}
+        </ProgressButton>
+        {clearable && value?.length ? (
+          <ProgressButton
+            disabled={disabled}
+            variant="contained"
+            isLoading={isLoading}
+            onClick={() => onChange?.([])}
+          >
+            {clearText}
+          </ProgressButton>
+        ) : undefined}
+        {children}
+      </Stack>
+    </BorderWithLabel>
+  );
+}
+
+export function RpcFilePicker({
+  value: rpcFile,
+  onChange: emitRpcFiles,
+  isLoading,
+  ...props
+}: FilePickerProps<RpcFile | undefined>) {
+  const [isConvertingFile, setIsConvertingFile] = useState(false);
+  const files = useMemo(
+    () => (rpcFile ? [toBrowserFile(rpcFile)] : []),
+    [rpcFile]
+  );
+  return (
+    <FilePicker
+      value={files}
+      onChange={async ([newFile]) => {
+        if (emitRpcFiles) {
+          try {
+            setIsConvertingFile(true);
+            const newRpcFile = newFile ? await toRpcFile(newFile) : undefined;
+            emitRpcFiles(newRpcFile);
+          } finally {
+            setIsConvertingFile(false);
+          }
+        }
+      }}
+      isLoading={isConvertingFile || isLoading}
+      {...props}
+    />
   );
 }
 
