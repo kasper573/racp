@@ -17,12 +17,13 @@ export abstract class CachedRepository<
   async write(value: T | DefaultValue) {
     const previousCache = this.cache;
     this.cache = { value };
-    const success = await super.write(value);
-    if (!success) {
+    try {
+      await super.write(value);
+    } catch (e) {
       // Revert cache if writing fails
       this.cache = previousCache;
+      throw e;
     }
-    return success;
   }
 
   clearCache() {

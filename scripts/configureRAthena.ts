@@ -21,7 +21,7 @@ async function configureRAthena() {
 
   const db = createRAthenaDatabaseDriver({ ...args, logger });
   logger.log(`Updating ${db.info.file.filename}...`);
-  const success = await db.info.update(
+  await db.info.update(
     db.all.reduce(
       (changes: Record<string, DBInfo>, driver) => ({
         ...changes,
@@ -36,11 +36,6 @@ async function configureRAthena() {
       {}
     )
   );
-
-  if (!success) {
-    logger.error(`Failed to update ${db.info.file.filename}`);
-    return 1;
-  }
 
   logger.log("Finished configuring RAthena");
   return 0;
