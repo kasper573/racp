@@ -47,6 +47,7 @@ export const adminSettingsType = zod.object({
   pageTitle: zod.string(),
   homePageBanner: rpcFile.optional(),
   homePageBannerUrl: zod.string().optional(),
+  homePageBannerTitle: zod.string().optional(),
   homePageContent: zod.string(),
   donations: donationSettingsType,
   huntLimits: huntLimitsType,

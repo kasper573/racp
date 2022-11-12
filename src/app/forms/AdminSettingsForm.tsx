@@ -25,7 +25,11 @@ export function AdminSettingsForm(props: ZodFormOptions<AdminSettings>) {
             label: "Appearance",
             content: (
               <Stack spacing={2}>
-                <TextField label="Website Title" {...field("pageTitle")} />
+                <TextField
+                  label="Website Title"
+                  helperText="Displayed in the app header and the browser title"
+                  {...field("pageTitle")}
+                />
                 <RpcFilePicker
                   name="homePageBanner"
                   label="Home Page Banner"
@@ -37,6 +41,15 @@ export function AdminSettingsForm(props: ZodFormOptions<AdminSettings>) {
                   clearText="Use default"
                   clearable
                   {...field("homePageBanner")}
+                />
+                <TextField
+                  optional
+                  label="Home Page Banner Title"
+                  helperText={
+                    "Large text overlay on top of the banner. " +
+                    "Set to empty if you want only the banner without a title."
+                  }
+                  {...field("homePageBannerTitle")}
                 />
                 <MarkdownField
                   label="Home Page Content"

@@ -10,14 +10,14 @@ export default function HomePage() {
     <>
       <Banner
         role="banner"
-        aria-label={settings?.pageTitle}
+        aria-label={settings?.homePageBannerTitle}
         style={{
           backgroundImage: isLoading
             ? undefined
             : `url(${settings?.homePageBannerUrl ?? defaultBannerUrl})`,
         }}
       >
-        {settings?.pageTitle}
+        {settings?.homePageBannerTitle}
       </Banner>
       <Page>
         <Markdown>{settings?.homePageContent}</Markdown>

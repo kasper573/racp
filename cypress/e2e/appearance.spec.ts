@@ -16,32 +16,41 @@ describe("can change", () => {
       cy.findByLabelText("Website Title").clear().type("Test Title")
     );
     cy.findByRole("heading", { name: "Test Title" });
-    gotoMainMenuPage("Test Title");
-    findHomePageBanner("Test Title");
   });
 
-  it("home page banner", () => {
+  it("home page banner title", () => {
+    submitSettings(() =>
+      cy.findByLabelText("Home Page Banner Title").clear().type("Banner Title")
+    );
+    cy.visit("/");
+    waitForPageReady();
+    findHomePageBanner("Banner Title");
+  });
+
+  it("home page banner image", () => {
     submitSettings(() =>
       cy.selectFileByName(
         "homePageBanner",
         `${Cypress.config("fixturesFolder")}/banner.png`
       )
     );
-    gotoMainMenuPage("rAthenaCP");
-    findHomePageBanner("rAthenaCP").isFixtureImage("banner.png");
+    cy.visit("/");
+    waitForPageReady();
+    findHomePageBanner().isFixtureImage("banner.png");
   });
 
   it("home page content", () => {
     submitSettings(() =>
       cy.findByLabelText("Home Page Content").clear().type("Foo Bar Baz")
     );
-    gotoMainMenuPage("rAthenaCP");
+    cy.visit("/");
+    waitForPageReady();
     cy.contains("Foo Bar Baz");
   });
 });
 
-function findHomePageBanner(pageTitle: string) {
-  return cy.findByRole("banner", { name: pageTitle });
+function findHomePageBanner(pageTitle?: string) {
+  return cy.findByRole("main").findByRole("banner", { name: pageTitle });
 }
 
 function submitSettings(editSomeSettings: Function) {
