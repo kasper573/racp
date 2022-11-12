@@ -53,7 +53,8 @@ export const adminSettingsType = zod.object({
 
 export type AdminPublicSettings = zod.infer<typeof adminPublicSettingsType>;
 export const adminPublicSettingsType = zod.object({
-  ...adminSettingsType.shape,
+  ...adminSettingsType.omit({ homePageBanner: true }).shape,
+  homePageBannerUrl: zod.string().optional(),
   donations: zod.object({
     ...donationSettingsBaseType.shape,
     paypal: paypalSettingsType.omit({ clientSecret: true }),

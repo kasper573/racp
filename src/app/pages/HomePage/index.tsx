@@ -1,20 +1,14 @@
-import { useMemo } from "react";
 import { Page } from "../../layout/Page";
 import { trpc } from "../../state/client";
 import { Markdown } from "../../components/Markdown";
-import { toBrowserFile } from "../../util/rpcFileTransformer";
 import { Banner } from "./Banner";
 import defaultBannerUrl from "./defaultBanner.png";
 
 export default function HomePage() {
-  const { data: settings } = trpc.settings.readPublic.useQuery();
-  const bannerUrl = useMemo(
-    () =>
-      settings?.homePageBanner
-        ? URL.createObjectURL(toBrowserFile(settings.homePageBanner))
-        : defaultBannerUrl,
-    [settings?.homePageBanner]
-  );
+  const { data: settings, isLoading } = trpc.settings.readPublic.useQuery();
+  const bannerUrl = isLoading
+    ? undefined // No banner while loading to avoid flickering from one image to another
+    : settings?.homePageBannerUrl ?? defaultBannerUrl;
   return (
     <>
       <Banner style={{ backgroundImage: `url(${bannerUrl})` }}>
