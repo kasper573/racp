@@ -1,13 +1,25 @@
+import { useMemo } from "react";
 import { Page } from "../../layout/Page";
 import { trpc } from "../../state/client";
 import { Markdown } from "../../components/Markdown";
-import { Hero } from "./Hero";
+import { toBrowserFile } from "../../util/rpcFileTransformer";
+import { Banner } from "./Banner";
+import defaultBannerUrl from "./defaultBanner.png";
 
 export default function HomePage() {
   const { data: settings } = trpc.settings.readPublic.useQuery();
+  const bannerUrl = useMemo(
+    () =>
+      settings?.homePageBanner
+        ? URL.createObjectURL(toBrowserFile(settings.homePageBanner))
+        : defaultBannerUrl,
+    [settings?.homePageBanner]
+  );
   return (
     <>
-      <Hero>{settings?.pageTitle}</Hero>
+      <Banner style={{ backgroundImage: `url(${bannerUrl})` }}>
+        {settings?.pageTitle}
+      </Banner>
       <Page>
         <Markdown>{settings?.homePageContent}</Markdown>
       </Page>

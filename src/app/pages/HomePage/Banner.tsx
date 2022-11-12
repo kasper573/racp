@@ -1,7 +1,6 @@
 import { styled } from "@mui/material";
-import image from "./hero.png";
 
-export const Hero = styled("div")`
+export const Banner = styled("div")`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -12,7 +11,6 @@ export const Hero = styled("div")`
   overflow: hidden;
   background-size: cover;
   background-position: center 0;
-  background-image: url(${image});
   font-style: normal;
   font-weight: bold;
   color: #eee;

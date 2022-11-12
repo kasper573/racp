@@ -14,7 +14,7 @@ export interface FilePickerProps<Value>
   onChange?: (files: Value) => void;
   name?: string;
   accept?: string;
-  emptyText?: string;
+  emptyText?: ReactNode;
   label?: ReactNode;
   disabled?: boolean;
   direction?: "row" | "column";
