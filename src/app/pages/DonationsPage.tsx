@@ -7,6 +7,7 @@ import { routes } from "../router";
 import { Auth } from "../components/Auth";
 import { UserAccessLevel } from "../../api/services/user/types";
 import { Page } from "../layout/Page";
+import { Markdown } from "../components/Markdown";
 
 export default function DonationsPage() {
   const { data: balance } = trpc.donation.balance.useQuery();
@@ -26,11 +27,7 @@ export default function DonationsPage() {
   return (
     <Page>
       <Header />
-      {settings.donations.presentation.split(/[\r\n]+/).map((line, index) => (
-        <Typography key={index} paragraph>
-          {line}
-        </Typography>
-      ))}
+      <Markdown>{settings.donations.presentation}</Markdown>
       <Link to={routes.donation.items({})} sx={{ mb: 2 }}>
         Redeemable items
       </Link>
