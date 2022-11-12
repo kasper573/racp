@@ -94,7 +94,9 @@ export function Layout({ children }: { children?: ReactNode }) {
         <MuiToolbar sx={{ "&": { padding: 0 } }}>
           <Fade in={!!settings?.pageTitle}>
             <Box sx={{ display: "flex", justifyContent: "center", flex: 1 }}>
-              <Logo>{settings?.pageTitle}</Logo>
+              <Logo onClick={handleDrawerCloseRequest}>
+                {settings?.pageTitle}
+              </Logo>
             </Box>
           </Fade>
         </MuiToolbar>
