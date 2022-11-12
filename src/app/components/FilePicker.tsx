@@ -1,30 +1,35 @@
-import { ComponentProps, ReactNode, useEffect, useRef } from "react";
+import { ComponentProps, ReactNode, useEffect, useMemo, useRef } from "react";
 import { Stack, styled, Typography } from "@mui/material";
 import { ProgressButton } from "./ProgressButton";
+import { BorderWithLabel } from "./BorderWithLabel";
 
-export interface FilePickerProps
+export interface FilePickerProps<Value>
   extends Omit<ComponentProps<typeof Stack>, "onChange"> {
-  buttonText: ReactNode;
+  buttonText?: ReactNode;
   isLoading?: boolean;
-  value?: File[];
-  onChange?: (files: File[]) => void;
+  value?: Value;
+  onChange?: (files: Value) => void;
   name?: string;
   accept?: string;
   emptyText?: string;
+  label?: ReactNode;
   disabled?: boolean;
+  direction?: "row" | "column";
 }
 
 export function FilePicker({
   isLoading,
   value,
   onChange,
-  buttonText,
+  buttonText = "Select file",
   name,
   accept,
   emptyText = "No file selected",
   disabled,
+  label = name,
+  direction = "row",
   ...props
-}: FilePickerProps) {
+}: FilePickerProps<File[]>) {
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!value?.length && inputRef.current) {
@@ -32,7 +37,7 @@ export function FilePicker({
     }
   }, [value]);
   return (
-    <Stack direction="column" spacing={2} {...props}>
+    <BorderWithLabel label={label} {...props}>
       <HiddenInput
         type="file"
         ref={inputRef}
@@ -40,18 +45,22 @@ export function FilePicker({
         accept={accept}
         onChange={(e) => onChange?.(fileListToArray(e.target.files))}
       />
-      <Typography sx={{ textAlign: "center" }}>
-        {value?.length ? value?.map((file) => file.name).join(", ") : emptyText}
-      </Typography>
-      <ProgressButton
-        disabled={disabled}
-        variant="contained"
-        isLoading={isLoading}
-        onClick={() => inputRef.current?.click()}
-      >
-        {buttonText}
-      </ProgressButton>
-    </Stack>
+      <Stack direction={direction} alignItems="center" spacing={2}>
+        <Typography sx={{ textAlign: "center" }}>
+          {value?.length
+            ? value?.map((file) => file.name).join(", ")
+            : emptyText}
+        </Typography>
+        <ProgressButton
+          disabled={disabled}
+          variant="contained"
+          isLoading={isLoading}
+          onClick={() => inputRef.current?.click()}
+        >
+          {buttonText}
+        </ProgressButton>
+      </Stack>
+    </BorderWithLabel>
   );
 }
 
