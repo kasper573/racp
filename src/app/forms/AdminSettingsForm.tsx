@@ -28,7 +28,11 @@ export function AdminSettingsForm(props: ZodFormOptions<AdminSettings>) {
                 <TextField label="Website Title" {...field("pageTitle")} />
                 <RpcFilePicker
                   label="Home Page Banner"
-                  emptyText={<Typography color="gray">Default</Typography>}
+                  emptyText={
+                    <Typography component="span" color="gray">
+                      Default
+                    </Typography>
+                  }
                   clearText="Use default"
                   clearable
                   {...field("homePageBanner")}
