@@ -48,7 +48,11 @@ export function MarkdownField({
       }
       InputProps={{
         endAdornment: (
-          <Button size="small" onClick={() => setIsPreviewing(true)}>
+          <Button
+            sx={{ alignSelf: "flex-start" }}
+            size="small"
+            onClick={() => setIsPreviewing(true)}
+          >
             Preview
           </Button>
         ),
