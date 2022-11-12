@@ -105,6 +105,7 @@ export function createResourceManager({
     .build();
 
   manager.add(settings);
+  settings.images = manager.create.images("settings");
 
   scripts = manager.createUsing(() =>
     settings.pipe(new ScriptRepository(options))

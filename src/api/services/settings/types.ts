@@ -46,6 +46,7 @@ export const adminSettingsType = zod.object({
   rAthenaMode: rAthenaModeType,
   pageTitle: zod.string(),
   homePageBanner: rpcFile.optional(),
+  homePageBannerUrl: zod.string().optional(),
   homePageContent: zod.string(),
   donations: donationSettingsType,
   huntLimits: huntLimitsType,
@@ -53,8 +54,7 @@ export const adminSettingsType = zod.object({
 
 export type AdminPublicSettings = zod.infer<typeof adminPublicSettingsType>;
 export const adminPublicSettingsType = zod.object({
-  ...adminSettingsType.shape,
-  homePageBannerUrl: zod.string().optional(),
+  ...adminSettingsType.omit({ homePageBanner: true }).shape,
   donations: zod.object({
     ...donationSettingsBaseType.shape,
     paypal: paypalSettingsType.omit({ clientSecret: true }),
