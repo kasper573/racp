@@ -33,7 +33,7 @@ async function generate() {
 
   const tsString = await sqlts.toTypeScript({
     client: "mysql",
-    template: path.resolve(__dirname, "DatabaseDriver.codegen.hbs"),
+    template: path.resolve(__dirname, "generateRathenaTypes.hbs"),
     connection: await db.info.read(template),
     tableNameCasing: "pascal",
     enumNameCasing: "pascal",
