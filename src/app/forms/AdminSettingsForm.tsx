@@ -27,6 +27,7 @@ export function AdminSettingsForm(props: ZodFormOptions<AdminSettings>) {
               <Stack spacing={2}>
                 <TextField label="Website Title" {...field("pageTitle")} />
                 <RpcFilePicker
+                  name="homePageBanner"
                   label="Home Page Banner"
                   emptyText={
                     <Typography component="span" color="gray">
