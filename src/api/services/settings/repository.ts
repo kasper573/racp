@@ -15,14 +15,11 @@ export function createAdminSettingsRepository({
   dataFolder: string;
   logger: Logger;
 }) {
-  const all = new FileRepository({
+  return new FileRepository({
     logger,
     directory: dataFolder,
     relativeFilename: "settings.json",
     protocol: zodJsonProtocol(adminSettingsType),
     defaultValue: defaultAdminSettings,
   });
-  return {
-    all
-  };
 }
