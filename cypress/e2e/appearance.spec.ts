@@ -32,6 +32,14 @@ describe("can change", () => {
     gotoMainMenuPage("rAthenaCP");
     findHomePageBanner("rAthenaCP").isFixtureImage("banner.png");
   });
+
+  it("home page content", () => {
+    submitSettings(() =>
+      cy.findByLabelText("Home Page Content").clear().type("Foo Bar Baz")
+    );
+    gotoMainMenuPage("rAthenaCP");
+    cy.contains("Foo Bar Baz");
+  });
 });
 
 function findHomePageBanner(pageTitle: string) {
