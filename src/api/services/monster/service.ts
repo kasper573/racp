@@ -7,14 +7,14 @@ import { UserAccessLevel } from "../user/types";
 import { RAthenaDatabaseDriver } from "../../rathena/RAthenaDatabaseDriver";
 import { typedAssign } from "../../../lib/std/typedAssign";
 import { MvplogEntityType } from "../../rathena/DatabaseDriver.types";
-import { createSearchTypes } from "../../common/search.types";
 import {
   monsterFilter,
+  monsterSearchTypes,
   monsterSpawnFilter,
-  monsterSpawnType,
   monsterType,
   mvpFilter,
-  mvpType,
+  mvpSearchTypes,
+  spawnSearchTypes,
 } from "./types";
 import { MonsterRepository } from "./repository";
 import { queryMvpStatus } from "./util/queryMvpStatus";
@@ -88,10 +88,3 @@ export function createMonsterService({
       }),
   });
 }
-
-const mvpSearchTypes = createSearchTypes(mvpType, mvpFilter.type);
-const monsterSearchTypes = createSearchTypes(monsterType, monsterFilter.type);
-const spawnSearchTypes = createSearchTypes(
-  monsterSpawnType,
-  monsterSpawnFilter.type
-);
