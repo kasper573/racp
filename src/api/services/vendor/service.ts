@@ -1,7 +1,6 @@
 import * as zod from "zod";
 import { t } from "../../trpc";
 import { ItemRepository } from "../item/repository";
-import { createSearchTypes } from "../../common/search";
 import { RAthenaDatabaseDriver } from "../../rathena/RAthenaDatabaseDriver";
 import { normalizeItemInstanceProperties } from "../inventory/types";
 import { access } from "../../middlewares/access";
@@ -9,6 +8,7 @@ import { UserAccessLevel } from "../user/types";
 import { count } from "../../../lib/knex";
 import { itemFilter } from "../item/types";
 import { knexMatcher } from "../../matcher";
+import { searchTypes } from "../../common/search.types";
 import {
   createVendorItemId,
   parseVendorItemId,
@@ -135,7 +135,4 @@ export function createVendorService({
   });
 }
 
-const searchItemsTypes = createSearchTypes(
-  vendorItemType,
-  vendorItemFilter.type
-);
+const searchItemsTypes = searchTypes(vendorItemType, vendorItemFilter.type);

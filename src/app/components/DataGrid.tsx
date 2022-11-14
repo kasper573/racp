@@ -22,11 +22,15 @@ import {
 import { isDeepEqual } from "@mui/x-data-grid/internals";
 import calculateTextWidth from "calculate-text-width";
 import { typedKeys } from "../../lib/std/typedKeys";
-import { SearchQuery, SearchResult, SearchSort } from "../../api/common/search";
 import { useWindowSize, WindowSize } from "../../lib/hooks/useWindowSize";
 import { useOnChange } from "../../lib/hooks/useOnChange";
 import { useLatest } from "../../lib/hooks/useLatest";
 import { RouteLocation } from "../../lib/tsr/types";
+import {
+  SearchQuery,
+  SearchResult,
+  SearchSort,
+} from "../../api/common/search.types";
 import { Link } from "./Link";
 import { Center } from "./Center";
 

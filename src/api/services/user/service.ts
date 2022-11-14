@@ -4,8 +4,8 @@ import { t } from "../../trpc";
 import { RAthenaDatabaseDriver } from "../../rathena/RAthenaDatabaseDriver";
 import { count, some } from "../../../lib/knex";
 import { access } from "../../middlewares/access";
-import { createSearchTypes } from "../../common/search";
 import { knexMatcher } from "../../matcher";
+import { searchTypes } from "../../common/search.types";
 import {
   loginPayloadType,
   UserAccessLevel,
@@ -131,10 +131,7 @@ export function createUserService({
   });
 }
 
-const searchUsersTypes = createSearchTypes(
-  userProfileType,
-  userProfileFilter.type
-);
+const searchUsersTypes = searchTypes(userProfileType, userProfileFilter.type);
 
 function createUserQuery(radb: RAthenaDatabaseDriver) {
   return radb.login
