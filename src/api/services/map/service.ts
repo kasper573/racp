@@ -7,6 +7,7 @@ import { t } from "../../trpc";
 import { decodeRpcFileData, rpcFile } from "../../common/RpcFile";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
+import { createSearchTypes } from "../../common/search.types";
 import { MapRepository } from "./repository";
 import {
   mapBoundsRegistryType,
@@ -22,14 +23,14 @@ export type MapService = ReturnType<typeof createMapService>;
 export function createMapService(repo: MapRepository) {
   return t.router({
     search: createSearchProcedure(
-      mapInfoType,
-      mapInfoFilter.type,
+      mapInfoSearchTypes.query,
+      mapInfoSearchTypes.result,
       async () => Array.from((await repo.maps).values()),
       (entity, payload) => mapInfoFilter.for(payload)(entity)
     ),
     searchWarps: createSearchProcedure(
-      warpType,
-      warpFilter.type,
+      warpSearchTypes.query,
+      warpSearchTypes.result,
       () => repo.warps,
       (entity, payload) => warpFilter.for(payload)(entity),
       noLimitForFilter((filter) => filter?.fromMap?.matcher === "equals")
@@ -97,3 +98,6 @@ export function createMapService(repo: MapRepository) {
       }),
   });
 }
+
+const mapInfoSearchTypes = createSearchTypes(mapInfoType, mapInfoFilter.type);
+const warpSearchTypes = createSearchTypes(warpType, warpFilter.type);

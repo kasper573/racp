@@ -3,6 +3,7 @@ import { itemIdType, itemType } from "../item/types";
 import { monsterDropType, monsterIdType } from "../monster/types";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { matcher } from "../../matcher";
+import { createSearchTypes } from "../../common/search.types";
 
 /**
  * View model used by the app. Not to be confused with MonsterDrop.
@@ -26,3 +27,8 @@ export const itemDropType = zod.object({
 
 export type ItemDropFilter = zod.infer<typeof itemDropFilter.type>;
 export const itemDropFilter = createEntityFilter(matcher, itemDropType);
+
+export const itemDropSearchTypes = createSearchTypes(
+  itemDropType,
+  itemDropFilter.type
+);

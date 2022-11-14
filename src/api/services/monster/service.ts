@@ -7,6 +7,7 @@ import { UserAccessLevel } from "../user/types";
 import { RAthenaDatabaseDriver } from "../../rathena/RAthenaDatabaseDriver";
 import { typedAssign } from "../../../lib/std/typedAssign";
 import { MvplogEntityType } from "../../rathena/DatabaseDriver.types";
+import { createSearchTypes } from "../../common/search.types";
 import {
   monsterFilter,
   monsterSpawnFilter,
@@ -50,8 +51,8 @@ export function createMonsterService({
           .insert(logEntries.map((mvp) => ({ ...mvp, mvp_date: new Date() })));
       }),
     searchMvps: createSearchProcedure(
-      mvpType,
-      mvpFilter.type,
+      mvpSearchTypes.query,
+      mvpSearchTypes.result,
       async () => {
         let mvps = await repo.mvps;
         if (exposeBossStatuses) {
@@ -65,14 +66,14 @@ export function createMonsterService({
       (entity, payload) => mvpFilter.for(payload)(entity)
     ),
     search: createSearchProcedure(
-      monsterType,
-      monsterFilter.type,
+      monsterSearchTypes.query,
+      monsterSearchTypes.result,
       async () => Array.from((await repo.monsters).values()),
       (entity, payload) => monsterFilter.for(payload)(entity)
     ),
     searchSpawns: createSearchProcedure(
-      monsterSpawnType,
-      monsterSpawnFilter.type,
+      spawnSearchTypes.query,
+      spawnSearchTypes.result,
       () => repo.spawns,
       (entity, payload) => monsterSpawnFilter.for(payload)(entity),
       noLimitForFilter((filter) => filter?.map?.matcher === "equals")
@@ -90,3 +91,10 @@ export function createMonsterService({
       }),
   });
 }
+
+const mvpSearchTypes = createSearchTypes(mvpType, mvpFilter.type);
+const monsterSearchTypes = createSearchTypes(monsterType, monsterFilter.type);
+const spawnSearchTypes = createSearchTypes(
+  monsterSpawnType,
+  monsterSpawnFilter.type
+);

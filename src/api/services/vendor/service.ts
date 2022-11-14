@@ -86,8 +86,8 @@ export function createVendorService({
         await Promise.all(items.map(insertItem));
       }),
     searchItems: t.procedure
-      .input(searchItemsTypes.queryType)
-      .output(searchItemsTypes.resultType)
+      .input(searchItemsTypes.query)
+      .output(searchItemsTypes.result)
       .query(async ({ input }) => {
         const items = await itemRepo.items;
 

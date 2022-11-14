@@ -2,12 +2,7 @@ import * as zod from "zod";
 import { ZodType } from "zod";
 import { clamp, get } from "lodash";
 import { t } from "../trpc";
-import {
-  createSearchTypes,
-  SearchQuery,
-  SearchResult,
-  SearchSort,
-} from "./search.types";
+import { SearchQuery, SearchResult, SearchSort } from "./search.types";
 
 // The default max limit is in place for when the client provides
 // no limit and a search controller has no explicit limit.
@@ -62,8 +57,8 @@ export function createSearchController<Entity, Filter>(
 }
 
 export function createSearchProcedure<ET extends ZodType, FT extends ZodType>(
-  entityType: ET,
-  filterType: FT,
+  queryType: ZodType<SearchQuery<zod.infer<ET>, zod.infer<FT>>>,
+  resultType: ZodType<SearchResult<zod.infer<ET>>>,
   getEntities: () => PromiseLike<zod.infer<ET>[]>,
   isMatch: (item: zod.infer<ET>, filter: zod.infer<FT>) => boolean,
   getMaxLimit?: (
@@ -71,7 +66,6 @@ export function createSearchProcedure<ET extends ZodType, FT extends ZodType>(
     filter?: zod.infer<FT>
   ) => number | undefined
 ) {
-  const { queryType, resultType } = createSearchTypes(entityType, filterType);
   const search = createSearchController(getEntities, isMatch, getMaxLimit);
   return t.procedure
     .input(queryType)

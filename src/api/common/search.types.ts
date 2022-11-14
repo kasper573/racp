@@ -1,6 +1,5 @@
 import * as zod from "zod";
 import { ZodType } from "zod";
-import { Path, zodPath } from "../../lib/zod/zodPath";
 
 export const sortDirectionType = zod.union([
   zod.literal("asc"),
@@ -17,7 +16,7 @@ export interface SearchQuery<T, F> {
 }
 
 export type SearchSort<T> = Array<{
-  field: Path<T>;
+  field: keyof T;
   sort: SortDirection;
 }>;
 
@@ -33,26 +32,24 @@ export function createSearchTypes<ET extends ZodType, FT extends ZodType>(
   type Entity = zod.infer<ET>;
   type Filter = zod.infer<FT>;
 
-  const pathType = zodPath(entityType);
-
   const sortType: ZodType<SearchSort<Entity>> = zod.array(
     zod.object({
-      field: pathType,
+      field: zod.string(),
       sort: sortDirectionType,
     })
   );
 
-  const queryType: ZodType<SearchQuery<Entity, Filter>> = zod.object({
+  const query: ZodType<SearchQuery<Entity, Filter>> = zod.object({
     filter: filterType.optional(),
     sort: sortType.optional(),
     offset: zod.number().optional(),
     limit: zod.number().optional(),
   });
 
-  const resultType: ZodType<SearchResult<Entity>> = zod.object({
+  const result: ZodType<SearchResult<Entity>> = zod.object({
     total: zod.number(),
     entities: zod.array(entityType),
   });
 
-  return { queryType, resultType };
+  return { query, result };
 }

@@ -14,7 +14,7 @@ import {
 } from "../settings/types";
 import { AccRegNumRepository } from "../../rathena/AccRegRepository";
 import { createSearchProcedure } from "../../common/search";
-import { Item, itemFilter, itemType } from "../item/types";
+import { Item, itemFilter, itemSearchTypes } from "../item/types";
 import { Repository } from "../../../lib/repo/Repository";
 import {
   donationCaptureResultType,
@@ -51,8 +51,8 @@ export function createDonationService({
 
   return t.router({
     searchItems: createSearchProcedure(
-      itemType,
-      itemFilter.type,
+      itemSearchTypes.query,
+      itemSearchTypes.result,
       () => cashStoreItems,
       (entity, payload) => itemFilter.for(payload)(entity)
     ),
