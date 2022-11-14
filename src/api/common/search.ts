@@ -3,7 +3,7 @@ import { ZodType } from "zod";
 import { clamp, get } from "lodash";
 import { t } from "../trpc";
 import {
-  searchTypes,
+  createSearchTypes,
   SearchQuery,
   SearchResult,
   SearchSort,
@@ -71,7 +71,7 @@ export function createSearchProcedure<ET extends ZodType, FT extends ZodType>(
     filter?: zod.infer<FT>
   ) => number | undefined
 ) {
-  const { queryType, resultType } = searchTypes(entityType, filterType);
+  const { queryType, resultType } = createSearchTypes(entityType, filterType);
   const search = createSearchController(getEntities, isMatch, getMaxLimit);
   return t.procedure
     .input(queryType)

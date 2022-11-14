@@ -26,7 +26,7 @@ export interface SearchResult<T> {
   entities: T[];
 }
 
-export function searchTypes<ET extends ZodType, FT extends ZodType>(
+export function createSearchTypes<ET extends ZodType, FT extends ZodType>(
   entityType: ET,
   filterType: FT
 ) {

@@ -8,7 +8,7 @@ import { UserAccessLevel } from "../user/types";
 import { count } from "../../../lib/knex";
 import { itemFilter } from "../item/types";
 import { knexMatcher } from "../../matcher";
-import { searchTypes } from "../../common/search.types";
+import { createSearchTypes } from "../../common/search.types";
 import {
   createVendorItemId,
   parseVendorItemId,
@@ -135,4 +135,7 @@ export function createVendorService({
   });
 }
 
-const searchItemsTypes = searchTypes(vendorItemType, vendorItemFilter.type);
+const searchItemsTypes = createSearchTypes(
+  vendorItemType,
+  vendorItemFilter.type
+);
