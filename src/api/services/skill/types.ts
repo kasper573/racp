@@ -3,6 +3,7 @@ import { toggleRecordType } from "../../../lib/zod/zodToggle";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { matcher } from "../../matcher";
 import { levelScaling } from "../../common/levelScaling";
+import { createSearchTypes } from "../../common/search.types";
 
 export type SkillId = zod.infer<typeof skillIdType>;
 export const skillIdType = zod.number();
@@ -87,3 +88,4 @@ export const skillType = zod.object({
 
 export type SkillFilter = zod.infer<typeof skillFilter.type>;
 export const skillFilter = createEntityFilter(matcher, skillType);
+export const skillSearchTypes = createSearchTypes(skillType, skillFilter.type);

@@ -1,8 +1,7 @@
 import { t } from "../../trpc";
 import { createSearchProcedure } from "../../common/search";
-import { createSearchTypes } from "../../common/search.types";
 import { SkillRepository } from "./repository";
-import { skillFilter, skillType } from "./types";
+import { skillFilter, skillSearchTypes } from "./types";
 
 export type SkillService = ReturnType<typeof createSkillService>;
 
@@ -15,5 +14,3 @@ export function createSkillService(skills: SkillRepository) {
     ),
   });
 }
-
-const skillSearchTypes = createSearchTypes(skillType, skillFilter.type);

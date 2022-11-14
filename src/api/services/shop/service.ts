@@ -1,7 +1,11 @@
 import { createSearchProcedure, noLimitForFilter } from "../../common/search";
 import { t } from "../../trpc";
-import { createSearchTypes } from "../../common/search.types";
-import { shopFilter, shopItemFilter, shopItemType, shopType } from "./types";
+import {
+  shopFilter,
+  shopItemFilter,
+  shopItemSearchTypes,
+  shopSearchTypes,
+} from "./types";
 import { ShopRepository } from "./repository";
 
 export type ShopService = ReturnType<typeof createShopService>;
@@ -22,9 +26,3 @@ export function createShopService({ shops, shopItems }: ShopRepository) {
     ),
   });
 }
-
-const shopSearchTypes = createSearchTypes(shopType, shopFilter.type);
-const shopItemSearchTypes = createSearchTypes(
-  shopItemType,
-  shopItemFilter.type
-);

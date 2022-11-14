@@ -6,6 +6,7 @@ import {
   RawScriptEntity,
   trimUniqueNpcName,
 } from "../../rathena/ScriptRepository";
+import { createSearchTypes } from "../../common/search.types";
 
 export type NpcId = Npc["id"];
 export type Npc = zod.infer<typeof npcType>;
@@ -63,3 +64,4 @@ export const npcType = new ZodCustomObject(
 
 export type NpcFilter = zod.infer<typeof npcFilter.type>;
 export const npcFilter = createEntityFilter(matcher, npcType);
+export const npcSearchTypes = createSearchTypes(npcType, npcFilter.type);

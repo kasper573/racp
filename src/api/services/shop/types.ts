@@ -8,6 +8,7 @@ import {
   RawScriptEntity,
   trimUniqueNpcName,
 } from "../../rathena/ScriptRepository";
+import { createSearchTypes } from "../../common/search.types";
 
 export type ShopVariant = zod.infer<typeof shopVariantType>;
 export const shopVariantType = zod.union([
@@ -133,3 +134,8 @@ export const shopType = zod.object({
 
 export type ShopFilter = zod.infer<typeof shopFilter.type>;
 export const shopFilter = createEntityFilter(matcher, shopType);
+export const shopSearchTypes = createSearchTypes(shopType, shopFilter.type);
+export const shopItemSearchTypes = createSearchTypes(
+  shopItemType,
+  shopItemFilter.type
+);
