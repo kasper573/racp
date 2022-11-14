@@ -51,8 +51,7 @@ export function createDonationService({
 
   return t.router({
     searchItems: createSearchProcedure(
-      itemSearchTypes.query,
-      itemSearchTypes.result,
+      itemSearchTypes,
       () => cashStoreItems,
       (entity, payload) => itemFilter.for(payload)(entity)
     ),

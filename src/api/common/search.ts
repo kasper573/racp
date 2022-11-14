@@ -57,8 +57,10 @@ export function createSearchController<Entity, Filter>(
 }
 
 export function createSearchProcedure<ET extends ZodType, FT extends ZodType>(
-  queryType: ZodType<SearchQuery<zod.infer<ET>, zod.infer<FT>>>,
-  resultType: ZodType<SearchResult<zod.infer<ET>>>,
+  types: {
+    query: ZodType<SearchQuery<zod.infer<ET>, zod.infer<FT>>>;
+    result: ZodType<SearchResult<zod.infer<ET>>>;
+  },
   getEntities: () => PromiseLike<zod.infer<ET>[]>,
   isMatch: (item: zod.infer<ET>, filter: zod.infer<FT>) => boolean,
   getMaxLimit?: (
@@ -68,8 +70,8 @@ export function createSearchProcedure<ET extends ZodType, FT extends ZodType>(
 ) {
   const search = createSearchController(getEntities, isMatch, getMaxLimit);
   return t.procedure
-    .input(queryType)
-    .output(resultType)
+    .input(types.query)
+    .output(types.result)
     .query(({ input }) => search(input));
 }
 

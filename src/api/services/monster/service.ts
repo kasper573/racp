@@ -51,8 +51,7 @@ export function createMonsterService({
           .insert(logEntries.map((mvp) => ({ ...mvp, mvp_date: new Date() })));
       }),
     searchMvps: createSearchProcedure(
-      mvpSearchTypes.query,
-      mvpSearchTypes.result,
+      mvpSearchTypes,
       async () => {
         let mvps = await repo.mvps;
         if (exposeBossStatuses) {
@@ -66,14 +65,12 @@ export function createMonsterService({
       (entity, payload) => mvpFilter.for(payload)(entity)
     ),
     search: createSearchProcedure(
-      monsterSearchTypes.query,
-      monsterSearchTypes.result,
+      monsterSearchTypes,
       async () => Array.from((await repo.monsters).values()),
       (entity, payload) => monsterFilter.for(payload)(entity)
     ),
     searchSpawns: createSearchProcedure(
-      spawnSearchTypes.query,
-      spawnSearchTypes.result,
+      spawnSearchTypes,
       () => repo.spawns,
       (entity, payload) => monsterSpawnFilter.for(payload)(entity),
       noLimitForFilter((filter) => filter?.map?.matcher === "equals")

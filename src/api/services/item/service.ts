@@ -20,8 +20,7 @@ export type ItemService = ReturnType<typeof createItemService>;
 export function createItemService(repo: ItemRepository) {
   return t.router({
     search: createSearchProcedure(
-      itemSearchTypes.query,
-      itemSearchTypes.result,
+      itemSearchTypes,
       async () => Array.from((await repo.items).values()),
       (entity, payload) => itemFilter.for(payload)(entity)
     ),

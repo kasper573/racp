@@ -13,8 +13,7 @@ export function createDropService({ drops, rates }: DropRepository) {
       .output(zod.array(dropRateGroupType))
       .query(() => rates.then()),
     search: createSearchProcedure(
-      itemDropSearchTypes.query,
-      itemDropSearchTypes.result,
+      itemDropSearchTypes,
       () => drops,
       (entity, payload) => itemDropFilter.for(payload)(entity),
       noLimitForFilter((filter) => filter?.ItemId?.matcher === "=")

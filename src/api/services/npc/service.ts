@@ -9,8 +9,7 @@ export type NpcService = ReturnType<typeof createNpcService>;
 export function createNpcService(npcs: Repository<Npc[]>) {
   return t.router({
     search: createSearchProcedure(
-      npcSearchTypes.query,
-      npcSearchTypes.result,
+      npcSearchTypes,
       () => npcs,
       (entity, payload) => npcFilter.for(payload)(entity),
       noLimitForFilter((filter) => filter?.mapId?.matcher === "equals")
