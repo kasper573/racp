@@ -5,12 +5,11 @@ import { RAthenaDatabaseDriver } from "../../rathena/RAthenaDatabaseDriver";
 import { count, some } from "../../../lib/knex";
 import { access } from "../../middlewares/access";
 import { knexMatcher } from "../../matcher";
-import { createSearchTypes } from "../../common/search.types";
 import {
   loginPayloadType,
+  searchUsersTypes,
   UserAccessLevel,
   UserProfile,
-  userProfileFilter,
   userProfileMutationType,
   userProfileType,
   userRegisterPayloadType,
@@ -130,11 +129,6 @@ export function createUserService({
       }),
   });
 }
-
-const searchUsersTypes = createSearchTypes(
-  userProfileType,
-  userProfileFilter.type
-);
 
 function createUserQuery(radb: RAthenaDatabaseDriver) {
   return radb.login

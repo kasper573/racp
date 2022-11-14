@@ -8,12 +8,11 @@ import { UserAccessLevel } from "../user/types";
 import { count } from "../../../lib/knex";
 import { itemFilter } from "../item/types";
 import { knexMatcher } from "../../matcher";
-import { createSearchTypes } from "../../common/search.types";
 import {
   createVendorItemId,
   parseVendorItemId,
+  searchItemsTypes,
   VendorItem,
-  vendorItemFilter,
   vendorItemType,
 } from "./types";
 
@@ -134,8 +133,3 @@ export function createVendorService({
       }),
   });
 }
-
-const searchItemsTypes = createSearchTypes(
-  vendorItemType,
-  vendorItemFilter.type
-);
