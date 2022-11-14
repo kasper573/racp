@@ -7,15 +7,15 @@ import { t } from "../../trpc";
 import { decodeRpcFileData, rpcFile } from "../../common/RpcFile";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
-import { createSearchTypes } from "../../common/search.types";
 import { MapRepository } from "./repository";
 import {
   mapBoundsRegistryType,
   mapIdType,
   mapInfoFilter,
+  mapInfoSearchTypes,
   mapInfoType,
   warpFilter,
-  warpType,
+  warpSearchTypes,
 } from "./types";
 
 export type MapService = ReturnType<typeof createMapService>;
@@ -96,6 +96,3 @@ export function createMapService(repo: MapRepository) {
       }),
   });
 }
-
-const mapInfoSearchTypes = createSearchTypes(mapInfoType, mapInfoFilter.type);
-const warpSearchTypes = createSearchTypes(warpType, warpFilter.type);
