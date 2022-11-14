@@ -2,8 +2,9 @@ import { Box, styled } from "@mui/material";
 import {
   ComponentProps,
   ComponentType,
+  Dispatch,
   MouseEvent,
-  useEffect,
+  SetStateAction,
   useMemo,
   useState,
 } from "react";
@@ -36,6 +37,8 @@ export type DataGridProps<
 > = ColumnConventionProps<Entity, Id> &
   Omit<ComponentProps<typeof Box>, "id"> & {
     filter?: Filter;
+    query?: SearchQuery<Entity, Filter>;
+    setQuery?: Dispatch<SetStateAction<SearchQuery<Entity, Filter>>>;
     queryFn?: DataGridQueryFn<Entity, Filter>;
     data?: Entity[];
     gridProps?: Pick<
@@ -52,7 +55,9 @@ export function DataGrid<
   Filter = unknown,
   Id extends GridRowId = GridRowId
 >({
-  filter,
+  filter: inputFilter,
+  query: inputQuery,
+  setQuery: emitQuery,
   queryFn: useQuery,
   data: manualEntities,
   columns,
@@ -65,24 +70,39 @@ export function DataGrid<
   ...props
 }: DataGridProps<Entity, Filter, Id>) {
   const windowSize = useWindowSize();
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(3);
-  const [sort, setSort] = useState<SearchSort<Entity>>([]);
+  const [localQuery, setLocalQuery] = useState<SearchQuery<Entity, Filter>>(
+    () => inputQuery ?? { sort: [], offset: 0, limit: 3 }
+  );
+  const setQuery = emitQuery ?? setLocalQuery;
+
+  const setPageIndex = (index: number) =>
+    setQuery((q) => ({ ...q, offset: index * (q.limit ?? 0) }));
+  const setPageSize = (size: number) =>
+    setQuery((q) => ({ ...q, limit: size }));
+  const setSort = (sort: SearchSort<Entity>) =>
+    setQuery((q) => ({ ...q, sort }));
+
+  const query = inputQuery ?? localQuery;
+  const pageIndex = Math.floor(
+    query.limit ? query.offset ?? 0 / query.limit : 0
+  );
+  const pageSize = query.limit;
   const gridMode: GridFeatureMode = manualEntities ? "client" : "server";
-  const localQuery = {
-    filter,
-    sort,
-    offset: pageIndex * pageSize,
-    limit: pageSize,
-  };
-  const { data: result, isFetching } = useQuery?.(localQuery, {
-    keepPreviousData: true,
-    enabled: gridMode === "server",
-  }) ?? { data: undefined, isFetching: false };
+
+  const { data: result, isFetching } = useQuery?.(
+    { ...query, filter: inputFilter ?? query.filter },
+    {
+      keepPreviousData: true,
+      enabled: gridMode === "server",
+    }
+  ) ?? { data: undefined, isFetching: false };
+
   const entities = manualEntities ?? result?.entities ?? [];
   const total = manualEntities?.length ?? result?.total ?? 0;
-  const pageCount = Math.ceil((total ?? 0) / pageSize);
+  const pageCount = pageSize ? Math.ceil((total ?? 0) / pageSize) : 1;
+
   const latest = useLatest({ link });
+
   const columnList = useMemo(
     () =>
       processColumnConvention({
@@ -93,13 +113,16 @@ export function DataGrid<
     [columns, latest, windowSize?.width]
   );
 
-  useEffect(() => {
-    if (pageIndex >= pageCount) {
-      setPageIndex(Math.max(0, pageCount - 1));
+  useOnChange(query.filter, isDeepEqual, () => setPageIndex(0));
+  useOnChange(
+    { pageIndex, pageCount },
+    isDeepEqual,
+    ({ pageIndex, pageCount }) => {
+      if (pageIndex >= pageCount) {
+        setPageIndex(Math.max(0, pageCount - 1));
+      }
     }
-  }, [pageIndex, pageCount]);
-
-  useOnChange(filter, isDeepEqual, () => setPageIndex(0));
+  );
 
   function emitHoverChange(target?: HTMLElement) {
     const hovered =
@@ -155,7 +178,7 @@ export function DataGrid<
         }
         sortModel={
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          sort as any
+          query.sort as any
         }
         pagination
         disableSelectionOnClick
