@@ -36,7 +36,7 @@ export type DataGridProps<
 > = ColumnConventionProps<Entity, Id> &
   Omit<ComponentProps<typeof Box>, "id"> & {
     filter?: Filter;
-    query?: DataGridQueryFn<Entity, Filter>;
+    queryFn?: DataGridQueryFn<Entity, Filter>;
     data?: Entity[];
     gridProps?: Pick<
       ComponentProps<typeof MuiDataGrid>,
@@ -53,7 +53,7 @@ export function DataGrid<
   Id extends GridRowId = GridRowId
 >({
   filter,
-  query: useQuery,
+  queryFn: useQuery,
   data: manualEntities,
   columns,
   id,
@@ -69,15 +69,16 @@ export function DataGrid<
   const [pageSize, setPageSize] = useState(3);
   const [sort, setSort] = useState<SearchSort<Entity>>([]);
   const gridMode: GridFeatureMode = manualEntities ? "client" : "server";
-  const { data: result, isFetching } = useQuery?.(
-    {
-      filter,
-      sort,
-      offset: pageIndex * pageSize,
-      limit: pageSize,
-    },
-    { keepPreviousData: true, enabled: gridMode === "server" }
-  ) ?? { data: undefined, isFetching: false };
+  const localQuery = {
+    filter,
+    sort,
+    offset: pageIndex * pageSize,
+    limit: pageSize,
+  };
+  const { data: result, isFetching } = useQuery?.(localQuery, {
+    keepPreviousData: true,
+    enabled: gridMode === "server",
+  }) ?? { data: undefined, isFetching: false };
   const entities = manualEntities ?? result?.entities ?? [];
   const total = manualEntities?.length ?? result?.total ?? 0;
   const pageCount = Math.ceil((total ?? 0) / pageSize);
@@ -168,38 +169,38 @@ export function DataGrid<
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type DataGridQueryFn<Entity = any, Filter = any> = (
-  query: SearchQuery<Entity, Filter>,
+  queryFn: SearchQuery<Entity, Filter>,
   options?: { keepPreviousData?: boolean; enabled?: boolean }
 ) => {
   data?: SearchResult<Entity>;
   isFetching: boolean;
 };
 
-type DefinedKeys = "query" | "link" | "id" | "columns" | "emptyComponent";
+type DefinedKeys = "queryFn" | "link" | "id" | "columns" | "emptyComponent";
 DataGrid.define = <QueryFn extends DataGridQueryFn>(
-  predefinedQuery: QueryFn
+  predefinedQueryFn: QueryFn
 ) => {
   type Entity = QueryFn extends DataGridQueryFn<infer E> ? E : never;
   type Filter = QueryFn extends DataGridQueryFn<Entity, infer F> ? F : never;
   return <Id extends GridRowId>(
     definedProps: Omit<
       Pick<DataGridProps<Entity, Filter, Id>, DefinedKeys>,
-      "query"
+      "queryFn"
     >
   ) => {
     type Columns = ColumnConventionProps<Entity, Id>["columns"];
     return function SpecificDataGrid({
-      query = predefinedQuery,
+      queryFn = predefinedQueryFn,
       columns: transformColumns,
       ...restProps
     }: Omit<DataGridProps<Entity, Filter, Id>, DefinedKeys> & {
-      query?: DataGridQueryFn<Entity, Filter>;
+      queryFn?: DataGridQueryFn<Entity, Filter>;
       columns?: (columns: Columns) => Columns;
     }) {
       const { columns, ...rest } = { ...definedProps, ...restProps };
       return (
         <DataGrid
-          query={query}
+          queryFn={queryFn}
           columns={transformColumns ? transformColumns(columns) : columns}
           {...rest}
         />
