@@ -19,7 +19,7 @@ import * as zod from "zod";
 import { UserAccessLevel, userProfileFilter } from "../api/services/user/types";
 import { itemFilter, itemSearchTypes } from "../api/services/item/types";
 import { monsterFilter, mvpFilter } from "../api/services/monster/types";
-import { mapInfoFilter } from "../api/services/map/types";
+import { mapInfoSearchTypes } from "../api/services/map/types";
 import { vendorItemFilter } from "../api/services/vendor/types";
 import { skillFilter } from "../api/services/skill/types";
 import { zodLiteralString } from "../lib/zod/zodLiteralString";
@@ -117,8 +117,8 @@ export const router = new Router(
       .meta({ title: "Maps", icon: <Map /> })
       .children({
         search: t.route
-          .path("search/:filter?")
-          .params({ filter: mapInfoFilter.type.optional() })
+          .path("search/:query?")
+          .params({ query: mapInfoSearchTypes.query.optional() })
           .renderer(lazy(() => import("./pages/MapSearchPage"))),
         view: mapViewRoute,
       }),

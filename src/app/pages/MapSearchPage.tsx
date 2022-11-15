@@ -7,18 +7,18 @@ import { FilterMenu } from "../components/FilterMenu";
 import { Page } from "../layout/Page";
 
 export default function MapSearchPage() {
-  const [filter = {}, setFilter] = useRouteState(routes.map.search.$, "filter");
+  const [query = {}, setQuery] = useRouteState(routes.map.search.$, "query");
   return (
     <Page>
       <Header>
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}
-          filter={filter}
-          setFilter={setFilter}
+          filter={query.filter ?? {}}
+          setFilter={(filter) => setQuery((q) => ({ ...q, filter }))}
           fields={MapSearchFilterForm}
         />
       </Header>
-      <MapGrid filter={filter} sx={{ mt: 1 }} />
+      <MapGrid query={query} setQuery={setQuery} sx={{ mt: 1 }} />
     </Page>
   );
 }
