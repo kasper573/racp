@@ -82,7 +82,10 @@ export function DataGrid<
   const setQuery = emitQuery ?? setLocalQuery;
 
   const setPageIndex = (index: number) =>
-    setQuery((q) => ({ ...q, offset: index * (q?.limit ?? 0) }));
+    setQuery((q) => ({
+      ...q,
+      offset: index ? index * (q?.limit ?? 0) : undefined,
+    }));
   const setPageSize = (size: number) =>
     setQuery((q) => ({ ...q, limit: size }));
   const setSort = (sort: SearchSort<Entity>) =>
