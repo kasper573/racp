@@ -24,7 +24,7 @@ import {
 } from "../api/services/monster/types";
 import { mapInfoSearchTypes } from "../api/services/map/types";
 import { vendorItemFilter } from "../api/services/vendor/types";
-import { skillFilter } from "../api/services/skill/types";
+import { skillSearchTypes } from "../api/services/skill/types";
 import { zodLiteralString } from "../lib/zod/zodLiteralString";
 import { RouteLocation } from "../lib/tsr/types";
 import { huntType } from "../../prisma/zod";
@@ -80,8 +80,8 @@ export const router = new Router(
       .meta({ title: "Skills", icon: <School /> })
       .children({
         search: t.route
-          .path("search/:filter?")
-          .params({ filter: skillFilter.type.optional() })
+          .path("search/:query?")
+          .params({ query: skillSearchTypes.query.optional() })
           .renderer(lazy(() => import("./pages/SkillSearchPage"))),
         view: t.route
           .path("view/:id")
