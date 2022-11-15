@@ -42,7 +42,9 @@ export type DataGridProps<
   Omit<ComponentProps<typeof Box>, "id"> & {
     filter?: Filter;
     query?: SearchQuery<Entity, Filter>;
-    setQuery?: Dispatch<SetStateAction<SearchQuery<Entity, Filter>>>;
+    setQuery?: Dispatch<
+      SetStateAction<SearchQuery<Entity, Filter> | undefined>
+    >;
     queryFn?: DataGridQueryFn<Entity, Filter>;
     data?: Entity[];
     gridProps?: Pick<
@@ -74,13 +76,13 @@ export function DataGrid<
   ...props
 }: DataGridProps<Entity, Filter, Id>) {
   const windowSize = useWindowSize();
-  const [localQuery, setLocalQuery] = useState<SearchQuery<Entity, Filter>>(
-    () => inputQuery ?? { sort: [], offset: 0, limit: 3 }
-  );
+  const [localQuery, setLocalQuery] = useState<
+    SearchQuery<Entity, Filter> | undefined
+  >(() => inputQuery ?? { sort: [], offset: 0, limit: 3 });
   const setQuery = emitQuery ?? setLocalQuery;
 
   const setPageIndex = (index: number) =>
-    setQuery((q) => ({ ...q, offset: index * (q.limit ?? 0) }));
+    setQuery((q) => ({ ...q, offset: index * (q?.limit ?? 0) }));
   const setPageSize = (size: number) =>
     setQuery((q) => ({ ...q, limit: size }));
   const setSort = (sort: SearchSort<Entity>) =>
@@ -88,13 +90,13 @@ export function DataGrid<
 
   const query = inputQuery ?? localQuery;
   const pageIndex = Math.floor(
-    query.limit ? query.offset ?? 0 / query.limit : 0
+    query?.limit ? (query.offset ?? 0) / query.limit : 0
   );
-  const pageSize = query.limit;
+  const pageSize = query?.limit;
   const gridMode: GridFeatureMode = manualEntities ? "client" : "server";
 
   const { data: result, isFetching } = useQuery?.(
-    { ...query, filter: inputFilter ?? query.filter },
+    { ...query, filter: inputFilter ?? query?.filter },
     {
       keepPreviousData: true,
       enabled: gridMode === "server",
@@ -117,12 +119,12 @@ export function DataGrid<
     [columns, latest, windowSize?.width]
   );
 
-  useOnChange(query.filter, isDeepEqual, () => setPageIndex(0));
+  useOnChange(query?.filter, isDeepEqual, () => setPageIndex(0));
   useOnChange(
     { pageIndex, pageCount },
     isDeepEqual,
     ({ pageIndex, pageCount }) => {
-      if (pageIndex >= pageCount) {
+      if (pageIndex > 0 && pageIndex >= pageCount) {
         setPageIndex(Math.max(0, pageCount - 1));
       }
     }
@@ -182,7 +184,7 @@ export function DataGrid<
         }
         sortModel={
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          query.sort as any
+          query?.sort as any
         }
         pagination
         disableSelectionOnClick
