@@ -5,7 +5,7 @@ import { useStore } from "zustand";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { History } from "history";
 import { ErrorBoundary } from "react-error-boundary";
-import { RouterHistoryProvider } from "../lib/tsr/react/RouterContext";
+import { RouterProvider } from "../lib/tsr/react/RouterContext";
 import { RouterSwitch } from "../lib/tsr/react/RouterSwitch";
 import { ReactRouter } from "../lib/tsr/react/types";
 import { createTheme } from "./fixtures/theme";
@@ -32,18 +32,18 @@ export function App({
       onError={(error) => console.error(error)}
     >
       <StrictMode>
-        <RouterHistoryProvider history={history}>
+        <RouterProvider router={router} history={history}>
           <trpc.Provider client={trpcClient} queryClient={queryClient}>
             <QueryClientProvider client={queryClient}>
               <HelmetProvider>
                 <ThemeProvider theme={theme}>
                   <CssBaseline />
-                  <RouterSwitch router={router} variant="tree" />
+                  <RouterSwitch variant="tree" />
                 </ThemeProvider>
               </HelmetProvider>
             </QueryClientProvider>
           </trpc.Provider>
-        </RouterHistoryProvider>
+        </RouterProvider>
       </StrictMode>
     </ErrorBoundary>
   );

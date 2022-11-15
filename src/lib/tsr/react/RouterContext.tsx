@@ -1,30 +1,46 @@
 import { History, Location } from "history";
-import { createContext, PropsWithChildren, useEffect, useState } from "react";
+import {
+  createContext,
+  PropsWithChildren,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { RouteMatch } from "../types";
+import { Router } from "../Router";
+import { normalizeLocation } from "../utils/normalizeLocation";
 
 export interface RouterContextValue {
+  router: Router;
   history: History;
   location: Location;
   match?: RouteMatch;
 }
 
 export const RouterContext = createContext<RouterContextValue>({
+  router: errorProxy("Router instance must be provided"),
   history: errorProxy("History instance must be provided"),
   location: errorProxy("Location instance must be provided"),
 });
 
-export function RouterHistoryProvider({
+export function RouterProvider({
+  router,
   history,
   children,
-}: PropsWithChildren<{ history: History }>) {
+}: PropsWithChildren<{ router: Router; history: History }>) {
   const [location, setLocation] = useState(history.location);
   useEffect(
     () => history.listen(({ location }) => setLocation(location)),
     [history]
   );
 
+  const match = useMemo(
+    () => router.match(normalizeLocation(location)),
+    [router, location]
+  );
+
   return (
-    <RouterContext.Provider value={{ history, location }}>
+    <RouterContext.Provider value={{ history, router, location, match }}>
       {children}
     </RouterContext.Provider>
   );

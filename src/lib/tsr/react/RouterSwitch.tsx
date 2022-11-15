@@ -1,25 +1,11 @@
 import { useContext, useMemo } from "react";
-import { normalizeLocation } from "../utils/normalizeLocation";
 import { Route } from "../Route";
 import { RouterContext } from "./RouterContext";
-import { ReactRouter } from "./types";
 
 export type RouterSwitchVariant = "tree" | "leaf";
 
-export function RouterSwitch({
-  router,
-  variant,
-}: {
-  router: ReactRouter;
-  variant: RouterSwitchVariant;
-}) {
-  const context = useContext(RouterContext);
-  const { location } = context;
-
-  const match = useMemo(
-    () => router.match(normalizeLocation(location)),
-    [router, location]
-  );
+export function RouterSwitch({ variant }: { variant: RouterSwitchVariant }) {
+  const { match } = useContext(RouterContext);
 
   const rendered = useMemo(() => {
     if (!match) {
@@ -43,9 +29,5 @@ export function RouterSwitch({
     }
   }, [match, variant]);
 
-  return (
-    <RouterContext.Provider value={{ ...context, match }}>
-      {rendered}
-    </RouterContext.Provider>
-  );
+  return rendered;
 }
