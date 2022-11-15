@@ -11,7 +11,7 @@ import { knexMatcher } from "../../matcher";
 import {
   createVendorItemId,
   parseVendorItemId,
-  searchItemsTypes,
+  vendorItemSearchTypes,
   VendorItem,
   vendorItemType,
 } from "./types";
@@ -86,8 +86,8 @@ export function createVendorService({
         await Promise.all(items.map(insertItem));
       }),
     searchItems: t.procedure
-      .input(searchItemsTypes.query)
-      .output(searchItemsTypes.result)
+      .input(vendorItemSearchTypes.query)
+      .output(vendorItemSearchTypes.result)
       .query(async ({ input }) => {
         const items = await itemRepo.items;
 

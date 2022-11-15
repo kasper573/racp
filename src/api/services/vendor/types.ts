@@ -38,7 +38,7 @@ export const parseVendorItemId = (str: string) => {
 export type VendorItemFilter = zod.infer<typeof vendorItemFilter.type>;
 export const vendorItemFilter = createEntityFilter(matcher, vendorItemType);
 
-export const searchItemsTypes = createSearchTypes(
+export const vendorItemSearchTypes = createSearchTypes(
   vendorItemType,
   vendorItemFilter.type
 );

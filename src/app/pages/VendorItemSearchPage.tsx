@@ -7,18 +7,18 @@ import { FilterMenu } from "../components/FilterMenu";
 import { Page } from "../layout/Page";
 
 export default function VendorItemSearchPage() {
-  const [filter = {}, setFilter] = useRouteState(routes.vendor.$, "filter");
+  const [query = {}, setQuery] = useRouteState(routes.vendor.$, "query");
   return (
     <Page>
       <Header>
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}
-          filter={filter}
-          setFilter={setFilter}
+          filter={query.filter ?? {}}
+          setFilter={(filter) => setQuery((q) => ({ ...q, filter }))}
           fields={VendorItemSearchFilterForm}
         />
       </Header>
-      <VendorItemGrid filter={filter} sx={{ mt: 1 }} />
+      <VendorItemGrid query={query} setQuery={setQuery} sx={{ mt: 1 }} />
     </Page>
   );
 }

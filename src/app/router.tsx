@@ -23,7 +23,7 @@ import {
   mvpSearchTypes,
 } from "../api/services/monster/types";
 import { mapInfoSearchTypes } from "../api/services/map/types";
-import { vendorItemFilter } from "../api/services/vendor/types";
+import { vendorItemSearchTypes } from "../api/services/vendor/types";
 import { skillSearchTypes } from "../api/services/skill/types";
 import { zodLiteralString } from "../lib/zod/zodLiteralString";
 import { RouteLocation } from "../lib/tsr/types";
@@ -126,8 +126,8 @@ export const router = new Router(
         view: mapViewRoute,
       }),
     vendor: t.route
-      .path("vending/:filter?")
-      .params({ filter: vendorItemFilter.type.optional() })
+      .path("vending/:query?")
+      .params({ query: vendorItemSearchTypes.query.optional() })
       .renderer(lazy(() => import("./pages/VendorItemSearchPage")))
       .meta({ title: "Vendings", icon: <Storefront /> }),
     donation: t.route
