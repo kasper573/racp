@@ -18,7 +18,10 @@ import {
 import * as zod from "zod";
 import { UserAccessLevel, userProfileFilter } from "../api/services/user/types";
 import { itemFilter, itemSearchTypes } from "../api/services/item/types";
-import { monsterSearchTypes, mvpFilter } from "../api/services/monster/types";
+import {
+  monsterSearchTypes,
+  mvpSearchTypes,
+} from "../api/services/monster/types";
 import { mapInfoSearchTypes } from "../api/services/map/types";
 import { vendorItemFilter } from "../api/services/vendor/types";
 import { skillFilter } from "../api/services/skill/types";
@@ -90,8 +93,8 @@ export const router = new Router(
       .params({ id: zod.string() })
       .renderer(lazy(() => import("./pages/ShopViewPage"))),
     mvp: t.route
-      .path("mvp/:filter?")
-      .params({ filter: mvpFilter.type.optional() })
+      .path("mvp/:query?")
+      .params({ query: mvpSearchTypes.query.optional() })
       .renderer(lazy(() => import("./pages/MvpSearchPage")))
       .meta({ title: "Mvps", icon: <EmojiEvents /> }),
     monster: t.route

@@ -9,14 +9,14 @@ import { Link } from "../components/Link";
 import { Page } from "../layout/Page";
 
 export default function MvpSearchPage() {
-  const [filter = {}, setFilter] = useRouteState(routes.mvp.$, "filter");
+  const [query = {}, setQuery] = useRouteState(routes.mvp.$, "query");
   return (
     <Page>
       <Header>
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}
-          filter={filter}
-          setFilter={setFilter}
+          filter={query.filter ?? {}}
+          setFilter={(filter) => setQuery((q) => ({ ...q, filter }))}
           fields={MvpSearchFilterForm}
         />
       </Header>
@@ -36,7 +36,7 @@ export default function MvpSearchPage() {
         </Link>
         .
       </Typography>
-      <MvpGrid filter={filter} sx={{ mt: 1 }} />
+      <MvpGrid query={query} setQuery={setQuery} sx={{ mt: 1 }} />
     </Page>
   );
 }
