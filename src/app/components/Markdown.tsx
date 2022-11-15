@@ -1,6 +1,6 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Link, Typography } from "@mui/material";
+import { Divider, Link, styled, Typography } from "@mui/material";
 import { ComponentType } from "react";
 
 export function Markdown({ children = "" }: { children?: string }) {
@@ -15,6 +15,22 @@ export function Markdown({ children = "" }: { children?: string }) {
 
 const plugins = [remarkGfm];
 
+const Span = withProps(Typography, { component: "span" } as any);
+
+const Pre = styled("pre")`
+  margin-top: 0;
+  line-height: 24px;
+`;
+
+const Code = styled("code")`
+  background-color: ${({ theme }) => theme.palette.divider};
+  line-height: 24px;
+  display: inline-block;
+  border: 1px solid ${({ theme }) => theme.palette.divider};
+  border-radius: ${({ theme }) => theme.shape.borderRadius}px;
+  padding: 0 4px;
+`;
+
 const components = {
   p: withProps(Typography, { paragraph: true }),
   h1: withProps(Typography, { variant: "h1" }),
@@ -23,10 +39,13 @@ const components = {
   h4: withProps(Typography, { variant: "h4" }),
   h5: withProps(Typography, { variant: "h5" }),
   h6: withProps(Typography, { variant: "h6" }),
-  strong: withProps(Typography, { fontWeight: "bold" }),
-  em: withProps(Typography, { fontStyle: "italic" }),
-  del: withProps(Typography, { style: { textDecoration: "line-through" } }),
-  span: withProps(Typography, { component: "span" } as any),
+  hr: withProps(Divider, { sx: { my: 2 } }),
+  code: withProps(Code, {}),
+  pre: withProps(Pre, {}),
+  strong: withProps(Span, { fontWeight: "bold" }),
+  em: withProps(Span, { fontStyle: "italic" }),
+  del: withProps(Span, { style: { textDecoration: "line-through" } }),
+  span: Span,
   a: Link,
 };
 
