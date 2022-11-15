@@ -7,21 +7,18 @@ import { SkillSearchFilterForm } from "../forms/SkillSearchFilterForm";
 import { Page } from "../layout/Page";
 
 export default function SkillSearchPage() {
-  const [filter = {}, setFilter] = useRouteState(
-    routes.skill.search.$,
-    "filter"
-  );
+  const [query = {}, setQuery] = useRouteState(routes.skill.search.$, "query");
   return (
     <Page>
       <Header>
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}
-          filter={filter}
-          setFilter={setFilter}
+          filter={query.filter ?? {}}
+          setFilter={(filter) => setQuery((q) => ({ ...q, filter }))}
           fields={SkillSearchFilterForm}
         />
       </Header>
-      <SkillGrid filter={filter} sx={{ mt: 1 }} />
+      <SkillGrid query={query} setQuery={setQuery} sx={{ mt: 1 }} />
     </Page>
   );
 }

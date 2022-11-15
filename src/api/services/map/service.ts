@@ -12,9 +12,10 @@ import {
   mapBoundsRegistryType,
   mapIdType,
   mapInfoFilter,
+  mapInfoSearchTypes,
   mapInfoType,
   warpFilter,
-  warpType,
+  warpSearchTypes,
 } from "./types";
 
 export type MapService = ReturnType<typeof createMapService>;
@@ -22,14 +23,12 @@ export type MapService = ReturnType<typeof createMapService>;
 export function createMapService(repo: MapRepository) {
   return t.router({
     search: createSearchProcedure(
-      mapInfoType,
-      mapInfoFilter.type,
+      mapInfoSearchTypes,
       async () => Array.from((await repo.maps).values()),
       (entity, payload) => mapInfoFilter.for(payload)(entity)
     ),
     searchWarps: createSearchProcedure(
-      warpType,
-      warpFilter.type,
+      warpSearchTypes,
       () => repo.warps,
       (entity, payload) => warpFilter.for(payload)(entity),
       noLimitForFilter((filter) => filter?.fromMap?.matcher === "equals")

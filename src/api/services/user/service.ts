@@ -4,13 +4,12 @@ import { t } from "../../trpc";
 import { RAthenaDatabaseDriver } from "../../rathena/RAthenaDatabaseDriver";
 import { count, some } from "../../../lib/knex";
 import { access } from "../../middlewares/access";
-import { createSearchTypes } from "../../common/search";
 import { knexMatcher } from "../../matcher";
 import {
   loginPayloadType,
+  searchUsersTypes,
   UserAccessLevel,
   UserProfile,
-  userProfileFilter,
   userProfileMutationType,
   userProfileType,
   userRegisterPayloadType,
@@ -31,8 +30,8 @@ export function createUserService({
 }) {
   return t.router({
     search: t.procedure
-      .input(searchUsersTypes.queryType)
-      .output(searchUsersTypes.resultType)
+      .input(searchUsersTypes.query)
+      .output(searchUsersTypes.result)
       .use(access(UserAccessLevel.Admin))
       .query(async ({ input }) => {
         const query = knexMatcher.search(createUserQuery(radb), input, {
@@ -130,11 +129,6 @@ export function createUserService({
       }),
   });
 }
-
-const searchUsersTypes = createSearchTypes(
-  userProfileType,
-  userProfileFilter.type
-);
 
 function createUserQuery(radb: RAthenaDatabaseDriver) {
   return radb.login

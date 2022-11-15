@@ -5,6 +5,7 @@ import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { zodNominalString } from "../../../lib/zod/zodNominalString";
 import { toggleRecordType } from "../../../lib/zod/zodToggle";
 import { zodNumeric } from "../../../lib/zod/zodNumeric";
+import { createSearchTypes } from "../../common/search.types";
 import { itemScriptType } from "./util/itemScriptType";
 
 export type Item = zod.infer<typeof itemType>;
@@ -144,3 +145,5 @@ export const rawCashStoreItemType = zod.object({
   itemId: zodNumeric(),
   price: zodNumeric(),
 });
+
+export const itemSearchTypes = createSearchTypes(itemType, itemFilter.type);

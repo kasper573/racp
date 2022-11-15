@@ -5,6 +5,7 @@ import { createPropertyMatchRefiner } from "../../../lib/zod/propertyMatchRefine
 import { toggleRecordType } from "../../../lib/zod/zodToggle";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { matcher } from "../../matcher";
+import { createSearchTypes } from "../../common/search.types";
 
 export enum UserAccessLevel {
   Guest,
@@ -72,3 +73,8 @@ export const userGroupType = zod.object({
 
 export type UserProfileFilter = zod.infer<typeof userProfileFilter.type>;
 export const userProfileFilter = createEntityFilter(matcher, userProfileType);
+
+export const searchUsersTypes = createSearchTypes(
+  userProfileType,
+  userProfileFilter.type
+);

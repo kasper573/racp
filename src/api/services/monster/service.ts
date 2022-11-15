@@ -9,11 +9,12 @@ import { typedAssign } from "../../../lib/std/typedAssign";
 import { MvplogEntityType } from "../../rathena/DatabaseDriver.types";
 import {
   monsterFilter,
+  monsterSearchTypes,
   monsterSpawnFilter,
-  monsterSpawnType,
   monsterType,
   mvpFilter,
-  mvpType,
+  mvpSearchTypes,
+  spawnSearchTypes,
 } from "./types";
 import { MonsterRepository } from "./repository";
 import { queryMvpStatus } from "./util/queryMvpStatus";
@@ -50,8 +51,7 @@ export function createMonsterService({
           .insert(logEntries.map((mvp) => ({ ...mvp, mvp_date: new Date() })));
       }),
     searchMvps: createSearchProcedure(
-      mvpType,
-      mvpFilter.type,
+      mvpSearchTypes,
       async () => {
         let mvps = await repo.mvps;
         if (exposeBossStatuses) {
@@ -65,14 +65,12 @@ export function createMonsterService({
       (entity, payload) => mvpFilter.for(payload)(entity)
     ),
     search: createSearchProcedure(
-      monsterType,
-      monsterFilter.type,
+      monsterSearchTypes,
       async () => Array.from((await repo.monsters).values()),
       (entity, payload) => monsterFilter.for(payload)(entity)
     ),
     searchSpawns: createSearchProcedure(
-      monsterSpawnType,
-      monsterSpawnFilter.type,
+      spawnSearchTypes,
       () => repo.spawns,
       (entity, payload) => monsterSpawnFilter.for(payload)(entity),
       noLimitForFilter((filter) => filter?.map?.matcher === "equals")

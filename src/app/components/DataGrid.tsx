@@ -2,8 +2,9 @@ import { Box, styled } from "@mui/material";
 import {
   ComponentProps,
   ComponentType,
+  Dispatch,
   MouseEvent,
-  useEffect,
+  SetStateAction,
   useMemo,
   useState,
 } from "react";
@@ -21,11 +22,15 @@ import {
 import { isDeepEqual } from "@mui/x-data-grid/internals";
 import calculateTextWidth from "calculate-text-width";
 import { typedKeys } from "../../lib/std/typedKeys";
-import { SearchQuery, SearchResult, SearchSort } from "../../api/common/search";
 import { useWindowSize, WindowSize } from "../../lib/hooks/useWindowSize";
 import { useOnChange } from "../../lib/hooks/useOnChange";
 import { useLatest } from "../../lib/hooks/useLatest";
 import { RouteLocation } from "../../lib/tsr/types";
+import {
+  SearchQuery,
+  SearchResult,
+  SearchSort,
+} from "../../api/common/search.types";
 import { Link } from "./Link";
 import { Center } from "./Center";
 
@@ -36,7 +41,11 @@ export type DataGridProps<
 > = ColumnConventionProps<Entity, Id> &
   Omit<ComponentProps<typeof Box>, "id"> & {
     filter?: Filter;
-    query?: DataGridQueryFn<Entity, Filter>;
+    query?: SearchQuery<Entity, Filter>;
+    setQuery?: Dispatch<
+      SetStateAction<SearchQuery<Entity, Filter> | undefined>
+    >;
+    queryFn?: DataGridQueryFn<Entity, Filter>;
     data?: Entity[];
     gridProps?: Pick<
       ComponentProps<typeof MuiDataGrid>,
@@ -52,8 +61,10 @@ export function DataGrid<
   Filter = unknown,
   Id extends GridRowId = GridRowId
 >({
-  filter,
-  query: useQuery,
+  filter: inputFilter,
+  query: inputQuery,
+  setQuery: emitQuery,
+  queryFn: useQuery,
   data: manualEntities,
   columns,
   id,
@@ -65,23 +76,42 @@ export function DataGrid<
   ...props
 }: DataGridProps<Entity, Filter, Id>) {
   const windowSize = useWindowSize();
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(3);
-  const [sort, setSort] = useState<SearchSort<Entity>>([]);
+  const [localQuery, setLocalQuery] = useState<
+    SearchQuery<Entity, Filter> | undefined
+  >(() => inputQuery ?? { sort: [], offset: 0, limit: 3 });
+  const setQuery = emitQuery ?? setLocalQuery;
+
+  const setPageIndex = (index: number) =>
+    setQuery((q) => ({
+      ...q,
+      offset: index ? index * (q?.limit ?? 0) : undefined,
+    }));
+  const setPageSize = (size: number) =>
+    setQuery((q) => ({ ...q, limit: size }));
+  const setSort = (sort: SearchSort<Entity>) =>
+    setQuery((q) => ({ ...q, sort }));
+
+  const query = inputQuery ?? localQuery;
+  const pageIndex = Math.floor(
+    query?.limit ? (query.offset ?? 0) / query.limit : 0
+  );
+  const pageSize = query?.limit;
   const gridMode: GridFeatureMode = manualEntities ? "client" : "server";
+
   const { data: result, isFetching } = useQuery?.(
+    { ...query, filter: inputFilter ?? query?.filter },
     {
-      filter,
-      sort,
-      offset: pageIndex * pageSize,
-      limit: pageSize,
-    },
-    { keepPreviousData: true, enabled: gridMode === "server" }
+      keepPreviousData: true,
+      enabled: gridMode === "server",
+    }
   ) ?? { data: undefined, isFetching: false };
+
   const entities = manualEntities ?? result?.entities ?? [];
   const total = manualEntities?.length ?? result?.total ?? 0;
-  const pageCount = Math.ceil((total ?? 0) / pageSize);
+  const pageCount = pageSize ? Math.ceil((total ?? 0) / pageSize) : 1;
+
   const latest = useLatest({ link });
+
   const columnList = useMemo(
     () =>
       processColumnConvention({
@@ -92,13 +122,16 @@ export function DataGrid<
     [columns, latest, windowSize?.width]
   );
 
-  useEffect(() => {
-    if (pageIndex >= pageCount) {
-      setPageIndex(Math.max(0, pageCount - 1));
+  useOnChange(query?.filter, isDeepEqual, () => setPageIndex(0));
+  useOnChange(
+    { pageIndex, pageCount },
+    isDeepEqual,
+    ({ pageIndex, pageCount }) => {
+      if (pageIndex > 0 && pageIndex >= pageCount) {
+        setPageIndex(Math.max(0, pageCount - 1));
+      }
     }
-  }, [pageIndex, pageCount]);
-
-  useOnChange(filter, isDeepEqual, () => setPageIndex(0));
+  );
 
   function emitHoverChange(target?: HTMLElement) {
     const hovered =
@@ -154,7 +187,7 @@ export function DataGrid<
         }
         sortModel={
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          sort as any
+          query?.sort as any
         }
         pagination
         disableSelectionOnClick
@@ -168,38 +201,38 @@ export function DataGrid<
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type DataGridQueryFn<Entity = any, Filter = any> = (
-  query: SearchQuery<Entity, Filter>,
+  queryFn: SearchQuery<Entity, Filter>,
   options?: { keepPreviousData?: boolean; enabled?: boolean }
 ) => {
   data?: SearchResult<Entity>;
   isFetching: boolean;
 };
 
-type DefinedKeys = "query" | "link" | "id" | "columns" | "emptyComponent";
+type DefinedKeys = "queryFn" | "link" | "id" | "columns" | "emptyComponent";
 DataGrid.define = <QueryFn extends DataGridQueryFn>(
-  predefinedQuery: QueryFn
+  predefinedQueryFn: QueryFn
 ) => {
   type Entity = QueryFn extends DataGridQueryFn<infer E> ? E : never;
   type Filter = QueryFn extends DataGridQueryFn<Entity, infer F> ? F : never;
   return <Id extends GridRowId>(
     definedProps: Omit<
       Pick<DataGridProps<Entity, Filter, Id>, DefinedKeys>,
-      "query"
+      "queryFn"
     >
   ) => {
     type Columns = ColumnConventionProps<Entity, Id>["columns"];
     return function SpecificDataGrid({
-      query = predefinedQuery,
+      queryFn = predefinedQueryFn,
       columns: transformColumns,
       ...restProps
     }: Omit<DataGridProps<Entity, Filter, Id>, DefinedKeys> & {
-      query?: DataGridQueryFn<Entity, Filter>;
+      queryFn?: DataGridQueryFn<Entity, Filter>;
       columns?: (columns: Columns) => Columns;
     }) {
       const { columns, ...rest } = { ...definedProps, ...restProps };
       return (
         <DataGrid
-          query={query}
+          queryFn={queryFn}
           columns={transformColumns ? transformColumns(columns) : columns}
           {...rest}
         />

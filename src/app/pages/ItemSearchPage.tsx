@@ -7,21 +7,18 @@ import { FilterMenu } from "../components/FilterMenu";
 import { Page } from "../layout/Page";
 
 export default function ItemSearchPage() {
-  const [filter = {}, setFilter] = useRouteState(
-    routes.item.search.$,
-    "filter"
-  );
+  const [query = {}, setQuery] = useRouteState(routes.item.search.$, "query");
   return (
     <Page>
       <Header>
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}
-          filter={filter}
-          setFilter={setFilter}
+          filter={query.filter ?? {}}
+          setFilter={(filter) => setQuery((q) => ({ ...q, filter }))}
           fields={ItemSearchFilterForm}
         />
       </Header>
-      <ItemGrid filter={filter} sx={{ mt: 1 }} />
+      <ItemGrid query={query} setQuery={setQuery} sx={{ mt: 1 }} />
     </Page>
   );
 }

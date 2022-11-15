@@ -6,7 +6,13 @@ import { decodeRpcFileData, rpcFile } from "../../common/RpcFile";
 import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
 import { bufferToLuaCode } from "../../common/parseLuaTableAs";
-import { itemFilter, itemIdType, itemOptionTextsType, itemType } from "./types";
+import {
+  itemFilter,
+  itemIdType,
+  itemOptionTextsType,
+  itemSearchTypes,
+  itemType,
+} from "./types";
 import { ItemRepository } from "./repository";
 
 export type ItemService = ReturnType<typeof createItemService>;
@@ -14,8 +20,7 @@ export type ItemService = ReturnType<typeof createItemService>;
 export function createItemService(repo: ItemRepository) {
   return t.router({
     search: createSearchProcedure(
-      itemType,
-      itemFilter.type,
+      itemSearchTypes,
       async () => Array.from((await repo.items).values()),
       (entity, payload) => itemFilter.for(payload)(entity)
     ),

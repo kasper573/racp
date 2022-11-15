@@ -1,7 +1,6 @@
 import * as zod from "zod";
 import { t } from "../../trpc";
 import { ItemRepository } from "../item/repository";
-import { createSearchTypes } from "../../common/search";
 import { RAthenaDatabaseDriver } from "../../rathena/RAthenaDatabaseDriver";
 import { normalizeItemInstanceProperties } from "../inventory/types";
 import { access } from "../../middlewares/access";
@@ -12,8 +11,8 @@ import { knexMatcher } from "../../matcher";
 import {
   createVendorItemId,
   parseVendorItemId,
+  vendorItemSearchTypes,
   VendorItem,
-  vendorItemFilter,
   vendorItemType,
 } from "./types";
 
@@ -87,8 +86,8 @@ export function createVendorService({
         await Promise.all(items.map(insertItem));
       }),
     searchItems: t.procedure
-      .input(searchItemsTypes.queryType)
-      .output(searchItemsTypes.resultType)
+      .input(vendorItemSearchTypes.query)
+      .output(vendorItemSearchTypes.result)
       .query(async ({ input }) => {
         const items = await itemRepo.items;
 
@@ -134,8 +133,3 @@ export function createVendorService({
       }),
   });
 }
-
-const searchItemsTypes = createSearchTypes(
-  vendorItemType,
-  vendorItemFilter.type
-);

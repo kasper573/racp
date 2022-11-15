@@ -5,6 +5,7 @@ import { trimQuotes } from "../../../lib/std/trimQuotes";
 import { createSegmentedObject } from "../../../lib/zod/ZodSegmentedObject";
 import { zodNumeric } from "../../../lib/zod/zodNumeric";
 import { RawScriptEntity } from "../../rathena/ScriptRepository";
+import { createSearchTypes } from "../../common/search.types";
 
 export type MapId = zod.infer<typeof mapIdType>;
 export const mapIdType = zod.string();
@@ -73,3 +74,10 @@ export const warpFilter = createEntityFilter(matcher, warpType);
 
 export type MapBoundsRegistry = zod.infer<typeof mapBoundsRegistryType>;
 export const mapBoundsRegistryType = zod.record(mapIdType, mapBoundsType);
+
+export const warpSearchTypes = createSearchTypes(warpType, warpFilter.type);
+
+export const mapInfoSearchTypes = createSearchTypes(
+  mapInfoType,
+  mapInfoFilter.type
+);

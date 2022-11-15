@@ -130,8 +130,10 @@ function useSubTypeBehavior({ value, onChange }: FormDataProps) {
   const numSelectedTypes = count(value.Type?.value);
   useEffect(() => {
     const { onChange, value } = latest.current;
-    if (numSelectedTypes <= 1) {
-      onChange({ ...value, SubType: undefined });
+    if (numSelectedTypes <= 1 && value.SubType) {
+      const newFilter = { ...value };
+      delete newFilter.SubType;
+      onChange(newFilter);
     }
   }, [numSelectedTypes, latest]);
 

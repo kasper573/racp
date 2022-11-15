@@ -24,7 +24,7 @@ export default function DonationItemsPage() {
         />
       </Header>
       <ItemGrid
-        query={trpc.donation.searchItems.useQuery}
+        queryFn={trpc.donation.searchItems.useQuery}
         filter={filter}
         columns={({ Name, Sell, ...rest }) => ({
           Name,

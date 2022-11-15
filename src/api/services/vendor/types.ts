@@ -3,6 +3,7 @@ import { itemIdType } from "../item/types";
 import { itemInstancePropertiesType } from "../inventory/types";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { matcher } from "../../matcher";
+import { createSearchTypes } from "../../common/search.types";
 
 export type VendorItem = zod.infer<typeof vendorItemType>;
 
@@ -36,3 +37,8 @@ export const parseVendorItemId = (str: string) => {
 
 export type VendorItemFilter = zod.infer<typeof vendorItemFilter.type>;
 export const vendorItemFilter = createEntityFilter(matcher, vendorItemType);
+
+export const vendorItemSearchTypes = createSearchTypes(
+  vendorItemType,
+  vendorItemFilter.type
+);

@@ -6,6 +6,7 @@ import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { mapIdType } from "../map/types";
 import { RawScriptEntity } from "../../rathena/ScriptRepository";
 import { toggleRecordType } from "../../../lib/zod/zodToggle";
+import { createSearchTypes } from "../../common/search.types";
 
 /**
  * Raw rAthena monster drop information.
@@ -153,3 +154,15 @@ export const mvpFilter = createEntityFilter(matcher, mvpType);
 function trimZero(value?: number) {
   return value === 0 ? undefined : value;
 }
+
+export const mvpSearchTypes = createSearchTypes(mvpType, mvpFilter.type);
+
+export const monsterSearchTypes = createSearchTypes(
+  monsterType,
+  monsterFilter.type
+);
+
+export const spawnSearchTypes = createSearchTypes(
+  monsterSpawnType,
+  monsterSpawnFilter.type
+);
