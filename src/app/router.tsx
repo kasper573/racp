@@ -17,7 +17,7 @@ import {
 } from "@mui/icons-material";
 import * as zod from "zod";
 import { UserAccessLevel, userProfileFilter } from "../api/services/user/types";
-import { itemFilter } from "../api/services/item/types";
+import { itemFilter, itemSearchTypes } from "../api/services/item/types";
 import { monsterFilter, mvpFilter } from "../api/services/monster/types";
 import { mapInfoFilter } from "../api/services/map/types";
 import { vendorItemFilter } from "../api/services/vendor/types";
@@ -63,8 +63,8 @@ export const router = new Router(
       .meta({ title: "Items", icon: <Redeem /> })
       .children({
         search: t.route
-          .path("search/:filter?")
-          .params({ filter: itemFilter.type.optional() })
+          .path("search/:query?")
+          .params({ query: itemSearchTypes.query.optional() })
           .renderer(lazy(() => import("./pages/ItemSearchPage"))),
         view: t.route
           .path("view/:id")
