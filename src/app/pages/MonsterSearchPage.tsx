@@ -7,21 +7,21 @@ import { FilterMenu } from "../components/FilterMenu";
 import { Page } from "../layout/Page";
 
 export default function MonsterSearchPage() {
-  const [filter = {}, setFilter] = useRouteState(
+  const [query = {}, setQuery] = useRouteState(
     routes.monster.search.$,
-    "filter"
+    "query"
   );
   return (
     <Page>
       <Header>
         <FilterMenu
           sx={{ position: "absolute", right: 0 }}
-          filter={filter}
-          setFilter={setFilter}
+          filter={query.filter ?? {}}
+          setFilter={(filter) => setQuery((q) => ({ ...q, filter }))}
           fields={MonsterSearchFilterForm}
         />
       </Header>
-      <MonsterGrid filter={filter} sx={{ mt: 1 }} />
+      <MonsterGrid query={query} setQuery={setQuery} sx={{ mt: 1 }} />
     </Page>
   );
 }

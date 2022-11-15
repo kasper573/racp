@@ -18,7 +18,7 @@ import {
 import * as zod from "zod";
 import { UserAccessLevel, userProfileFilter } from "../api/services/user/types";
 import { itemFilter, itemSearchTypes } from "../api/services/item/types";
-import { monsterFilter, mvpFilter } from "../api/services/monster/types";
+import { monsterSearchTypes, mvpFilter } from "../api/services/monster/types";
 import { mapInfoSearchTypes } from "../api/services/map/types";
 import { vendorItemFilter } from "../api/services/vendor/types";
 import { skillFilter } from "../api/services/skill/types";
@@ -100,8 +100,8 @@ export const router = new Router(
       .meta({ title: "Monsters", icon: <PestControlRodent /> })
       .children({
         search: t.route
-          .path("search/:filter?")
-          .params({ filter: monsterFilter.type.optional() })
+          .path("search/:query?")
+          .params({ query: monsterSearchTypes.query.optional() })
           .renderer(lazy(() => import("./pages/MonsterSearchPage"))),
         view: t.route
           .path("view/:id/:tab")

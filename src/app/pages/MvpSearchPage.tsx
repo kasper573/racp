@@ -27,7 +27,9 @@ export default function MvpSearchPage() {
         configuration, see the{" "}
         <Link
           to={routes.monster.search({
-            filter: { Modes: { value: ["Mvp"], matcher: "enabled" } },
+            query: {
+              filter: { Modes: { value: ["Mvp"], matcher: "enabled" } },
+            },
           })}
         >
           monsters page
