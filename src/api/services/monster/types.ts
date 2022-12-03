@@ -30,6 +30,7 @@ export const monsterPostProcessType = zod.object({
   Atk: zod.number(),
   MAtk: zod.number(),
   ImageUrl: zod.string().optional(), // Undefined means image is not present on the server
+  SpawnCount: zod.number(),
 });
 
 export type MonsterId = zod.infer<typeof monsterIdType>;

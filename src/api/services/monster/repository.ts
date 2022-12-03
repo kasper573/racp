@@ -31,13 +31,14 @@ export function createMonsterRepository({
   });
 
   const monsters = monsterDB
-    .and(images, settings)
-    .map("monsters", ([monsterDB, images, { rAthenaMode }]) =>
+    .and(images, settings, spawnDB)
+    .map("monsters", ([monsterDB, images, { rAthenaMode }, spawns]) =>
       produce(monsterDB, (db) => {
         for (const monster of db.values()) {
           postProcessMonster(monster, {
             rAthenaMode,
             imageUrl: images[imageName(monster.Id)],
+            spawnCount: spawns.filter((s) => s.monsterId === monster.Id).length,
           });
         }
       })

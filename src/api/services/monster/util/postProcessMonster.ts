@@ -11,18 +11,20 @@ export function postProcessMonster(
   options: {
     imageUrl?: string;
     rAthenaMode: RAthenaMode;
+    spawnCount: number;
   }
 ) {
-  const extract = createExtractor(options.rAthenaMode);
+  const extract = createExtractor(options.rAthenaMode, options.spawnCount);
   typedAssign(monster, extract(monster));
   typedAssign(monster.Modes, memoizedModeResolver(monster.Ai, monster.Class));
   monster.ImageUrl = options.imageUrl;
 }
 
-function createExtractor(rAthenaMode: RAthenaMode) {
+function createExtractor(rAthenaMode: RAthenaMode, spawnCount: number) {
   return function extract(monster: Monster): MonsterPostProcess {
     const { Level, Agi, Luk, Dex, Attack, Attack2 } = monster;
     return {
+      SpawnCount: spawnCount,
       Flee: monster.Flee ?? 100 + (Level + Agi + Luk / 5),
       Hit: monster.Hit ?? 175 + Level + Dex + Math.floor(Luk / 3),
       ...{

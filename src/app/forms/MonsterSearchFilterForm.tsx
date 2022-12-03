@@ -1,3 +1,4 @@
+import { FormControlLabel } from "@mui/material";
 import { TextField } from "../controls/TextField";
 import { MonsterFilter, monsterFilter } from "../../api/services/monster/types";
 import { useZodMatcherForm } from "../../lib/zod/useZodMatcherForm";
@@ -6,6 +7,8 @@ import { trpc } from "../state/client";
 import { Select } from "../controls/Select";
 import { SliderMenu } from "../controls/SliderMenu";
 import { RangeFields } from "../controls/RangeFields";
+import { Switch } from "../controls/Switch";
+import { InfoTooltip } from "../components/InfoTooltip";
 
 export interface MonsterSearchFilterFormProps {
   value: MonsterFilter;
@@ -94,6 +97,27 @@ export function MonsterSearchFilterForm({
         multi
         options={meta?.monsterModes}
         {...field("Modes", "enabled")}
+      />
+      <FormControlLabel
+        sx={{ justifyContent: "space-between", ml: 0 }}
+        labelPlacement="start"
+        label={
+          <InfoTooltip
+            whiteSpace="nowrap"
+            title="Enabling this will ignore any monsters that are only spawned by quests, npcs, or other triggers."
+          >
+            Spawns naturally
+          </InfoTooltip>
+        }
+        control={(() => {
+          const f = field("SpawnCount", ">");
+          return (
+            <Switch
+              value={f.value !== undefined}
+              onChange={(enabled) => f.onChange(enabled ? 0 : undefined)}
+            />
+          );
+        })()}
       />
     </>
   );
