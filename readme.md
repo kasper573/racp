@@ -2,15 +2,6 @@
 
 A web-based database GUI and control panel for [rAthena](https://github.com/rathena/rathena).
 
-## Demo
-
-There is a [demo available](http://178.128.141.225) that showcase all the public portions of RACP.
-
-The demo has no admin account available, since RACP has very powerful admin features built-in,
-and I don't want to have to deal with curious visitors randomly messing around with the demo instance.
-
-If you want to try out the admin features, clone the repo and run it locally.
-
 ## Design goals
 
 <details>
