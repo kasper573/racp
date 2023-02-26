@@ -150,7 +150,10 @@ if (args.ssl) {
   const key = args.sslKeyPath && fs.readFileSync(args.sslKeyPath, "utf-8");
   const cert = args.sslCertPath && fs.readFileSync(args.sslCertPath, "utf-8");
   const ca = args.sslCAPath && fs.readFileSync(args.sslCAPath, "utf-8");
-  server = https.createServer({ key, ca, cert }, app);
+  server = https.createServer(
+    { key, ca, cert, requestCert: !!ca, rejectUnauthorized: true },
+    app
+  );
 } else {
   logger.log(`Creating HTTP server`);
   server = http.createServer(app);
