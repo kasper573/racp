@@ -86,7 +86,10 @@ export class YamlRepository<ET extends ZodType, Key> extends PipeableRepository<
     try {
       unknownObject = yaml.parse(content);
     } catch (error) {
-      throw new Error(`Failed to parse YAML file ${file}:\n${error}`);
+      this.logger.error(
+        `Ignoring node. Failed to parse YAML file: ${file}. Error info:\n${error}`
+      );
+      return;
     }
 
     filterNulls(unknownObject);
