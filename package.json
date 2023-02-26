@@ -14,8 +14,6 @@
     "app:build": "webpack",
     "app:serve:impl": "cross-var ws --spa index.html --directory dist/app --compress --log.format dev --port $appPort",
     "app:serve": "dotenv -c -- yarn app:serve:impl",
-    "app:serve:ssl:impl": "cross-var ws --spa index.html --directory dist/app --compress --log.format dev --port $appPort --ssl --cert $sslCertPath --key $sslKeyPath",
-    "app:serve:ssl": "dotenv -c -- yarn app:serve:impl",
     "api:dev": "ts-node-dev --files src/api/server",
     "api:build": "yarn codegen:prisma && cd src/api && tsc --outDir ../../dist/api",
     "api:serve": "node dist/api/src/api/server.js",

@@ -99,5 +99,13 @@ export function createOptions(
       type: "string",
       optional: true,
     },
+    sslCAPath: {
+      type: "string",
+      optional: true,
+    },
+    ssl: {
+      type: "boolean",
+      default: false,
+    },
   } as const;
 }
