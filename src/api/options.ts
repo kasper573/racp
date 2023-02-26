@@ -91,5 +91,13 @@ export function createOptions(
         "Useful as server is fault resistant by default and proceeds serving even if some resources fail. " +
         "This command is intended for CI/CD pipelines.",
     },
+    httpsKeyPath: {
+      type: "string",
+      optional: true,
+    },
+    httpsCertPath: {
+      type: "string",
+      optional: true,
+    },
   } as const;
 }

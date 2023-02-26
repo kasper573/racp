@@ -1,5 +1,7 @@
 import * as http from "http";
+import * as https from "https";
 import * as path from "path";
+import * as fs from "fs";
 import * as express from "express";
 import cors = require("cors");
 import { Request as JWTRequest } from "express-jwt";
@@ -142,6 +144,17 @@ app.use(
   })
 );
 
-http.createServer(app).listen(args.apiPort, "0.0.0.0", () => {
-  logger.log(`API is running on port ${args.apiPort}`);
-});
+let server;
+if (args.httpsKeyPath && args.httpsCertPath) {
+  logger.log(`Creating HTTPS server`);
+  const key = fs.readFileSync(args.httpsKeyPath, "utf-8");
+  const cert = fs.readFileSync(args.httpsKeyPath, "utf-8");
+  server = https.createServer({ key, cert }, app);
+} else {
+  logger.log(`Creating HTTP server`);
+  server = http.createServer(app);
+}
+
+server.listen(args.apiPort, "0.0.0.0", () =>
+  logger.log(`API is running on port ${args.apiPort}`)
+);
