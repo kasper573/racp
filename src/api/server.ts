@@ -145,10 +145,10 @@ app.use(
 );
 
 let server;
-if (args.httpsKeyPath && args.httpsCertPath) {
+if (args.sslKeyPath && args.sslCertPath) {
   logger.log(`Creating HTTPS server`);
-  const key = fs.readFileSync(args.httpsKeyPath, "utf-8");
-  const cert = fs.readFileSync(args.httpsKeyPath, "utf-8");
+  const key = fs.readFileSync(args.sslKeyPath, "utf-8");
+  const cert = fs.readFileSync(args.sslCertPath, "utf-8");
   server = https.createServer({ key, cert }, app);
 } else {
   logger.log(`Creating HTTP server`);
