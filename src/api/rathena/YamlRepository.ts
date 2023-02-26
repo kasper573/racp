@@ -82,7 +82,13 @@ export class YamlRepository<ET extends ZodType, Key> extends PipeableRepository<
     } catch (e) {
       return;
     }
-    const unknownObject = yaml.parse(content);
+    let unknownObject;
+    try {
+      unknownObject = yaml.parse(content);
+    } catch (error) {
+      throw new Error(`Failed to parse YAML file ${file}:\n${error}`);
+    }
+
     filterNulls(unknownObject);
     const result = dbNode.safeParse(unknownObject);
     if (!result.success) {
