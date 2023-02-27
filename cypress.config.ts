@@ -4,7 +4,7 @@ import { defineConfig } from "cypress";
 const dotenvFlowPlugin = require("cypress-dotenv-flow");
 
 export default defineConfig({
-  // Using a custom build of mocha-junit-reporter that supports more placeholders
+  // Using a custom build of mocha-junit-reporter that support more placeholders
   reporter: path.resolve(__dirname, "node_modules", "mocha-junit-reporter"),
 
   reporterOptions: {
