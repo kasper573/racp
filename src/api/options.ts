@@ -23,6 +23,18 @@ export function createOptions(
       description: "The port to run the api server on",
       required: true,
     },
+    linkerHostname: {
+      type: "string",
+      description:
+        "The hostname to use for generated links. Defaults to the API hostname",
+      optional: true,
+    },
+    linkerPort: {
+      type: "number",
+      description:
+        "The port to use for generated links. Defaults to the API port",
+      optional: true,
+    },
     log: {
       choices: ["verbose", "truncated"] as const,
       default: "verbose",

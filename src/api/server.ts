@@ -61,8 +61,8 @@ const cpdb = createRACPDatabaseClient();
 const formatter = createImageFormatter({ extension: ".png", quality: 70 });
 const linker = createPublicFileLinker({
   directory: args.publicFolder,
-  hostname: args.hostname,
-  port: args.apiPort,
+  hostname: args.linkerHostname ?? args.hostname,
+  port: args.linkerPort ?? args.apiPort,
 });
 
 const settings = createAdminSettingsRepository({ ...args, logger });
