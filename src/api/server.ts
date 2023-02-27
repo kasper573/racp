@@ -62,7 +62,11 @@ const formatter = createImageFormatter({ extension: ".png", quality: 70 });
 const linker = createPublicFileLinker({
   directory: args.publicFolder,
   hostname: args.linkerHostname ?? args.hostname,
-  port: args.linkerPort ?? args.apiPort,
+  port: args.linkerPort
+    ? args.linkerPort === "false"
+      ? undefined
+      : parseInt(args.linkerPort, 10)
+    : args.apiPort,
 });
 
 const settings = createAdminSettingsRepository({ ...args, logger });

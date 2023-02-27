@@ -30,9 +30,9 @@ export function createOptions(
       optional: true,
     },
     linkerPort: {
-      type: "number",
+      type: "string",
       description:
-        "The port to use for generated links. Defaults to the API port",
+        "The port to use for generated links. Defaults to the API port. Set to false to use implicit port.",
       optional: true,
     },
     log: {
