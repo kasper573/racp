@@ -146,7 +146,7 @@ export const router = new Router(
           .renderer(lazy(() => import("./pages/DonationItemsPage"))),
       }),
     serverInfo: t.route
-      .path("server-info")
+      .path("serverinfo")
       .renderer(lazy(() => import("./pages/ServerInfoPage")))
       .meta({ title: "Server Info", icon: <Info /> }),
     tools: t.route
