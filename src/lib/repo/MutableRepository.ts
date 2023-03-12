@@ -15,7 +15,13 @@ export abstract class MutableRepository<
   }
 
   async write(value: T | DefaultValue) {
-    await this.logger.track(this.writeImpl(value), "write");
+    await this.logger.track(
+      this.writeImpl(value).catch((error) => {
+        this.logger.error("Failed to write:", error);
+        return error;
+      }),
+      "write"
+    );
   }
 
   async safeWrite(value: T | DefaultValue) {

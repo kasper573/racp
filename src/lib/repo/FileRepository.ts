@@ -52,7 +52,7 @@ export class FileRepository<
 
     const result = this.options.protocol.parse(fileContent);
     if (!result.success) {
-      throw result.error;
+      throw new Error(`Could not parse file content: ${result.error}`);
     }
 
     return result.data ?? this.defaultValue;
