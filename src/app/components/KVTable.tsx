@@ -11,14 +11,22 @@ export function KVTable({
         {Object.entries(rows).map(([key, value], index) => (
           <TableRow key={index}>
             <TableCell sx={{ whiteSpace: "nowrap" }}>{key}</TableCell>
-            <TableCell>
-              {isValidElement(value as any)
-                ? (value as ReactElement)
-                : `${value}`.trim() || "-"}
-            </TableCell>
+            <TableCell>{renderValue(value)}</TableCell>
           </TableRow>
         ))}
       </TableBody>
     </Table>
   );
+}
+
+function renderValue(value: unknown) {
+  if (isValidElement(value as any)) {
+    return value as ReactElement;
+  }
+  switch (typeof value) {
+    case "boolean":
+      return value ? "Yes" : "No";
+    default:
+      return `${value}`.trim() || "-";
+  }
 }

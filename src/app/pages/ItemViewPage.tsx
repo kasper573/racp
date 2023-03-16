@@ -1,5 +1,5 @@
-import { Fragment, ReactElement } from "react";
-import { Box, Paper, Stack } from "@mui/material";
+import { ReactElement } from "react";
+import { Box, Paper } from "@mui/material";
 import { pick } from "lodash";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
@@ -17,6 +17,7 @@ import { TabSwitch } from "../components/TabSwitch";
 import { renderToggles } from "../util/renderToggles";
 import { RouteComponentProps } from "../../lib/tsr/react/types";
 import { Page } from "../layout/Page";
+import { KVTable } from "../components/KVTable";
 
 export default function ItemViewPage({
   params: { id },
@@ -58,6 +59,11 @@ export default function ItemViewPage({
                 ({clientName})
               </InfoTooltip>
             )}
+            {hasDifferentClientName && (
+              <InfoTooltip title="Client display name">
+                ({clientName})
+              </InfoTooltip>
+            )}
             <Spaceless offset={{ top: -10, left: 16 }}>
               <ImageWithFallback
                 sx={{ maxHeight: 75 }}
@@ -69,21 +75,52 @@ export default function ItemViewPage({
         }
       />
 
-      <Stack spacing={2} sx={{ flex: 1 }} direction="column">
-        <TabbedPaper
-          tabs={[
-            {
-              label: "Description",
-              content: item.Info?.identifiedDescriptionName ? (
-                <ClientTextBlock lines={item.Info.identifiedDescriptionName} />
-              ) : (
-                <>This item has no description</>
-              ),
-            },
-          ]}
-        />
-
-        <CommonPageGrid>
+      <CommonPageGrid>
+        <Box sx={{ flex: 1 }}>
+          <TabbedPaper
+            tabs={[
+              {
+                label: "Description",
+                content: item.Info?.identifiedDescriptionName ? (
+                  <ClientTextBlock
+                    lines={item.Info.identifiedDescriptionName}
+                  />
+                ) : (
+                  <>This item has no description</>
+                ),
+              },
+            ]}
+          />
+          <TabbedPaper
+            tabs={[
+              {
+                label: "Properties",
+                content: (
+                  <KVTable
+                    rows={{
+                      ...pick(
+                        item,
+                        "Id",
+                        "Type",
+                        "SubType",
+                        "Weight",
+                        "Refineable",
+                        "Gender"
+                      ),
+                    }}
+                  />
+                ),
+              },
+            ]}
+          />
+          <TabbedPaper
+            tabs={[
+              {
+                label: "Applicable jobs",
+                content: <>{renderToggles(item.Jobs)}</>,
+              },
+            ]}
+          />
           {scripts.length > 0 && (
             <TabbedPaper
               tabs={scripts.map(([label, script]) => ({
@@ -94,54 +131,44 @@ export default function ItemViewPage({
               }))}
             />
           )}
-          <TabbedPaper
+        </Box>
+        <Box sx={{ flex: 1 }}>
+          <TabSwitch
             tabs={[
               {
-                label: "Applicable jobs",
-                content: <>{renderToggles(item.Jobs)}</>,
+                label: "Dropped by",
+                content:
+                  drops.length > 0 ? (
+                    <ItemDropGrid
+                      data={drops}
+                      gridProps={{
+                        columnVisibilityModel: { ItemName: false },
+                      }}
+                    />
+                  ) : (
+                    <Paper sx={{ p: 2 }}>None</Paper>
+                  ),
               },
             ]}
           />
-          <Box>
-            <TabSwitch
-              tabs={[
-                {
-                  label: "Dropped by",
-                  content:
-                    drops.length > 0 ? (
-                      <ItemDropGrid
-                        data={drops}
-                        gridProps={{
-                          columnVisibilityModel: { ItemName: false },
-                        }}
-                      />
-                    ) : (
-                      <Paper sx={{ p: 2 }}>None</Paper>
-                    ),
-                },
-              ]}
-            />
-          </Box>
-          <Box>
-            <TabSwitch
-              tabs={[
-                {
-                  label: "Sold by",
-                  content:
-                    shopItems.length > 0 ? (
-                      <ShopItemGrid
-                        data={shopItems}
-                        gridProps={{ columnVisibilityModel: { name: false } }}
-                      />
-                    ) : (
-                      <Paper sx={{ p: 2 }}>None</Paper>
-                    ),
-                },
-              ]}
-            />
-          </Box>
-        </CommonPageGrid>
-      </Stack>
+          <TabSwitch
+            tabs={[
+              {
+                label: "Sold by",
+                content:
+                  shopItems.length > 0 ? (
+                    <ShopItemGrid
+                      data={shopItems}
+                      gridProps={{ columnVisibilityModel: { name: false } }}
+                    />
+                  ) : (
+                    <Paper sx={{ p: 2 }}>None</Paper>
+                  ),
+              },
+            ]}
+          />
+        </Box>
+      </CommonPageGrid>
     </Page>
   );
 }
