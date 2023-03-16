@@ -94,7 +94,7 @@ describe("donating", () => {
     // which in production could be i.e. the mysql database not answering.
     cy.findByLabelText("Donation amount")
       .clear()
-      .type("999999999999999999999999");
+      .type("99999999999999999999999999999999999999999999999999999");
 
     paypalFlow();
 
