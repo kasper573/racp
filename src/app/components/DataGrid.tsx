@@ -4,6 +4,7 @@ import {
   ComponentType,
   Dispatch,
   MouseEvent,
+  ReactNode,
   SetStateAction,
   useMemo,
   useState,
@@ -257,10 +258,12 @@ type ColumnConventionEntry<Entity> =
   | boolean
   | Omit<GridColDef<Entity>, "field">;
 
+export type ConventionGridColumns<Entity> =
+  | Partial<Record<keyof Entity, ColumnConventionEntry<Entity>>>
+  | Record<string, GridColDef<Entity>>;
+
 export interface ColumnConventionProps<Entity, Id extends GridRowId> {
-  columns:
-    | Partial<Record<keyof Entity, ColumnConventionEntry<Entity>>>
-    | Record<string, GridColDef<Entity>>;
+  columns: ConventionGridColumns<Entity>;
   link?: (entity: Entity) => RouteLocation | undefined;
   windowWidth?: WindowSize["width"];
 }
@@ -313,6 +316,20 @@ function processColumnConvention<Entity, Id extends GridRowId>({
       };
     }),
   ];
+}
+
+export function renderGridColumns<Entity>(
+  columns: ConventionGridColumns<Entity>,
+  row: Entity
+) {
+  const gridColumns = processColumnConvention({ columns });
+  const rendered: Record<string, ReactNode> = {};
+  for (const column of gridColumns) {
+    rendered[column.headerName ?? column.field] = column.renderCell?.({
+      row,
+    } as GridRenderCellParams);
+  }
+  return rendered;
 }
 
 const emptyCellValue = "-";

@@ -1,6 +1,6 @@
 import { ReactElement } from "react";
 import { Box, Paper } from "@mui/material";
-import { pick } from "lodash";
+import { omit, pick } from "lodash";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
 import { ClientTextBlock } from "../components/ClientText/ClientText";
@@ -18,6 +18,8 @@ import { renderToggles } from "../util/renderToggles";
 import { RouteComponentProps } from "../../lib/tsr/react/types";
 import { Page } from "../layout/Page";
 import { KVTable } from "../components/KVTable";
+import { itemGridColumns } from "../grids/ItemGrid";
+import { renderGridColumns } from "../components/DataGrid";
 
 export default function ItemViewPage({
   params: { id },
@@ -98,15 +100,8 @@ export default function ItemViewPage({
                 content: (
                   <KVTable
                     rows={{
-                      ...pick(
-                        item,
-                        "Id",
-                        "Type",
-                        "SubType",
-                        "Weight",
-                        "Refineable",
-                        "Gender"
-                      ),
+                      Id: item.Id,
+                      ...renderGridColumns(omit(itemGridColumns, "Name"), item),
                     }}
                   />
                 ),
