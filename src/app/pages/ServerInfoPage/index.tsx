@@ -1,10 +1,10 @@
-import { Typography } from "@mui/material";
 import { Header } from "../../layout/Header";
 import { trpc } from "../../state/client";
 import { ErrorMessage } from "../../components/ErrorMessage";
 import { TabbedPaper } from "../../components/TabbedPaper";
 import { CommonPageGrid } from "../../components/CommonPageGrid";
 import { Page } from "../../layout/Page";
+import { KVTable } from "../../components/KVTable";
 import { DropRateTable } from "./DropRateTable";
 import { ExperienceConfigTable } from "./ExperienceConfigTable";
 
@@ -12,6 +12,7 @@ export default function ServerInfoPage() {
   const settings = trpc.settings.readPublic.useQuery();
   const dropRates = trpc.drop.rates.useQuery();
   const exp = trpc.exp.config.useQuery();
+  const { data: playersOnline = 0 } = trpc.user.online.useQuery();
 
   if (settings.isLoading || dropRates.isLoading || exp.isLoading) {
     return null;
@@ -26,9 +27,13 @@ export default function ServerInfoPage() {
   return (
     <Page>
       <Header />
-      <Typography paragraph>
-        Server is using {settings.data.rAthenaMode} mode.
-      </Typography>
+      <KVTable
+        sx={{ maxWidth: { xl: 500, lg: 500 }, mb: 2 }}
+        rows={{
+          "Server mode": settings.data.rAthenaMode,
+          "Players online": playersOnline,
+        }}
+      />
       <CommonPageGrid>
         <TabbedPaper
           tabs={[

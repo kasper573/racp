@@ -127,6 +127,9 @@ export function createUserService({
 
         return affected > 0;
       }),
+    online: t.procedure
+      .output(zod.number())
+      .query(() => count(radb.map.table("char").where("online", ">", 0))),
   });
 }
 
