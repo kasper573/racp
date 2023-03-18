@@ -44,12 +44,12 @@ export const router = new Router(
       .renderer(lazy(() => import("./pages/HomePage"))),
     user: t.route
       .path("user", { exact: true })
-      .mirror((): RouteLocation => routes.user.settings.$({}))
+      .mirror((): RouteLocation => routes.user.profile.$({}))
       .children({
-        settings: t.route
-          .path("settings")
-          .renderer(lazy(() => import("./pages/UserSettingsPage")))
-          .meta({ title: "Settings", icon: <AccountCircle /> })
+        profile: t.route
+          .path("profile")
+          .renderer(lazy(() => import("./pages/UserProfilePage")))
+          .meta({ title: "Your profile", icon: <AccountCircle /> })
           .use(requireAuth(UserAccessLevel.User)),
         login: t.route
           .path("login/:destination?")

@@ -70,7 +70,9 @@ export function Toolbar({ children }: { children?: ReactNode }) {
               />
             </ListItem>
             <Divider sx={{ mb: 1 }} />
-            <LinkMenuItem to={routes.user.settings({})}>Settings</LinkMenuItem>
+            <LinkMenuItem to={routes.user.profile({})}>
+              Your profile
+            </LinkMenuItem>
             <MenuItem onClick={logout}>Sign out</MenuItem>
           </Auth>
           <Auth exact={UserAccessLevel.Guest}>

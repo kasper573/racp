@@ -1,5 +1,5 @@
 import { Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useStore } from "zustand";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
@@ -13,7 +13,7 @@ const defaultProfileMutation = {
   email: "",
 };
 
-export default function UserSettingsPage() {
+export default function UserProfilePage() {
   const { profile, setProfile } = useStore(authStore);
 
   const { mutateAsync: updateMyProfile, error } =
@@ -49,6 +49,7 @@ export default function UserSettingsPage() {
   return (
     <Page>
       <Header />
+      <VipInfo />
       <CenteredContent>
         <UserProfileForm
           error={error?.data}
@@ -64,3 +65,28 @@ export default function UserSettingsPage() {
     </Page>
   );
 }
+
+function VipInfo() {
+  const { data: vipTime = 0 } = trpc.user.myVipTime.useQuery();
+  const { isVip, endDate } = useMemo(() => {
+    const now = new Date();
+    const endDate = new Date(now.getTime() + vipTime * 60000);
+    const isVip = endDate > now;
+    return { endDate, isVip };
+  }, [vipTime]);
+
+  return (
+    <>
+      {isVip && (
+        <Typography>
+          You are VIP until {dateFormatter.format(endDate)}
+        </Typography>
+      )}
+    </>
+  );
+}
+
+const dateFormatter = new Intl.DateTimeFormat([], {
+  dateStyle: "full",
+  timeStyle: "long",
+});

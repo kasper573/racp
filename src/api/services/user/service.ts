@@ -127,6 +127,18 @@ export function createUserService({
 
         return affected > 0;
       }),
+    myVipTime: t.procedure
+      .output(zod.number())
+      .use(access(UserAccessLevel.User))
+      .query(async ({ ctx: { auth } }) => {
+        const res = await radb.login
+          .table("login")
+          .select("vip_time")
+          .where("account_id", "=", auth.id)
+          .first();
+
+        return res?.vip_time ?? 0;
+      }),
     online: t.procedure
       .output(zod.number())
       .query(() => count(radb.map.table("char").where("online", ">", 0))),
@@ -136,7 +148,7 @@ export function createUserService({
 function createUserQuery(radb: RAthenaDatabaseDriver) {
   return radb.login
     .table("login")
-    .select("account_id", "userid", "group_id", "email");
+    .select("account_id", "userid", "group_id", "email", "vip_time");
 }
 
 function usersToProfiles(

@@ -33,7 +33,7 @@ export function updateProfile({
   email?: string;
   password?: string;
 }) {
-  clickUserMenuItem("Settings");
+  clickUserMenuItem("Your profile");
   if (email !== undefined) {
     cy.findByLabelText("Email").clear().type(email);
   }
