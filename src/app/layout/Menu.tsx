@@ -56,6 +56,7 @@ export function Menu({ onItemSelected }: { onItemSelected?: () => void }) {
             routes.admin.settings.$,
             routes.admin.assets.$,
             routes.admin.users.$,
+            routes.admin.logs.$,
           ]}
           onClick={onItemSelected}
         />

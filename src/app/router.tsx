@@ -1,6 +1,7 @@
 import {
   AccountCircle,
   AdminPanelSettings,
+  Article,
   EmojiEvents,
   Image,
   ImageSearch,
@@ -190,6 +191,10 @@ export const router = new Router(
           .params({ filter: userProfileFilter.type.optional() })
           .renderer(lazy(() => import("./pages/AdminUsersPage")))
           .meta({ title: "Users", icon: <AccountCircle /> }),
+        logs: t.route
+          .path("logs")
+          .renderer(lazy(() => import("./pages/AdminLogsPage")))
+          .meta({ title: "Logs", icon: <Article /> }),
       }),
     notFound: t.route
       .path("")

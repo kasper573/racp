@@ -10,6 +10,7 @@ import { createPublicFileLinker } from "../lib/fs/createPublicFileLinker";
 import { createImageFormatter } from "../lib/image/createImageFormatter";
 import { readCliArgs } from "../cli";
 import { loggerToMorgan } from "../lib/loggerToMorgan";
+import { createStreamMemory } from "../lib/createStreamMemory";
 import { createRAthenaDatabaseDriver } from "./rathena/RAthenaDatabaseDriver";
 import {
   AuthenticatorPayload,
@@ -45,8 +46,15 @@ import { createExpRepository } from "./services/exp/repository";
 import { createExpService } from "./services/exp/service";
 import { createRACPDatabaseClient } from "./common/createRACPDatabaseClient";
 import { createHuntService } from "./services/hunt/service";
+import { createAdminService } from "./services/admin/service";
 
 enableMapSet();
+
+const stdoutMemory = createStreamMemory<string>(
+  process.stdout,
+  "",
+  (text, chunk) => text + String(chunk)
+);
 
 const rootFolder = process.cwd();
 const args = readCliArgs(createOptions(rootFolder), rootFolder);
@@ -104,6 +112,7 @@ if (args.validateResources) {
 }
 
 const router = createApiRouter({
+  admin: createAdminService(stdoutMemory.read),
   util: createUtilService(path.resolve(rootFolder, "bin")),
   user: createUserService({ radb, user, sign: auth.sign, ...args }),
   item: createItemService(items),
