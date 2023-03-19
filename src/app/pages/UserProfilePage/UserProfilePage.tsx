@@ -1,16 +1,18 @@
 import { Box, Stack, Typography } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "zustand";
-import { Header } from "../layout/Header";
-import { trpc } from "../state/client";
+import { Header } from "../../layout/Header";
+import { trpc } from "../../state/client";
 import {
   UserAccessLevel,
   UserProfileMutation,
-} from "../../api/services/user/types";
-import { UserProfileForm } from "../forms/UserProfileForm";
-import { authStore } from "../state/auth";
-import { Page } from "../layout/Page";
-import { getEnumName } from "../../lib/std/enum";
+} from "../../../api/services/user/types";
+import { UserProfileForm } from "../../forms/UserProfileForm";
+import { authStore } from "../../state/auth";
+import { Page } from "../../layout/Page";
+import { getEnumName } from "../../../lib/std/enum";
+import { CharacterList } from "./CharacterList";
+import { VipInfo } from "./VipInfo";
 
 const defaultProfileMutation = {
   email: "",
@@ -85,32 +87,3 @@ export default function UserProfilePage() {
     </Page>
   );
 }
-
-function CharacterList() {
-  return null;
-}
-
-function VipInfo() {
-  const { data: vipTime = 0 } = trpc.user.myVipTime.useQuery();
-  const { isVip, endDate } = useMemo(() => {
-    const now = new Date();
-    const endDate = new Date(now.getTime() + vipTime * 60000);
-    const isVip = endDate > now;
-    return { endDate, isVip };
-  }, [vipTime]);
-
-  return (
-    <>
-      {isVip && (
-        <Typography>
-          You are VIP until {dateFormatter.format(endDate)}
-        </Typography>
-      )}
-    </>
-  );
-}
-
-const dateFormatter = new Intl.DateTimeFormat([], {
-  dateStyle: "full",
-  timeStyle: "long",
-});

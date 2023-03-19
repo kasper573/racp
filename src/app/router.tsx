@@ -48,7 +48,9 @@ export const router = new Router(
       .children({
         profile: t.route
           .path("profile")
-          .renderer(lazy(() => import("./pages/UserProfilePage")))
+          .renderer(
+            lazy(() => import("./pages/UserProfilePage/UserProfilePage"))
+          )
           .meta({ title: "Your profile", icon: <AccountCircle /> })
           .use(requireAuth(UserAccessLevel.User)),
         login: t.route
