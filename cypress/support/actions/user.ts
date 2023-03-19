@@ -41,7 +41,7 @@ export function updateProfile({
     cy.findByLabelText("New password").clear().type(password);
     cy.findByLabelText("New password (confirm)").clear().type(password);
   }
-  cy.findByRole("button", { name: "Save" }).click();
+  cy.findByRole("button", { name: "Update settings" }).click();
   waitForPageReady();
 }
 

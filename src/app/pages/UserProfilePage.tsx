@@ -3,11 +3,14 @@ import { useEffect, useMemo, useState } from "react";
 import { useStore } from "zustand";
 import { Header } from "../layout/Header";
 import { trpc } from "../state/client";
-import { UserProfileMutation } from "../../api/services/user/types";
+import {
+  UserAccessLevel,
+  UserProfileMutation,
+} from "../../api/services/user/types";
 import { UserProfileForm } from "../forms/UserProfileForm";
-import { CenteredContent } from "../components/CenteredContent";
 import { authStore } from "../state/auth";
 import { Page } from "../layout/Page";
+import { getEnumName } from "../../lib/std/enum";
 
 const defaultProfileMutation = {
   email: "",
@@ -49,19 +52,24 @@ export default function UserProfilePage() {
   return (
     <Page>
       <Header />
+      Signed in as {profile.username} (
+      {getEnumName(UserAccessLevel, profile.access)})
       <VipInfo />
-      <CenteredContent>
-        <UserProfileForm
-          error={error?.data}
-          profile={profile}
-          value={profileMutation}
-          onChange={setProfileMutation}
-          onSubmit={(e) => {
-            e.preventDefault();
-            submitProfileUpdate();
-          }}
-        />
-      </CenteredContent>
+      <Typography variant="h6" color="lightgray" paragraph sx={{ mt: 3 }}>
+        Account settings
+      </Typography>
+      <UserProfileForm
+        label="Update settings"
+        sx={{ maxWidth: 500 }}
+        error={error?.data}
+        profile={profile}
+        value={profileMutation}
+        onChange={setProfileMutation}
+        onSubmit={(e) => {
+          e.preventDefault();
+          submitProfileUpdate();
+        }}
+      />
     </Page>
   );
 }
