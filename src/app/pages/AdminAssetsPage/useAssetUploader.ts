@@ -1,4 +1,4 @@
-import { chunk, flatten, pick } from "lodash";
+import { chunk, flatten, pick, uniq } from "lodash";
 import * as zod from "zod";
 import { useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -26,6 +26,7 @@ import { trimExtension } from "../../../lib/std/trimExtension";
 import { canvasToBlob } from "../../../lib/image/canvasToBlob";
 import { imageDataToCanvas } from "../../../lib/image/imageDataToCanvas";
 import { toRpcFile } from "../../util/rpcFileUtils";
+import { typedKeys } from "../../../lib/std/typedKeys";
 
 export function useAssetUploader() {
   // Since we're uploading so much we don't want mutations to invalidate cache.
@@ -86,8 +87,12 @@ export function useAssetUploader() {
 
   const errors = [...serverErrors, ...trackerErrors];
 
-  async function uploadMapData(grf?: GRF, mapInfoFile?: File) {
-    if (mapInfoFile) {
+  async function uploadMapData(
+    grf?: GRF,
+    mapInfoFile?: File,
+    shouldUpload = assetTypeList
+  ) {
+    if (mapInfoFile && shouldUpload.includes("Map info")) {
       await tracker.track([
         {
           group: `Uploading map info`,
@@ -96,7 +101,7 @@ export function useAssetUploader() {
       ]);
     }
 
-    if (!grf) {
+    if (!grf || !shouldUpload.includes("Map images")) {
       return;
     }
 
@@ -125,7 +130,11 @@ export function useAssetUploader() {
     );
   }
 
-  async function uploadMonsterData(grf: GRF) {
+  async function uploadMonsterData(grf?: GRF, shouldUpload = assetTypeList) {
+    if (!grf || shouldUpload.includes("Monster images")) {
+      return;
+    }
+
     const [monsterSpriteInfo = []] = await tracker.track([
       {
         group: "Locating monster images",
@@ -154,12 +163,12 @@ export function useAssetUploader() {
     );
   }
 
-  async function uploadItemData(grf?: GRF, infoFile?: File) {
-    if (!infoFile) {
-      return;
-    }
-
-    if (infoFile) {
+  async function uploadItemData(
+    grf?: GRF,
+    infoFile?: File,
+    shouldUpload = assetTypeList
+  ) {
+    if (infoFile && shouldUpload.includes("Item info")) {
       await tracker.track([
         {
           group: "Uploading item info",
@@ -168,7 +177,7 @@ export function useAssetUploader() {
       ]);
     }
 
-    if (!grf) {
+    if (!grf || !shouldUpload.includes("Item images")) {
       return;
     }
 
@@ -207,29 +216,23 @@ export function useAssetUploader() {
     );
   }
 
-  async function upload(
-    mapInfoFile?: File,
-    itemInfoFile?: File,
-    grfFile?: File
-  ) {
+  async function upload(files: AssetSourceFiles, shouldUpload = assetTypeList) {
     tracker.reset();
 
-    const [grf] = grfFile
+    const [grf] = files.data
       ? await tracker.track([
           {
             group: "Loading GRF file",
-            id: grfFile.name,
-            fn: () => GRF.load(grfFile),
+            id: files.data.name,
+            fn: () => GRF.load(files.data!),
           },
         ])
       : [];
 
     // Sequence to save memory (since we're dealing with potentially several GB of data)
-    await uploadMapData(grf, mapInfoFile);
-    await uploadItemData(grf, itemInfoFile);
-    if (grf) {
-      await uploadMonsterData(grf);
-    }
+    await uploadMapData(grf, files.mapInfo, shouldUpload);
+    await uploadItemData(grf, files.itemInfo, shouldUpload);
+    await uploadMonsterData(grf, shouldUpload);
 
     // Done, invalidate query cache
     queryClient.invalidateQueries();
@@ -242,13 +245,36 @@ export function useAssetUploader() {
     errors,
   };
 }
+export type AssetSourceFiles = Partial<Record<AssetSourceFile, File>>;
 
-export type UploaderFileName = keyof typeof uploaderFilesRequired;
-export const uploaderFilesRequired = {
+export type AssetSourceFile = keyof typeof sourceFileExtensions;
+export const sourceFileExtensions = {
   mapInfo: ".lub",
   itemInfo: ".lub",
   data: ".grf",
 } as const;
+export const sourceFileList = typedKeys(sourceFileExtensions);
+
+export type AssetTypeId = keyof typeof assetTypes;
+export const assetTypes = {
+  "Map info": ["mapInfo"],
+  "Map images": ["mapInfo", "data"],
+  "Item info": ["itemInfo"],
+  "Item images": ["itemInfo", "data"],
+  "Monster images": ["data"],
+} as const;
+export const assetTypeList = typedKeys(assetTypes);
+
+export function assetTypesToSourceFiles(
+  types: AssetTypeId[]
+): AssetSourceFile[] {
+  return uniq(
+    types.reduce(
+      (sum, id) => [...sum, ...assetTypes[id]],
+      [] as AssetSourceFile[]
+    )
+  );
+}
 
 const fileNameToMapName = (filename: string) =>
   /([^/\\]+)\.\w+$/.exec(filename)?.[1] ?? "";
