@@ -42,7 +42,7 @@ export const AssetUploader = memo(function () {
         placement="top"
         title={isReadyToUpload ? "" : "Please select all files"}
       >
-        <Box sx={{ margin: "0 auto", marginBottom: 2 }}>
+        <Box sx={{ mb: 2 }}>
           <ProgressButton
             variant="contained"
             disabled={!isReadyToUpload}
@@ -57,7 +57,7 @@ export const AssetUploader = memo(function () {
       {showCompletedMessage && (
         <Typography
           color={uploader.errors.length ? "orange" : "green"}
-          sx={{ textAlign: "center", marginBottom: 2 }}
+          sx={{ mb: 2 }}
         >
           {uploader.errors.length
             ? "Upload completed with errors"
@@ -69,15 +69,14 @@ export const AssetUploader = memo(function () {
         <LinearProgress
           variant="determinate"
           value={uploader.progress * 100}
-          sx={{ width: "50%", margin: "0 auto", marginBottom: 2 }}
+          sx={{ width: "100%", mb: 2 }}
         />
       )}
 
       {uploader.isPending && (
         <Typography
           sx={{
-            margin: "0 auto",
-            marginBottom: 2,
+            mb: 2,
             whiteSpace: "pre-wrap",
             textAlign: "center",
           }}

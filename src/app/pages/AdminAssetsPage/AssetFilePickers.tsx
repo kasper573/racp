@@ -16,11 +16,7 @@ export const AssetFilePickers = memo(function ({
   isPending: boolean;
 }) {
   return (
-    <Stack
-      direction="row"
-      spacing={2}
-      sx={{ margin: "0 auto", marginBottom: 2 }}
-    >
+    <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
       {typedKeys(uploaderFilesRequired).map((name) => {
         const ext = uploaderFilesRequired[name];
         return (
