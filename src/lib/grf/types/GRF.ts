@@ -112,6 +112,7 @@ export class GRF<Stream = any> {
 
   private cachedEntries = new Map<string, GRFDecodedEntry>();
   private cachedDecodes = new Map<GRFEncodedEntryCacheKey, Uint8Array>();
+  private cacheKeyDecoder = new TextDecoder("utf-8");
 
   public async getEntry(path: string): Promise<GRFDecodedEntry> {
     path = normalizePath(path);
@@ -131,7 +132,9 @@ export class GRF<Stream = any> {
       entry.lengthAligned
     );
 
-    const cacheKey = encodedData.toString() as GRFEncodedEntryCacheKey;
+    const cacheKey = this.cacheKeyDecoder.decode(
+      encodedData
+    ) as GRFEncodedEntryCacheKey;
     let decodedData = this.cachedDecodes.get(cacheKey);
     if (!decodedData) {
       decodedData = decodeEntryData(entry, encodedData);
