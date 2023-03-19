@@ -63,6 +63,12 @@ export const router = new Router(
           .renderer(lazy(() => import("./pages/RegisterPage")))
           .meta({ title: "Register", icon: <PersonAdd /> }),
       }),
+    character: t.route
+      .path("character/:id")
+      .use(requireAuth(UserAccessLevel.User))
+      .params({ id: zod.number() })
+      .renderer(lazy(() => import("./pages/CharacterDetailsPage")))
+      .meta({ title: "Character details", icon: <AccountCircle /> }),
     item: t.route
       .path("item", { exact: true })
       .mirror((): RouteLocation => routes.item.search.$({}))

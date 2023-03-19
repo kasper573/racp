@@ -15,6 +15,7 @@ import { SkillService } from "./services/skill/service";
 import { ExpService } from "./services/exp/service";
 import { HuntService } from "./services/hunt/service";
 import { AdminService } from "./services/admin/service";
+import { CharacterService } from "./services/character/service";
 
 export function createApiRouter(services: ApiServices) {
   return t.router(services);
@@ -24,6 +25,7 @@ export type ApiServices = {
   admin: AdminService;
   util: UtilService;
   user: UserService;
+  character: CharacterService;
   item: ItemService;
   monster: MonsterService;
   skill: SkillService;

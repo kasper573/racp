@@ -47,6 +47,7 @@ import { createExpService } from "./services/exp/service";
 import { createRACPDatabaseClient } from "./common/createRACPDatabaseClient";
 import { createHuntService } from "./services/hunt/service";
 import { createAdminService } from "./services/admin/service";
+import { createCharacterService } from "./services/character/service";
 
 enableMapSet();
 
@@ -115,6 +116,7 @@ const router = createApiRouter({
   admin: createAdminService(stdoutMemory.read),
   util: createUtilService(path.resolve(rootFolder, "bin")),
   user: createUserService({ radb, user, sign: auth.sign, ...args }),
+  character: createCharacterService(radb),
   item: createItemService(items),
   monster: createMonsterService({ radb, repo: monsters }),
   skill: createSkillService(skills),
