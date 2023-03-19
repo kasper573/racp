@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 import { useStore } from "zustand";
 import { Header } from "../layout/Header";
@@ -52,26 +52,42 @@ export default function UserProfilePage() {
   return (
     <Page>
       <Header />
-      Signed in as {profile.username} (
-      {getEnumName(UserAccessLevel, profile.access)})
-      <VipInfo />
-      <Typography variant="h6" color="lightgray" paragraph sx={{ mt: 3 }}>
-        Account settings
-      </Typography>
-      <UserProfileForm
-        label="Update settings"
-        sx={{ maxWidth: 500 }}
-        error={error?.data}
-        profile={profile}
-        value={profileMutation}
-        onChange={setProfileMutation}
-        onSubmit={(e) => {
-          e.preventDefault();
-          submitProfileUpdate();
-        }}
-      />
+      <Stack direction="column" spacing={3}>
+        <Box>
+          Signed in as {profile.username} (
+          {getEnumName(UserAccessLevel, profile.access)})
+          <VipInfo />
+        </Box>
+        <Box>
+          <Typography variant="h6" color="lightgray" paragraph>
+            Characters
+          </Typography>
+          <CharacterList />
+        </Box>
+        <Box>
+          <Typography variant="h6" color="lightgray" paragraph>
+            Account settings
+          </Typography>
+          <UserProfileForm
+            label="Update settings"
+            sx={{ maxWidth: 500 }}
+            error={error?.data}
+            profile={profile}
+            value={profileMutation}
+            onChange={setProfileMutation}
+            onSubmit={(e) => {
+              e.preventDefault();
+              submitProfileUpdate();
+            }}
+          />
+        </Box>
+      </Stack>
     </Page>
   );
+}
+
+function CharacterList() {
+  return null;
 }
 
 function VipInfo() {
