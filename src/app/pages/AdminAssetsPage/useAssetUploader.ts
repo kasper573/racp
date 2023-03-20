@@ -131,7 +131,7 @@ export function useAssetUploader() {
   }
 
   async function uploadMonsterData(grf?: GRF, shouldUpload = assetTypeList) {
-    if (!grf || shouldUpload.includes("Monster images")) {
+    if (!grf || !shouldUpload.includes("Monster images")) {
       return;
     }
 
