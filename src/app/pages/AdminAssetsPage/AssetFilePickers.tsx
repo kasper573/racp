@@ -1,28 +1,28 @@
-import { Dispatch, memo, SetStateAction } from "react";
+import { ComponentProps, Dispatch, SetStateAction } from "react";
 import { Stack } from "@mui/material";
-import { typedKeys } from "../../../lib/std/typedKeys";
 import { FilePicker } from "../../components/FilePicker";
 import { defined } from "../../../lib/std/defined";
-import { UploaderFileName, uploaderFilesRequired } from "./useAssetUploader";
+import {
+  AssetSourceFiles,
+  AssetSourceFile,
+  sourceFileExtensions,
+  sourceFileList,
+} from "./useAssetUploader";
 
-export type AssetFiles = Partial<Record<UploaderFileName, File>>;
-export const AssetFilePickers = memo(function ({
+export function AssetFilePickers({
   files,
   setFiles,
-  isPending,
+  options = sourceFileList,
+  ...props
 }: {
-  files?: AssetFiles;
-  setFiles: Dispatch<SetStateAction<AssetFiles>>;
-  isPending: boolean;
-}) {
+  files?: AssetSourceFiles;
+  setFiles: Dispatch<SetStateAction<AssetSourceFiles>>;
+  options?: AssetSourceFile[];
+} & ComponentProps<typeof Stack>) {
   return (
-    <Stack
-      direction="row"
-      spacing={2}
-      sx={{ margin: "0 auto", marginBottom: 2 }}
-    >
-      {typedKeys(uploaderFilesRequired).map((name) => {
-        const ext = uploaderFilesRequired[name];
+    <Stack direction="row" spacing={2} {...props}>
+      {options.map((name) => {
+        const ext = sourceFileExtensions[name];
         return (
           <FilePicker
             direction="column"
@@ -31,7 +31,6 @@ export const AssetFilePickers = memo(function ({
             value={defined([files?.[name]])}
             accept={ext}
             buttonText={`Select ${name}${ext}`}
-            disabled={isPending}
             onChange={([file]) =>
               setFiles((current) =>
                 file ? { ...current, [name]: file } : current
@@ -42,4 +41,4 @@ export const AssetFilePickers = memo(function ({
       })}
     </Stack>
   );
-});
+}

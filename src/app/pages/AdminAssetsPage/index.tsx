@@ -2,6 +2,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Box,
   Typography,
 } from "@mui/material";
 import { ExpandMore } from "@mui/icons-material";
@@ -26,23 +27,27 @@ export default function AdminAssetsPage() {
   return (
     <Page>
       <Header />
-      <Typography paragraph>
-        This page is for uploading assets required to properly display items,
-        monsters, maps, etc. <br />
-        This is a necessary step because rAthena does not provide these as asset
-        files only reside in the game client.
-      </Typography>
+      <Box sx={{ maxWidth: 650 }}>
+        <Typography paragraph>
+          This page is for uploading assets required to properly display items,
+          monsters, maps, etc. <br />
+          This is a necessary step because rAthena does not provide these as
+          asset files only reside in the game client.
+        </Typography>
 
-      <Typography paragraph>
-        - Map database currently contain {mapInfoCount} info entries,{" "}
-        {mapImageCount} images and {mapBoundsCount} bounds.
-        <br />- Item database currently contain {itemInfoCount} item info
-        entries and {itemImageCount} images.
-      </Typography>
+        <Typography paragraph>
+          - Map database currently contain {mapInfoCount} info entries,{" "}
+          {mapImageCount} images and {mapBoundsCount} bounds.
+          <br />- Item database currently contain {itemInfoCount} item info
+          entries and {itemImageCount} images.
+        </Typography>
 
-      <AssetUploader />
+        <AssetUploader />
 
-      <Typography paragraph>Any missing data will be listed below.</Typography>
+        <Typography paragraph>
+          Any missing data will be listed below.
+        </Typography>
+      </Box>
 
       {missingMonsterImages.length > 0 && (
         <Accordion sx={{ [`&&`]: { marginTop: 0 } }}>
