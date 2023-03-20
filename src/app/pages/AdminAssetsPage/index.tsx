@@ -42,20 +42,7 @@ export default function AdminAssetsPage() {
           entries and {itemImageCount} images.
         </Typography>
 
-        <Typography paragraph>
-          Please provide the following files from your RO client to upload new
-          assets:
-        </Typography>
-
         <AssetUploader />
-
-        <Typography paragraph>
-          Make sure to provide all of the files for the most complete asset
-          upload. You may omit some files, but then not all assets will be
-          uploaded from the GRF file (if you provide one), since the uploader
-          will cross reference between the files to determine what assets to
-          upload.
-        </Typography>
 
         <Typography paragraph>
           Any missing data will be listed below.

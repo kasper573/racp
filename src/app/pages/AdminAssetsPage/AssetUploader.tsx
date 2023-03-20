@@ -1,26 +1,26 @@
 import { memo, useState } from "react";
-import { Box, LinearProgress, Tooltip, Typography } from "@mui/material";
+import { LinearProgress, Typography } from "@mui/material";
 import { useBlockNavigation } from "../../../lib/hooks/useBlockNavigation";
 import { ProgressButton } from "../../components/ProgressButton";
-import { useAssetUploader } from "./useAssetUploader";
+import {
+  AssetSourceFiles,
+  AssetTypeId,
+  useAssetUploader,
+} from "./useAssetUploader";
 import { AssetErrorList } from "./AssetErrorList";
-import { AssetFilePickers, AssetFiles } from "./AssetFilePickers";
+import { NewUploadDialog } from "./NewUploadDialog";
 
 export const AssetUploader = memo(function () {
+  const [isNewUploadDialogVisible, setNewUploadDialogVisible] = useState(false);
   const [showCompletedMessage, setShowCompletedMessage] =
     useState<boolean>(false);
-  const [files, setFiles] = useState<AssetFiles>({});
   const uploader = useAssetUploader();
-  const isReadyToUpload = !!(files.mapInfo || files.itemInfo || files.data);
 
-  async function uploadFiles() {
+  async function uploadFiles(files: AssetSourceFiles, types: AssetTypeId[]) {
     setShowCompletedMessage(false);
     try {
-      if (isReadyToUpload) {
-        await uploader.upload(files.mapInfo, files.itemInfo, files.data);
-      }
+      await uploader.upload(files, types);
     } finally {
-      setFiles({});
       setShowCompletedMessage(true);
     }
   }
@@ -32,27 +32,20 @@ export const AssetUploader = memo(function () {
 
   return (
     <>
-      <AssetFilePickers
-        files={files}
-        setFiles={setFiles}
-        isPending={uploader.isPending}
+      <NewUploadDialog
+        open={isNewUploadDialogVisible}
+        onConfirm={uploadFiles}
+        onClose={() => setNewUploadDialogVisible(false)}
       />
 
-      <Tooltip
-        placement="top"
-        title={isReadyToUpload ? "" : "Please select all files"}
+      <ProgressButton
+        sx={{ mb: 2 }}
+        variant="contained"
+        isLoading={uploader.isPending}
+        onClick={() => setNewUploadDialogVisible(true)}
       >
-        <Box sx={{ mb: 2 }}>
-          <ProgressButton
-            variant="contained"
-            disabled={!isReadyToUpload}
-            isLoading={uploader.isPending}
-            onClick={uploadFiles}
-          >
-            Upload
-          </ProgressButton>
-        </Box>
-      </Tooltip>
+        Upload new assets
+      </ProgressButton>
 
       {showCompletedMessage && (
         <Typography

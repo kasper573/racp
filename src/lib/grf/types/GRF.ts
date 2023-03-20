@@ -122,7 +122,10 @@ export class GRF<Stream = any> {
       entry.lengthAligned
     );
 
-    return { data: decodeEntryData(entry, encodedData), name: entry.name };
+    return {
+      data: decodeEntryData(entry, encodedData),
+      name: entry.name,
+    };
   }
 }
 

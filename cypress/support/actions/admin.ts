@@ -13,10 +13,14 @@ export function signInAsAdmin() {
 export function uploadAssets() {
   const fixtures = Cypress.config("fixturesFolder");
   gotoMainMenuPage("Assets");
-  cy.selectFileByName("mapInfo", `${fixtures}/mapInfo.lub`);
-  cy.selectFileByName("itemInfo", `${fixtures}/itemInfo.lub`);
-  cy.selectFileByName("data", `${fixtures}/data.grf`);
-  cy.findByRole("button", { name: "Upload" }).click();
+  cy.findByRole("button", { name: "Upload new assets" }).click();
+  cy.findByRole("dialog").within(() => {
+    cy.findByRole("button", { name: "Next" }).click();
+    cy.selectFileByName("mapInfo", `${fixtures}/mapInfo.lub`);
+    cy.selectFileByName("itemInfo", `${fixtures}/itemInfo.lub`);
+    cy.selectFileByName("data", `${fixtures}/data.grf`);
+    cy.findByRole("button", { name: "Start upload" }).click();
+  });
 
   waitForPageReady();
 
