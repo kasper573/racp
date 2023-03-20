@@ -110,18 +110,8 @@ export class GRF<Stream = any> {
     }
   }
 
-  private cachedEntries = new Map<string, GRFDecodedEntry>();
-  private cachedDecodes = new Map<GRFEncodedEntryCacheKey, Uint8Array>();
-  private cacheKeyDecoder = new TextDecoder("utf-8");
-
   public async getEntry(path: string): Promise<GRFDecodedEntry> {
     path = normalizePath(path);
-    const preloaded = this.cachedEntries.get(path);
-    if (preloaded) {
-      console.log("Cache hit. Entry already loaded: " + path);
-      return preloaded;
-    }
-
     const entry = this.files.get(path);
     if (!entry) {
       throw new Error(`File "${path}" not found`);
@@ -132,23 +122,10 @@ export class GRF<Stream = any> {
       entry.lengthAligned
     );
 
-    const cacheKey = this.cacheKeyDecoder.decode(
-      encodedData
-    ) as GRFEncodedEntryCacheKey;
-    let decodedData = this.cachedDecodes.get(cacheKey);
-    if (!decodedData) {
-      decodedData = decodeEntryData(entry, encodedData);
-      this.cachedDecodes.set(cacheKey, decodedData);
-    } else {
-      console.log("Cache hit. Reusing identical decoded data: " + path);
-    }
-
-    const decoded = {
-      data: decodedData,
+    return {
+      data: decodeEntryData(entry, encodedData),
       name: entry.name,
     };
-    this.cachedEntries.set(path, decoded);
-    return decoded;
   }
 }
 
@@ -169,8 +146,6 @@ function decodeEntryData(
   new Inflate(encodedData).getBytes(out);
   return out;
 }
-
-export type GRFEncodedEntryCacheKey = NominalString<"GRFEncodedEntryCacheKey">;
 
 export interface GRFEncodedEntry {
   path: string;
