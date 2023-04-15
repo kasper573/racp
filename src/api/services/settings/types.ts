@@ -51,6 +51,7 @@ export const adminSettingsType = zod.object({
   homePageContent: zod.string(),
   donations: donationSettingsType,
   huntLimits: huntLimitsType,
+  mainMenuLinks: zod.record(zod.string().url()),
 });
 
 export type AdminPublicSettings = zod.infer<typeof adminPublicSettingsType>;

@@ -10,9 +10,12 @@ import { RouterLink, RouterLinkProps } from "../../lib/tsr/react/RouterLink";
 import { useLocation } from "../../lib/tsr/react/useLocation";
 import { RouteLocation } from "../../lib/tsr/types";
 
-export type AdditionalLinkProps = Pick<RouterLinkProps, "to">;
+export type AdditionalLinkProps = Pick<
+  RouterLinkProps,
+  "to" | "href" | "target"
+>;
 
-export type LinkTo = AdditionalLinkProps["to"];
+export type LinkTo = RouteLocation;
 
 export const LinkBase = MuiLink;
 
@@ -72,7 +75,7 @@ export function LinkMenuItem(
   );
 }
 
-function useIsActive(to: RouteLocation) {
+function useIsActive(to?: RouteLocation) {
   const location = useLocation();
-  return location.pathname.startsWith(to);
+  return to !== undefined ? location.pathname.startsWith(to) : false;
 }

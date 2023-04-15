@@ -1,35 +1,37 @@
-import {
-  forwardRef,
-  HTMLAttributes,
-  MouseEvent,
-  useCallback,
-  useContext,
-} from "react";
+import { forwardRef, HTMLAttributes, MouseEvent, useContext } from "react";
 import { RouteLocation } from "../types";
 import { RouterContext } from "./RouterContext";
 
 export interface RouterLinkProps
   extends Omit<HTMLAttributes<HTMLAnchorElement>, "href"> {
-  to: RouteLocation;
+  to?: RouteLocation;
+  href?: string;
+  target?: string;
 }
 
 export const RouterLink = forwardRef<HTMLAnchorElement, RouterLinkProps>(
-  function Link({ to, children, onClick, ...props }, ref) {
+  function Link({ children, onClick, href, to, ...props }, ref) {
     const { history } = useContext(RouterContext);
-    const handleClick = useCallback(
-      (e: MouseEvent<HTMLAnchorElement>) => {
-        if (e.ctrlKey) {
-          // Ctrl click means open in new window,
-          // so keep default behavior and stop any further event processing
-          e.stopPropagation();
-          return;
-        }
+    if (!to) {
+      return (
+        <a ref={ref} onClick={onClick} href={href} {...props}>
+          {children}
+        </a>
+      );
+    }
+
+    const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
+      if (e.ctrlKey) {
+        // Ctrl click means open in new window,
+        // so keep default behavior and stop any further event processing
+        e.stopPropagation();
+      } else if (to) {
         e.preventDefault();
         history.push(to);
-        onClick?.(e);
-      },
-      [history, onClick, to]
-    );
+      }
+      onClick?.(e);
+    };
+
     return (
       <a ref={ref} onClick={handleClick} href={to} {...props}>
         {children}

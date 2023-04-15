@@ -28,4 +28,5 @@ export const defaultAdminSettings: AdminSettings = {
       clientSecret: "",
     },
   },
+  mainMenuLinks: {},
 };

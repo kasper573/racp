@@ -12,6 +12,7 @@ import { Select } from "../controls/Select";
 import { trpc } from "../state/client";
 import { MarkdownField } from "../controls/MarkdownField";
 import { RpcFilePicker } from "../components/FilePicker";
+import { ZodField } from "../controls/ZodField";
 
 export function AdminSettingsForm(props: ZodFormOptions<AdminSettings>) {
   const { data: currencies = [] } = trpc.donation.currencies.useQuery();
@@ -54,6 +55,11 @@ export function AdminSettingsForm(props: ZodFormOptions<AdminSettings>) {
                 <MarkdownField
                   label="Home Page Content"
                   {...field("homePageContent")}
+                />
+                <ZodField
+                  label="Custom main menu links"
+                  helperText={`Format: {"<Link text>": "<Link URL>"}`}
+                  {...field("mainMenuLinks")}
                 />
               </Stack>
             ),

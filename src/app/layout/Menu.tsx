@@ -1,66 +1,103 @@
-import { Divider, Typography } from "@mui/material";
+import {
+  Divider,
+  List,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+} from "@mui/material";
+import { useMemo } from "react";
+import { Link as LinkIcon } from "@mui/icons-material";
 import { routes } from "../router";
 import { Auth } from "../components/Auth";
-import { RouteList } from "../components/RouteList";
 import { UserAccessLevel } from "../../api/services/user/types";
 import { defined } from "../../lib/std/defined";
 import { trpc } from "../state/client";
+import { LinkListItem } from "../components/Link";
+import { AdminPublicSettings } from "../../api/services/settings/types";
 
 export function Menu({ onItemSelected }: { onItemSelected?: () => void }) {
   const { data: settings } = trpc.settings.readPublic.useQuery();
+  const sections = useMemo(() => createSections(settings), [settings]);
   return (
     <>
-      <Typography id="server-menu" sx={{ pl: 2 }}>
-        Server
-      </Typography>
-      <Divider />
-      <RouteList
-        aria-labelledby="server-menu"
-        routes={defined([
-          routes.serverInfo.$,
-          routes.vendor.$,
-          routes.mvp.$,
-          settings?.donations.enabled ? routes.donation.$ : undefined,
-        ])}
-        onClick={onItemSelected}
-      />
-
-      <Typography id="database-menu" sx={{ pl: 2 }}>
-        Database
-      </Typography>
-      <Divider />
-      <RouteList
-        aria-labelledby="database-menu"
-        routes={[routes.item.$, routes.monster.$, routes.map.$, routes.skill.$]}
-        onClick={onItemSelected}
-      />
-
-      <Typography id="tools-menu" sx={{ pl: 2 }}>
-        Tools
-      </Typography>
-      <Divider />
-      <RouteList
-        aria-labelledby="tools-menu"
-        routes={[routes.tools.hunt.$]}
-        onClick={onItemSelected}
-      />
-
-      <Auth atLeast={UserAccessLevel.Admin}>
-        <Typography id="admin-menu" sx={{ pl: 2 }}>
-          Admin
-        </Typography>
-        <Divider />
-        <RouteList
-          aria-labelledby="admin-menu"
-          routes={[
-            routes.admin.settings.$,
-            routes.admin.assets.$,
-            routes.admin.users.$,
-            routes.admin.logs.$,
-          ]}
-          onClick={onItemSelected}
-        />
-      </Auth>
+      {sections.map((section, index) => (
+        <Auth
+          key={`section-` + index}
+          atLeast={section.auth ?? UserAccessLevel.Guest}
+        >
+          <Typography id={section.id} sx={{ pl: 2 }}>
+            {section.name}
+          </Typography>
+          <Divider />
+          <List role="menu" aria-labelledby={section.id}>
+            {section.routes?.map((route, index) => (
+              <LinkListItem
+                key={`route-` + index}
+                to={route({})}
+                onClick={onItemSelected}
+              >
+                <ListItemIcon>{route.def.meta.icon}</ListItemIcon>
+                <ListItemText primary={route.def.meta.title} />
+              </LinkListItem>
+            ))}
+            {section.links?.map((link, index) => (
+              <LinkListItem
+                href={link.url}
+                key={`link-` + index}
+                target="_blank"
+              >
+                <ListItemIcon>
+                  <LinkIcon />
+                </ListItemIcon>
+                <ListItemText primary={link.name} />
+              </LinkListItem>
+            ))}
+          </List>
+        </Auth>
+      ))}
     </>
   );
+}
+
+function createSections(settings?: AdminPublicSettings) {
+  return [
+    {
+      id: "server-menu",
+      name: "Server",
+      routes: defined([
+        routes.serverInfo.$,
+        routes.vendor.$,
+        routes.mvp.$,
+        settings?.donations.enabled ? routes.donation.$ : undefined,
+      ]),
+    },
+    {
+      id: "database-menu",
+      name: "Database",
+      routes: [routes.item.$, routes.monster.$, routes.map.$, routes.skill.$],
+    },
+    {
+      id: "tools-menu",
+      name: "Tools",
+      routes: [routes.tools.hunt.$],
+    },
+    {
+      id: "admin-menu",
+      name: "Admin",
+      auth: UserAccessLevel.Admin,
+      routes: [
+        routes.admin.settings.$,
+        routes.admin.assets.$,
+        routes.admin.users.$,
+        routes.admin.logs.$,
+      ],
+    },
+    {
+      id: "link-menu",
+      name: "Links",
+      links: Object.entries(settings?.mainMenuLinks ?? {}).map(
+        ([name, url]) => ({ name, url })
+      ),
+    },
+  ];
 }
