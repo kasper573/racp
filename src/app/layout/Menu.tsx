@@ -20,46 +20,51 @@ export function Menu({ onItemSelected }: { onItemSelected?: () => void }) {
   const sections = useMemo(() => createSections(settings), [settings]);
   return (
     <>
-      {sections.map((section, index) => (
-        <Auth
-          key={`section-` + index}
-          atLeast={section.auth ?? UserAccessLevel.Guest}
-        >
-          <Typography id={section.id} sx={{ pl: 2 }}>
-            {section.name}
-          </Typography>
-          <Divider />
-          <List role="menu" aria-labelledby={section.id}>
-            {section.routes?.map((route, index) => (
-              <LinkListItem
-                key={`route-` + index}
-                to={route({})}
-                onClick={onItemSelected}
-              >
-                <ListItemIcon>{route.def.meta.icon}</ListItemIcon>
-                <ListItemText primary={route.def.meta.title} />
-              </LinkListItem>
-            ))}
-            {section.links?.map((link, index) => (
-              <LinkListItem
-                href={link.url}
-                key={`link-` + index}
-                target="_blank"
-              >
-                <ListItemIcon>
-                  <LinkIcon />
-                </ListItemIcon>
-                <ListItemText primary={link.name} />
-              </LinkListItem>
-            ))}
-          </List>
-        </Auth>
-      ))}
+      {sections
+        .filter((s) => !s.hidden)
+        .map((section, index) => (
+          <Auth
+            key={`section-` + index}
+            atLeast={section.auth ?? UserAccessLevel.Guest}
+          >
+            <Typography id={section.id} sx={{ pl: 2 }}>
+              {section.name}
+            </Typography>
+            <Divider />
+            <List role="menu" aria-labelledby={section.id}>
+              {section.routes?.map((route, index) => (
+                <LinkListItem
+                  key={`route-` + index}
+                  to={route({})}
+                  onClick={onItemSelected}
+                >
+                  <ListItemIcon>{route.def.meta.icon}</ListItemIcon>
+                  <ListItemText primary={route.def.meta.title} />
+                </LinkListItem>
+              ))}
+              {section.links?.map((link, index) => (
+                <LinkListItem
+                  href={link.url}
+                  key={`link-` + index}
+                  target="_blank"
+                >
+                  <ListItemIcon>
+                    <LinkIcon />
+                  </ListItemIcon>
+                  <ListItemText primary={link.name} />
+                </LinkListItem>
+              ))}
+            </List>
+          </Auth>
+        ))}
     </>
   );
 }
 
 function createSections(settings?: AdminPublicSettings) {
+  const links = Object.entries(settings?.mainMenuLinks ?? {}).map(
+    ([name, url]) => ({ name, url })
+  );
   return [
     {
       id: "server-menu",
@@ -95,9 +100,8 @@ function createSections(settings?: AdminPublicSettings) {
     {
       id: "link-menu",
       name: "Links",
-      links: Object.entries(settings?.mainMenuLinks ?? {}).map(
-        ([name, url]) => ({ name, url })
-      ),
+      links,
+      hidden: links.length === 0,
     },
   ];
 }
