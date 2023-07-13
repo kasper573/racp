@@ -61,13 +61,6 @@ export function createUserService({
           });
         }
 
-        if (await some(radb.login.table("login").where("email", "=", email))) {
-          throw new TRPCError({
-            code: "CONFLICT",
-            message: "Email already taken",
-          });
-        }
-
         const newAccountIds = await radb.login.table("login").insert({
           email,
           userid: username,
