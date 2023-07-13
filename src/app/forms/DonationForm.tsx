@@ -14,7 +14,7 @@ import { trpc } from "../state/client";
 import { DonationCaptureResult } from "../../api/services/donation/types";
 
 export function DonationForm({
-  defaultAmount,
+  minimumAmount,
   exchangeRate,
   currency,
   paypal,
@@ -26,9 +26,10 @@ export function DonationForm({
   const { mutateAsync: capture } = trpc.donation.capture.useMutation();
   const { mutateAsync: order } = trpc.donation.order.useMutation();
   const [donationState, setDonationState] = useState<DonationState>("idle");
-  const [value, setValue] = useState(defaultAmount);
+  const [value, setValue] = useState(minimumAmount);
   const rewardedCredits = calculateRewardedCredits(value, exchangeRate);
-  const mayDonate = donationState !== "pending";
+  const isDonating = donationState === "pending";
+  const mayDonate = !isDonating && value >= minimumAmount;
   const donationStateDescription = describeDonationState(donationState);
   const PayPalButton = PayPalButtonProviders[donationEnvironment];
   const current = { value, currency };
@@ -53,13 +54,21 @@ export function DonationForm({
             <TextField
               label="Donation amount"
               type="number"
-              disabled={!mayDonate}
+              disabled={isDonating}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">{currency}</InputAdornment>
                 ),
               }}
-              helperText={`Donating ${value} ${currency} will reward you ${rewardedCredits} credits.`}
+              helperText={
+                value < minimumAmount ? (
+                  <Typography variant="caption" color="error">
+                    Minimum donation amount is {minimumAmount} {currency}
+                  </Typography>
+                ) : (
+                  `Donating ${value} ${currency} will reward you ${rewardedCredits} credits.`
+                )
+              }
               value={value}
               onChange={setValue}
             />

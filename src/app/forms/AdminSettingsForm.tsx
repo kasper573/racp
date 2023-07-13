@@ -122,8 +122,8 @@ export function AdminSettingsForm(props: ZodFormOptions<AdminSettings>) {
                 />
                 <TextField
                   type="number"
-                  label="Default donation amount"
-                  {...field("donations.defaultAmount")}
+                  label="Minimum donation amount"
+                  {...field("donations.minimumAmount")}
                 />
                 <Select
                   options={currencies}

@@ -22,7 +22,7 @@ export const paypalSettingsType = zod.object({
 
 const donationSettingsBaseType = zod.object({
   enabled: zod.boolean(),
-  defaultAmount: zod.number(),
+  minimumAmount: zod.number(),
   exchangeRate: zod.number(),
   currency: currencyType,
   presentation: zod.string(),
