@@ -1,5 +1,5 @@
 import { Box, Button, InputAdornment, Stack, Typography } from "@mui/material";
-import { ComponentProps, ReactNode, useState } from "react";
+import { ComponentProps, ReactNode, useRef, useState } from "react";
 import {
   PayPalButtons as RealPayPalButton,
   PayPalScriptProvider,
@@ -31,6 +31,9 @@ export function DonationForm({
   const mayDonate = donationState !== "pending";
   const donationStateDescription = describeDonationState(donationState);
   const PayPalButton = PayPalButtonProviders[donationEnvironment];
+  const current = { value, currency };
+  const latest = useRef(current);
+  latest.current = current;
 
   return (
     <PayPalScriptProvider
@@ -67,7 +70,7 @@ export function DonationForm({
               disabled={!mayDonate}
               createOrder={async () => {
                 setDonationState("idle");
-                const orderID = await order({ value, currency });
+                const orderID = await order(latest.current);
                 if (orderID === undefined) {
                   throw new Error("Could not create order");
                 }
