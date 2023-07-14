@@ -93,15 +93,18 @@ export class YamlRepository<ET extends ZodType, Key> extends PipeableRepository<
     }
 
     filterNulls(unknownObject);
-    const result = dbNode.safeParse(unknownObject);
-    if (!result.success) {
-      this.logger.error(
-        "Ignoring node. Unexpected YAML structure. Error info: ",
-        JSON.stringify({ file, issues: result.error.issues }, null, 2)
-      );
-      return;
+
+    const parsedNode = dbNode.safeParse(unknownObject);
+    if (parsedNode.success) {
+      return parsedNode.data;
     }
-    return result.data;
+
+    const parsedBody = bodyNode.safeParse(unknownObject);
+    if (parsedBody.success) {
+      return { Body: parsedBody.data };
+    }
+
+    this.logger.error("Ignoring node. Unexpected YAML structure");
   }
 
   toString() {
