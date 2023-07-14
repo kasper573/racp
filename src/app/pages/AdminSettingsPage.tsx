@@ -1,4 +1,5 @@
 import { Alert } from "@mui/material";
+import { Warning } from "@mui/icons-material";
 import { Header } from "../layout/Header";
 import { AdminSettingsForm } from "../forms/AdminSettingsForm";
 import { trpc } from "../state/client";
@@ -35,7 +36,7 @@ export default function AdminSettingsPage() {
             them below, but you can make quick work of it by copying and pasting
             from the backup file.
           </Alert>
-          <Alert color="warning" sx={{ my: 1 }}>
+          <Alert color="warning" sx={{ my: 1 }} icon={<Warning />}>
             Warning! As soon as you save your new changes the backup will be
             deleted!
           </Alert>
