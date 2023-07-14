@@ -53,7 +53,7 @@ export default function HuntViewPage({
 
   async function copyAndRedirect() {
     const copy = await copyHunt.mutateAsync(huntId);
-    history.push(routes.tools.hunt.view.$({ id: copy.id }));
+    history.push(routes.tools.itemTracker.view.$({ id: copy.id }));
   }
 
   if (isLoading) {

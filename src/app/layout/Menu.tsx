@@ -72,7 +72,6 @@ function createSections(settings?: AdminPublicSettings) {
       routes: defined([
         routes.serverInfo.$,
         routes.vendor.$,
-        routes.mvp.$,
         settings?.donations.enabled ? routes.donation.$ : undefined,
       ]),
     },
@@ -84,7 +83,7 @@ function createSections(settings?: AdminPublicSettings) {
     {
       id: "tools-menu",
       name: "Tools",
-      routes: [routes.tools.hunt.$],
+      routes: [routes.tools.bossTracker.$, routes.tools.itemTracker.$],
     },
     {
       id: "admin-menu",

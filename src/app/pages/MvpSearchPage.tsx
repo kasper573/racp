@@ -9,7 +9,10 @@ import { Link } from "../components/Link";
 import { Page } from "../layout/Page";
 
 export default function MvpSearchPage() {
-  const [query = {}, setQuery] = useRouteState(routes.mvp.$, "query");
+  const [query = {}, setQuery] = useRouteState(
+    routes.tools.bossTracker.$,
+    "query"
+  );
   return (
     <Page>
       <Header>

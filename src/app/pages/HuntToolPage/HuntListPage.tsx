@@ -53,7 +53,9 @@ export default function HuntListPage() {
         <Typography paragraph>
           You need to{" "}
           <Link
-            to={routes.user.login.$({ destination: routes.tools.hunt.$({}) })}
+            to={routes.user.login.$({
+              destination: routes.tools.itemTracker.$({}),
+            })}
           >
             sign in
           </Link>{" "}

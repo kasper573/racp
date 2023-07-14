@@ -93,11 +93,6 @@ export const router = new Router(
       .path("shop/view/:id")
       .params({ id: zod.string() })
       .renderer(lazy(() => import("./pages/ShopViewPage"))),
-    mvp: t.route
-      .path("mvp/:query?")
-      .params({ query: mvpSearchTypes.query.optional() })
-      .renderer(lazy(() => import("./pages/MvpSearchPage")))
-      .meta({ title: "Mvps", icon: <EmojiEvents /> }),
     monster: t.route
       .path("monster", { exact: true })
       .mirror((): RouteLocation => routes.monster.search.$({}))
@@ -154,10 +149,15 @@ export const router = new Router(
       .path("tools")
       .meta({ title: "Tools" })
       .children({
-        hunt: t.route
-          .path("hunt", { exact: true })
-          .mirror((): RouteLocation => routes.tools.hunt.list.$({}))
-          .meta({ title: "Hunt", icon: <ImageSearch /> })
+        bossTracker: t.route
+          .path("boss-tracker/:query?")
+          .params({ query: mvpSearchTypes.query.optional() })
+          .renderer(lazy(() => import("./pages/MvpSearchPage")))
+          .meta({ title: "Boss tracker", icon: <EmojiEvents /> }),
+        itemTracker: t.route
+          .path("item-tracker", { exact: true })
+          .mirror((): RouteLocation => routes.tools.itemTracker.list.$({}))
+          .meta({ title: "Item tracker", icon: <ImageSearch /> })
           .children({
             list: t.route
               .path("list")
