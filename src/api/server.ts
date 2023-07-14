@@ -123,7 +123,7 @@ const router = createApiRouter({
   shop: createShopService(shops),
   npc: createNpcService(npcs),
   map: createMapService(maps),
-  settings: createAdminSettingsService(settings),
+  settings: createAdminSettingsService(settings, resources),
   meta: createMetaService({ ...items, ...monsters }),
   exp: createExpService(exp),
   hunt: createHuntService({ cpdb, settings }),

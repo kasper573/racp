@@ -147,6 +147,7 @@
     "style-loader": "3.3.1",
     "swc-loader": "0.2.3",
     "ts-node-dev": "2.0.0",
+    "typed-emitter": "^2.1.0",
     "webpack": "5.73.0",
     "webpack-bundle-analyzer": "4.6.1",
     "webpack-cli": "4.10.0",

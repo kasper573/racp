@@ -1,6 +1,8 @@
 import * as path from "path";
 import * as fs from "fs";
+import { EventEmitter } from "events";
 import recursiveWatch = require("recursive-watch");
+import TypedEmitter from "typed-emitter/rxjs";
 import { ensureDir } from "../fs/ensureDir";
 import { ReactiveRepository } from "./ReactiveRepository";
 import { Maybe, RepositoryOptions } from "./Repository";
@@ -14,11 +16,24 @@ export type FileRepositoryOptions<
   protocol: FileProtocol<T>;
 };
 
+export type FileRepositoryEvents<T, DefaultValue extends Maybe<T>> = {
+  loadParseError: (fileContent: string, error: unknown) => void;
+  loadSuccess: (
+    fileContent: string,
+    parsedContent: T,
+    defaultContent: DefaultValue
+  ) => void;
+  write: (data: T | DefaultValue) => void;
+};
+
 export class FileRepository<
   T,
   DefaultValue extends Maybe<T> = Maybe<T>
 > extends ReactiveRepository<T, DefaultValue> {
   readonly filename: string;
+  readonly events = new EventEmitter() as TypedEmitter<
+    FileRepositoryEvents<T, DefaultValue>
+  >;
 
   constructor(private options: FileRepositoryOptions<T, DefaultValue>) {
     super(options);
@@ -52,8 +67,16 @@ export class FileRepository<
 
     const result = this.options.protocol.parse(fileContent);
     if (!result.success) {
+      this.events.emit("loadParseError", fileContent, result.error);
       throw new Error(`Could not parse file content: ${result.error}`);
     }
+
+    this.events.emit(
+      "loadSuccess",
+      fileContent,
+      result.data,
+      this.defaultValue
+    );
 
     return result.data ?? this.defaultValue;
   }
@@ -68,6 +91,7 @@ export class FileRepository<
         "utf-8"
       );
     }
+    this.events.emit("write", data);
   }
 
   readonly assign = async (changes: T) => {
@@ -76,6 +100,11 @@ export class FileRepository<
     await this.write(updated);
     return updated;
   };
+
+  dispose() {
+    super.dispose();
+    this.events.removeAllListeners();
+  }
 
   toString() {
     return `file(${path.basename(this.options.directory)}/${
