@@ -1,4 +1,5 @@
 import * as zod from "zod";
+import { groupBy } from "lodash";
 import { zodJsonProtocol } from "../../../lib/zod/zodJsonProtocol";
 import { defined } from "../../../lib/std/defined";
 import { ResourceFactory } from "../../resources";
@@ -9,7 +10,7 @@ import {
   ItemId,
   itemInfoType,
   itemOptionTextsType,
-  rawCashStoreItemType,
+  rawCashStoreTabType,
 } from "./types";
 
 export type ItemRepository = ReturnType<typeof createItemRepository>;
@@ -29,11 +30,10 @@ export function createItemRepository({
     protocol: zodJsonProtocol(itemOptionTextsType),
   });
 
-  const cashItems = resources.txt(
-    "db",
-    "item_cash_db.txt",
-    rawCashStoreItemType
-  );
+  const cashStoreTabs = resources.yaml("db/item_cash.yml", {
+    entityType: rawCashStoreTabType,
+    getKey: (m) => m.Tab,
+  });
 
   const itemResolver = createItemResolver({ tradeScale });
   const itemDB = resources.yaml("db/item_db.yml", itemResolver);
@@ -58,15 +58,21 @@ export function createItemRepository({
     );
 
   const cashStoreItems = items
-    .and(cashItems)
-    .map("cashStoreItems", ([items, cashItems]): Item[] =>
-      defined(
-        cashItems.map(({ itemId, price }) => {
-          const item = items.get(itemId);
-          return item ? { ...item, Buy: price } : undefined;
-        })
-      )
-    );
+    .and(cashStoreTabs)
+    .map("cashStoreItems", ([items, cashStoreTabs]): Item[] => {
+      const itemsByAegisName = groupBy(
+        Array.from(items.values()),
+        (item) => item.AegisName
+      );
+      return defined(
+        Array.from(cashStoreTabs.values()).flatMap(({ Items }) =>
+          Items.map(({ Item: aegisName, Price }) => {
+            const item = itemsByAegisName[aegisName]?.[0];
+            return item ? { ...item, Buy: Price } : undefined;
+          })
+        )
+      );
+    });
 
   const resourceNames = infoFile.map("resourceNames", (info = {}) =>
     Object.entries(info).reduce(

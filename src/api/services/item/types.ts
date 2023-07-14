@@ -1,4 +1,5 @@
 import * as zod from "zod";
+import { z } from "zod";
 import { matcher } from "../../matcher";
 import { clientTextType } from "../../common/clientTextType";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
@@ -138,12 +139,15 @@ export const itemOptionType = zod.object({
 export type ItemOptionTexts = zod.infer<typeof itemOptionTextsType>;
 export const itemOptionTextsType = zod.record(zod.string()); // By option id
 
-// Directly from item_cash_db.txt
-export type RawCashStoreItem = zod.infer<typeof rawCashStoreItemType>;
-export const rawCashStoreItemType = zod.object({
-  storeCategoryId: zodNumeric(),
-  itemId: zodNumeric(),
-  price: zodNumeric(),
+// Directly from item_cash.yml
+export const rawCashStoreTabType = zod.object({
+  Tab: z.string(),
+  Items: zod.array(
+    zod.object({
+      Item: itemType.shape.AegisName,
+      Price: zodNumeric(),
+    })
+  ),
 });
 
 export const itemSearchTypes = createSearchTypes(itemType, itemFilter.type);
