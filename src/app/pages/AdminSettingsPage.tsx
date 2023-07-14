@@ -1,5 +1,5 @@
 import { Alert } from "@mui/material";
-import { Warning } from "@mui/icons-material";
+import { Info, Warning } from "@mui/icons-material";
 import { Header } from "../layout/Header";
 import { AdminSettingsForm } from "../forms/AdminSettingsForm";
 import { trpc } from "../state/client";
@@ -24,7 +24,7 @@ export default function AdminSettingsPage() {
       <Header />
       {backup && (
         <>
-          <Alert color="info">
+          <Alert color="info" icon={<Info />}>
             Due to a recent update of RACP that contained breaking changes, your
             old settings are no longer compatible. The live settings have been
             reset to their new default values, and your old settings have been
