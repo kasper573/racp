@@ -48,9 +48,9 @@ describe("can change", () => {
     cy.contains("Hello world");
   });
 
-  it("default donation amount", () => {
+  it("minimum donation amount", () => {
     updateSettingsAndGotoDonations(() =>
-      cy.findByLabelText("Default donation amount").clear().type("100")
+      cy.findByLabelText("Minimum donation amount").clear().type("100")
     );
     cy.findByLabelText("Donation amount").should("have.value", "100");
   });
