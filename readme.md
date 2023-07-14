@@ -86,8 +86,6 @@ As for unit tests, they are not required, but are encouraged for more complex un
 
 ## Deployment
 
-### Manual
-
 This is a fairly standard React + Express.js application, so you can use the provided [scripts](package.json) to manually manage a production deployment if you have the technical experience to do so:
 
 - Clone this repository on a server matching the [prerequisites](#prerequisites)
@@ -115,31 +113,6 @@ You can see which configuration options are available:
 
 - For the Api: run `yarn api:serve --help`.
 - For the App: see the `env` variable in [webpack.config.ts](webpack.config.ts).
-
-### Automatic
-
-RACP comes with a built-in deployment process that will automatically deploy the latest
-version of RACP to a server of your choice whenever you make changes to the repository.
-
-This process has **additional** prerequisites for your server:
-
-- Server must accept SSH & Rsync connections
-  > Most unix distros support this by default. Windows has to enable this via i.e. OpenSSH for Windows, WSL or [Cygwin](https://www.cygwin.com/).
-- Requires [PM2](https://pm2.keymetrics.io/) to be installed.
-
-To use the automatic deployment:
-
-- Fork this repository
-- Add the following [GitHub Action Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) to your fork's repository settings:
-  - `DEPLOY_HOST` - The host of the server to deploy to
-  - `DEPLOY_USERNAME` - The ssh username to connect with when deploying
-  - `DEPLOY_KEY` - The ssh key to connect with when deploying
-  - `DEPLOY_JWT_SECRET` - The JWT secret to use for user authentication (Any secret and unique string)
-  - `DEPLOY_API_PORT` - The port to run the api on (Whatever port you want)
-  - `DEPLOY_APP_PORT` - The port to run the web app on (80 is recommended, but it's up to you)
-  - `DEPLOY_RATHENA_PATH` - The absolute path to the rAthena folder on your server
-  - `DEPLOY_ENABLED` - Set to true to enable automatic deployment
-- GitHub will now deploy automatically whenever you push changes to the main branch of your fork.
 
 ## Assets
 
