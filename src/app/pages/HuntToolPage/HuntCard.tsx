@@ -45,14 +45,14 @@ export function HuntCard({
       </CardContent>
       <CardActions>
         <LinkButton
-          aria-label="View hunt"
+          aria-label="View list"
           to={routes.tools.itemTracker.view.$({ id: hunt.id })}
           sx={{ mr: "auto" }}
         >
           View
         </LinkButton>
         <Tooltip title={`Delete "${hunt.name}"`}>
-          <IconButton aria-label="Delete hunt" onClick={() => onDelete?.(hunt)}>
+          <IconButton aria-label="Delete list" onClick={() => onDelete?.(hunt)}>
             <Delete />
           </IconButton>
         </Tooltip>
@@ -68,12 +68,12 @@ export function AddHuntCard({
   return (
     <CardListItem
       role="button"
-      aria-label="Create new hunt"
+      aria-label="Create new list"
       sx={{ cursor: "pointer", ...sx }}
       {...props}
     >
       <Center>
-        <Tooltip title="Create new hunt">
+        <Tooltip title="Create new list">
           <Add sx={{ fontSize: 96 }} />
         </Tooltip>
       </Center>

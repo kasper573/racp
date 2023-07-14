@@ -51,7 +51,7 @@ export function createHuntService({
         });
 
         if (!hunt) {
-          throw new TRPCError({ code: "FORBIDDEN", message: "Unknown hunt" });
+          throw new TRPCError({ code: "FORBIDDEN", message: "Unknown list" });
         }
         if (!hunt.isPublished) {
           await assertHuntAccess(db, { huntId, ...ctx });
@@ -174,7 +174,7 @@ export function createHuntService({
         if (count >= limits.itemsPerHunt) {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: `You cannot have more than ${limits.itemsPerHunt} items per hunt.`,
+            message: `You cannot have more than ${limits.itemsPerHunt} items per list.`,
           });
         }
 

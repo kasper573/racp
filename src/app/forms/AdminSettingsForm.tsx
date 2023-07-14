@@ -65,17 +65,17 @@ export function AdminSettingsForm(props: ZodFormOptions<AdminSettings>) {
             ),
           },
           {
-            label: "Hunt",
+            label: "Item tracker",
             content: (
               <Stack spacing={2}>
                 <TextField
                   type="number"
-                  label="Max hunts per account"
+                  label="Max lists per account"
                   {...field("huntLimits.hunts")}
                 />
                 <TextField
                   type="number"
-                  label="Max items per hunt"
+                  label="Max items per list"
                   {...field("huntLimits.itemsPerHunt")}
                 />
                 <TextField

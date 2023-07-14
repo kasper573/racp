@@ -15,7 +15,7 @@ export async function assertHuntAccess(
   }
 ) {
   if (auth && auth.access >= UserAccessLevel.Admin) {
-    return; // admins can access any hunt
+    return; // admins can access any list
   }
 
   const res = auth

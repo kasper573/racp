@@ -13,10 +13,10 @@ function gotoHuntsPageAsNewUser() {
   cy.visit("/"); // New visitor each test is a quicker way to get a clean slate than resetting all data
   user = nextTestUser();
   register(user.name, user.password, user.email);
-  gotoMainMenuPage("Hunt");
+  gotoMainMenuPage("Item tracker");
 }
 
-const defaultHuntName = "new hunt";
+const defaultHuntName = "new list";
 
 describe("list", () => {
   beforeEach(() => {
@@ -25,19 +25,19 @@ describe("list", () => {
     waitForPageReady();
   });
 
-  it("can create new hunt", () => {
+  it("can create new list", () => {
     findListedHuntTitle(defaultHuntName).should("exist");
   });
 
-  it("can rename hunt", () => {
+  it("can rename list", () => {
     viewHunt();
-    cy.findByLabelText("Hunt name").clear().type("renamed hunt");
-    gotoMainMenuPage("Hunt");
-    findListedHuntTitle("renamed hunt").should("exist");
+    cy.findByLabelText("List name").clear().type("renamed list");
+    gotoMainMenuPage("Item tracker");
+    findListedHuntTitle("renamed list").should("exist");
   });
 
-  it("can delete hunt", () => {
-    cy.findByRole("button", { name: /delete hunt/i }).click();
+  it("can delete list", () => {
+    cy.findByRole("button", { name: /delete list/i }).click();
     cy.findByRole("dialog").findByRole("button", { name: /ok/i }).click();
     findListedHuntTitle(defaultHuntName).should("not.exist");
   });
@@ -85,7 +85,7 @@ describe("details", () => {
   it("can remove item", () => {
     withinItemGrid(() => {
       cy.findByRole("button", { name: /remove item/i }).click();
-      cy.contains("No items have been added to the hunt");
+      cy.contains("No items have been added to the list");
     });
   });
 });
@@ -98,7 +98,7 @@ describe("sharing", () => {
     cy.url().then((huntUrl) => {
       signOut();
       cy.visit(huntUrl);
-      cy.contains("Unknown hunt");
+      cy.contains("Unknown list");
     });
   });
 
@@ -126,11 +126,11 @@ function findListedHuntTitle(huntName: string) {
 }
 
 function createHunt() {
-  cy.findByRole("button", { name: /create new hunt/i }).click();
+  cy.findByRole("button", { name: /create new list/i }).click();
 }
 
 function viewHunt() {
-  cy.findByRole("link", { name: /view hunt/i }).click();
+  cy.findByRole("link", { name: /view list/i }).click();
 }
 
 function publishHunt() {
@@ -172,7 +172,7 @@ function createHuntWithDetails({
     publishHunt();
   }
 
-  cy.findByLabelText("Add an item to hunt").type(name);
+  cy.findByLabelText("Add an item to track").type(name);
   waitForPageReady();
   cy.findByRole("option", { name: nameRegex }).click();
   waitForPageReady();

@@ -20,7 +20,7 @@ before(() => {
     ])
   );
 
-  gotoMainMenuPage("Mvps");
+  gotoMainMenuPage("Boss tracker");
 });
 
 describe("search", () => {

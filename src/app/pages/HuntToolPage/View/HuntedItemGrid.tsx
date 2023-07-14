@@ -44,7 +44,7 @@ export function HuntedItemGrid({ items }: { items: HuntedItem[] }) {
 }
 
 const Empty = () => (
-  <Box sx={{ textAlign: "center" }}>No items have been added to the hunt.</Box>
+  <Box sx={{ textAlign: "center" }}>No items have been added to the list.</Box>
 );
 
 const columns: ColumnConventionProps<HuntedItem, ItemId>["columns"] = {

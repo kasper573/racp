@@ -60,7 +60,7 @@ export default function HuntViewPage({
     return null;
   }
   if (!hunt) {
-    return <Header title="Unknown hunt" />;
+    return <Header title="Unknown list" />;
   }
 
   return (
@@ -76,7 +76,7 @@ export default function HuntViewPage({
                   type="text"
                   sx={{ width: nameMaxWidth }}
                   value={hunt.name}
-                  aria-label="Hunt name"
+                  aria-label="List name"
                   issues={getErrorMessage(renameHunt.error?.data)}
                   onChange={(name) => renameHunt.mutate({ id: huntId, name })}
                   inputProps={{ maxLength: huntNameType.maxLength }}
@@ -101,7 +101,7 @@ export default function HuntViewPage({
                     sx={{ transform: "translate(8px, -50%)" }}
                   >
                     {!isOwner && isSignedIn && (
-                      <Tooltip title="Add a copy of this hunt to your account">
+                      <Tooltip title="Add a copy of this list to your account">
                         <IconButton onClick={copyAndRedirect}>
                           <ContentCopy />
                         </IconButton>
@@ -152,11 +152,11 @@ export default function HuntViewPage({
             renderOption={(option) => (
               <ItemIdentifier link={false} item={option} />
             )}
-            startSearchingMessage="Enter the name of the item you want to hunt"
+            startSearchingMessage="Enter the name of the item you want to track"
             noResultsText={(searchQuery) =>
               `No items matching "${searchQuery}"`
             }
-            label="Add an item to hunt"
+            label="Find an item to track"
           />
         )}
 

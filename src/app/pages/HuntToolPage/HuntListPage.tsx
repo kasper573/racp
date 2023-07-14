@@ -44,7 +44,7 @@ export default function HuntListPage() {
 
       {isSignedIn ? (
         <CardList>
-          <AddHuntCard onClick={() => createHunt.mutate("New hunt")} />
+          <AddHuntCard onClick={() => createHunt.mutate("New list")} />
           {hunts.map((hunt) => (
             <HuntCard key={hunt.id} hunt={hunt} onDelete={setHuntToDelete} />
           ))}
@@ -65,7 +65,7 @@ export default function HuntListPage() {
 
       <ConfirmDialog
         open={!!huntToDelete}
-        title="Delete hunt?"
+        title="Delete list?"
         onCancel={() => setHuntToDelete(undefined)}
         onConfirm={() =>
           setHuntToDelete((hunt) => {
@@ -76,7 +76,7 @@ export default function HuntListPage() {
           })
         }
       >
-        This will permanently delete this hunt. <br />
+        This will permanently delete this list. <br />
         Are you sure you want to proceed?
       </ConfirmDialog>
     </Page>
