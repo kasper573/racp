@@ -83,7 +83,9 @@ export class FileRepository<
 
   protected async writeImpl(data: T | DefaultValue) {
     if (data === undefined) {
-      await fs.promises.rm(this.filename);
+      if (fs.existsSync(this.filename)) {
+        await fs.promises.rm(this.filename);
+      }
     } else {
       await fs.promises.writeFile(
         this.filename,
