@@ -172,7 +172,7 @@ function createHuntWithDetails({
     publishHunt();
   }
 
-  cy.findByLabelText("Add an item to track").type(name);
+  cy.findByLabelText("Find an item to track").type(name);
   waitForPageReady();
   cy.findByRole("option", { name: nameRegex }).click();
   waitForPageReady();

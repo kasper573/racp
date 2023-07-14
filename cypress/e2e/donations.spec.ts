@@ -61,9 +61,10 @@ describe("can change", () => {
   });
 
   it("exchange rate", () => {
-    updateSettingsAndGotoDonations(() =>
-      cy.findByLabelText("Exchange rate").clear().type("50")
-    );
+    updateSettingsAndGotoDonations(() => {
+      cy.findByLabelText("Minimum donation amount").clear().type("5");
+      cy.findByLabelText("Exchange rate").clear().type("50");
+    });
     cy.findByLabelText("Donation amount").clear().type("7");
     cy.contains(/donating 7 \w+ will reward you 350 credits/i);
   });
