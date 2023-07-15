@@ -138,6 +138,7 @@ describe("details", () => {
   });
 
   it("can list sellers", () => {
+    cy.findByRole("tab", { name: /sold by/i }).click();
     findTableColumn("Shop").contains(/test merchant/i);
   });
 });
