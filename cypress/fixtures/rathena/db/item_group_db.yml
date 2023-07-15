@@ -1,0 +1,7 @@
+Body:
+  - Group: Example
+    SubGroups:
+      - SubGroup: 1
+        List:
+          - Item: test_item
+            Rate: 10
