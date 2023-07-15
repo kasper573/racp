@@ -7,6 +7,8 @@ import { access } from "../../middlewares/access";
 import { UserAccessLevel } from "../user/types";
 import { bufferToLuaCode } from "../../common/parseLuaTableAs";
 import {
+  groupedItemFilter,
+  groupedItemSearchTypes,
   itemFilter,
   itemIdType,
   itemOptionTextsType,
@@ -35,6 +37,11 @@ export function createItemService(repo: ItemRepository) {
         }
         return item;
       }),
+    groupSearch: createSearchProcedure(
+      groupedItemSearchTypes,
+      async () => Array.from((await repo.groupedItems).values()),
+      (entity, payload) => groupedItemFilter.for(payload)(entity)
+    ),
     countInfo: t.procedure
       .use(access(UserAccessLevel.Admin))
       .output(zod.number())

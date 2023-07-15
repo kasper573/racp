@@ -20,6 +20,8 @@ import { Page } from "../layout/Page";
 import { KVTable } from "../components/KVTable";
 import { itemGridColumns } from "../grids/ItemGrid";
 import { renderGridColumns } from "../components/DataGrid";
+import { GroupItemGrid } from "../grids/GroupItemGrid";
+import { defined } from "../../lib/std/defined";
 
 export default function ItemViewPage({
   params: { id },
@@ -33,6 +35,16 @@ export default function ItemViewPage({
   const { data: { entities: shopItems = [] } = {} } =
     trpc.shop.searchItems.useQuery({
       filter: { id: { value: id, matcher: "=" } },
+    });
+
+  const { data: { entities: contains = [] } = {} } =
+    trpc.item.groupSearch.useQuery({
+      filter: { groupItemId: { value: id, matcher: "=" } },
+    });
+
+  const { data: { entities: foundIn = [] } = {} } =
+    trpc.item.groupSearch.useQuery({
+      filter: { itemId: { value: id, matcher: "=" } },
     });
 
   if (isLoading) {
@@ -127,9 +139,9 @@ export default function ItemViewPage({
             />
           )}
         </Box>
-        <Box sx={{ flex: 1 }}>
+        <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
           <TabSwitch
-            tabs={[
+            tabs={defined([
               {
                 label: "Dropped by",
                 content:
@@ -144,10 +156,6 @@ export default function ItemViewPage({
                     <Paper sx={{ p: 2 }}>None</Paper>
                   ),
               },
-            ]}
-          />
-          <TabSwitch
-            tabs={[
               {
                 label: "Sold by",
                 content:
@@ -160,7 +168,29 @@ export default function ItemViewPage({
                     <Paper sx={{ p: 2 }}>None</Paper>
                   ),
               },
-            ]}
+              foundIn.length > 0 && {
+                label: "Found in",
+                content: (
+                  <GroupItemGrid
+                    data={foundIn}
+                    gridProps={{
+                      columnVisibilityModel: { itemId: false },
+                    }}
+                  />
+                ),
+              },
+              contains.length > 0 && {
+                label: "Contains",
+                content: (
+                  <GroupItemGrid
+                    data={contains}
+                    gridProps={{
+                      columnVisibilityModel: { groupItemId: false },
+                    }}
+                  />
+                ),
+              },
+            ])}
           />
         </Box>
       </CommonPageGrid>

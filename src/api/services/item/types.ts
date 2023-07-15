@@ -5,7 +5,6 @@ import { clientTextType } from "../../common/clientTextType";
 import { createEntityFilter } from "../../../lib/zod/ZodMatcher";
 import { zodNominalString } from "../../../lib/zod/zodNominalString";
 import { toggleRecordType } from "../../../lib/zod/zodToggle";
-import { zodNumeric } from "../../../lib/zod/zodNumeric";
 import { createSearchTypes } from "../../common/search.types";
 import { itemScriptType } from "./util/itemScriptType";
 
@@ -139,15 +138,44 @@ export const itemOptionType = zod.object({
 export type ItemOptionTexts = zod.infer<typeof itemOptionTextsType>;
 export const itemOptionTextsType = zod.record(zod.string()); // By option id
 
+export const itemSearchTypes = createSearchTypes(itemType, itemFilter.type);
+
 // Directly from item_cash.yml
 export const rawCashStoreTabType = zod.object({
   Tab: z.string(),
   Items: zod.array(
     zod.object({
       Item: itemType.shape.AegisName,
-      Price: zodNumeric(),
+      Price: z.number(),
     })
   ),
 });
 
-export const itemSearchTypes = createSearchTypes(itemType, itemFilter.type);
+// Directly from item_group_db.yml
+export const itemGroupType = zod.object({
+  Group: z.string(),
+  SubGroups: zod.array(
+    zod.object({
+      SubGroup: z.number(),
+      List: zod.array(
+        zod.object({
+          Item: itemType.shape.AegisName,
+          Rate: z.number().default(100),
+        })
+      ),
+    })
+  ),
+});
+
+export type GroupedItem = zod.infer<typeof groupedItemType>;
+export const groupedItemType = zod.object({
+  itemId: itemIdType,
+  groupItemId: itemIdType,
+  rate: z.number(),
+});
+
+export const groupedItemFilter = createEntityFilter(matcher, groupedItemType);
+export const groupedItemSearchTypes = createSearchTypes(
+  groupedItemType,
+  groupedItemFilter.type
+);

@@ -23,6 +23,7 @@ Body:
       bonus bAtkEle,Ele_Dark;
       bonus bComaRace,RC_Demon,50;
       bonus bAddEff,Eff_Bleeding,500;
+      getrandgroupitem(IG_Example,1);
   - Id: 1
     AegisName: filler_1
     Name: Filler 1
