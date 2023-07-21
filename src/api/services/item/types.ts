@@ -171,7 +171,7 @@ export type GroupedItem = zod.infer<typeof groupedItemType>;
 export const groupedItemType = zod.object({
   itemId: itemIdType,
   groupItemId: itemIdType,
-  rate: z.number(),
+  chance: z.number(),
 });
 
 export const groupedItemFilter = createEntityFilter(matcher, groupedItemType);

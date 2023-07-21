@@ -89,19 +89,25 @@ export function createItemRepository({
 
       const encountered = new Map<string, boolean>();
       return Array.from(itemGroups.values()).flatMap(({ Group, SubGroups }) => {
-        const groupItemId = itemList.find(hasGroupScript(Group))?.Id;
+        const groupItem = itemList.find(hasGroupScript(Group));
         const groupItems: GroupedItem[] = [];
-        if (groupItemId === undefined) {
+        if (groupItem === undefined) {
           return [];
         }
 
-        for (const { List } of SubGroups) {
+        for (const { List, SubGroup } of SubGroups) {
+          const totalRate = List.reduce((sum, { Rate }) => sum + Rate, 0);
           for (const { Item, Rate } of List) {
             const item = itemsByAegisName[Item]?.[0];
-            const key = `${groupItemId}-${item?.Id}`;
+            const key = `${groupItem.Id}-${item?.Id}`;
+            const isAutoReceived = SubGroup === 0;
             if (item && !encountered.has(key)) {
               encountered.set(key, true);
-              groupItems.push({ groupItemId, itemId: item.Id, rate: Rate });
+              groupItems.push({
+                groupItemId: groupItem.Id,
+                itemId: item.Id,
+                chance: isAutoReceived ? 1 : Rate / totalRate,
+              });
             }
           }
         }

@@ -3,7 +3,7 @@ import { ComponentProps } from "react";
 import { ItemDrop } from "../../../../api/services/drop/types";
 import { MonsterId } from "../../../../api/services/monster/types";
 import { MonsterIdentifier } from "../../../components/MonsterIdentifier";
-import { dropChanceString } from "../../../grids/ItemDropGrid";
+import { dropRateString } from "../../../util/formatters";
 
 export function DropperSelect({
   value,
@@ -75,7 +75,7 @@ export function DropperIdentifier({
       sx={{ whiteSpace: "nowrap", ...theme.typography.body2, ...sx }}
       {...props}
     >
-      &nbsp;({dropChanceString(drop.Rate)})
+      &nbsp;({dropRateString(drop.Rate)})
     </MonsterIdentifier>
   );
 }

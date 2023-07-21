@@ -1,8 +1,8 @@
-import { MonsterDrop } from "../../api/services/monster/types";
 import { trpc } from "../state/client";
 import { DataGrid } from "../components/DataGrid";
 import { ItemIdentifier } from "../components/ItemIdentifier";
 import { MonsterIdentifier } from "../components/MonsterIdentifier";
+import { dropRateString } from "../util/formatters";
 
 export const ItemDropGrid = DataGrid.define(trpc.drop.search.useQuery)({
   emptyComponent: () => <>No drops found</>,
@@ -29,15 +29,8 @@ export const ItemDropGrid = DataGrid.define(trpc.drop.search.useQuery)({
     Rate: {
       headerName: "Chance",
       renderCell({ value }) {
-        return dropChanceString(value);
+        return dropRateString(value);
       },
     },
   },
 });
-
-export function dropChanceString(rate: MonsterDrop["Rate"]) {
-  const percentage = rate / 100;
-  return `${
-    percentage < 1 ? percentage.toPrecision(1) : Math.round(percentage)
-  }%`;
-}

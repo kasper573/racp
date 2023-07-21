@@ -1,7 +1,8 @@
 import { trpc } from "../state/client";
 import { DataGrid } from "../components/DataGrid";
 import { ItemIdentifierByFilter } from "../components/ItemIdentifier";
-import { dropChanceString } from "./ItemDropGrid";
+
+import { dropChanceString } from "../util/formatters";
 
 export const GroupItemGrid = DataGrid.define(trpc.item.groupSearch.useQuery)({
   emptyComponent: () => <>No groups found</>,
@@ -23,10 +24,9 @@ export const GroupItemGrid = DataGrid.define(trpc.item.groupSearch.useQuery)({
         );
       },
     },
-    rate: {
-      headerName: "Chance",
+    chance: {
       renderCell({ value }) {
-        return dropChanceString(value);
+        return dropChanceString(value * 100);
       },
     },
   },
