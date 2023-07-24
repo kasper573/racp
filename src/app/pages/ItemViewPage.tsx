@@ -95,12 +95,16 @@ export default function ItemViewPage({
             tabs={[
               {
                 label: "Description",
-                content: item.Info?.identifiedDescriptionName ? (
-                  <ClientTextBlock
-                    lines={item.Info.identifiedDescriptionName}
-                  />
-                ) : (
-                  <>This item has no description</>
+                content: (
+                  <Box sx={{ maxHeight: "30vh", overflow: "auto" }}>
+                    {item.Info?.identifiedDescriptionName ? (
+                      <ClientTextBlock
+                        lines={item.Info?.identifiedDescriptionName ?? []}
+                      />
+                    ) : (
+                      <>This item has no description</>
+                    )}
+                  </Box>
                 ),
               },
             ]}
