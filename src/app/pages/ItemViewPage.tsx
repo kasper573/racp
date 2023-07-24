@@ -37,14 +37,18 @@ export default function ItemViewPage({
       filter: { id: { value: id, matcher: "=" } },
     });
 
+  const containsFilter = { groupItemId: { value: id, matcher: "=" as const } };
   const { data: { entities: contains = [] } = {} } =
     trpc.item.groupSearch.useQuery({
-      filter: { groupItemId: { value: id, matcher: "=" } },
+      filter: containsFilter,
+      limit: 1,
     });
 
+  const foundInFilter = { itemId: { value: id, matcher: "=" as const } };
   const { data: { entities: foundIn = [] } = {} } =
     trpc.item.groupSearch.useQuery({
-      filter: { itemId: { value: id, matcher: "=" } },
+      filter: foundInFilter,
+      limit: 1,
     });
 
   if (isLoading) {
@@ -176,7 +180,7 @@ export default function ItemViewPage({
                 label: "Found in",
                 content: (
                   <GroupItemGrid
-                    data={foundIn}
+                    filter={foundInFilter}
                     gridProps={{
                       columnVisibilityModel: { itemId: false },
                     }}
@@ -187,7 +191,7 @@ export default function ItemViewPage({
                 label: "Contains",
                 content: (
                   <GroupItemGrid
-                    data={contains}
+                    filter={containsFilter}
                     gridProps={{
                       columnVisibilityModel: { groupItemId: false },
                     }}
