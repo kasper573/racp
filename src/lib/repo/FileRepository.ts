@@ -2,7 +2,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { EventEmitter } from "events";
 import recursiveWatch = require("recursive-watch");
-import TypedEmitter from "typed-emitter/rxjs";
+import TypedEmitter from "typed-emitter";
 import { ensureDir } from "../fs/ensureDir";
 import { ReactiveRepository } from "./ReactiveRepository";
 import { Maybe, RepositoryOptions } from "./Repository";
