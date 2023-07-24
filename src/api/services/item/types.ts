@@ -143,28 +143,34 @@ export const itemSearchTypes = createSearchTypes(itemType, itemFilter.type);
 // Directly from item_cash.yml
 export const rawCashStoreTabType = zod.object({
   Tab: z.string(),
-  Items: zod.array(
-    zod.object({
-      Item: itemType.shape.AegisName,
-      Price: z.number(),
-    })
-  ),
+  Items: zod
+    .array(
+      zod.object({
+        Item: itemType.shape.AegisName,
+        Price: z.number(),
+      })
+    )
+    .default([]),
 });
 
 // Directly from item_group_db.yml
 export const itemGroupType = zod.object({
   Group: z.string(),
-  SubGroups: zod.array(
-    zod.object({
-      SubGroup: z.number(),
-      List: zod.array(
-        zod.object({
-          Item: itemType.shape.AegisName,
-          Rate: z.number().default(100),
-        })
-      ),
-    })
-  ),
+  SubGroups: zod
+    .array(
+      zod.object({
+        SubGroup: z.number(),
+        List: zod
+          .array(
+            zod.object({
+              Item: itemType.shape.AegisName,
+              Rate: z.number().default(100),
+            })
+          )
+          .default([]),
+      })
+    )
+    .default([]),
 });
 
 export type GroupedItem = zod.infer<typeof groupedItemType>;
