@@ -1,6 +1,7 @@
 import { initTRPC } from "@trpc/server";
 import { ZodError } from "zod";
 import { omit } from "lodash";
+import { transformer } from "../transformer";
 import { UserAccessLevel } from "./services/user/types";
 import { AuthenticatorPayload } from "./services/user/util/Authenticator";
 
@@ -8,6 +9,7 @@ export const t = initTRPC
   .context<RpcContext>()
   .meta<RpcMeta>()
   .create({
+    transformer,
     errorFormatter({ shape, error, ctx }) {
       // Always expose ZodErrors since they contain validation data
       if (error.cause instanceof ZodError) {

@@ -1,6 +1,7 @@
 import { createTRPCReact, httpBatchLink } from "@trpc/react";
 import { createTRPCProxyClient } from "@trpc/client";
 import { ApiRouter } from "../../api/router";
+import { transformer } from "../../transformer";
 
 export const CANCEL_INVALIDATE = Symbol("CANCEL_INVALIDATE");
 
@@ -22,6 +23,7 @@ export const trpc = createTRPCReact<ApiRouter>({
 
 export function createTRPCClientOptions(getToken: () => string | undefined) {
   return {
+    transformer,
     links: [
       httpBatchLink({
         url: process.env.apiBaseUrl!,

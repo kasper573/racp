@@ -74,6 +74,7 @@
     "recursive-watch": "1.1.4",
     "remark-gfm": "^3.0.1",
     "serve": "14.0.1",
+    "superjson": "^1.13.1",
     "trim-image-data": "1.0.2",
     "ts-jest": "28.0.3",
     "ts-node": "10.8.0",
