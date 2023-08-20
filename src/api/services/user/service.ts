@@ -120,8 +120,8 @@ export function createUserService({
 
         return affected > 0;
       }),
-    myVipTime: t.procedure
-      .output(zod.number())
+    myVipStatus: t.procedure
+      .output(zod.object({ endDate: zod.date().optional() }))
       .use(access(UserAccessLevel.User))
       .query(async ({ ctx: { auth } }) => {
         const res = await radb.login
@@ -130,7 +130,13 @@ export function createUserService({
           .where("account_id", "=", auth.id)
           .first();
 
-        return res?.vip_time ?? 0;
+        const timestampInSeconds = res?.vip_time;
+        return {
+          endDate:
+            timestampInSeconds !== undefined
+              ? new Date(timestampInSeconds * 1000)
+              : undefined,
+        };
       }),
     online: t.procedure
       .output(zod.number())
