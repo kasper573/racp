@@ -124,6 +124,8 @@ Additional instructions are available on the page.
 
 ## High level technical details
 
+> This information is intended for developers of RACP. None of this is relevant if you are simply forking/cloning RACP and running it for your server as-is.
+
 - All rAthena specific code is abstracted away and located in the [rathena](src/api/rathena) folder. All API services are agnostic to the underlying data source.
 - The rAthena version we integrate towards is a fixed commit hash in package.json.
 - The rAthena database is interfaced with using [knex](https://knexjs.org/) and an introspected type definition generated with `yarn codegen:rathena`. Use this command and commit the changes to keep the knex bindings up to date whenever bumping the rAthena version.
