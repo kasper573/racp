@@ -101,7 +101,7 @@ This `.env.local` configuration will work for most users:
 ```text
 NODE_ENV=production
 reactRefresh=false
-hostname=<your servers hostname>
+hostname=<your servers public hostname>
 apiPort=<your desired port for the api>
 apiBaseUrl="//<hostname>/<apiPort>"
 appPort=<your desired port for the app>
