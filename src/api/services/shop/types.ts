@@ -28,7 +28,7 @@ export type InternalShop = zod.infer<typeof internalShopType>;
 export const internalShopType = new ZodCustomObject(
   {
     id: shopIdType,
-    variant: zod.string(), // TODO should be shopVariantType. Refactor after this is fixed: https://github.com/ksandin/racp/issues/111
+    variant: zod.string(), // TODO should be shopVariantType. Refactor after this is fixed: https://github.com/kasper573/racp/issues/111
     name: zod.string(),
     spriteId: zod.string(),
     discount: zod.boolean(),
