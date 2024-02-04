@@ -27,7 +27,7 @@ export function generateSearchPageTests({
   // This test assumes that the implementation uses a generic solution
   // and that if one pagination option works, they all work.
   if (pagination) {
-    // Skipped until this is fixed: https://github.com/ksandin/racp/issues/175
+    // Skipped until this is fixed: https://github.com/kasper573/racp/issues/175
     it.skip("can paginate", () => {
       findDataRowIds().then((idsBeforePagination) => {
         cy.findByRole("button", { name: "Go to next page" }).click();
