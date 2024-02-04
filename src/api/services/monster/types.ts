@@ -127,7 +127,7 @@ export type MvpLifeStatus = typeof mvpLifeStatusOptions[number];
 
 export type MvpStatus = zod.infer<typeof mvpStatusType>;
 export const mvpStatusType = zod.object({
-  lifeStatus: zod.string(), // TODO should be ZodType<MvpLifeStatus>. Refactor after this is fixed: https://github.com/ksandin/racp/issues/111
+  lifeStatus: zod.string(), // TODO should be ZodType<MvpLifeStatus>. Refactor after this is fixed: https://github.com/kasper573/racp/issues/111
   killedBy: zod.string().optional(),
   killedAt: zod.number().optional(), // Unit timestamp
 });
